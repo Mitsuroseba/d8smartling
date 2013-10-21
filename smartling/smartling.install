@@ -1,0 +1,96 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Smartling module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function smartling_install() {
+  //smartling_set_translate_fields();
+}
+
+/**
+ * Implements hook_enable().
+ */
+function smartling_enable() {
+  // Ensure Smartling module is running after native translation modules
+  db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function smartling_uninstall() {
+
+  global $conf;
+  foreach (array_keys($conf) as $key) {
+    if (strpos($key, 'smartling_') === 0) { // It's important to use === instead of == with strpos()
+      variable_del($key);
+    }
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function smartling_schema() {
+  $schema['smartling_entity_data'] = array(
+    'description' => 'Smartling entity information',
+    'fields' => array(
+      'eid' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'page_name' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'locale_name' => array(
+        'description' => '',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+      'progress' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'submitter' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'submission_date' => array(
+        'description' => 'The Unix timestamp when the entity was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'download' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('eid'),
+  );
+
+  return $schema;
+}
