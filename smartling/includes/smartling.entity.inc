@@ -147,7 +147,7 @@ function smartling_entity_data_list_entities() {
       $rows[] = array(
         'data' => array(
           'id' => $entity->eid,
-          'page_name' => l($entity->page_name, 'admin/config/regional/smartling/entity-data/' . $entity->eid),
+          'file_name' => l($entity->file_name, SMARTLING_DIRECTORY . '/' . $entity->file_name),
           'locale_name' => $entity->locale_name,
           'progress' => $entity->progress,
           'submitter' => $entity->submitter,
@@ -160,7 +160,7 @@ function smartling_entity_data_list_entities() {
     $content['entity_table'] = array(
       '#theme' => 'table',
       '#rows' => $rows,
-      '#header' => array(t('ID'), t('page_name'), t('locale_name'), t('progress'), t('submitter'), t('submission_date'), t('download')),
+      '#header' => array(t('ID'), t('file_name'), t('locale_name'), t('progress'), t('submitter'), t('submission_date'), t('download')),
     );
   }
   else {
@@ -177,7 +177,7 @@ function smartling_entity_data_list_entities() {
  * Callback for a page title when this entity is displayed.
  */
 function smartling_entity_data_title($entity) {
-  return t('smartling_entity_data (page_name=page_name)', array('@page_name' => $entity->page_name));
+  return t('smartling_entity_data (file_name=file_name)', array('@file_name' => $entity->file_name));
 }
 
 /**
@@ -209,10 +209,10 @@ function smartling_entity_data_view($entity, $view_mode = 'full') {
   // Now field_attach_view() generates the content for the fields.
   //$entity->content += field_attach_view($entity_type, $entity, $view_mode);
   // OK, Field API done, now we can set up some of our own data.
-  $entity->content['page_name'] = array(
+  $entity->content['file_name'] = array(
     '#type' => 'item',
-    '#title' => t('page_name'),
-    '#markup' => $entity->page_name,
+    '#title' => t('file_name'),
+    '#markup' => $entity->file_name,
   );
 
   // Now to invoke some hooks. We need the language code for
@@ -248,11 +248,11 @@ function smartling_entity_data_form($form, &$form_state, $entity) {
     '#required' => TRUE,
     '#default_value' => $entity->eid,
   );
-  $form['page_name'] = array(
+  $form['file_name'] = array(
     '#type' => 'textfield',
-    '#title' => t('Item page_name'),
+    '#title' => t('Item file_name'),
     '#required' => TRUE,
-    '#default_value' => $entity->page_name,
+    '#default_value' => $entity->file_name,
   );
   $form['locale_name'] = array(
     '#type' => 'textfield',
@@ -320,7 +320,7 @@ function smartling_entity_data_validate($form, &$form_state) {
 function smartling_entity_data_form_submit($form, &$form_state) {
   $entity = $form_state['values']['basic_entity'];
   $entity->eid = $form_state['values']['eid'];
-  $entity->page_name = $form_state['values']['page_name'];
+  $entity->file_name = $form_state['values']['file_name'];
   $entity->locale_name = $form_state['values']['locale_name'];
   $entity->progress = $form_state['values']['progress'];
   $entity->submitter = $form_state['values']['submitter'];
@@ -337,7 +337,7 @@ function smartling_entity_data_form_submit($form, &$form_state) {
 function smartling_entity_data_edit_delete($form, &$form_state) {
   $entity = $form_state['values']['basic_entity'];
   smartling_entity_data_delete($entity);
-  drupal_set_message(t('The entity %page_name (ID %id) has been deleted', array('%page_name' => $entity->page_name, '%id' => $entity->eid))
+  drupal_set_message(t('The entity %file_name (ID %id) has been deleted', array('%file_name' => $entity->file_name, '%id' => $entity->eid))
   );
   $form_state['redirect'] = 'admin/config/regional/smartling/entity-data/';
 }

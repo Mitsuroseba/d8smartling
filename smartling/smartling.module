@@ -5,12 +5,14 @@
  * The Smartling module file.
  */
 define('SMARTLING_KEY', 'smartling');
+define('SMARTLING_DIRECTORY', variable_get('file_public_path', conf_path() . '/files/smartling'));
 
 include_once('smartling.utils.inc');
 
 // @TODO: check why files[] directive in .info do not work
 include_once('includes/smartling.entity.inc');
 include_once('includes/smartling.entityController.inc');
+include_once('api/lib/SmartlingAPI.php');
 
 /**
  * Implements hook_menu().
@@ -288,11 +290,36 @@ function smartling_get_node_settings_form($form, &$form_state, $nids = NULL) {
   }
 
   $form['smartling']['submit_to_translate'] = array(
-    '#type' => 'button',
+    '#type' => 'submit',
     '#value' => 'Submit to translate',
+    '#submit' => array('smartling_get_node_settings_form_submit'),
   );
-  dsm($form, '$form');
+
   return $form;
+}
+
+/**
+ * smartling_get_node_settings_form_submit
+ */
+function smartling_get_node_settings_form_submit($form, $form_state) {
+  $smartling_data = smartling_entity_data_load($form_state['values']['nid']);
+  global $user;
+  $smartling_data->submitter = $user->uid;
+  $locales['original_language'] = $form_state['values']['language'];
+
+  foreach ($form_state['values']['target'] as $locale) {
+    if ($locale !== 0 && $locale !== $form_state['values']['language']) {
+      $locales['translate_to'][$locale] = FALSE;
+    }
+  }
+
+  $smartling_data->locale_name = serialize($locales);
+  smartling_entity_data_save($smartling_data);
+  $do_translate = smartling_build_xml_by_node_id($form_state['values']['nid']);
+
+  if ($do_translate !== FALSE) {
+    $result = smartling_do_translate($form_state['values']['nid']);
+  }
 }
 
 /**
@@ -352,7 +379,6 @@ function smartling_form_node_form_alter(&$form, $form_state, $form_id) {
  */
 
 function smartling_node_save($node) {
-  dsm($node, 'smartling_node_save');
   return $node;
 }
 
@@ -372,7 +398,7 @@ function smartling_node_presave($node) {
  * Implements hook_node_view().
  */
 function smartling_node_view($node, $view_mode) {
-  dsm($node, 'smartling_node_view');
+
 }
 
 /**
@@ -390,10 +416,9 @@ function smartling_node_insert($node) {
       $locales['translate_to'][$locale] = FALSE;
     }
   }
+
   $smartling_data->locale_name = serialize($locales);
   smartling_entity_data_save($smartling_data);
-  dsm($smartling_data, '$smartling_data');
-  dsm($node, 'smartling_node_insert');
 }
 
 /**
@@ -402,7 +427,6 @@ function smartling_node_insert($node) {
 function smartling_node_delete($node) {
   $entity_ids[] = $node->nid;
   smartling_entity_data_delete_multiple($entity_ids);
-  dsm($node, 'smartling_node_delete');
 }
 
 /**
@@ -426,9 +450,9 @@ function smartling_node_update($node) {
       $locales['translate_to'][$locale] = FALSE;
     }
   }
+
   $smartling_data->locale_name = serialize($locales);
   smartling_entity_data_save($smartling_data);
-  dsm($node, 'smartling_node_update');
 }
 
 /*

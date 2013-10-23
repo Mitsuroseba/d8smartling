@@ -9,12 +9,6 @@
  * Content translation form
  */
 function smartling_admin_node_translation_settings_form($form, &$form_state, $show_fieldset = FALSE) {
-  //$node_types = smartling_translatable_node_types(); // These are the node types marked for translation.  I need 1 field from each to count off of.
-  //$node_fields = smartling_translatable_node_field_details(); // These are the fields that are translated.
-  //dsm($node_types, '$node_types');
-  //dsm($node_fields, '$node_fields');
-  //smartling_node_content_to_translate(5);
-
   $setup_complete = smartling_is_configured();
   $raw_types = node_type_get_types();
   $translate = variable_get('smartling_translate_fields', array());

@@ -79,7 +79,7 @@ function smartling_access($node, $permission) {
 }
 
 function smartling_multilingual_support_node_type_submit(&$form, &$form_state) {
-  //dsm($form_state, 'smartling_multilingual_support_node_type_submit');
+
 }
 
 /**
@@ -155,17 +155,6 @@ function smartling_translatable_node_field_details() {
 
   foreach ($fields as $field_id => $field) {
     foreach ($field['bundles'] as $type => $instance) {
-      /*
-        echo '<br>FieldID: ' . $field_id;
-        echo '<br>Field: ' . $field;
-        echo '<br>Type: ' . $type;
-        echo '<br>Instance: ' . $instance;
-       */
-      //dsm($field_id, '$field_id');
-      //dsm($field, '$field');
-      //dsm($type, '$type');
-      //dsm($instance, '$instance');
-
       if (field_is_translatable($type, $field)) {
         //echo '<br>Translatable: YES!' ;
         $field_db_table = array_keys($field['storage']['details']['sql']['FIELD_LOAD_CURRENT']);
@@ -177,36 +166,9 @@ function smartling_translatable_node_field_details() {
           'bundles' => $field['bundles'][$type],
         );
       }
-      //echo '<br>';
     }
   }
 
-  /* Return data format
-    array (
-    0 =>
-    array (
-    'entity_type' => 'node',
-    'machine_name' => 'body',
-    'db_table' => 'field_data_body',
-    'bundles' =>
-    array (
-    0 => 'page',
-    1 => 'article',
-    ),
-    ),
-    1 =>
-    array (
-    'entity_type' => 'node',
-    'machine_name' => 'title_field',
-    'db_table' => 'field_data_title_field',
-    'bundles' =>
-    array (
-    0 => 'article',
-    1 => 'page',
-    ),
-    ),
-    )
-   */
   return $translatable_fields;
 }
 
@@ -218,19 +180,156 @@ function smartling_translatable_node_field_details() {
 function smartling_node_content_to_translate($nid) {
   $node = smartling_node_load_default($nid);
   $translate = variable_get('smartling_translate_fields', array());
+
   $node_current_translatable_content = array();
   if (!empty($translate)) {
     foreach ($translate as $type => $field_names) {
       if ($node->type === $type) {
         foreach ($field_names as $field_name) {
-          $node_current_translatable_content[$field_name] = $node->{$field_name}[$node->language][0]['value'];
+          $node_current_translatable_content['fields'][$field_name] = $node->{$field_name}[$node->language][0]['value'];
         }
       }
     }
   }
+
   $smartling_data = smartling_entity_data_load($nid);
   $lang_info = is_null($smartling_data) ? array() : unserialize($smartling_data->locale_name);
   $node_current_translatable_content += $lang_info;
-  dsm($node_current_translatable_content, '$node_current_translatable_content');
+
   return $node_current_translatable_content;
+}
+
+/**
+ * Get basic xml file/
+ *
+ * @return string
+ */
+function smartling_get_basic_xml() {
+  $xml_body = <<<XML
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+</data>
+XML;
+  $xml_doc = simplexml_load_string($xml_body);
+  return $xml_doc;
+}
+
+/**
+ *
+ * @param type $file_name
+ * @param type $nid
+ */
+function smartling_entity_data_filename_update($file_name, $nid) {
+  $entity_data = smartling_entity_data_load($nid);
+  $entity_data->file_name = $file_name;
+  smartling_entity_data_save($entity_data);
+}
+
+/**
+ *
+ * @param type $xml_doc
+ */
+function smartling_save_xml($xml_doc, $nid = NULL) {
+  $directory = SMARTLING_DIRECTORY;
+  $file_name = 'smartling_translate_' . $nid . '_' . time() . '.xml';
+  $path = $directory . '/' . $file_name;
+
+  if (is_dir($directory) && is_writable($directory)) {
+    $xml_doc->saveXML($path);
+    if (!is_null($nid)) {
+      smartling_entity_data_filename_update($file_name, $nid);
+    }
+    return $xml_doc;
+  }
+  elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
+    $xml_doc->saveXML($path);
+    if (!is_null($nid)) {
+      smartling_entity_data_filename_update($file_name, $nid);
+    }
+    return $xml_doc;
+  }
+  else {
+    drupal_set_message(t('File is not be saved because of the some errors.'), 'error');
+    return NULL;
+  }
+}
+
+/**
+ *
+ * @param type $nid
+ * @return boolean
+ */
+function smartling_build_xml_by_node_id($nid = NULL) {
+  if (!is_null($nid)) {
+    $node_content_to_translate = smartling_node_content_to_translate($nid);
+
+    $xml = smartling_get_basic_xml();
+    $localize = $xml->addChild('localize');
+    $localize->addAttribute('lang', $node_content_to_translate['original_language']);
+    foreach ($node_content_to_translate['fields'] as $field_mane => $field_value) {
+      $field_value = isset($field_value) ? $field_value : 'error';
+      $string = $localize->addChild('string', $field_value);
+      $string->addAttribute('name', $field_mane);
+    }
+    $xml = smartling_save_xml($xml, $nid);
+    if (!is_null($xml)) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ *
+ * @param type $nid
+ */
+function smartling_do_translate($nid) {
+  $entity_data = smartling_entity_data_load($nid);
+  $file_name = $entity_data->file_name;
+
+  $file_uri = SMARTLING_DIRECTORY . '/' . $file_name;
+  $file_type = 'xml';
+  $new_file_uri = SMARTLING_DIRECTORY . '/new_' . $file_name;
+  $translation_state = 'PUBLISHED';
+  $key = '';
+  $project_id = '';
+  $locale = 'ru-RU';
+
+  //init api object
+  $api = new SmartlingAPI($key, $project_id);
+
+  $params = array(
+    'approved' => TRUE,
+  );
+  /*
+    //try to upload file
+    $result = $api->uploadFile('./test.json', $file_type, $file_uri, $params);
+    dsm($result, 'This is a upload file');
+
+    //try to download file
+    $result = $api->downloadFile($file_uri, $locale);
+    dsm($result, 'This is a download file');
+
+    //try to retrieve file status
+    $result = $api->getStatus($file_uri, $locale);
+    dsm($result, 'This is a get status');
+
+    //try get files list
+    $result = $api->getList($locale);
+    dsm($result, 'This is a get list');
+
+    //try to rename file
+    $result = $api->renameFile($file_uri, $new_file_uri);
+    dsm($result, 'This is a rename file');
+
+    //try to delete file
+    $result = $api->deleteFile($new_file_uri);
+    dsm($result, 'This is delete file');
+
+   */
 }

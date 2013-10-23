@@ -47,7 +47,7 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'page_name' => array(
+      'file_name' => array(
         'description' => '',
         'type' => 'varchar',
         'length' => 255,
