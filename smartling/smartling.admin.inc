@@ -23,10 +23,12 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
   $accaunt_info = drupal_get_form('smartling_admin_accaunt_info_settings_form', $show_fieldset);
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
   $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
+  $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
+  $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
 
   return $output;
 }
@@ -110,10 +112,12 @@ function smartling_admin_accaunt_info_settings_form_submit($form, &$form_state) 
   if (isset($form_state['values']['smartling_mode'])) {
     if ($form_state['values']['smartling_mode'] == 0) {
       variable_set('smartling_mode', 'PRODUCTION');
+      watchdog('smartling', 'Smartling set in PRODUCTION mode.', array(), WATCHDOG_INFO);
       variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
     }
     elseif ($form_state['values']['smartling_mode'] == 1) {
       variable_set('smartling_mode', 'SANDBOX');
+      watchdog('smartling', 'Smartling set in SANDBOX mode.', array(), WATCHDOG_INFO);
     }
   }
 }
@@ -127,11 +131,6 @@ function smartling_admin_default_language_settings_form($form, &$form_state) {
     '#title' => t('Default language'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'default_language',
-    'actions' => array(
-      '#type' => 'actions',
-    ),
-    '#submit' => array('smartling_admin_default_language_settings_form_submit'),
   );
 
   $default_language = language_default();
@@ -141,6 +140,45 @@ function smartling_admin_default_language_settings_form($form, &$form_state) {
   );
 
   return $form;
+}
+
+/**
+ * Smartling log info form
+ */
+function smartling_admin_log_info_settings_form($form, &$form_state) {
+  $mode = variable_get('smartling_log', 1);
+  $active = array(0 => 'OFF', 1 => 'ON');
+  $form['log_info']['log_mode'] = array(
+    '#type' => 'radios',
+    '#title' => t('Smartling mode'),
+    '#default_value' => ($mode) ? 1 : 0,
+    '#options' => $active,
+    '#description' => t('Log ON dy default.'),
+    'actions' => array(
+      '#type' => 'actions',
+    ),
+    '#submit' => array('smartling_admin_log_info_settings_form_submit'),
+  );
+
+  $form['log_info']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['log_mode'])) {
+    if ($form_state['values']['log_mode'] == 0) {
+      watchdog('smartling', 'Smartling log OFF', array(), WATCHDOG_INFO);
+      variable_set('smartling_log', 0);
+    }
+    elseif ($form_state['values']['log_mode'] == 1) {
+      watchdog('smartling', 'Smartling log ON', array(), WATCHDOG_INFO);
+      variable_set('smartling_log', 1);
+    }
+  }
 }
 
 /**
@@ -326,6 +364,8 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   }
   variable_set('smartling_entity_profiles', $entity_profiles);
   drupal_set_message(t('Your content types have been updated.'));
+
+  watchdog('smartling', 'Smartling content types and fields have been updated.', array(), WATCHDOG_INFO);
 
   if (count($operations) >= 1) {
     $batch = array(

@@ -10,6 +10,7 @@
  */
 function smartling_install() {
   //smartling_set_translate_fields();
+  variable_set('smartling_log', 1);
 }
 
 /**
@@ -97,6 +98,33 @@ function smartling_schema() {
       ),
     ),
     'primary key' => array('eid'),
+  );
+
+  $schema['smartling_cron_batch_operations'] = array(
+    'description' => '',
+    'fields' => array(
+      'oid' => array(
+        'description' => 'Operation id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'operation' => array(
+        'description' => 'Operation name (callback function)',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'args' => array(
+        'description' => 'Function arguments',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('oid'),
   );
 
   return $schema;

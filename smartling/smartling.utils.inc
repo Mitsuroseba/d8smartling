@@ -251,6 +251,9 @@ function smartling_node_content_to_translate($nid) {
             }
           }
           else {
+            if (SMARTLING_LOG) {
+              watchdog('smartling', 'Field @filedname set in settings, but have neutral language. Content type: @type', array('@filedname' => $field_name, '@type' => $type), WATCHDOG_WARNING, l('Edit node', 'node/' . $nid));
+            }
             drupal_set_message(t('Field @filedname is language neutral.', array('@filedname' => $field_name)), 'error');
             drupal_goto(current_path());
           }
@@ -515,6 +518,16 @@ function smartling_save_xml($xml_doc, $nid = NULL, $file_name = NULL, $translate
 
   if (is_dir($directory) && is_writable($directory)) {
     $xml_doc->save($path);
+
+    if (SMARTLING_LOG && $translated_file == FALSE) {
+      is_string($d_locale) ? $d_locale : 'node language';
+      watchdog('smartling', 'Smartling save original xml file for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO, l('View file', $path));
+    }
+    if (SMARTLING_LOG && $translated_file == TRUE) {
+      is_string($d_locale) ? $d_locale : 'node language';
+      watchdog('smartling', 'Smartling save translated xml file for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO, l('View file', $path));
+    }
+
     if (!is_null($nid)) {
       smartling_entity_data_filename_update($file_name, $nid, $translated_file, $d_locale);
     }
@@ -522,6 +535,16 @@ function smartling_save_xml($xml_doc, $nid = NULL, $file_name = NULL, $translate
   }
   elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
     $xml_doc->save($path);
+
+    if (SMARTLING_LOG && $translated_file == FALSE) {
+      is_string($d_locale) ? $d_locale : 'node language';
+      watchdog('smartling', 'Smartling save original xml file for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO, l('View file', $path));
+    }
+    if (SMARTLING_LOG && $translated_file == TRUE) {
+      is_string($d_locale) ? $d_locale : 'node language';
+      watchdog('smartling', 'Smartling save translated xml file for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO, l('View file', $path));
+    }
+
     if (!is_null($nid)) {
       smartling_entity_data_filename_update($file_name, $nid, $translated_file, $d_locale);
     }
@@ -735,6 +758,9 @@ function smartling_do_translate($nid, $s_locale = '') {
   //dsm($upload_result, 'This is a upload file');
 
   if ($upload_result->response->code == 'SUCCESS') {
+    if (SMARTLING_LOG) {
+      watchdog('smartling', 'Smartling upload xml file for node id - @nid.', array('@nid' => $nid), WATCHDOG_INFO, l('View file', $file_path));
+    }
 
     //try to retrieve file status
     $status_result = $api->getStatus($file_uri, $s_locale);
@@ -775,6 +801,9 @@ function smartling_do_translate($nid, $s_locale = '') {
  * @param type $d_locale locale in Drupal format (en|ru|nl)
  */
 function smartling_update_translated_fields($nid, $d_locale) {
+  if (SMARTLING_LOG) {
+    watchdog('smartling', 'Smartling start update fields for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO);
+  }
   $entity_data = smartling_entity_data_load($nid);
   $locales = unserialize($entity_data->locale_name);
   $file_name = $locales['translate_to'][$d_locale];
@@ -872,6 +901,10 @@ function smartling_update_translated_fields($nid, $d_locale) {
   }
 
   $node_wrapper->save();
+
+  if (SMARTLING_LOG) {
+    watchdog('smartling', 'Smartling update all translated fields for node id - @nid. Locale: @locale', array('@nid' => $nid, '@locale' => $d_locale), WATCHDOG_INFO, l('View translated node', $d_locale . '/node/' . $nid));
+  }
 }
 
 function smartling_node_admin_content($form, $form_state) {
@@ -916,6 +949,10 @@ function smartling_node_mass_translate_confirm($form, &$form_state, $nodes) {
 
 function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
 
+  if (SMARTLING_LOG) {
+    watchdog('smartling', 'Smartling start mass node traanslate.', array(), WATCHDOG_INFO);
+  }
+
   if ($form_state['values']['confirm']) {
     foreach ($form_state['data_nodes'] as $nid) {
       $node = node_load($nid);
@@ -942,3 +979,38 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
   $form_state['redirect'] = 'admin/content';
 }
 
+/**
+ * This function start batch operations in cron.
+ */
+function smartling_do_cron_batch_operations() {
+  $operations = array();
+
+  $cron_operations = db_select('smartling_cron_batch_operations', 'scbo')
+      ->fields('scbo', array('oid', 'operation', 'args'))
+      ->orderBy('scbo.oid', 'DESC')
+      ->execute()
+      ->fetchObject();
+
+  if (!empty($cron_operations)) {
+    foreach ($cron_operations as $op) {
+      $operations[] = array($op->operation, array($op->args));
+    }
+  }
+
+  if (count($operations) >= 1) {
+    $batch = array(
+      'operations' => $operations,
+      'title' => t('Processing'),
+    );
+
+    batch_set($batch);
+
+    // for cron
+    $batch = &batch_get();
+    $batch['progressive'] = FALSE;
+
+    batch_process();
+
+    watchdog('smartling', 'Smartling start cron batch operations.', array(), WATCHDOG_INFO);
+  }
+}
