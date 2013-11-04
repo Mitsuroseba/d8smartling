@@ -13,6 +13,9 @@ include_once('smartling.utils.inc');
 include_once('includes/smartling.entity.inc');
 include_once('includes/smartling.entityController.inc');
 include_once('api/lib/SmartlingAPI.php');
+include_once('api/lib/HttpClient.php');
+//include_once('api/test/SmartlingAPITest.php');
+//include_once('api/test/HttpClientTest.php');
 
 /**
  * Implements hook_menu().
@@ -24,23 +27,15 @@ function smartling_menu() {
     'title' => 'Smartling settings',
     'description' => 'Smartling settings',
     'file' => 'smartling.admin.inc',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('smartling_admin_node_translation_settings_form'),
+    'page callback' => 'smartling_admin_configuration_view',
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array('administer smartling')
-  );
-
-  $items['admin/config/regional/smartling/entity-data'] = array(
-    'title' => 'Smartling Entity Data',
-    'page callback' => 'smartling_entity_data_info_page',
-    'file' => 'includes/smartling.entity.inc',
-    'access arguments' => array('view any smartling_entity_data entity'),
   );
 
   // This provides a place for Field API to hang its own
   // interface and has to be the same as what was defined
   // in basic_entity_info() above.
-  $items['admin/config/regional/smartling/entity-data/manage'] = array(
+  $items['admin/config/regional/smartling/entity-data'] = array(
     'title' => 'Administer smartling_entity_data entity type',
     'page callback' => 'smartling_entity_data_list_entities',
     'file' => 'includes/smartling.entity.inc',
@@ -48,52 +43,12 @@ function smartling_menu() {
   );
 
   // Add example entities.
-  $items['admin/config/regional/smartling/entity-data/manage/add'] = array(
+  $items['admin/config/regional/smartling/entity-data/add'] = array(
     'title' => 'Add an Smartling Entity Data Entity',
     'page callback' => 'smartling_entity_data_add',
     'file' => 'includes/smartling.entity.inc',
     'access arguments' => array('create smartling_entity_data entities'),
     'type' => MENU_LOCAL_ACTION,
-  );
-
-  // List of all entity_example_basic entities.
-  $items['admin/config/regional/smartling/entity-data/manage/list'] = array(
-    'title' => 'List',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  // The page to view our entities - needs to follow what
-  // is defined in basic_uri and will use load_basic to retrieve
-  // the necessary entity info.
-  $items['admin/config/regional/smartling/entity-data/%entity_example_basic'] = array(
-    'title callback' => 'smartling_entity_data_title',
-    'title arguments' => array(5),
-    'page callback' => 'smartling_entity_data_view',
-    'page arguments' => array(5),
-    'access arguments' => array('view any smartling_entity_data entity'),
-  );
-
-  // 'View' tab for an individual entity page.
-  $items['admin/config/regional/smartling/entity-data/%entity_example_basic/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-  );
-
-  // 'Edit' tab for an individual entity page.
-  $items['admin/config/regional/smartling/entity-data/%smartling_entity_data/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('smartling_entity_data_form', 5),
-    'access arguments' => array('edit any smartling_entity_data entity'),
-    'type' => MENU_LOCAL_TASK,
-  );
-
-  // Add example entities.
-  $items['admin/config/regional/smartling/entity-data/add'] = array(
-    'title' => 'Add an Entity Example Basic Entity',
-    'page callback' => 'smartling_entity_data_add',
-    'access arguments' => array('create smartling_entity_data entities'),
   );
 
   return $items;
@@ -145,9 +100,13 @@ function smartling_views_data_alter(&$data) {
 
 /**
  * Implements hook_menu_alter().
+ *
+ * Smartling use this hook for add update operations on admin/content page
  */
 function smartling_menu_alter(&$items) {
-
+  if (isset($items['admin/content']['page arguments'][0])) {
+    $items['admin/content']['page arguments'][0] = 'smartling_node_admin_content';
+  }
 }
 
 /**
@@ -200,6 +159,89 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
   $form['#submit'][] = 'smartling_multilingual_support_node_type_submit';
 }
 
+function smartling_multilingual_support_node_type_submit(&$form, &$form_state) {
+  //delete content type in smartling support types
+  $smartling_translate_fields = variable_get('smartling_translate_fields', array());
+  $type = $form_state['values']['type'];
+  if ($form_state['values']['language_content_type'] != SMARTLING_KEY) {
+    if (isset($smartling_translate_fields[$type])) {
+      unset($smartling_translate_fields[$type]);
+      variable_set('smartling_translate_fields', $smartling_translate_fields);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Enable Smartling translation on a field type
+ */
+function smartling_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  if (!in_array($form['#field']['type'], array('text', 'text_long', 'text_textfield', 'text_textarea', 'text_with_summary', 'text_textarea_with_summary'))) {
+    return $form;
+  }
+  if (smartling_supported_type($form['#instance']['bundle'])) {
+    $default = 0;
+    if (array_key_exists('smartling_translatable', $form['#field'])) {
+      $default = $form['#field']['smartling_translatable'];
+    }
+
+    $form['field']['smartling_translatable'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable Smartling Translation'),
+      '#description' => t('This allows fields to be translatable using the Smartling Platform.'),
+      '#default_value' => $default,
+    );
+
+    $smartling_translate_fields = variable_get('smartling_translate_fields');
+
+    if (isset($smartling_translate_fields[$form['#instance']['bundle']][$form['#instance']['field_name']])) {
+      $form['field']['smartling_translatable']['#attributes']['checked'] = 'checked';
+    }
+
+    array_push($form['#submit'], 'smartling_update_field');
+    return $form;
+  }
+}
+
+/*
+ * Saves data for smartling_form_field_ui_field_edit_form_alter()
+ */
+
+function smartling_update_field($form, $form_state) {
+  $field_name = $form['#field']['field_name'];
+  $field = field_info_field($field_name);
+  $value = (int) $form['field']['smartling_translatable']['#value'];
+  $type = $form_state['values']['instance']['bundle'];
+  if ($value == 1) {
+    $field['translatable'] = TRUE;
+    field_update_field($field);
+    $translate_filds = variable_get('smartling_translate_fields', array());
+    $translate_filds[$type][$field_name] = $field_name;
+    variable_set('smartling_translate_fields', $translate_filds);
+    // This is needed for versions of Drupal core 7.10 and lower. See http://drupal.org/node/1380660 for details.
+    drupal_static_reset('field_available_languages');
+  }
+  else {
+    $translate_filds = variable_get('smartling_translate_fields', array());
+
+    if (isset($translate_filds[$type][$field_name])) {
+      unset($translate_filds[$type][$field_name]);
+
+      if (count($translate_filds[$type]) == 0) {
+        unset($translate_filds[$type]);
+      }
+
+      if ($translate_filds == array()) {
+        variable_delete('smartling_translate_fields');
+      }
+      else {
+        variable_set('smartling_translate_fields', $translate_filds);
+      }
+    }
+  }
+}
+
 function smartling_get_node_settings_form($form, &$form_state, $nids = NULL) {
   $multiple = FALSE;
   $bulk_grid = FALSE;
@@ -221,79 +263,90 @@ function smartling_get_node_settings_form($form, &$form_state, $nids = NULL) {
       $node = $form['#node'];
     }
   }
+  if (smartling_supported_type($form['type']['#value'])) {
 
-  $title = t('Smartling Translation');
+    smartling_translate_fields_is_set();
 
-  // Vertical Tab.
-  $form['smartling'] = array(
-    '#title' => t('Smartling management'),
-    '#type' => 'fieldset',
-    '#collapsible' => !$bulk_grid,
-    '#collapsed' => !$bulk_grid,
-    '#group' => 'additional_settings',
-    '#attributes' => array('id' => array('smartling_fieldset')),
-    '#attached' => array(
-      'js' => array(
-        drupal_get_path('module', 'smartling') . '/js/smartling_node_settings.js' => array(
-          'type' => 'file',
+    $title = t('Smartling Translation');
+
+    // Vertical Tab.
+    $form['smartling'] = array(
+      '#title' => t('Smartling management'),
+      '#type' => 'fieldset',
+      '#collapsible' => !$bulk_grid,
+      '#collapsed' => !$bulk_grid,
+      '#group' => 'additional_settings',
+      '#attributes' => array('id' => array('smartling_fieldset')),
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'smartling') . '/js/smartling_node_settings.js' => array(
+            'type' => 'file',
+          ),
         ),
       ),
-    ),
-    '#modal' => TRUE,
-  );
+      '#modal' => TRUE,
+    );
 
-  $form['smartling']['nids'] = array(
-    '#type' => 'hidden',
-    '#default_value' => json_encode($nids),
-  );
+    $form['smartling']['nids'] = array(
+      '#type' => 'hidden',
+      '#default_value' => json_encode($nids),
+    );
 
-  $form['smartling']['content'] = array(
-    '#type' => 'container',
-  );
+    $form['smartling']['content'] = array(
+      '#type' => 'container',
+    );
 
-  $form['smartling']['content']['note'] = array(
-    '#type' => 'item',
-    '#title' => $title,
-    '#description' => t("The Smartlink Translation module was developed to help you tranlate your site."),
-  );
+    $form['smartling']['content']['note'] = array(
+      '#type' => 'item',
+      '#title' => $title,
+      '#description' => t("The Smartlink Translation module was developed to help you tranlate your site."),
+    );
 
-  $languages = language_list('language');
-  $options = array();
+    $languages = language_list('language');
+    $options = array();
 
-  if (!is_null($form['nid']['#value'])) {
-    $check = array();
-    $smartling_data = smartling_entity_data_load($form['nid']['#value']);
-    $lang_info = is_null($smartling_data) ? array() : unserialize($smartling_data->locale_name);
+    if (!is_null($form['nid']['#value'])) {
+      $check = array();
+      $smartling_data = smartling_entity_data_load($form['nid']['#value']);
+      if ($smartling_data !== FALSE) {
+        $lang_info = unserialize($smartling_data->locale_name);
+      }
+      else {
+        $lang_info = array();
+      }
 
-    foreach ($languages as $langcode => $language) {
-      $options[$langcode] = $language->name;
-      $check[] = (isset($lang_info['translate_to'][$langcode])) ? $langcode : FALSE;
+      foreach ($languages as $langcode => $language) {
+        if ($form['language']['#default_value'] != $langcode && $language->enabled != '0') {
+          $options[$langcode] = $language->name;
+          $check[] = (isset($lang_info['translate_to'][$langcode])) ? $langcode : FALSE;
+        }
+      }
+
+      $form['smartling']['content']['target'] = array(
+        '#type' => 'checkboxes',
+        '#title' => 'Target Locales',
+        '#options' => $options,
+        '#default_value' => $check,
+      );
+    }
+    else {
+      foreach ($languages as $langcode => $language) {
+        $options[$langcode] = $language->name;
+      }
+
+      $form['smartling']['content']['target'] = array(
+        '#type' => 'checkboxes',
+        '#title' => 'Target Locales',
+        '#options' => $options,
+      );
     }
 
-    $form['smartling']['content']['target'] = array(
-      '#type' => 'checkboxes',
-      '#title' => 'Target Locales',
-      '#options' => $options,
-      '#default_value' => $check,
+    $form['smartling']['submit_to_translate'] = array(
+      '#type' => 'submit',
+      '#value' => 'Submit to translate',
+      '#submit' => array('smartling_get_node_settings_form_submit'),
     );
   }
-  else {
-    foreach ($languages as $langcode => $language) {
-      $options[$langcode] = $language->name;
-    }
-
-    $form['smartling']['content']['target'] = array(
-      '#type' => 'checkboxes',
-      '#title' => 'Target Locales',
-      '#options' => $options,
-    );
-  }
-
-  $form['smartling']['submit_to_translate'] = array(
-    '#type' => 'submit',
-    '#value' => 'Submit to translate',
-    '#submit' => array('smartling_get_node_settings_form_submit'),
-  );
 
   return $form;
 }
@@ -303,23 +356,89 @@ function smartling_get_node_settings_form($form, &$form_state, $nids = NULL) {
  */
 function smartling_get_node_settings_form_submit($form, $form_state) {
   $smartling_data = smartling_entity_data_load($form_state['values']['nid']);
+
   global $user;
+  if ($smartling_data == FALSE) {
+    $smartling_data = smartling_entity_data_create();
+    $smartling_data->eid = $form_state['values']['nid'];
+    $smartling_data->bundle = $form_state['values']['type'];
+    $smartling_data->submission_date = time();
+  }
+
   $smartling_data->submitter = $user->uid;
   $locales['original_language'] = $form_state['values']['language'];
 
-  foreach ($form_state['values']['target'] as $locale) {
-    if ($locale !== 0 && $locale !== $form_state['values']['language']) {
-      $locales['translate_to'][$locale] = FALSE;
+  foreach ($form_state['values']['target'] as $d_locale) {
+    if ($d_locale !== 0 && ($d_locale !== $form_state['values']['language'])) {
+      $locales['translate_to'][$d_locale] = FALSE;
     }
   }
 
   $smartling_data->locale_name = serialize($locales);
   smartling_entity_data_save($smartling_data);
-  $do_translate = smartling_build_xml_by_node_id($form_state['values']['nid']);
+
+  $do_translate = smartling_build_xml_by_node_id($form_state['values']['nid'], $form_state['values']['title']);
 
   if ($do_translate !== FALSE) {
-    $result = smartling_do_translate($form_state['values']['nid']);
+    $results = array();
+    foreach ($locales['translate_to'] as $d_locale => $value) {
+      $s_locale = smartling_convert_locale_drupal_to_smatrtling($d_locale);
+      if ($s_locale !== FALSE) {
+        $results[] = smartling_do_translate($form_state['values']['nid'], $s_locale);
+      }
+    }
   }
+}
+
+/**
+ * Implements hook_node_operations().
+ */
+function smartling_node_operations() {
+  return array(
+    'smartling_translate' => array(
+      'label' => t('Translate selected content (Smartling)'),
+      'callback' => NULL,
+    ),
+  );
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function smartling_action_info() {
+  return array(
+    'smartling_do_translate_action' => array(
+      'type' => 'node',
+      'label' => t('Smartling node translate.'),
+      'configurable' => TRUE,
+      //'behavior' => array('changes_property'),
+      'triggers' => array('node_update'),
+    ),
+  );
+}
+
+function smartling_do_translate_action($node, $context) {
+  // Get the user configured for this special action.
+  $account = user_load_by_name($context['author']);
+
+  //watchdog('smartling', 'Smartling @type %title do translate.', array('@type' => node_type_get_name($node), '%title' => $node->title));
+  //drupal_set_message(t('Node @type %title be translated.', array('@type' => node_type_get_name($node), '%title' => $node->title)));
+}
+
+function smartling_do_translate_action_form($context) {
+  $form['do_translate_action'] = array(
+    '#type' => 'item',
+    '#title' => t('Account info'),
+  );
+  return $form;
+}
+
+function smartling_do_translate_action_validate($form, $form_state) {
+
+}
+
+function smartling_do_translate_action_submit($form, $form_state) {
+  return array('translate_to' => array());
 }
 
 /**
@@ -405,20 +524,23 @@ function smartling_node_view($node, $view_mode) {
  * Implements hook_node_insert().
  */
 function smartling_node_insert($node) {
-  $smartling_data = smartling_entity_data_create();
-  $smartling_data->eid = $node->nid;
-  $smartling_data->submitter = $node->uid;
-  $smartling_data->submission_date = $node->created;
+  if (smartling_supported_type($node->type)) {
+    $smartling_data = smartling_entity_data_create();
+    $smartling_data->eid = $node->nid;
+    $smartling_data->bundle = $node->type;
+    $smartling_data->submitter = $node->uid;
+    $smartling_data->submission_date = $node->created;
 
-  $locales['original_language'] = $node->language;
-  foreach ($node->target as $locale) {
-    if ($locale !== 0 && $locale !== $node->language) {
-      $locales['translate_to'][$locale] = FALSE;
+    $locales['original_language'] = $node->language;
+    foreach ($node->target as $locale) {
+      if ($locale !== 0 && $locale !== $node->language) {
+        $locales['translate_to'][$locale] = FALSE;
+      }
     }
-  }
 
-  $smartling_data->locale_name = serialize($locales);
-  smartling_entity_data_save($smartling_data);
+    $smartling_data->locale_name = serialize($locales);
+    smartling_entity_data_save($smartling_data);
+  }
 }
 
 /**
@@ -440,19 +562,21 @@ function smartling_node_load($nodes, $types) {
  * Implements hook_node_update().
  */
 function smartling_node_update($node) {
-  $smartling_data = smartling_entity_data_load($node->nid);
-  global $user;
-  $smartling_data->submitter = $user->uid;
+  if (isset($node->target) && is_array($node->target)) {
+    $smartling_data = smartling_entity_data_load($node->nid);
+    global $user;
+    $smartling_data->submitter = $user->uid;
 
-  $locales['original_language'] = $node->language;
-  foreach ($node->target as $locale) {
-    if ($locale !== 0 && $locale !== $node->language) {
-      $locales['translate_to'][$locale] = FALSE;
+    $locales['original_language'] = $node->language;
+    foreach ($node->target as $locale) {
+      if ($locale !== 0 && $locale !== $node->language) {
+        $locales['translate_to'][$locale] = FALSE;
+      }
     }
-  }
 
-  $smartling_data->locale_name = serialize($locales);
-  smartling_entity_data_save($smartling_data);
+    $smartling_data->locale_name = serialize($locales);
+    smartling_entity_data_save($smartling_data);
+  }
 }
 
 /*

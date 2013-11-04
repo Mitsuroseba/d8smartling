@@ -10,6 +10,8 @@ dependencies[] = entity
 dependencies[] = locale
 dependencies[] = translation
 dependencies[] = i18n
+dependencies[] = i18n_node
+dependencies[] = ctools
 
 files[] = includes/smartling.entity.inc
 files[] = includes/smartling.entityController.inc

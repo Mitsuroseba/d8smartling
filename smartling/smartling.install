@@ -47,6 +47,13 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'bundle' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'file_name' => array(
         'description' => '',
         'type' => 'varchar',

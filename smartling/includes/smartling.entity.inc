@@ -118,23 +118,6 @@ function smartling_entity_data_uri($basic) {
 }
 
 /**
- * Basic information for the page.
- */
-function smartling_entity_data_info_page() {
-  $content['preface'] = array(
-    '#type' => 'item',
-    '#markup' => t('The smartling_entity_data provides a simple smartling_entity_data.')
-  );
-  if (user_access('administer smartling_entity_data entities')) {
-    $content['preface']['#markup'] = t('You can administer these and add fields and change the view !link.', array('!link' => l(t('here'), 'admin/config/regional/smartling/entity-data/manage'))
-    );
-  }
-  $content['table'] = smartling_entity_data_list_entities();
-
-  return $content;
-}
-
-/**
  * Returns a render array with all smartling_entity_data entities.
  */
 function smartling_entity_data_list_entities() {
@@ -147,6 +130,7 @@ function smartling_entity_data_list_entities() {
       $rows[] = array(
         'data' => array(
           'id' => $entity->eid,
+          'bundle' => $entity->bundle,
           'file_name' => l($entity->file_name, SMARTLING_DIRECTORY . '/' . $entity->file_name),
           'locale_name' => $entity->locale_name,
           'progress' => $entity->progress,
@@ -160,7 +144,7 @@ function smartling_entity_data_list_entities() {
     $content['entity_table'] = array(
       '#theme' => 'table',
       '#rows' => $rows,
-      '#header' => array(t('ID'), t('file_name'), t('locale_name'), t('progress'), t('submitter'), t('submission_date'), t('download')),
+      '#header' => array(t('ID'), t('bundle'), t('file_name'), t('locale_name'), t('progress'), t('submitter'), t('submission_date'), t('download')),
     );
   }
   else {
@@ -248,6 +232,12 @@ function smartling_entity_data_form($form, &$form_state, $entity) {
     '#required' => TRUE,
     '#default_value' => $entity->eid,
   );
+  $form['bundle'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Item bundle'),
+    '#required' => TRUE,
+    '#default_value' => $entity->bundle,
+  );
   $form['file_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Item file_name'),
@@ -320,6 +310,7 @@ function smartling_entity_data_validate($form, &$form_state) {
 function smartling_entity_data_form_submit($form, &$form_state) {
   $entity = $form_state['values']['basic_entity'];
   $entity->eid = $form_state['values']['eid'];
+  $entity->bundle = $form_state['values']['bundle'];
   $entity->file_name = $form_state['values']['file_name'];
   $entity->locale_name = $form_state['values']['locale_name'];
   $entity->progress = $form_state['values']['progress'];
