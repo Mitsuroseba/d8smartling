@@ -12,6 +12,32 @@ function smartling_install() {
   //smartling_set_translate_fields();
   variable_set('smartling_log', 1);
   variable_set('smartling_mass_time', 30);
+
+  $language_negotiation_language = array(
+    'locale-url' => array(
+      'callbacks' => array(
+        'language' => 'locale_language_from_url',
+        'switcher' => 'locale_language_switcher_url',
+        'url_rewrite' => 'locale_language_url_rewrite_url',
+      ),
+      'file' => 'includes/locale.inc'),
+    'language-default-url' => array(
+      'callbacks' => array(
+        'language' => 'language_from_default',
+      ),
+    ),
+  );
+
+  $locale_language_providers_weight_language = array(
+    'locale-url' => '-8',
+    'locale-session' => '-6',
+    'locale-user' => '-4',
+    'locale-browser' => '-2',
+    'language-default' => '10',
+  );
+
+  variable_set('language_negotiation_language', $language_negotiation_language);
+  variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
 }
 
 /**
