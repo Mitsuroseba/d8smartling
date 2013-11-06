@@ -907,6 +907,9 @@ function smartling_update_translated_fields($nid, $d_locale) {
   }
 }
 
+/**
+ * Duplicate the function node_admin_content() for the introduction of mass smartling action.
+ */
 function smartling_node_admin_content($form, $form_state) {
   if (isset($form_state['values']['operation']) && $form_state['values']['operation'] == 'delete') {
     return node_multiple_delete_confirm($form, $form_state, array_filter($form_state['values']['nodes']));
@@ -933,11 +936,44 @@ function smartling_node_mass_translate_confirm($form, &$form_state, $nodes) {
       $options[$language->language] = $language->name;
     }
   }
+
+  $nodes = node_load_multiple($nodes);
   $form_state['data_nodes'] = ((empty($nodes)) ? array() : $nodes);
   $form['node']['languages'] = array(
     '#type' => 'checkboxes',
     '#options' => $options,
     '#title' => t('Check language'),
+  );
+
+
+  foreach ($nodes as $key => $node) {
+    if (smartling_supported_type($node->type)) {
+      $data_item = array(
+        'title' => $node->title,
+        'status' => 'translate',
+      );
+
+      $rows[] = array(
+        'data' => $data_item,
+        'class' => array('ok'),
+      );
+    }
+    else {
+      $data_item = array(
+        'title' => $node->title,
+        'status' => 'not supported',
+      );
+
+      $rows[] = array(
+        'data' => $data_item,
+      );
+    }
+  }
+
+  $form['node']['nodes_table'] = array(
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#header' => array(t('Title'), t('Status')),
   );
 
   $form['operation'] = array('#type' => 'hidden', '#value' => 'smartling_translate');
@@ -950,29 +986,28 @@ function smartling_node_mass_translate_confirm($form, &$form_state, $nodes) {
 function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
 
   if (SMARTLING_LOG) {
-    watchdog('smartling', 'Smartling start mass node traanslate.', array(), WATCHDOG_INFO);
+    watchdog('smartling', 'Smartling add mass node traanslate operations.', array(), WATCHDOG_INFO);
   }
 
   if ($form_state['values']['confirm']) {
-    foreach ($form_state['data_nodes'] as $nid) {
-      $node = node_load($nid);
+    $s_locales = array();
+    foreach ($form_state['values']['languages'] as $language => $check) {
+      if ($check) {
+        $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+        $s_locales[$s_locale] = $s_locale;
+      }
+    }
 
+    foreach ($form_state['data_nodes'] as $node) {
       if (smartling_supported_type($node->type)) {
-        $do_translate = smartling_build_xml_by_node_id($nid, $node->title);
-
-        if ($do_translate !== FALSE) {
-          $results = array();
-          foreach ($form_state['values']['languages'] as $language => $check) {
-
-            if ($check) {
-              $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
-
-              if ($s_locale !== FALSE) {
-                $results[] = smartling_do_translate($nid, $s_locale);
-              }
-            }
-          }
-        }
+        $obj = new stdClass;
+        $obj->nid = $node->nid;
+        $obj->languages = $s_locales;
+        $obj = serialize($obj);
+        $id = db_insert('smartling_cron_batch_operations')
+            ->fields(array('operation' => 'smartling_do_translate_operation', 'args' => $obj))
+            ->execute();
+        unset($obj);
       }
     }
   }
@@ -980,37 +1015,34 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
 }
 
 /**
- * This function start batch operations in cron.
+ * Worker callback defined in hook_cron_queue_info()
  */
-function smartling_do_cron_batch_operations() {
-  $operations = array();
+function smartling_queue_process($item) {
 
-  $cron_operations = db_select('smartling_cron_batch_operations', 'scbo')
-      ->fields('scbo', array('oid', 'operation', 'args'))
-      ->orderBy('scbo.oid', 'DESC')
-      ->execute()
-      ->fetchObject();
+  $args = unserialize($item->args);
+  $args->oid = $item->oid;
 
-  if (!empty($cron_operations)) {
-    foreach ($cron_operations as $op) {
-      $operations[] = array($op->operation, array($op->args));
+  call_user_func($item->operation, $args);
+}
+
+function smartling_do_translate_operation($args) {
+  $tmp[] = '$args';
+  $tmp[] = $args;
+  dish_log($tmp);
+  unset($tmp);
+
+  $node = node_load($args->nid);
+
+  $do_translate = smartling_build_xml_by_node_id($node->nid, $node->title);
+
+  if ($do_translate !== FALSE) {
+    $results = array();
+    foreach ($args->languages as $s_locale) {
+      $results[] = smartling_do_translate($node->nid, $s_locale);
     }
   }
 
-  if (count($operations) >= 1) {
-    $batch = array(
-      'operations' => $operations,
-      'title' => t('Processing'),
-    );
-
-    batch_set($batch);
-
-    // for cron
-    $batch = &batch_get();
-    $batch['progressive'] = FALSE;
-
-    batch_process();
-
-    watchdog('smartling', 'Smartling start cron batch operations.', array(), WATCHDOG_INFO);
-  }
+  db_delete('smartling_cron_batch_operations')
+      ->condition('oid', $args->oid)
+      ->execute();
 }

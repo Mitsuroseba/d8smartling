@@ -98,6 +98,43 @@ function smartling_views_data_alter(&$data) {
       'label' => t('Smartling entity ID'),
     )
   );
+
+  $data['smartling_entity_data']['node'] = array(
+    'group' => t('Node'),
+    'title' => t('Node Entity'),
+    'help' => t('Relationship with entity node.'),
+    'relationship' => array(
+      'base' => 'node',
+      'base field' => 'nid',
+      'relationship field' => 'eid',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Node entity ID'),
+    )
+  );
+
+
+  $data['smartling_entity_data']['submitter']['relationship'] = array(
+    'title' => t('Submitter'),
+    'help' => t('The user submit to translate.'),
+    'base' => 'users',
+    'field' => 'submitter',
+    'label' => t('Smartling submitter'),
+  );
+
+  $data['smartling_entity_data']['submission_date']['field'] = array(
+    'handler' => 'views_handler_field_date',
+    'click sortable' => TRUE,
+  );
+
+  $data['smartling_entity_data']['submission_date']['sort'] = array(
+    'handler' => 'views_handler_sort_date',
+  );
+
+  $data['smartling_entity_data']['submission_date']['filter'] = array(
+    'handler' => 'views_handler_filter_date',
+  );
+
+  unset($data['smartling_entity_data']['submission_date']['argument']);
 }
 
 /**
@@ -704,11 +741,32 @@ function smartling_views_api() {
 
 /**
  * Implements hook_cron().
- *
- * Updates the local cache of commonly used values.
  */
 function smartling_cron() {
-  smartling_do_cron_batch_operations();
+  $smartling_queue = DrupalQueue::get('smartling_do_operations');
+
+  $cron_operations = db_select('smartling_cron_batch_operations', 'scbo')
+      ->fields('scbo', array('oid', 'operation', 'args'))
+      ->orderBy('scbo.oid', 'ASC')
+      ->execute()
+      ->fetchAllAssoc('oid');
+
+  if (!empty($cron_operations)) {
+    foreach ($cron_operations as $op) {
+      $smartling_queue->createItem($op);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function smartling_cron_queue_info() {
+  $queues['smartling_do_operations'] = array(
+    'worker callback' => 'smartling_queue_process',
+    'time' => variable_get('smartling_mass_time', 30),
+  );
+  return $queues;
 }
 
 /*
