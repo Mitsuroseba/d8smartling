@@ -27,6 +27,18 @@ function smartling_enable() {
  */
 function smartling_uninstall() {
 
+//@TODO: rm not empty dir if need
+  /*
+    $smartling_dir = variable_get('file_public_path');
+    if (is_null($smartling_dir)) {
+    $smartling_dir = conf_path() . '/files/smartling';
+    }
+    else {
+    $smartling_dir = $smartling_dir . '/smartling';
+    }
+    drupal_rmdir($smartling_dir);
+   */
+
   global $conf;
   foreach (array_keys($conf) as $key) {
     if (strpos($key, 'smartling_') === 0) { // It's important to use === instead of == with strpos()
@@ -43,7 +55,13 @@ function smartling_schema() {
     'description' => 'Smartling entity information',
     'fields' => array(
       'eid' => array(
-        'description' => '',
+        'description' => 'Entity id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'rid' => array(
+        'description' => 'Related id',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -56,19 +74,33 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'original_language' => array(
+        'description' => 'Original language code (drupal format)',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'target_language' => array(
+        'description' => 'Target language code (drupal format)',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'file_name' => array(
-        'description' => '',
+        'description' => 'File with original content.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
-      'locale_name' => array(
-        'description' => '',
-        'type' => 'blob',
-        'not null' => FALSE,
-        'size' => 'big',
-        'serialize' => TRUE,
+      'translated_file_name' => array(
+        'description' => 'File with translated content.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
       ),
       'progress' => array(
         'description' => '',
@@ -99,6 +131,10 @@ function smartling_schema() {
       ),
     ),
     'primary key' => array('eid'),
+    'indexes' => array(
+      'rid' => array('rid'),
+      'target_language' => array('target_language'),
+    ),
   );
 
   $schema['smartling_cron_batch_operations'] = array(

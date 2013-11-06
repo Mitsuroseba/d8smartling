@@ -22,25 +22,6 @@ function smartling_pm($node) {
     ),
   );
 
-  //dsm($node, '$node');
-
-  /*
-    // node translation support
-    if ($node->tnid != 0 && $node->tnid != $node->nid) {
-    $output[] = array(
-    '#markup' => 'This is a translated node. Go to the ' . l('source node', 'node/' . $node->tnid . '/lingotek_pm') . ' to manage the translations.'
-    );
-    return $output;
-    }
-
-    // node disabled support
-    if ($sync_status == LingotekSync::STATUS_DISABLED) {
-    $output[] = array(
-    '#markup' => 'Smartling Translation is currently disabled for this node.'
-    );
-    return $output;
-    }
-   */
   if (TRUE) {
 
     if (TRUE) {

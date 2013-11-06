@@ -138,7 +138,7 @@ function smartling_admin_default_language_settings_form($form, &$form_state) {
   $default_language = language_default();
   $form['default_language']['language'] = array(
     '#markup' => '<p>Site default language: ' . $default_language->name . '</p>',
-    '#suffix' => l('Change default language', 'admin/config/regional/language'),
+    '#suffix' => l(t('Change default language'), 'admin/config/regional/language'),
   );
 
   return $form;
@@ -259,7 +259,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
       if (array_search($field_type, $translatable_field_types)) {
         $fr[$field_machine_name] = array(
           '#type' => 'checkbox',
-          '#title' => $field_label,
+          '#title' => check_plain($field_label),
           '#attributes' => array(
             'id' => array('edit-form-item-' . $value->type . '-seperator-' . $field_machine_name),
             'name' => $value->type . '_SEPERATOR_' . $field_machine_name,

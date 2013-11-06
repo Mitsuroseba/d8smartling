@@ -26,10 +26,12 @@ class SmartlingEntityDataController extends EntityAPIController {
 
   public function create(array $values = array()) {
     $values += array(
-      'eid' => '',
+      'rid' => '',
       'bundle' => '',
+      'original_language' => '',
+      'target_language' => '',
       'file_name' => '',
-      'locale_name' => '',
+      'translated_file_name' => '',
       'progress' => '',
       'submitter' => '',
       'submission_date' => '',
