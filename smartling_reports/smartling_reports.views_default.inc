@@ -140,7 +140,7 @@ function smartling_reports_views_default_views() {
 
   /* Display: Completed Submissions */
   $handler = $view->new_display('page', 'Completed Submissions', 'page');
-  $handler->display->display_options['path'] = 'admin/config/regional/smartling/report';
+  $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Completed Submissions';
   $handler->display->display_options['menu']['weight'] = '0';
@@ -182,7 +182,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
   $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
   $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
-  $handler->display->display_options['path'] = 'admin/config/regional/smartling/report-in-progress';
+  $handler->display->display_options['path'] = 'admin/content/smartling/report-in-progress';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Submissions in Progress';
   $handler->display->display_options['menu']['weight'] = '0';

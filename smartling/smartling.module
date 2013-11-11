@@ -47,15 +47,11 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  $items['admin/config/regional/smartling/settings'] = array(
-    'title' => 'Smartling settings',
-    'description' => 'Smartling settings',
-    'file' => 'smartling.admin.inc',
-    'page callback' => 'smartling_admin_configuration_view',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE,
+  $items['admin/content/smartling'] = array(
+    'title' => 'Smartling Translations',
+    'description' => 'Smartling Translations',
+    'weight' => -10,
     'access arguments' => array('administer smartling'),
-    'weight' => -100,
   );
 
   return $items;
@@ -78,9 +74,16 @@ function smartling_admin_paths() {
  * Smartling use this hook for add update operations on admin/content page
  */
 function smartling_menu_alter(&$items) {
-  if (isset($items['admin/content']['page arguments'][0])) {
+  if (isset($items['admin/content'])) {
     $items['admin/content']['page arguments'][0] = 'smartling_node_admin_content';
   }
+  $items['admin/content/smartling']['page callback'] = $items['admin/content/smartling/report-completed']['page callback'];
+  $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
+  $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
+  $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
+//  $items['admin/content/smartling/report-completed']['context'] = MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE;
+   
+//  $items['admin/content/smartling/report-in-progress']['type'] = MENU_LOCAL_TASK;
 }
 
 /**
