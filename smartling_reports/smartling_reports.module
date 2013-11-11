@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Smartling reports feature.
+ */
+
+include_once 'smartling_reports.features.inc';
