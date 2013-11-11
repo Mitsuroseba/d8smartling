@@ -13,6 +13,8 @@ dependencies[] = i18n
 dependencies[] = i18n_node
 dependencies[] = ctools
 dependencies[] = smartling_reports
+dependencies[] = ultimate_cron
+dependencies[] = ultimate_cron_queue_scaler
 
 files[] = includes/smartling.entity.inc
 files[] = includes/smartling.entityController.inc

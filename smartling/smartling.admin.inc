@@ -114,12 +114,12 @@ function smartling_admin_accaunt_info_settings_form_submit($form, &$form_state) 
   if (isset($form_state['values']['smartling_mode'])) {
     if ($form_state['values']['smartling_mode'] == 0) {
       variable_set('smartling_mode', 'PRODUCTION');
-      watchdog('smartling', 'Smartling set in PRODUCTION mode.', array(), WATCHDOG_INFO);
+      smartling_watchdog('Smartling set in PRODUCTION mode.', FALSE);
       variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
     }
     elseif ($form_state['values']['smartling_mode'] == 1) {
       variable_set('smartling_mode', 'SANDBOX');
-      watchdog('smartling', 'Smartling set in SANDBOX mode.', array(), WATCHDOG_INFO);
+      smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
     }
   }
 }
@@ -173,11 +173,11 @@ function smartling_admin_log_info_settings_form($form, &$form_state) {
 function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
     if ($form_state['values']['log_mode'] == 0) {
-      watchdog('smartling', 'Smartling log OFF', array(), WATCHDOG_INFO);
+      smartling_watchdog('smartling', 'Smartling log OFF', FALSE);
       variable_set('smartling_log', 0);
     }
     elseif ($form_state['values']['log_mode'] == 1) {
-      watchdog('smartling', 'Smartling log ON', array(), WATCHDOG_INFO);
+      smartling_watchdog('smartling', 'Smartling log ON', FALSE);
       variable_set('smartling_log', 1);
     }
   }
@@ -221,7 +221,7 @@ function smartling_admin_mass_settings_form_validate($form, &$form_state) {
 
 function smartling_admin_mass_settings_form_submit($form, &$form_state) {
   variable_set('smartling_mass_time', $form_state['values']['mass_time']);
-  watchdog('smartling', 'Smartling change mass time settings.', array(), WATCHDOG_INFO);
+  smartling_watchdog('Smartling change mass time settings.', FALSE);
 }
 
 /**
@@ -408,7 +408,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   variable_set('smartling_entity_profiles', $entity_profiles);
   drupal_set_message(t('Your content types have been updated.'));
 
-  watchdog('smartling', 'Smartling content types and fields have been updated.', array(), WATCHDOG_INFO);
+  smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
 
   if (count($operations) >= 1) {
     $batch = array(

@@ -53,7 +53,7 @@ function smartling_enable() {
  */
 function smartling_uninstall() {
 
-//@TODO: rm not empty dir if need
+// @TODO: rm not empty dir if need
   /*
     $smartling_dir = variable_get('file_public_path');
     if (is_null($smartling_dir)) {
@@ -161,33 +161,6 @@ function smartling_schema() {
       'rid' => array('rid'),
       'target_language' => array('target_language'),
     ),
-  );
-
-  $schema['smartling_cron_batch_operations'] = array(
-    'description' => '',
-    'fields' => array(
-      'oid' => array(
-        'description' => 'Operation id',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'operation' => array(
-        'description' => 'Operation name (callback function)',
-        'type' => 'varchar',
-        'length' => '255',
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'args' => array(
-        'description' => 'Function arguments',
-        'type' => 'blob',
-        'not null' => FALSE,
-        'size' => 'big',
-        'serialize' => TRUE,
-      ),
-    ),
-    'primary key' => array('oid'),
   );
 
   return $schema;
