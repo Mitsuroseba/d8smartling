@@ -11,7 +11,7 @@
 function smartling_install() {
   //smartling_set_translate_fields();
   variable_set('smartling_log', 1);
-  variable_set('smartling_mass_time', 30);
+  variable_set('smartling_mass_time', 58);
 
   $language_negotiation_language = array(
     'locale-url' => array(

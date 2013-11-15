@@ -20,5 +20,3 @@ files[] = includes/smartling.entity.inc
 files[] = includes/smartling.entityController.inc
 files[] = views/smartling.views.inc
 files[] = smartling.module
-
-
