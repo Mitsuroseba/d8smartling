@@ -96,6 +96,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['progress']['field'] = 'progress';
   $handler->display->display_options['fields']['progress']['separator'] = '';
+  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
   /* Field: Smartling Entity Data: Download */
   $handler->display->display_options['fields']['download']['id'] = 'download';
   $handler->display->display_options['fields']['download']['table'] = 'smartling_entity_data';
@@ -106,7 +107,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'Operations';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="/smartling/download/[nid]?destination=admin/config/regional/smartling/report">Download</>';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[target_language]?destination=admin/content/smartling/report-in-progress">Download</a>';
   /* Sort criterion: Smartling Entity Data: Submission_date */
   $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
   $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
@@ -220,9 +221,10 @@ function smartling_reports_views_default_views() {
     t('Submission date'),
     t('Progress'),
     t('.'),
+    t(' %'),
     t('Download'),
     t('Operations'),
-    t('<a href="/smartling/download/[nid]?destination=admin/config/regional/smartling/report">Download</>'),
+    t('<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[target_language]?destination=admin/content/smartling/report-in-progress">Download</a>'),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
