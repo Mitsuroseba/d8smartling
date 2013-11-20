@@ -9,7 +9,6 @@
  * Implements hook_install().
  */
 function smartling_install() {
-  //smartling_set_translate_fields();
   variable_set('smartling_log', 1);
   variable_set('smartling_mass_time', 58);
 
@@ -52,24 +51,19 @@ function smartling_enable() {
  * Implements hook_uninstall().
  */
 function smartling_uninstall() {
-
-// @TODO: rm not empty dir if need
-  /*
-    $smartling_dir = variable_get('file_public_path');
-    if (is_null($smartling_dir)) {
-    $smartling_dir = conf_path() . '/files/smartling';
-    }
-    else {
-    $smartling_dir = $smartling_dir . '/smartling';
-    }
-    drupal_rmdir($smartling_dir);
-   */
-
   global $conf;
   foreach (array_keys($conf) as $key) {
     if (strpos($key, 'smartling_') === 0) { // It's important to use === instead of == with strpos()
       variable_del($key);
     }
+  }
+
+  $queue_array[] = 'smartling_check_status';
+  $queue_array[] = 'smartling_send_to_translate';
+  $queue_array[] = 'smartling_download_update_translated_item';
+  foreach ($queue_array as $queue_name) {
+    $queue = DrupalQueue::get($queue_name);
+    $queue->deleteQueue();
   }
 }
 

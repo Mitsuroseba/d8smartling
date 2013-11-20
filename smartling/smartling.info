@@ -13,6 +13,7 @@ dependencies[] = i18n
 dependencies[] = i18n_node
 dependencies[] = ctools
 dependencies[] = smartling_reports
+dependencies[] = smartling_demo_content
 dependencies[] = ultimate_cron
 dependencies[] = ultimate_cron_queue_scaler
 

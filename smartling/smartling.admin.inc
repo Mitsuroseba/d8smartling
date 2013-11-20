@@ -5,7 +5,6 @@
  * Admin forms and other for Smartling module administration section.
  */
 function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldset = TRUE) {
-
   ctools_include('modal');
   ctools_modal_add_js();
 
@@ -187,13 +186,13 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
  * Smartling mass settings form
  */
 function smartling_admin_mass_settings_form($form, &$form_state) {
-  $smartling_mass_time = variable_get('smartling_mass_time', 30);
+  $smartling_mass_time = variable_get('smartling_mass_time', 58);
 
   $form['mass_info']['mass_time'] = array(
     '#type' => 'textfield',
     '#title' => t('Smartling mass time'),
     '#default_value' => $smartling_mass_time,
-    '#description' => t('30 sec dy default.'),
+    '#description' => t('Lead time for bulk operations queues. 58 sec dy default.'),
     '#size' => 5,
     'actions' => array(
       '#type' => 'actions',
@@ -295,7 +294,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
       );
 
       $smartling_translate_fields = variable_get('smartling_translate_fields', FALSE);
-      $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$field_machine_name])) ? TRUE : FALSE;
+      $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
       if ($setup_complete && $is_in_conf) {
         $fr['title_field']['#attributes']['checked'] = 'checked';
       }
@@ -337,7 +336,6 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
  * Node Translation Settings - Form Submit
  */
 function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
-
   //this is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
