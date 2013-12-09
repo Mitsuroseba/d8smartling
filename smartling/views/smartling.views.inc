@@ -23,6 +23,22 @@ function smartling_views_data_alter(&$data) {
     )
   );
 
+  // add views handler
+  $data['smartling_entity_data']['target_language'] = array(
+    'title' => t('Target Language'),
+    'help' => t('Smartling entity data "target_language" property.'),
+  );
+
+  $data['smartling_entity_data']['target_language']['field'] = array(
+    'real field' => 'target_language',
+    'handler' => 'smartling_handler_field_target_language',
+    'click sortable' => TRUE,
+  );
+
+  $data['smartling_entity_data']['target_language']['filter'] = array(
+    'handler' => 'views_handler_filter_string',
+  );
+
   $data['smartling_entity_data']['node'] = array(
     'group' => t('Node'),
     'title' => t('Node Entity'),

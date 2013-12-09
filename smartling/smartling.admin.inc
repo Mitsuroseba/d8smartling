@@ -21,12 +21,14 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
 
   $accaunt_info = drupal_get_form('smartling_admin_accaunt_info_settings_form', $show_fieldset);
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
+  $node_translation_settings_by_nodes = drupal_get_form('smartling_admin_node_translation_settings_by_nodes_form', $show_fieldset);
   $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
   $mass_settings = drupal_get_form('smartling_admin_mass_settings_form', $show_fieldset);
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
-  $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
+  $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields for translate by fields');
+  $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings_by_nodes, 'Translation settings for translate by nodes');
   $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
   $output['smartling'][] = smartling_wrap_in_fieldset($mass_settings, 'Smartling mass operations');
@@ -417,6 +419,90 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
     batch_set($batch);
     //batch_process('admin/config/regional/smartling');
   }
+}
+
+/**
+ * Content translation by nodes form
+ */
+function smartling_admin_node_translation_settings_by_nodes_form($form, &$form_state, $show_fieldset = FALSE) {
+
+  $raw_types = node_type_get_types();
+  $translate_by_nodes = variable_get('smartling_translate_fields_by_nodes', array());
+
+  // What types of fields DO we translate?
+  $translatable_field_types = smartling_get_translatable_field_types();
+
+  $form['node_translation_by_nodes'] = array(
+    '#type' => $show_fieldset ? 'fieldset' : 'item',
+    '#title' => t('Translated settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'administrative_settings',
+    'actions' => array(
+      '#type' => 'actions',
+    ),
+    '#submit' => array('smartling_admin_node_translation_settings_by_nodes_form_submit'),
+  );
+
+  $form['fields_conf'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('All supported fields enable by default'),
+    '#prefix' => 'Pleas resave with checked checkbox after add new fields to any content types.',
+  );
+
+  if (!empty($translate_by_nodes)) {
+    $form['fields_conf']['#attributes']['checked'] = 'checked';
+  }
+
+  $form['node_translation']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Node Translation by Nodes Settings - Form Submit
+ */
+function smartling_admin_node_translation_settings_by_nodes_form_submit($form, &$form_state) {
+  //this is needed for the setup because of the field/node method selector.
+  system_settings_form_submit($form, $form_state);
+
+  $translate_by_nodes = array();
+  $node_types = node_type_get_types();
+
+  // What types of fields DO we translate?
+  $translatable_field_types = smartling_get_translatable_field_types();
+
+  foreach ($node_types as $node_type) {
+    $translate_by_nodes[$node_type->type]['title'] = 'title';
+    foreach (field_info_instances('node', $node_type->type) as $field) {
+      $field_machine_name = $field['field_name'];
+      $field_type = $field['widget']['type'];
+      if (array_search($field_type, $translatable_field_types)) {
+        $translate_by_nodes[$node_type->type][$field_machine_name] = $field_machine_name;
+      }
+    }
+  }
+
+  if ($form_state['values']['fields_conf'] == 1) {
+    variable_set('smartling_translate_fields_by_nodes', $translate_by_nodes);
+  }
+  else {
+    variable_set('smartling_translate_fields_by_nodes', $translate_by_nodes);
+  }
+
+  if (!empty($translate_by_nodes)) {
+    variable_set('smartling_translate_fields_by_nodes', $translate_by_nodes);
+  }
+  else {
+    variable_delete('smartling_translate_fields_by_nodes');
+  }
+
+  drupal_set_message(t('Fields settings for nodes method updated.'));
+
+  smartling_watchdog('Smartling settings by nodes have been updated.', FALSE);
 }
 
 function smartling_wrap_in_fieldset($form, $title) {

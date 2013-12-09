@@ -31,6 +31,105 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '100';
   $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'nid' => 'nid',
+    'title' => 'title',
+    'original_language' => 'original_language',
+    'target_language' => 'target_language',
+    'file_name' => 'file_name',
+    'translated_file_name' => 'translated_file_name',
+    'name' => 'name',
+    'type' => 'type',
+    'submission_date' => 'submission_date',
+    'progress' => 'progress',
+    'download' => 'download',
+    'nothing' => 'nothing',
+  );
+  $handler->display->display_options['style_options']['default'] = 'nid';
+  $handler->display->display_options['style_options']['info'] = array(
+    'nid' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'original_language' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'target_language' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'file_name' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'translated_file_name' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'name' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'type' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'submission_date' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'desc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'progress' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'download' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'nothing' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
   /* Relationship: Node: Node Entity */
   $handler->display->display_options['relationships']['node']['id'] = 'node';
   $handler->display->display_options['relationships']['node']['table'] = 'smartling_entity_data';
@@ -57,11 +156,11 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
   $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
   $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Target_language */
+  /* Field: Smartling Entity Data: Target Language */
   $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
   $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
-  $handler->display->display_options['fields']['target_language']['label'] = 'Target language';
+  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
   /* Field: Smartling Entity Data: File_name */
   $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
   $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
@@ -102,12 +201,24 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['download']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['download']['field'] = 'download';
   $handler->display->display_options['fields']['download']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Smartling entity data ID */
+  $handler->display->display_options['fields']['eid']['id'] = 'eid';
+  $handler->display->display_options['fields']['eid']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['eid']['field'] = 'eid';
+  $handler->display->display_options['fields']['eid']['label'] = '';
+  $handler->display->display_options['fields']['eid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['eid']['element_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_label_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['eid']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_default_classes'] = FALSE;
+  $handler->display->display_options['fields']['eid']['separator'] = '';
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'Operations';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[target_language]?destination=admin/content/smartling/report-in-progress">Download</a>';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[eid]?destination=admin/content/smartling/report-in-progress">Download</a>';
   /* Sort criterion: Smartling Entity Data: Submission_date */
   $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
   $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
@@ -183,6 +294,12 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
   $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
   $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
+  /* Filter criterion: Smartling Entity Data: Target Language */
+  $handler->display->display_options['filters']['target_language']['id'] = 'target_language';
+  $handler->display->display_options['filters']['target_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['target_language']['field'] = 'target_language';
+  $handler->display->display_options['filters']['target_language']['operator'] = '!=';
+  $handler->display->display_options['filters']['target_language']['value'] = 'original';
   $handler->display->display_options['path'] = 'admin/content/smartling/report-in-progress';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Submissions in Progress';
@@ -213,7 +330,7 @@ function smartling_reports_views_default_views() {
     t('Nid'),
     t('Title'),
     t('Original language'),
-    t('Target language'),
+    t('Locale'),
     t('Original filename'),
     t('Translated filename'),
     t('Submitter name'),
@@ -224,7 +341,7 @@ function smartling_reports_views_default_views() {
     t(' %'),
     t('Download'),
     t('Operations'),
-    t('<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[target_language]?destination=admin/content/smartling/report-in-progress">Download</a>'),
+    t('<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[eid]?destination=admin/content/smartling/report-in-progress">Download</a>'),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
