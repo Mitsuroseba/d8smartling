@@ -12,10 +12,13 @@
  *   Boolean value.
  */
 function smartling_supported_type($type) {
-  $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL) == SMARTLING_KEY;
+  $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
 
-  if (!$smartling_supported_explicitly) {
-    $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL) == 2;
+  if ($smartling_supported_explicitly == 2 || $smartling_supported_explicitly == SMARTLING_KEY) {
+    $smartling_supported_explicitly = TRUE;
+  }
+  else {
+    $smartling_supported_explicitly = FALSE;
   }
 
   return $smartling_supported_explicitly;
@@ -69,16 +72,6 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
 }
 
 /**
- * Checks to make sure the Smartling module setup completed successfully.  If its not, the user is directed to the setup wizard.
- */
-function smartling_is_module_setup() {
-  $redirect = smartling_is_configured();
-  if (!is_bool($redirect)) {
-    drupal_goto($redirect); // If something is missing - Go to the Setup Process
-  }
-}
-
-/**
  * Checks any required configuration parameters are missing.
  *
  * @return string|boolean
@@ -93,25 +86,13 @@ function smartling_is_configured() {
     $val = variable_get($required_variable, NULL);
     if (empty($val)) {
       if ($required_variable == 'smartling_key') {
-        if (isset($_GET['destination'])) {
-          unset($_GET['destination']);
-        }
-        drupal_set_message(t('You have to set the Smartling Key'));
-        return 'admin/config/regional/smartling';
+        return FALSE;
       }
       elseif ($required_variable == 'smartling_project_id') {
-        if (isset($_GET['destination'])) {
-          unset($_GET['destination']);
-        }
-        drupal_set_message(t('You have to set the Project Id'));
-        return 'admin/config/regional/smartling';
+        return FALSE;
       }
       elseif ($required_variable == 'smartling_mode') {
-        if (isset($_GET['destination'])) {
-          unset($_GET['destination']);
-        }
-        drupal_set_message(t('You have to select and save the Smartling Mode'));
-        return 'admin/config/regional/smartling';
+        return FALSE;
       }
     }
   }
@@ -121,53 +102,30 @@ function smartling_is_configured() {
 /**
  * Checks smartling_translate_fields variable and check settings for content type.
  */
-function smartling_translate_fields_is_set($type = FALSE, $nodes_method = FALSE) {
-  if ($nodes_method) {
-    $val = variable_get('smartling_translate_fields_by_nodes', NULL);
-  }
-  else {
-    $val = variable_get('smartling_translate_fields', NULL);
-  }
+function smartling_translate_fields_is_set($type = FALSE) {
+  $val = variable_get('smartling_translate_fields', NULL);
 
   if (is_null($val) || empty($val)) {
-    if (isset($_GET['destination'])) {
-      unset($_GET['destination']);
-    }
-    $redirect = 'admin/config/regional/smartling';
-
-    if ($nodes_method) {
-      drupal_set_message(t('You mast set fields settings for Smartling nodes method'));
-    }
-    else {
-      drupal_set_message(t('You have not selected translatable fields for Smartling fields method'));
-    }
-
-    drupal_goto($redirect);
+    $result = FALSE;
   }
   else {
     if ($type !== FALSE) {
       if (isset($val[$type])) {
-        return TRUE;
+        $result = TRUE;
       }
       else {
-        if (isset($_GET['destination'])) {
-          unset($_GET['destination']);
-        }
-        $redirect = 'admin/config/regional/smartling';
-
-        if ($nodes_method) {
-          drupal_set_message(t('You mast update fields settings for nodes method. Content type: @type', array('@type' => $type)));
-        }
-        else {
-          drupal_set_message(t('You have not selected translatable fields for content type: @type', array('@type' => $type)));
-        }
-        drupal_goto($redirect);
+        $result = FALSE;
       }
     }
     else {
-      return TRUE;
+      $result = TRUE;
     }
   }
+  if (!$result) {
+    drupal_set_message('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.', 'warning');
+  }
+
+  return $result;
 }
 
 function smartling_get_translatable_field_types() {
@@ -238,19 +196,14 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
   $node_current_translatable_content = array();
   $node = smartling_node_load_default($nid);
 
-  if ($nodes_method) {
-    $translate = variable_get('smartling_translate_fields_by_nodes', array());
-  }
-  else {
-    $translate = variable_get('smartling_translate_fields', array());
-  }
+  $translate = variable_get('smartling_translate_fields', array());
 
   if (!empty($translate)) {
     foreach ($translate as $type => $field_names) {
 
       if ($node->type === $type) {
         foreach ($field_names as $field_name) {
-          if ($field_name == 'title') {
+          if ($field_name == 'node_title') {
             $node_current_translatable_content[$field_name] = $node->title;
           }
           else {
@@ -903,7 +856,6 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
 
   if ($nodes_method) {
-    $smartling_translate_fields = variable_get('smartling_translate_fields_by_nodes');
     $original_node = smartling_node_load_default($rid);
     $translations = translation_node_get_translations($original_node->tnid);
     if (isset($translations[$d_locale])) {
@@ -924,9 +876,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $rid = $node->nid;
     }
   }
-  else {
-    $smartling_translate_fields = variable_get('smartling_translate_fields');
-  }
+  $smartling_translate_fields = variable_get('smartling_translate_fields');
 
   $fields = $smartling_translate_fields[$entity_data->bundle];
 
@@ -938,7 +888,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $node_wrapper = entity_metadata_wrapper('node', $rid);
 
   foreach ($fields as $field_name) {
-    if ($field_name == 'title') {
+    if ($field_name == 'node_title') {
       $simple_field = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
       if (is_object($simple_field)) { // simple title
         if ($simple_field instanceof DomElement) {
@@ -1046,9 +996,9 @@ function smartling_node_admin_content($form, $form_state) {
   }
 
   if (isset($form_state['values']['operation']) && $form_state['values']['operation'] == 'smartling_translate') {
-    smartling_is_module_setup();
-    smartling_translate_fields_is_set();
-    return smartling_node_mass_translate_confirm($form, $form_state, array_filter($form_state['values']['nodes']));
+    if (smartling_translate_fields_is_set()) {
+      return smartling_node_mass_translate_confirm($form, $form_state, array_filter($form_state['values']['nodes']));
+    }
   }
 
   $form['filter'] = node_filter_form();

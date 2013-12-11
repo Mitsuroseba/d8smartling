@@ -70,7 +70,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
  * Worker callback defined in hook_cron_queue_info()
  */
 function smartling_queue_check_status_process($args) {
-  if (smartling_is_configured() === TRUE) {
+  if (smartling_is_configured()) {
     $rid = $args->rid;
     $s_locale = $args->s_locale;
 
@@ -155,7 +155,7 @@ function smartling_queue_check_status_process($args) {
  * Worker callback defined in hook_cron_queue_info()
  */
 function smartling_queue_send_to_translate_process($args) {
-  if (smartling_is_configured() === TRUE) {
+  if (smartling_is_configured()) {
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $args->rid, 'target_language' => $args->s_locale));
 
     if ($entity_data == FALSE) {
