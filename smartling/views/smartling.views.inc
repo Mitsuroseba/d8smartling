@@ -60,6 +60,10 @@ function smartling_views_data_alter(&$data) {
     'label' => t('Smartling submitter'),
   );
 
+  $data['smartling_entity_data']['submission_date'] = array(
+    'title' => t('Date'),
+  );
+
   $data['smartling_entity_data']['submission_date']['field'] = array(
     'handler' => 'views_handler_field_date',
     'click sortable' => TRUE,

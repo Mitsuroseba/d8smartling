@@ -29,7 +29,7 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
-  $output['smartling'][] = smartling_wrap_in_fieldset($mass_settings, 'Smartling mass operations');
+  $output['smartling'][] = smartling_wrap_in_fieldset($mass_settings, 'Mass settings');
 
   return $output;
 }
@@ -235,12 +235,12 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Smartling mass settings form
+ * Smartling dev settings form
  */
 function smartling_admin_mass_settings_form($form, &$form_state) {
   $smartling_mass_time = variable_get('smartling_mass_time', 58);
 
-  $form['mass_info']['mass_time'] = array(
+  $form['dev_info']['mass_time'] = array(
     '#type' => 'textfield',
     '#title' => t('Smartling mass time'),
     '#default_value' => $smartling_mass_time,
@@ -249,12 +249,11 @@ function smartling_admin_mass_settings_form($form, &$form_state) {
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_mass_settings_form_submit'),
-    '#validate' => array('smartling_admin_mass_settings_form_validate'),
   );
 
-  $form['mass_info']['submit'] = array(
+  $form['dev_info']['mass_time_submit'] = array(
     '#type' => 'submit',
+    '#name' => 'mass_time_submit',
     '#value' => t('Save'),
   );
 
@@ -262,17 +261,21 @@ function smartling_admin_mass_settings_form($form, &$form_state) {
 }
 
 function smartling_admin_mass_settings_form_validate($form, &$form_state) {
-  if (is_numeric($form_state['values']['mass_time'])) {
-    variable_set('smartling_mass_time', $form_state['values']['mass_time']);
-  }
-  else {
-    form_set_error('mass_time', t('Wrong format mass operations time.'));
+  if ($form_state['clicked_button']['#name'] == 'mass_time_submit') {
+    if (is_numeric($form_state['values']['mass_time'])) {
+      variable_set('smartling_mass_time', $form_state['values']['mass_time']);
+    }
+    else {
+      form_set_error('mass_time', t('Wrong format mass operations time.'));
+    }
   }
 }
 
 function smartling_admin_mass_settings_form_submit($form, &$form_state) {
-  variable_set('smartling_mass_time', $form_state['values']['mass_time']);
-  smartling_watchdog('Smartling change mass time settings.', FALSE);
+  if ($form_state['clicked_button']['#name'] == 'mass_time_submit') {
+    variable_set('smartling_mass_time', $form_state['values']['mass_time']);
+    smartling_watchdog('Smartling change mass time settings.', FALSE);
+  }
 }
 
 /**

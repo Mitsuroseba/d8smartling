@@ -1175,4 +1175,3 @@ function smartling_watchdog($message, $consider_log = TRUE, $variables = array()
     watchdog('smartling', $message, $variables, $severity, $link);
   }
 }
-

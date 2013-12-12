@@ -826,3 +826,56 @@ function smartling_views_pre_render(&$view) {
   }
 }
 
+/**
+ * Implements hook_action_info().
+ */
+function smartling_action_info() {
+  return array(
+    'smartling_do_translate_action' => array(
+      'type' => 'node',
+      'label' => t('Smartling node translate.'),
+      'configurable' => TRUE,
+      //'behavior' => array('changes_property'),
+      'triggers' => array('node_update'),
+    ),
+  );
+}
+
+function smartling_do_translate_action($node, $context) {
+  //dsm($node, '$node smartlig_node_do_translate_action');
+  //dsm($context, '$context smartlig_node_do_translate_action');
+  // Get the user configured for this special action.
+  //watchdog('smartling', 'Smartling @type %title do translate.', array('@type' => node_type_get_name($node), '%title' => $node->title));
+  //drupal_set_message(t('Node @type %title be translated.', array('@type' => node_type_get_name($node), '%title' => $node->title)));
+}
+
+function smartling_do_translate_action_form($context) {
+  //dsm($context, '$context smartlig_node_do_translate_action_form');
+  $form['do_translate_action'] = array(
+    '#type' => 'item',
+    '#title' => t('Languages test'),
+  );
+
+  $languages = language_list();
+  $options = array();
+  foreach ($languages as $langcode => $language) {
+    if ($language->enabled != '0') {
+      $options[$language->language] = $language->name;
+    }
+  }
+
+  $form['do_translate_action']['languages'] = array(
+    '#type' => 'checkboxes',
+    '#options' => $options,
+    '#title' => t('Check language'),
+  );
+  return $form;
+}
+
+function smartling_do_translate_action_validate($form, $form_state) {
+dsm($form_state, '$form_state validate');
+}
+
+function smartling_do_translate_action_submit($form, $form_state) {
+  return array('translate_to_TEST' => array());
+}
