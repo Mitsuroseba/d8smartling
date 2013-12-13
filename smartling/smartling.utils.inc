@@ -38,7 +38,13 @@ function smartling_fields_method($type) {
  * Returns node status for nodes method by node id.
  */
 function smartling_nodes_method_node_status($nid) {
-  $node = smartling_node_load_default($nid);
+  if (is_int($nid) || is_numeric($nid)) {
+    $node = smartling_node_load_default($nid);
+  }
+  elseif (is_object($nid)) {
+    $node = $nid;
+  }
+
   if (isset($node->tnid) && $node->tnid != '0' && ($node->tnid != $node->nid)) {
     return SMARTLING_TRANSLATE_NODE;
   }
@@ -1043,7 +1049,7 @@ function smartling_node_mass_translate_confirm($form, &$form_state, $nodes) {
         );
       }
       elseif (smartling_nodes_method($node->type)) {
-        $status = smartling_nodes_method_node_status($node->nid);
+        $status = smartling_nodes_method_node_status($node);
         if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
           $data_item = array(
             'title' => $node->title,
@@ -1105,9 +1111,9 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
       if ($check) {
         $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
         foreach ($form_state['data_nodes'] as $node) {
-          if (smartling_supported_type($node->type)) {
+          if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
             if (smartling_nodes_method($node->type)) {
-              $status = smartling_nodes_method_node_status($node->nid);
+              $status = smartling_nodes_method_node_status($node);
               if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
                 if ($node->tnid == '0') {
                   $node->tnid = $node->nid;
@@ -1143,6 +1149,9 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
                 unset($obj);
               }
             }
+          }
+          else {
+            smartling_watchdog('Not support type or Smartling configuration problem for content type - @type.', FALSE, array('@type' => $node->type), WATCHDOG_ERROR, l(t('Node edit'), 'node/' . $node->nid));
           }
         }
       }

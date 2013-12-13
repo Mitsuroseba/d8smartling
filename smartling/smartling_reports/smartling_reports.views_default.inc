@@ -608,7 +608,7 @@ function smartling_reports_views_default_views() {
     'action::smartling_do_translate_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
-      'skip_confirmation' => 0,
+      'skip_confirmation' => 1,
       'override_label' => 1,
       'label' => 'Translate',
     ),

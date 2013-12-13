@@ -598,7 +598,7 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
     $original_nid = $form['#node']->nid;
     $original_title = $form['#node']->title;
     // for nodes method
-    $status = smartling_nodes_method_node_status($nid);
+    $status = smartling_nodes_method_node_status($form['#node']);
     if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
       $form['#node']->tnid = $form['#node']->nid;
       node_save($form['#node']);
@@ -842,20 +842,60 @@ function smartling_action_info() {
 }
 
 function smartling_do_translate_action($node, $context) {
-  //dsm($node, '$node smartlig_node_do_translate_action');
-  //dsm($context, '$context smartlig_node_do_translate_action');
-  // Get the user configured for this special action.
-  //watchdog('smartling', 'Smartling @type %title do translate.', array('@type' => node_type_get_name($node), '%title' => $node->title));
-  //drupal_set_message(t('Node @type %title be translated.', array('@type' => node_type_get_name($node), '%title' => $node->title)));
+  global $user;
+
+  $smartling_queue = DrupalQueue::get('smartling_send_to_translate');
+  $smartling_queue->createQueue();
+  $count_op = 0;
+
+  foreach ($context['translate_to_langs'] as $language) {
+    $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+    if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
+      if (smartling_nodes_method($node->type)) {
+        $status = smartling_nodes_method_node_status($node);
+        if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
+          if ($node->tnid == '0') {
+            $node->tnid = $node->nid;
+            node_save($node);
+          }
+          if ($language != $node->language) {
+            $obj = new stdClass;
+            $obj->rid = $node->nid;
+            $obj->type = $node->type;
+            $obj->title = $node->title;
+            $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
+            $obj->s_locale = $s_locale;
+            $obj->submitter = $user->uid;
+            // create queue item
+            $smartling_queue->createItem($obj);
+            $count_op++;
+            unset($obj);
+          }
+        }
+      }
+      elseif (smartling_fields_method($node->type)) {
+        if ($language != $node->language) {
+          $obj = new stdClass;
+          $obj->rid = $node->nid;
+          $obj->type = $node->type;
+          $obj->title = $node->title;
+          $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
+          $obj->s_locale = $s_locale;
+          $obj->submitter = $user->uid;
+          // create queue item
+          $smartling_queue->createItem($obj);
+          $count_op++;
+          unset($obj);
+        }
+      }
+    }
+    else {
+      smartling_watchdog('Not support type or Smartling configuration problem for content type - @type.', FALSE, array('@type' => $node->type), WATCHDOG_ERROR, l(t('Node edit'), 'node/' . $node->nid));
+    }
+  }
 }
 
-function smartling_do_translate_action_form($context) {
-  //dsm($context, '$context smartlig_node_do_translate_action_form');
-  $form['do_translate_action'] = array(
-    '#type' => 'item',
-    '#title' => t('Languages test'),
-  );
-
+function smartling_do_translate_action_form($context, &$form_state) {
   $languages = language_list();
   $options = array();
   foreach ($languages as $langcode => $language) {
@@ -872,10 +912,23 @@ function smartling_do_translate_action_form($context) {
   return $form;
 }
 
-function smartling_do_translate_action_validate($form, $form_state) {
-dsm($form_state, '$form_state validate');
+function smartling_do_translate_action_validate($form, &$form_state) {
+  $select_languages = array();
+  foreach ($form_state['input']['languages'] as $d_locale) {
+
+    if (!is_null($d_locale) && !empty($d_locale)) {
+      $select_languages[] = $d_locale;
+    }
+  }
+
+  if (!empty($select_languages) && (count($select_languages) > 0)) {
+    $form_state['translate_to_langs'] = $select_languages;
+  }
+  else {
+    form_set_error('languages', 'Check language, please.');
+  }
 }
 
 function smartling_do_translate_action_submit($form, $form_state) {
-  return array('translate_to_TEST' => array());
+  return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
