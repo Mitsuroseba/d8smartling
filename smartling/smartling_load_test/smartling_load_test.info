@@ -1,0 +1,11 @@
+name = Smartling load test
+core = 7.x
+package = smartling
+dependencies[] = devel_generate
+dependencies[] = smartling
+dependencies[] = text
+features[features_api][] = api:2
+features[field_instance][] = node-smartling_load_test-body
+features[node][] = smartling_load_test
+features_exclude[dependencies][features] = features
+features_exclude[dependencies][smartling_demo_content] = smartling_demo_content
