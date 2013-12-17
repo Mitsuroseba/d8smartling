@@ -31,6 +31,7 @@ include_once('includes/smartling.entity.inc');
 include_once('includes/smartling.entityController.inc');
 include_once('views/smartling.views.inc');
 include_once('views/smartling_handler_field_target_language.inc');
+include_once('views/smartling_handler_field_locale_info.inc');
 include_once('api/lib/SmartlingAPI.php');
 include_once('api/lib/HttpClient.php');
 //include_once('api/test/SmartlingAPITest.php');
@@ -137,12 +138,12 @@ function smartling_permission() {
  * Enable Smartling translation on a node type
  */
 function smartling_form_node_type_form_alter(&$form, &$form_state) {
-  $label = t('Enabled Smartling translation');
-  $label_2 = t('and Smartling');
-  $details = t('It will be possible to use Smartling service for automatic content translation if "Enabled Smartling translation" or "Enabled, with translation and Smartling" is ticked.');
+  $label = t('Enable Smartling translation (by fields)');
+  $label_2 = t('Enable Smartling translation (by nodes)');
+  $details = t('It will be possible to use Smartling service for automatic content translation if "Enable Smartling translation (by nodes)" or "Enable Smartling translation (by fields)" is ticked.');
 
   $form['workflow']['language_content_type']['#options'][SMARTLING_KEY] = $label;
-  $form['workflow']['language_content_type']['#options'][2] .= ' ' . $label_2;
+  $form['workflow']['language_content_type']['#options'][2] = $label_2;
   $form['workflow']['language_content_type']['#description'] .= ' ' . $details;
   $form['#submit'][] = 'smartling_multilingual_support_node_type_submit';
   $form['#validate'][] = 'smartling_multilingual_support_node_type_validate';

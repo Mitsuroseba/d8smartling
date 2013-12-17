@@ -423,6 +423,11 @@ function smartling_reports_views_default_views() {
     2 => array(),
     3 => array(),
   );
+  /* Filter criterion: Content translation: Source translation */
+  $handler->display->display_options['filters']['source_translation']['id'] = 'source_translation';
+  $handler->display->display_options['filters']['source_translation']['table'] = 'node';
+  $handler->display->display_options['filters']['source_translation']['field'] = 'source_translation';
+  $handler->display->display_options['filters']['source_translation']['operator'] = '1';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
@@ -654,7 +659,11 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['language']['id'] = 'language';
   $handler->display->display_options['fields']['language']['table'] = 'node';
   $handler->display->display_options['fields']['language']['field'] = 'language';
-  $handler->display->display_options['fields']['language']['label'] = 'Locales';
+  $handler->display->display_options['fields']['language']['exclude'] = TRUE;
+  /* Field: Smartling: Locales */
+  $handler->display->display_options['fields']['locale_info']['id'] = 'locale_info';
+  $handler->display->display_options['fields']['locale_info']['table'] = 'node';
+  $handler->display->display_options['fields']['locale_info']['field'] = 'locale_info';
   /* Field: Content: Updated date */
   $handler->display->display_options['fields']['changed']['id'] = 'changed';
   $handler->display->display_options['fields']['changed']['table'] = 'node';
@@ -663,7 +672,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['changed']['date_format'] = 'short';
   $handler->display->display_options['path'] = 'admin/content/smartling-content';
   $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Smartling content';
+  $handler->display->display_options['menu']['title'] = 'Smartling Bulk Submit';
   $handler->display->display_options['menu']['weight'] = '100';
   $handler->display->display_options['menu']['context'] = 1;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
@@ -692,6 +701,7 @@ function smartling_reports_views_default_views() {
     t('Title'),
     t('Author'),
     t('Status'),
+    t('Language'),
     t('Locales'),
     t('Updated'),
   );
