@@ -306,15 +306,19 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
 
   foreach ($raw_types as $value) {
     if (smartling_supported_type($value->type)) {
-      $method = ' (Fields method)';
-      $fr = array();
+      $fr_tt['from'] = array(
+        '#type' => 'item',
+        '#title' => t('Fields method'),
+      );
+
+      $fr_fields = array();
       $smartling_translate_fields = variable_get('smartling_translate_fields', FALSE);
 
       if (smartling_nodes_method($value->type)) {
-        $method = ' (Nodes method)';
+        $fr_tt['from']['#title'] = t('Nodes method');
         $field_label = t('Title');
         $node_title_name = 'node_title';
-        $fr[$node_title_name] = array(
+        $fr_fields[$node_title_name] = array(
           '#type' => 'checkbox',
           '#title' => check_plain($field_label),
           '#attributes' => array(
@@ -328,7 +332,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
         $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
 
         if ($is_in_conf) {
-          $fr[$node_title_name]['#attributes']['checked'] = 'checked';
+          $fr_fields[$node_title_name]['#attributes']['checked'] = 'checked';
         }
       }
 
@@ -337,7 +341,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
         if (array_search($field_type, $translatable_field_types)) {
-          $fr[$field_machine_name] = array(
+          $fr_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),
             '#attributes' => array(
@@ -353,12 +357,12 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
           $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$field_machine_name])) ? TRUE : FALSE;
 
           if ($is_enabled && $is_in_conf) {
-            $fr[$field_machine_name]['#attributes']['checked'] = 'checked';
+            $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
           }
         }
       }
-      if (!isset($fr['title_field']) && smartling_fields_method($value->type)) {
-        $fr['title_field'] = array(
+      if (!isset($fr_fields['title_field']) && smartling_fields_method($value->type)) {
+        $fr_fields['title_field'] = array(
           '#type' => 'checkbox',
           '#title' => 'Title (Note: field will be created.)',
           '#attributes' => array(
@@ -370,18 +374,39 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
 
         $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
         if ($setup_complete && $is_in_conf) {
-          $fr['title_field']['#attributes']['checked'] = 'checked';
+          $fr_fields['title_field']['#attributes']['checked'] = 'checked';
         }
       }
-
-      $rows[$value->type] = array(
-        array('data' => $value->name . $method, 'width' => '20%'),
-        array('data' => drupal_render($fr), 'width' => '65%'),
-      );
     }
+    else {
+      $options = array(0 => t('- Select Method -'), 2 => t('Nodes method'), 1 => t('Fields method'));
+
+      $fr_tt['method'][$value->type] = array(
+        '#type' => 'select',
+        '#title' => t('Translation Type'),
+        '#title_display' => 'invisible',
+        '#options' => $options,
+        '#required' => FALSE,
+        '#default_value' => 0,
+        '#attributes' => array(
+          'id' => array('edit-form-item-' . $value->type . '-TT-' . $value->type),
+          'name' => $value->type . '_TT_' . $value->type,
+          'class' => array('content-type'),
+        ),
+      );
+
+      $fr_fields = array();
+    }
+    $rows[$value->type] = array(
+      array('data' => $value->name, 'width' => '20%'),
+      array('data' => drupal_render($fr_tt), 'width' => '20%'),
+      array('data' => drupal_render($fr_fields), 'width' => '60%'),
+    );
+    unset($fr_tt);
+    unset($fr_fields);
   }
 
-  $header = array(t('Content Type'), t('Fields'));
+  $header = array(t('Content Type'), t('Translation Type'), t('Fields'));
 
   $variables = array(
     'header' => $header,
@@ -438,6 +463,22 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
         }
       }
     } // END:  Selected Content Types and Fields
+    //
+    // Look for Selected Translation Type.
+    if (FALSE !== strpos($key, '_TT_')) {
+      // And only if set to translate
+      if ($value != 0) {
+        $parts = explode('_TT_', $key);
+        $content_type = $parts[0];
+        if ($value == 2) {
+          variable_set('language_content_type_' . $content_type, $value);
+        }
+        elseif ($value == 1) {
+          variable_set('language_content_type_' . $content_type, SMARTLING_KEY);
+        }
+      }
+    }
+
     // Look for any nodes we need to do the Title swap for.
     if (FALSE !== strpos($key, 'title_swap_')) {
       // And only if set to swap
