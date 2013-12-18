@@ -97,17 +97,6 @@ function smartling_menu_alter(&$items) {
 }
 
 /**
- * Implements hook_module_implements_alter().
- */
-function smartling_module_implements_alter(&$implementations, $hook) {
-  switch ($hook) {
-    case 'menu_alter':
-
-      break;
-  }
-}
-
-/**
  * Implements hook_permission().
  */
 function smartling_permission() {
@@ -145,20 +134,20 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
   $form['workflow']['language_content_type']['#options'][SMARTLING_KEY] = $label;
   $form['workflow']['language_content_type']['#options'][2] = $label_2;
   $form['workflow']['language_content_type']['#description'] .= ' ' . $details;
-  $form['#submit'][] = 'smartling_multilingual_support_node_type_submit';
-  $form['#validate'][] = 'smartling_multilingual_support_node_type_validate';
+  $form['#submit'][] = 'smartling_multilanguage_support_node_type_submit';
+  $form['#validate'][] = 'smartling_multilanguage_support_node_type_validate';
 }
 
-function smartling_multilingual_support_node_type_validate(&$form, &$form_state) {
+function smartling_multilanguage_support_node_type_validate(&$form, &$form_state) {
   if ($form_state['values']['language_content_type'] == SMARTLING_KEY || $form_state['values']['language_content_type'] == 2) {
     if (!smartling_is_configured()) {
-      drupal_set_message('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.', 'warning');
+      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
       form_set_error('workflow');
     }
   }
 }
 
-function smartling_multilingual_support_node_type_submit(&$form, &$form_state) {
+function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) {
   //delete content type in smartling support types
   $smartling_translate_fields = variable_get('smartling_translate_fields', array());
   $type = $form_state['values']['type'];
@@ -204,10 +193,9 @@ function smartling_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
   }
 }
 
-/*
+/**
  * Saves data for smartling_form_field_ui_field_edit_form_alter()
  */
-
 function smartling_update_field($form, $form_state) {
   $field_name = $form['#field']['field_name'];
   $field = field_info_field($field_name);

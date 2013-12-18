@@ -19,7 +19,7 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
     ),
   );
 
-  $accaunt_info = drupal_get_form('smartling_admin_accaunt_info_settings_form', $show_fieldset);
+  $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form', $show_fieldset);
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
   $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
@@ -37,7 +37,7 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
 /**
  * Account info form
  */
-function smartling_admin_accaunt_info_settings_form($form, &$form_state, $show_fieldset = FALSE) {
+function smartling_admin_account_info_settings_form($form, &$form_state, $show_fieldset = FALSE) {
   $form['accaunt_info'] = array(
     '#type' => $show_fieldset ? 'fieldset' : 'item',
     '#title' => t('Account info'),
@@ -47,8 +47,8 @@ function smartling_admin_accaunt_info_settings_form($form, &$form_state, $show_f
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_accaunt_info_settings_form_submit'),
-    '#validate' => array('smartling_admin_accaunt_info_settings_form_validate'),
+    '#submit' => array('smartling_admin_account_info_settings_form_submit'),
+    '#validate' => array('smartling_admin_account_info_settings_form_validate'),
   );
 
   $smartling_project_id = variable_get('smartling_project_id', FALSE);
@@ -104,7 +104,7 @@ function smartling_admin_accaunt_info_settings_form($form, &$form_state, $show_f
   return $form;
 }
 
-function smartling_admin_accaunt_info_settings_form_validate($form, &$form_state) {
+function smartling_admin_account_info_settings_form_validate($form, &$form_state) {
   $project_id = '';
   $smartling_key = '';
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
@@ -137,19 +137,19 @@ function smartling_admin_accaunt_info_settings_form_validate($form, &$form_state
       $form_state['values']['project_id'] = trim($project_id);
     }
     else {
-      drupal_set_message('Either Project ID or Key is set wrong. Please input correct Smartling settings.', 'error');
+      drupal_set_message(t('Either Project ID or Key is set wrong. Please input correct Smartling settings.'), 'error');
       form_set_error('smartling_key', '');
       form_set_error('project_id');
     }
   }
   else {
-    drupal_set_message('Either Project ID or Key is set wrong. Please input correct Smartling settings.', 'error');
+    drupal_set_message(t('Either Project ID or Key is set wrong. Please input correct Smartling settings.'), 'error');
     form_set_error('smartling_key', '');
     form_set_error('project_id');
   }
 }
 
-function smartling_admin_accaunt_info_settings_form_submit($form, &$form_state) {
+function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
     variable_set('smartling_project_id', $form_state['values']['project_id']);
   }

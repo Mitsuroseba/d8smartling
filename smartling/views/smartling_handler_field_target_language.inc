@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Handler code.
+ */
+
+/**
  * Handler for field target_language.
  */
 class smartling_handler_field_target_language extends views_handler_field {

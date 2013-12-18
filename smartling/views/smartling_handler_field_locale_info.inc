@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Handler code.
+ */
+
+/**
  * Handler for field locale_info.
  */
 class smartling_handler_field_locale_info extends views_handler_field {
