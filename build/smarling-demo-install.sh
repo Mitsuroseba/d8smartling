@@ -1,74 +1,127 @@
 #!/bin/bash
-# Install SMARTLING demo-site.
-read -n 1 -p "Are you sure you want to run the installation Smartling demo-site (y/n): " AMSURE
-[ "$AMSURE" = "y" ] || exit
-echo "" 1>&2
+#
+# This helper script do installation of drupal cms for smartling demo site
+#
+################################
 
-MINPARAMS=4
+usage () {
+    echo "Usage: $0 -user=<user> -pass=<password> -host=<host> -db=<db_name> [-h]
+    -user, -host, -db is mandatory parameters. If -pass not set, password will bwe asked at prompt"
+    exit 1
+}
 
-if [ -n "$1" ]
-then
-  user=$1
-  echo "user = $user"
-else
-  echo='You did not enter the parameter USER'
+logit () {
+    DATE=$(date +"[%Y-%m-%d %H:%M:%S]")
+    echo -n "$DATE "
+    case $1 in
+        info) echo -n '[INFO] '
+            ;;
+        warn) echo -n '[WARNING] '
+            ;;
+        err)  echo -n '[ERROR] '
+            ;;
+        *) echo $1
+            ;;
+    esac
+    echo $2
+}
+
+################################
+# some usable variables
+################################
+
+# git url
+GIT=$(which git)
+if [ "x$GIT" = "x" ]; then
+  logit err "Git not found in PATH. Exiting"
+  exit 1
 fi
 
-if [ -n "$2" ]
-then
-  pass=$2
-  echo "pass = $pass"
-else
-  echo='You did not enter the parameter PASSWORD'
+# drush executable
+DRUSH_EXEC=$(which drush)
+[ "x$DRUSH_EXEC" = "x" ] && { logit err "Drush not found in PATH. Exiting"; exit 1; }
+
+################################ 
+# main code
+################################
+
+drush_e () {
+    logit info "Start drush $1"
+    $DRUSH_EXEC $*
+    RESULT=$?
+    [ $RESULT -ne 0 ] && { logit err "Drush $1 error $RESULT. Exiting"; exit $RESULT; }
+    logit info "Done"
+}
+
+# read options
+set -- $(getopt -n$0 -u -a --longoptions="user: pass: host: db:" "h" "$@") || usage
+
+while [ $# -gt 0 ];do
+    case "$1" in
+        --user) UN=$2;shift;;
+        --pass) PSWD=$2;shift;;
+        --host) HOST=$2;shift;;
+        --db)   DB=$2;shift;;
+        -h)     usage;;
+        --)     shift;break;;
+        -*)     usage;;
+        *)      break;;
+    esac
+    shift
+done
+
+# check params
+[ "x$UN" == "x" ] && { logit err "-user option should be set"; usage; }
+
+# ask password if it not set from command line
+if [ "x$PSWD" == "x" ]; then
+    read -s -p "Password: " PSWD
 fi
 
-if [ -n "$3" ]
-then
-  host=$3
-  echo "host = $host"
-else
-  echo='You did not enter the parameter HOST'
-fi
+[ "x$HOST" == "x" ] && { logit err "-host option should be set"; usage; }
+[ "x$DB" == "x" ] && { logit err "-db option should be set"; usage; }
 
-if [ -n "$4" ]
-then
-  db_name=$4
-  echo "db_name = $db_name"
-else
-  echo='You did not enter the parameter DB_NAME'
-fi
+# search for git executable
+logit info "Download source from repo"
+$GIT clone https://github.com/Smartling/drupal-localization-module.git
+RESULT=$?
+[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+logit info "Done"
 
-if [ $# -lt "$MINPARAMS" ]
-then
-  echo "The number of command line arguments should be at least $MINPARAMS !"
-fi
+mv drupal-localization-module/smartling-demo-install.make ./smartling-demo-install.make
 
-git clone https://github.com/Smartling/drupal-localization-module.git
-
-mv drupal-localization-module/smartling-demo-install.make smartling-demo-install.make
-
-echo='Start drush make'
-drush make smartling-demo-install.make -y
-echo='OK'
-
-echo='Start drush site-install'
-drush site-install standard --db-url=mysql://${user}:${pass}@${host}/${db_name} --account-name=admin --account-pass=admin --site-name=Smartling -y
+drush_e make smartling-demo-install.make -y
+drush_e site-install standard --db-url=mysql://$UN:$PSWD@$HOST/$DB --account-name=admin --account-pass=admin --site-name=Smartling -y
 
 mkdir sites/all/modules/custom/
 mv drupal-localization-module/smartling sites/all/modules/custom/
 
-git clone https://github.com/Smartling/api-sdk-php.git sites/all/modules/custom/smartling/api
+logit info "Download source from repo"
+$GIT clone https://github.com/Smartling/api-sdk-php.git sites/all/modules/custom/smartling/api
+RESULT=$?
+[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+logit info "Done"
+
 chmod -R 777 sites/default/files
+drush_e en admin_menu ultimate_cron -y
+drush_e dis overlay toolbar -y
+drush_e vset --exact ultimate_cron_poorman 0
+drush_e en smartling -y
+drush_e en smartling_demo_content -y
+drush_e fra -y
+drush_e cc all -y
+drush_e cron-run defaultcontent_cron
+drush_e cron
 
-drush en admin_menu ultimate_cron -y
-drush dis overlay toolbar -y
-drush vset --exact ultimate_cron_poorman 0
-drush en smartling -y
-drush en smartling_demo_content -y
-drush fra -y
-drush cc all -y
-drush cron-run defaultcontent_cron
-drush cron
-echo='OK'
+# don't like this but devs wanna this :)
+logit info "Set owner to nginx"
+if [ $EUID -eq 0 ]; then
+    chown nginx.nginx -R ./drupal-7.23/
+    RESULT=$?
+    [ $RESULT -ne 0 ] && { logit err "chown error $RESULT. Exiting"; exit $RESULT; }
+else
+    logit warn "Can't do that, you should be root"
+fi
 
-exit 0
+logit info "Installation done"
+exit 0 
