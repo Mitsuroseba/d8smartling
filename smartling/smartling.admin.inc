@@ -129,7 +129,6 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
 
   $url = 'https://api.smartling.com/v1/file/list';
   $response = drupal_http_request($url, $options);
-
   if ($response->code == 200) {
     $response = json_decode($response->data);
     if ($response->response->code == 'SUCCESS') {
@@ -143,7 +142,9 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     }
   }
   else {
-    drupal_set_message(t('Either Project ID or Key is set wrong. Please input correct Smartling settings.'), 'error');
+    if (isset($response->error)) {
+      drupal_set_message($response->error, 'error');
+    }
     form_set_error('smartling_key', '');
     form_set_error('project_id');
   }

@@ -136,7 +136,17 @@ function smartling_translate_fields_is_set($type = FALSE) {
 
 function smartling_get_translatable_field_types() {
   // What types of fields DO we translate?
-  $included_fields = array('text', 'text_long', 'text_textfield', 'text_textarea', 'text_textarea_with_summary');
+  $included_fields = array(
+    'text',
+    'text_long',
+    'text_textfield',
+    'text_textarea',
+    'text_textarea_with_summary',
+    'image_image',
+      //'options_select',
+      //'options_buttons',
+      //'taxonomy_autocomplete',
+  );
   /* uncomment after more tests
     $included_fields = array('text', 'text_long', 'text_textfield', 'text_textarea', 'text_textarea_with_summary', 'field_collection_embed');
     if (module_exists('link')) {
@@ -211,6 +221,20 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
         foreach ($field_names as $field_name) {
           if ($field_name == 'node_title') {
             $node_current_translatable_content[$field_name] = $node->title;
+          }
+          elseif (isset($node->{$field_name}[$node->language][0]['filemime']) && (FALSE !== strpos($node->{$field_name}[$node->language][0]['filemime'], 'image'))) { // this is image field type
+            if (count($node->{$field_name}[$node->language]) == 1) { // single field
+              $node_current_translatable_content[$field_name]['alt-img'] = $node->{$field_name}[$node->language][0]['alt'];
+              $node_current_translatable_content[$field_name]['title-img'] = $node->{$field_name}[$node->language][0]['title'];
+              $node_current_translatable_content[$field_name]['fid-img'] = $node->{$field_name}[$node->language][0]['fid'];
+            }
+            elseif (count($node->{$field_name}[$node->language]) > 1) { // multi field
+              foreach ($node->{$field_name}[$node->language] as $key => $item) {
+                $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
+                $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
+                $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
+              }
+            }
           }
           else {
 
@@ -625,7 +649,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
     }
     elseif (is_array($field_value)) {
       if (count($field_value) > 1) {
-        //fields body-summary or multifields
+        //fields body-summary or image or multifields
         if (isset($field_value['body'])) {
           //field body-summary
           $string = $dom->createElement('string');
@@ -644,6 +668,32 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string->appendChild($string_val);
           $localize->appendChild($string);
         }
+        elseif (isset($field_value['alt-img'])) {
+          //field image
+          $string = $dom->createElement('string');
+          $string_val = $dom->createTextNode($field_value['alt-img']);
+          $string_attr = $dom->createAttribute('id');
+          $string_attr->value = $field_mane . '-alt-img';
+          $string->appendChild($string_attr);
+          $string->appendChild($string_val);
+          // set image fid
+          $string_attr = $dom->createAttribute('fid');
+          $string_attr->value = $field_value['fid-img'];
+          $string->appendChild($string_attr);
+          $localize->appendChild($string);
+
+          $string = $dom->createElement('string');
+          $string_val = $dom->createTextNode($field_value['title-img']);
+          $string_attr = $dom->createAttribute('id');
+          $string_attr->value = $field_mane . '-title-img';
+          $string->appendChild($string_attr);
+          $string->appendChild($string_val);
+          // set image fid
+          $string_attr = $dom->createAttribute('fid');
+          $string_attr->value = $field_value['fid-img'];
+          $string->appendChild($string_attr);
+          $localize->appendChild($string);
+        }
         else {
           if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
             //multifields body-summary
@@ -660,6 +710,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
               $localize->appendChild($string);
+
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value['summary']);
               $string_attr = $dom->createAttribute('id');
@@ -669,6 +720,43 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               // set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
+              $string->appendChild($string_attr);
+              $localize->appendChild($string);
+            }
+          }
+          elseif (!is_string($field_value[0]) && isset($field_value[0]['alt-img'])) {
+            //multifields image
+            $quantity = count($field_value);
+            foreach ($field_value as $key => $value) {
+              $string = $dom->createElement('string');
+              $string_val = $dom->createTextNode($value['alt-img']);
+              $string_attr = $dom->createAttribute('id');
+              $string_attr->value = $field_mane . '-alt-img' . '-' . $key;
+              $string->appendChild($string_attr);
+              $string->appendChild($string_val);
+              // set quantity of multifields
+              $string_attr = $dom->createAttribute('quantity');
+              $string_attr->value = $quantity;
+              $string->appendChild($string_attr);
+              // set image fid
+              $string_attr = $dom->createAttribute('fid');
+              $string_attr->value = $value['fid-img'];
+              $string->appendChild($string_attr);
+              $localize->appendChild($string);
+
+              $string = $dom->createElement('string');
+              $string_val = $dom->createTextNode($value['title-img']);
+              $string_attr = $dom->createAttribute('id');
+              $string_attr->value = $field_mane . '-title-img' . '-' . $key;
+              $string->appendChild($string_attr);
+              $string->appendChild($string_val);
+              // set quantity of multifields
+              $string_attr = $dom->createAttribute('quantity');
+              $string_attr->value = $quantity;
+              $string->appendChild($string_attr);
+              // set image fid
+              $string_attr = $dom->createAttribute('fid');
+              $string_attr->value = $value['fid-img'];
               $string->appendChild($string_attr);
               $localize->appendChild($string);
             }
@@ -909,6 +997,8 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $simple_field_multiple = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
       $body_with_summary = $xpath->query('//string[@id="' . $field_name . '-body' . '"][1]')->item(0);
       $body_with_summary_multiple = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
+      $image = $xpath->query('//string[@id="' . $field_name . '-alt-img' . '"][1]')->item(0);
+      $image_multiple = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
 
       if (is_object($simple_field)) { // if this field is a simple field
         if ($simple_field instanceof DomElement) {
@@ -978,6 +1068,40 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
             }
             else {
               $node_wrapper->language($d_locale)->{$field_name}[$i]->set(array('value' => $body_string, 'summary' => $summary_string));
+            }
+          }
+        }
+      }
+      elseif (is_object($image)) { // if this field is a simple image field
+        $fid = $image->getAttribute('fid');
+        if ($image instanceof DomElement) {
+          $alt_img = (string) $image->nodeValue;
+          $title_img = $xpath->query('//string[@id="' . $field_name . '-title-img' . '"][1]')->item(0);
+          $title_img = (string) $title_img->nodeValue;
+
+          $file_img = file_load($fid);
+          if ($file_img) {
+            $node_wrapper->language($d_locale)->{$field_name} = (array) $file_img + array('alt' => $alt_img, 'title' => $title_img,);
+          }
+        }
+      }
+      elseif (is_object($image_multiple)) { //if this field is a multiple image
+        $quantity = $image_multiple->getAttribute('quantity');
+
+        for ($i = 0; $i < $quantity; $i++) {
+          $alt_obj = $xpath->query('//string[@id="' . $field_name . '-alt-img-' . $i . '"][1]')->item(0);
+          $title_obj = $xpath->query('//string[@id="' . $field_name . '-title-img-' . $i . '"][1]')->item(0);
+
+          $fid = $alt_obj->getAttribute('fid');
+          $file_img = file_load($fid);
+
+          if ($file_img) {
+
+
+            if ($alt_obj instanceof DomElement && $title_obj instanceof DomElement) {
+              $alt_string = (string) $alt_obj->nodeValue;
+              $title_string = (string) $title_obj->nodeValue;
+              $node_wrapper->language($d_locale)->{$field_name}[$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string,);
             }
           }
         }
