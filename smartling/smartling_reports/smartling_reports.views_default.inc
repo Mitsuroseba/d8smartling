@@ -392,7 +392,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['exposed'] = TRUE;
   $handler->display->display_options['filters']['status']['expose']['operator_id'] = '';
-  $handler->display->display_options['filters']['status']['expose']['label'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['label'] = 'Status';
   $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
   $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
   $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
@@ -407,7 +407,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['type']['group'] = 1;
   $handler->display->display_options['filters']['type']['exposed'] = TRUE;
   $handler->display->display_options['filters']['type']['expose']['operator_id'] = 'type_op';
-  $handler->display->display_options['filters']['type']['expose']['label'] = 'type';
+  $handler->display->display_options['filters']['type']['expose']['label'] = 'Type';
   $handler->display->display_options['filters']['type']['expose']['operator'] = 'type_op';
   $handler->display->display_options['filters']['type']['expose']['identifier'] = 'type';
   $handler->display->display_options['filters']['type']['expose']['remember_roles'] = array(
@@ -693,14 +693,12 @@ function smartling_reports_views_default_views() {
     t('next ›'),
     t('last »'),
     t('author'),
-    t('status'),
-    t('type'),
+    t('Status'),
     t('Type'),
     t('Page'),
     t('Smartling translate'),
     t('Title'),
     t('Author'),
-    t('Status'),
     t('Language'),
     t('Locales'),
     t('Updated'),
