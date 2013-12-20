@@ -16,7 +16,7 @@ function smartling_entity_info() {
     'views controller class' => 'EntityDefaultViewsController',
     // The table for this entity defined in hook_schema()
     'base table' => 'smartling_entity_data',
-    // IF fieldable == FALSE, we can't attach fields.
+    // If fieldable == FALSE, we can't attach fields.
     'fieldable' => FALSE,
     'entity keys' => array(
       'id' => 'eid', // The 'id' (basic_id here) is the unique id.

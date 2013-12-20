@@ -437,7 +437,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
  * Node Translation Settings - Form Submit
  */
 function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
-  //this is needed for the setup because of the field/node method selector.
+  // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
   $translate = array();
@@ -464,7 +464,6 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
         }
       }
     } // END:  Selected Content Types and Fields
-    //
     // Look for Selected Translation Type.
     if (FALSE !== strpos($key, '_TT_')) {
       // And only if set to translate
@@ -494,7 +493,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
         // Use the Title module to migrate the content.
         if (title_field_replacement_toggle($entity_type, $bundle, $legacy_field)) {
           $operations[] = array('title_field_replacement_batch', array($entity_type, $bundle, $legacy_field));
-          //add in config
+          // Add in config
           $translate[$content_type]['title_field'] = 'title_field';
 
           $field = field_info_field('title_field');
@@ -522,7 +521,6 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
     );
 
     batch_set($batch);
-    //batch_process('admin/config/regional/smartling');
   }
 }
 

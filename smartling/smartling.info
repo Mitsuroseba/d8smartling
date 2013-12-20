@@ -21,4 +21,6 @@ files[] = includes/smartling.entityController.inc
 files[] = views/smartling.views.inc
 files[] = views/smartling_handler_field_target_language.inc
 files[] = views/smartling_handler_field_locale_info.inc
+files[] = smartling.utils.inc
+files[] = smartling.processing.inc
 files[] = smartling.module

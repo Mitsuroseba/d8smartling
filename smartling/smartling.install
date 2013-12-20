@@ -53,7 +53,8 @@ function smartling_enable() {
 function smartling_uninstall() {
   global $conf;
   foreach (array_keys($conf) as $key) {
-    if (strpos($key, 'smartling_') === 0) { // It's important to use === instead of == with strpos()
+    // It's important to use === instead of == with strpos()
+    if (strpos($key, 'smartling_') === 0) {
       variable_del($key);
     }
   }

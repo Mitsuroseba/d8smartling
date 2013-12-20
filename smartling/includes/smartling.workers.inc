@@ -44,7 +44,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
       smartling_watchdog('smartling_queue_download_update_translated_item_process try to download @filename file: response code - @code, message - @message', FALSE, array('@filename' => $file_name_unic, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
     }
     else {
-      //This is a $download_result
+      // This is a $download_result
       $xml = new DOMDocument();
       $xml->loadXML($download_result);
 
@@ -110,7 +110,8 @@ function smartling_queue_check_status_process($args) {
             '@cs' => $status_result->response->data->completedStringCount
               ), WATCHDOG_INFO, l(t('View file'), $file_uri));
 
-          if ($status_result->response->data->approvedStringCount == $status_result->response->data->completedStringCount) { // if true, file translated
+          // If true, file translated
+          if ($status_result->response->data->approvedStringCount == $status_result->response->data->completedStringCount) {
             $entity_data->progress = 100;
             $entity_data->download = 0;
 
@@ -197,7 +198,8 @@ function smartling_queue_send_to_translate_process($args) {
 
       if ($api->getCodeStatus() == 'SUCCESS') {
         smartling_watchdog('Smartling upload xml file to service for node id - @nid.', TRUE, array('@nid' => $args->rid), WATCHDOG_INFO, l(t('View file'), $file_path));
-      } elseif (is_object($upload_result)) {
+      }
+      elseif (is_object($upload_result)) {
         smartling_watchdog('smartling_queue_send_to_translate_process try upload xml (fileUri - @filename) to service: response code - @code, message - @message', FALSE, array('@filename' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
 
         // Add new queue item if some error

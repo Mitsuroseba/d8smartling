@@ -102,7 +102,8 @@ function smartling_is_configured() {
       }
     }
   }
-  return TRUE; // all required configuration variables are set
+  // All required configuration variables are set
+  return TRUE;
 }
 
 /**
@@ -186,7 +187,6 @@ function smartling_translatable_node_field_details() {
   foreach ($fields as $field_id => $field) {
     foreach ($field['bundles'] as $type => $instance) {
       if (field_is_translatable($type, $field)) {
-        //echo '<br>Translatable: YES!' ;
         $field_db_table = array_keys($field['storage']['details']['sql']['FIELD_LOAD_CURRENT']);
         $field_db_table = array_shift($field_db_table);
         $translatable_fields[] = array(
@@ -200,78 +200,6 @@ function smartling_translatable_node_field_details() {
   }
 
   return $translatable_fields;
-}
-
-/**
- *
- * @param type $nid
- * @return type array
- */
-function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
-
-  $node_current_translatable_content = array();
-  $node = smartling_node_load_default($nid);
-
-  $translate = variable_get('smartling_translate_fields', array());
-
-  if (!empty($translate)) {
-    foreach ($translate as $type => $field_names) {
-
-      if ($node->type === $type) {
-        foreach ($field_names as $field_name) {
-          if ($field_name == 'node_title') {
-            $node_current_translatable_content[$field_name] = $node->title;
-          }
-          elseif (isset($node->{$field_name}[$node->language][0]['filemime']) && (FALSE !== strpos($node->{$field_name}[$node->language][0]['filemime'], 'image'))) { // this is image field type
-            if (count($node->{$field_name}[$node->language]) == 1) { // single field
-              $node_current_translatable_content[$field_name]['alt-img'] = $node->{$field_name}[$node->language][0]['alt'];
-              $node_current_translatable_content[$field_name]['title-img'] = $node->{$field_name}[$node->language][0]['title'];
-              $node_current_translatable_content[$field_name]['fid-img'] = $node->{$field_name}[$node->language][0]['fid'];
-            }
-            elseif (count($node->{$field_name}[$node->language]) > 1) { // multi field
-              foreach ($node->{$field_name}[$node->language] as $key => $item) {
-                $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
-                $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
-                $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
-              }
-            }
-          }
-          else {
-
-            if (isset($node->{$field_name}[$node->language][0]['value'])) {
-
-              if (count($node->{$field_name}[$node->language]) == 1) {
-
-                if (!isset($node->{$field_name}[$node->language][0]['summary'])) {
-                  $node_current_translatable_content[$field_name] = $node->{$field_name}[$node->language][0]['value'];
-                }
-                else {
-                  $node_current_translatable_content[$field_name]['body'] = $node->{$field_name}[$node->language][0]['value'];
-                  $node_current_translatable_content[$field_name]['summary'] = $node->{$field_name}[$node->language][0]['summary'];
-                }
-              }
-              elseif (count($node->{$field_name}[$node->language]) > 1) {
-
-                if (!isset($node->{$field_name}[$node->language][0]['summary'])) {
-                  foreach ($node->{$field_name}[$node->language] as $key => $item) {
-                    $node_current_translatable_content[$field_name][$key] = $item['value'];
-                  }
-                }
-                else {
-                  foreach ($node->{$field_name}[$node->language] as $key => $item) {
-                    $node_current_translatable_content[$field_name][$key]['body'] = $item['value'];
-                    $node_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return $node_current_translatable_content;
 }
 
 /**
@@ -638,7 +566,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
 
   foreach ($strings as $field_mane => $field_value) {
     if (is_string($field_value)) {
-      //simple field
+      // Simple field
       $string = $dom->createElement('string');
       $string_val = $dom->createTextNode($field_value);
       $string_attr = $dom->createAttribute('id');
@@ -649,9 +577,9 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
     }
     elseif (is_array($field_value)) {
       if (count($field_value) > 1) {
-        //fields body-summary or image or multifields
+        // Fields body-summary or image or multifields
         if (isset($field_value['body'])) {
-          //field body-summary
+          // Field body-summary
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['body']);
           $string_attr = $dom->createAttribute('id');
@@ -669,14 +597,14 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $localize->appendChild($string);
         }
         elseif (isset($field_value['alt-img'])) {
-          //field image
+          // Field image
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['alt-img']);
           $string_attr = $dom->createAttribute('id');
           $string_attr->value = $field_mane . '-alt-img';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // set image fid
+          // Set image fid
           $string_attr = $dom->createAttribute('fid');
           $string_attr->value = $field_value['fid-img'];
           $string->appendChild($string_attr);
@@ -688,7 +616,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string_attr->value = $field_mane . '-title-img';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // set image fid
+          // Set image fid
           $string_attr = $dom->createAttribute('fid');
           $string_attr->value = $field_value['fid-img'];
           $string->appendChild($string_attr);
@@ -696,7 +624,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
         }
         else {
           if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
-            //multifields body-summary
+            // Multifields body-summary
             $quantity = count($field_value);
             foreach ($field_value as $key => $value) {
               $string = $dom->createElement('string');
@@ -705,7 +633,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $field_mane . '-body' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
-              // set quantity of multifields
+              // Set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
@@ -717,7 +645,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $field_mane . '-summary' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
-              // set quantity of multifields
+              // Set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
@@ -725,7 +653,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
             }
           }
           elseif (!is_string($field_value[0]) && isset($field_value[0]['alt-img'])) {
-            //multifields image
+            // Multifields image
             $quantity = count($field_value);
             foreach ($field_value as $key => $value) {
               $string = $dom->createElement('string');
@@ -734,11 +662,11 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $field_mane . '-alt-img' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
-              // set quantity of multifields
+              // Set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
-              // set image fid
+              // Set image fid
               $string_attr = $dom->createAttribute('fid');
               $string_attr->value = $value['fid-img'];
               $string->appendChild($string_attr);
@@ -750,11 +678,11 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $field_mane . '-title-img' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
-              // set quantity of multifields
+              // Set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
-              // set image fid
+              // Set image fid
               $string_attr = $dom->createAttribute('fid');
               $string_attr->value = $value['fid-img'];
               $string->appendChild($string_attr);
@@ -762,7 +690,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
             }
           }
           elseif (is_string($field_value[0])) {
-            //multifields
+            // Multifields
             $quantity = count($field_value);
             foreach ($field_value as $key => $value) {
               $string = $dom->createElement('string');
@@ -771,7 +699,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string_attr->value = $field_mane . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
-              // set quantity of multifields
+              // Set quantity of multifields
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
@@ -806,15 +734,15 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
   $mode = variable_get('smartling_mode');
-  //init api object
+  // Init api object
   $api = new SmartlingAPI($key, $project_id, $mode);
 
-  //try to retrieve file status
+  // Try to retrieve file status
   $status_result = $api->getStatus($file_name_unic, $s_locale);
   $status_result = json_decode($status_result);
 
-  //This is a get status
-  if ($status_result->response->code == 'SUCCESS') {
+  // This is a get status
+  if ($api->getCodeStatus() == 'SUCCESS') {
 
     if ($status_result->response->data->approvedStringCount !== 0) {
       $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
@@ -849,7 +777,8 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
   smartling_is_configured();
 
   if (is_null($entity_data)) {
-    if (is_numeric($s_locale)) { // use in views report (Download)
+    if (is_numeric($s_locale)) {
+      // Use in views report (Download)
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $s_locale));
       $s_locale = $entity_data->target_language;
     }
@@ -863,7 +792,6 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
   $file_name = $entity_data->file_name;
   $file_name_unic = $entity_data->file_name;
   $file_uri = file_create_url('public://smartling/' . $file_name);
-  //$new_file_uri = SMARTLING_DIRECTORY . '/new_' . $file_name;
   $file_name = substr($file_name, 0, strlen($file_name) - 4);
 
   $translated_filename = $file_name . '_' . $s_locale . '.xml';
@@ -871,7 +799,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
   $mode = variable_get('smartling_mode');
-  //init api object
+  // Init api object
   $api = new SmartlingAPI($key, $project_id, $mode);
 
   $retrieval_type = variable_get('smartling_retrieval_type');
@@ -879,15 +807,15 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
     'retrievalType' => $retrieval_type,
   );
 
-  //try to retrieve file status
+  // Try to retrieve file status
   $status_result = $api->getStatus($file_name_unic, $s_locale);
   $status_result = json_decode($status_result);
 
-  //This is a get status
-  if ($status_result->response->code == 'SUCCESS') {
-    //try to download file
+  // This is a get status
+  if ($api->getCodeStatus() == 'SUCCESS') {
+    // Try to download file
     $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-    //This is a $download_result
+    // This is a $download_result
     $xml = new DOMDocument();
     $xml->loadXML($download_result);
 
@@ -934,190 +862,6 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
 }
 
 /**
- * Parsing the translated file and record the results in the field.
- *
- * @param type $nid
- * @param type $s_locale locale in Smartling format
- * @param bool $nodes_method
- * If TRUE - nodes method execute
- */
-function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FALSE) {
-  $d_locale = smartling_convert_locale_drupal_to_smatrtling($s_locale, TRUE);
-  smartling_watchdog('Smartling start update fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
-
-  $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
-  $file_name = $entity_data->translated_file_name;
-  $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
-
-  if ($nodes_method) {
-    $original_node = smartling_node_load_default($rid);
-    $translations = translation_node_get_translations($original_node->tnid);
-    if (isset($translations[$d_locale])) {
-      $rid = $translations[$d_locale]->nid;
-    }
-    else {
-      //if node not exist, need create new node
-      $node = new stdClass();
-      $node->type = $original_node->type;
-      node_object_prepare($node);
-      $node->title = $original_node->title;
-      $node->language = $d_locale;
-      $node->uid = $entity_data->submitter;
-      $node->tnid = $original_node->nid;
-
-      node_save($node);
-
-      $rid = $node->nid;
-    }
-  }
-  $smartling_translate_fields = variable_get('smartling_translate_fields');
-
-  $fields = $smartling_translate_fields[$entity_data->bundle];
-
-  $xml = new DOMDocument();
-
-  $xml->load($file_path);
-  $xpath = new DomXpath($xml);
-
-  $node_wrapper = entity_metadata_wrapper('node', $rid);
-
-  foreach ($fields as $field_name) {
-    if ($field_name == 'node_title') {
-      $simple_field = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
-      if (is_object($simple_field)) { // simple title
-        if ($simple_field instanceof DomElement) {
-          $string = (string) $simple_field->nodeValue;
-          $node_wrapper->title = $string;
-        }
-      }
-    }
-    else {
-      // check field variant
-      $simple_field = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
-      $simple_field_multiple = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-      $body_with_summary = $xpath->query('//string[@id="' . $field_name . '-body' . '"][1]')->item(0);
-      $body_with_summary_multiple = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
-      $image = $xpath->query('//string[@id="' . $field_name . '-alt-img' . '"][1]')->item(0);
-      $image_multiple = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
-
-      if (is_object($simple_field)) { // if this field is a simple field
-        if ($simple_field instanceof DomElement) {
-          $string = (string) $simple_field->nodeValue;
-          $info = $node_wrapper->language($d_locale)->{$field_name}->info();
-
-          if (isset($info['property info'])) {
-            $node_wrapper->language($d_locale)->{$field_name}->value = $string;
-          }
-          else {
-            $node_wrapper->language($d_locale)->{$field_name}->set($string);
-          }
-        }
-      }
-      elseif (is_object($simple_field_multiple)) { // if this field is a simple multiple field
-        $quantity = $simple_field_multiple->getAttribute('quantity');
-
-        for ($i = 0; $i < $quantity; $i++) {
-          $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')->item(0);
-
-          if ($field instanceof DomElement) {
-            $string = (string) $field->nodeValue;
-            $info = $node_wrapper->language($d_locale)->{$field_name}[$i]->info();
-
-            if (isset($info['property info'])) {
-              $node_wrapper->language($d_locale)->{$field_name}[$i]->value = $string;
-            }
-            else {
-              $node_wrapper->language($d_locale)->{$field_name}[$i]->set($string);
-            }
-          }
-        }
-      }
-      elseif (is_object($body_with_summary)) { // if this field is a simple body/summary field
-        if ($body_with_summary instanceof DomElement) {
-          $body = (string) $body_with_summary->nodeValue;
-          $summary = $xpath->query('//string[@id="' . $field_name . '-summary' . '"][1]')->item(0);
-          $summary = (string) $summary->nodeValue;
-
-          $info = $node_wrapper->language($d_locale)->{$field_name}->info();
-
-          if (isset($info['property info'])) {
-            $node_wrapper->language($d_locale)->{$field_name}->value = $body;
-            $node_wrapper->language($d_locale)->{$field_name}->summary = $summary;
-          }
-          else {
-            $node_wrapper->language($d_locale)->{$field_name}->set(array('value' => $body, 'summary' => $summary));
-          }
-        }
-      }
-      elseif (is_object($body_with_summary_multiple)) { //if this field is a multiple body/summary
-        $quantity = $body_with_summary_multiple->getAttribute('quantity');
-
-        for ($i = 0; $i < $quantity; $i++) {
-          $body_obj = $xpath->query('//string[@id="' . $field_name . '-body-' . $i . '"][1]')->item(0);
-          $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')->item(0);
-
-          if ($body_obj instanceof DomElement && $summary_obj instanceof DomElement) {
-            $body_string = (string) $body_obj->nodeValue;
-            $summary_string = (string) $summary_obj->nodeValue;
-
-            $info = $node_wrapper->language($d_locale)->{$field_name}[$i]->info();
-
-            if (isset($info['property info'])) {
-              $node_wrapper->language($d_locale)->{$field_name}[$i]->value = $body_string;
-              $node_wrapper->language($d_locale)->{$field_name}[$i]->summary = $summary_string;
-            }
-            else {
-              $node_wrapper->language($d_locale)->{$field_name}[$i]->set(array('value' => $body_string, 'summary' => $summary_string));
-            }
-          }
-        }
-      }
-      elseif (is_object($image)) { // if this field is a simple image field
-        $fid = $image->getAttribute('fid');
-        if ($image instanceof DomElement) {
-          $alt_img = (string) $image->nodeValue;
-          $title_img = $xpath->query('//string[@id="' . $field_name . '-title-img' . '"][1]')->item(0);
-          $title_img = (string) $title_img->nodeValue;
-
-          $file_img = file_load($fid);
-          if ($file_img) {
-            $node_wrapper->language($d_locale)->{$field_name} = (array) $file_img + array('alt' => $alt_img, 'title' => $title_img,);
-          }
-        }
-      }
-      elseif (is_object($image_multiple)) { //if this field is a multiple image
-        $quantity = $image_multiple->getAttribute('quantity');
-
-        for ($i = 0; $i < $quantity; $i++) {
-          $alt_obj = $xpath->query('//string[@id="' . $field_name . '-alt-img-' . $i . '"][1]')->item(0);
-          $title_obj = $xpath->query('//string[@id="' . $field_name . '-title-img-' . $i . '"][1]')->item(0);
-
-          $fid = $alt_obj->getAttribute('fid');
-          $file_img = file_load($fid);
-
-          if ($file_img) {
-
-
-            if ($alt_obj instanceof DomElement && $title_obj instanceof DomElement) {
-              $alt_string = (string) $alt_obj->nodeValue;
-              $title_string = (string) $title_obj->nodeValue;
-              $node_wrapper->language($d_locale)->{$field_name}[$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string,);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  $node_wrapper->save();
-
-  $entity_data->download = 1;
-  smartling_entity_data_save($entity_data);
-
-  smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View translated node'), $d_locale . '/node/' . $rid));
-}
-
-/**
  * Duplicate the function node_admin_content() for the introduction of mass smartling action.
  */
 function smartling_node_admin_content($form, $form_state) {
@@ -1157,7 +901,6 @@ function smartling_node_mass_translate_confirm($form, &$form_state, $nodes) {
     '#options' => $options,
     '#title' => t('Check language'),
   );
-
 
   foreach ($nodes as $key => $node) {
     if (smartling_supported_type($node->type)) {
@@ -1251,7 +994,7 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
                   $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
                   $obj->s_locale = $s_locale;
                   $obj->submitter = $user->uid;
-                  // create queue item
+                  // Create queue item
                   $smartling_queue->createItem($obj);
                   $count_op++;
                   unset($obj);
@@ -1267,7 +1010,7 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
                 $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
                 $obj->s_locale = $s_locale;
                 $obj->submitter = $user->uid;
-                // create queue item
+                // Create queue item
                 $smartling_queue->createItem($obj);
                 $count_op++;
                 unset($obj);
@@ -1308,3 +1051,4 @@ function smartling_watchdog($message, $consider_log = TRUE, $variables = array()
     watchdog('smartling', $message, $variables, $severity, $link);
   }
 }
+

@@ -23,7 +23,7 @@ function smartling_views_data_alter(&$data) {
     )
   );
 
-  // add views handler
+  // Add views handler
   $data['smartling_entity_data']['target_language'] = array(
     'title' => t('Target Language'),
     'help' => t('Smartling entity data "target_language" property.'),
