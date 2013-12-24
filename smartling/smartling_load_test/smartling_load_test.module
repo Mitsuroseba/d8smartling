@@ -46,6 +46,17 @@ function smartling_load_test_form_alter(&$form, $form_state, $form_id) {
       '#name' => 'cleanup_load_tests_submit',
       '#value' => t('CleanUp test nodes'),
     );
+    $form['dev_info']['cleanup_all'] = array(
+      '#type' => 'item',
+      '#title' => t('Cleanup all nodes'),
+      '#markup' => 'Cleanup all smartling content',
+    );
+    $form['dev_info']['cleanup_all_submit'] = array(
+      '#type' => 'submit',
+      '#name' => 'cleanup_all_submit',
+      '#attributes' => array('class' => array('confirm-delete-ajax-submit')),
+      '#value' => t('CleanUp all nodes'),
+    );
     $form['#submit'][] = 'smartling_admin_dev_settings_form_submit';
   }
 }
@@ -79,6 +90,23 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       batch_set($batch);
     }
   }
+  if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
+    $query = db_select('smartling_entity_data', 'sed');
+    $result = $query->fields('sed', array('eid'))
+        ->execute()
+        ->fetchCol();
+    if (!empty($result)) {
+      foreach ($result as $nid) {
+        $operations[] = array('_delete_smartling_content_batch', array($nid));
+      }
+
+      $batch = array(
+        'title' => t('Delete Smartling translated content'),
+        'operations' => $operations
+      );
+      batch_set($batch);
+    }
+  }
 }
 
 function _create_load_test_node_batch() {
@@ -105,4 +133,53 @@ function _create_load_test_node_batch() {
 
 function _delete_load_test_node_batch($nid) {
   node_delete($nid);
+}
+
+function _delete_smartling_content_batch($eid) {
+  $entity_data = smartling_entity_data_load($eid);
+
+  if (smartling_nodes_method($entity_data->bundle)) {
+    // If nodes method
+    $translations = translation_node_get_translations($entity_data->rid);
+
+    if (is_array($translations)) {
+      $d_locale_original = smartling_convert_locale_drupal_to_smatrtling($entity_data->original_language, TRUE);
+
+      foreach ($translations as $lang => $value) {
+        if ($lang != $d_locale_original) {
+          node_delete($value->nid);
+        }
+      }
+      smartling_entity_data_delete_multiple(array($entity_data->eid));
+    }
+  }
+  elseif (smartling_fields_method($entity_data->bundle)) {
+    // If fields method
+    $d_locale_target_language = smartling_convert_locale_drupal_to_smatrtling($entity_data->target_language, TRUE);
+    $entity = entity_load_single('node', $entity_data->rid);
+
+    foreach (field_info_instances('node', $entity_data->bundle) as $field) {
+      $field_machine_name = $field['field_name'];
+
+      if (isset($entity->{$field_machine_name}[$d_locale_target_language])) {
+        $count = count($entity->{$field_machine_name}[$d_locale_target_language]);
+        // Remove the field value
+        if ($count == 1) {
+          // Single value
+          unset($entity->{$field_machine_name}[$d_locale_target_language][0]);
+        }
+        elseif ($count > 1) {
+          // Multiple value
+          for ($i = 0; $i < $count; $i++) {
+            unset($entity->{$field_machine_name}[$d_locale_target_language][$i]);
+          }
+        }
+      }
+      // Reset the array to zero-based sequential keys
+      $entity->{$field_machine_name}[$d_locale_target_language] = array_values($entity->{$field_machine_name}[$d_locale_target_language]);
+      // Save the entity
+      entity_save('node', $entity);
+    }
+    smartling_entity_data_delete_multiple(array($entity_data->eid));
+  }
 }

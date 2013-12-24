@@ -41,7 +41,12 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
   if ($mode == 'PRODUCTION') {
     if (isset($download_result->response->code)) {
       $download_result = json_decode($download_result);
-      smartling_watchdog('smartling_queue_download_update_translated_item_process try to download @filename file: response code - @code, message - @message', FALSE, array('@filename' => $file_name_unic, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
+      smartling_watchdog('smartling_queue_download_update_translated_item_process try to download file:<br/>
+      Project Id: @project_id <br/>
+      Action: download <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
     }
     else {
       // This is a $download_result
@@ -137,7 +142,12 @@ function smartling_queue_check_status_process($args) {
           }
         }
         else {
-          smartling_watchdog('smartling_queue_check_status_process try check status file: response code - @code, message - @message', FALSE, array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
+          smartling_watchdog('Smartling check status for node id - @nid: <br/>
+      Project Id: @project_id <br/>
+      Action: status <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message', FALSE, array('@nid' => $args->rid, '@project_id' => $project_id, '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
         }
       }
       else {
@@ -200,7 +210,11 @@ function smartling_queue_send_to_translate_process($args) {
         smartling_watchdog('Smartling upload xml file to service for node id - @nid.', TRUE, array('@nid' => $args->rid), WATCHDOG_INFO, l(t('View file'), $file_path));
       }
       elseif (is_object($upload_result)) {
-        smartling_watchdog('smartling_queue_send_to_translate_process try upload xml (fileUri - @filename) to service: response code - @code, message - @message', FALSE, array('@filename' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
+        smartling_watchdog('smartling_queue_send_to_translate_process try upload xml to service: <br/>
+      Project Id: @project_id <br/>
+      Action: upload <br/>
+      URI: @file_uri <br/>
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
 
         // Add new queue item if some error
         $smartling_queue = DrupalQueue::get('smartling_send_to_translate');

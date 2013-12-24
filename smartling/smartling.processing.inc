@@ -18,7 +18,12 @@ function smartling_get_field_content_processing_mode($field_name) {
     return 'node-title';
   }
   elseif ($field_name == 'title_field') {
-    return 'simple-text-field';
+    if ($info['cardinality'] == 1) {
+      return 'simple-text-field';
+    }
+    else {
+      return 'multiple-text-field';
+    }
   }
   else {
     if ($info['cardinality'] == 1) {

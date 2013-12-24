@@ -1,6 +1,7 @@
 name = Smartling load test
 core = 7.x
 package = smartling
+dependencies[] = devel
 dependencies[] = devel_generate
 dependencies[] = smartling
 dependencies[] = text

@@ -27,4 +27,22 @@
     }
   }
 
+  Drupal.behaviors.smartlingConfirmDelete = {
+    attach: function(context, settings) {
+      var button = $('.confirm-delete-ajax-submit');
+      button.click(function() {
+        show_confirmation();
+      });
+
+      function show_confirmation() {
+        if (confirm("Do you want to submit?")) {
+          return true;
+        } else {
+          // return false prevents the form from submitting
+          return false;
+        }
+      }
+    }
+  }
+
 })(jQuery);

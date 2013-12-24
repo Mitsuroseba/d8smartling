@@ -520,7 +520,6 @@ function smartling_build_xml_by_node_id($rid = NULL, $s_locale, $title = '', $no
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
     $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string '));
-    $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = \$\{.*?\} '));
 
     $data = $xml->createElement('data');
 
@@ -564,26 +563,26 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
   $localize_attr->value = $title;
   $localize->appendChild($localize_attr);
 
-  foreach ($strings as $field_mane => $field_value) {
+  foreach ($strings as $field_name => $field_value) {
     if (is_string($field_value)) {
       // Simple field
       $string = $dom->createElement('string');
       $string_val = $dom->createTextNode($field_value);
       $string_attr = $dom->createAttribute('id');
-      $string_attr->value = $field_mane;
+      $string_attr->value = $field_name;
       $string->appendChild($string_attr);
       $string->appendChild($string_val);
       $localize->appendChild($string);
     }
     elseif (is_array($field_value)) {
-      if (count($field_value) > 1) {
+      if (count($field_value) >= 1) {
         // Fields body-summary or image or multifields
         if (isset($field_value['body'])) {
           // Field body-summary
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['body']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_mane . '-body';
+          $string_attr->value = $field_name . '-body';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
           $localize->appendChild($string);
@@ -591,7 +590,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['summary']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_mane . '-summary';
+          $string_attr->value = $field_name . '-summary';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
           $localize->appendChild($string);
@@ -601,7 +600,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['alt-img']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_mane . '-alt-img';
+          $string_attr->value = $field_name . '-alt-img';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
           // Set image fid
@@ -613,7 +612,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($field_value['title-img']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_mane . '-title-img';
+          $string_attr->value = $field_name . '-title-img';
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
           // Set image fid
@@ -630,7 +629,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value['body']);
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_mane . '-body' . '-' . $key;
+              $string_attr->value = $field_name . '-body' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
               // Set quantity of multifields
@@ -642,7 +641,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value['summary']);
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_mane . '-summary' . '-' . $key;
+              $string_attr->value = $field_name . '-summary' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
               // Set quantity of multifields
@@ -659,7 +658,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value['alt-img']);
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_mane . '-alt-img' . '-' . $key;
+              $string_attr->value = $field_name . '-alt-img' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
               // Set quantity of multifields
@@ -675,7 +674,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value['title-img']);
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_mane . '-title-img' . '-' . $key;
+              $string_attr->value = $field_name . '-title-img' . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
               // Set quantity of multifields
@@ -696,7 +695,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
               $string = $dom->createElement('string');
               $string_val = $dom->createTextNode($value);
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_mane . '-' . $key;
+              $string_attr->value = $field_name . '-' . $key;
               $string->appendChild($string_attr);
               $string->appendChild($string_val);
               // Set quantity of multifields
@@ -760,7 +759,12 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
     return $progress;
   }
   else {
-    smartling_watchdog('Smartling try to check progress file: response code - @code, message - @message', FALSE, array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
+    smartling_watchdog('Smartling try to check progress file: <br/>
+      Project Id: @project_id <br/>
+      Action: status <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
     drupal_set_message(t('Smartling try to check progress file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
     drupal_goto(current_path());
   }
@@ -855,7 +859,12 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
     }
   }
   else {
-    smartling_watchdog('Smartling try to download file: response code - @code, message - @message', FALSE, array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
+    smartling_watchdog('Smartling try to download file: <br/>
+      Project Id: @project_id <br/>
+      Action: download <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
     drupal_set_message(t('Smartling try to download file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
     drupal_goto(current_path());
   }
