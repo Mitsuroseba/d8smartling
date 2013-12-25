@@ -979,7 +979,7 @@ function smartling_node_mass_translate_confirm_submit($form, &$form_state) {
 
   if ($form_state['values']['confirm']) {
     global $user;
-    $smartling_queue = DrupalQueue::get('smartling_send_to_translate');
+    $smartling_queue = DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
     $count_op = 0;
 
