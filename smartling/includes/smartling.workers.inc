@@ -120,7 +120,7 @@ function smartling_queue_check_status_process($args) {
             $entity_data->progress = 100;
             $entity_data->download = 0;
 
-            $smartling_queue = DrupalQueue::get('smartling_download_update_translated_item');
+            $smartling_queue = DrupalQueue::get('smartling_download');
             $smartling_queue->createQueue();
             $smartling_queue->createItem($entity_data);
 
@@ -217,7 +217,7 @@ function smartling_queue_send_to_translate_process($args) {
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
 
         // Add new queue item if some error
-        $smartling_queue = DrupalQueue::get('smartling_send_to_translate');
+        $smartling_queue = DrupalQueue::get('smartling_upload');
         $smartling_queue->createQueue();
         $smartling_queue->createItem($args);
         smartling_watchdog('Smartling upload xml file to service for node id - @nid is FAIL!', FALSE, array('@nid' => $args->rid), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
