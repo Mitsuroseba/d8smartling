@@ -10,7 +10,6 @@
  */
 function smartling_install() {
   variable_set('smartling_log', 1);
-  variable_set('smartling_mass_time', 58);
 
   $language_negotiation_language = array(
     'locale-url' => array(
@@ -60,8 +59,8 @@ function smartling_uninstall() {
   }
 
   $queue_array[] = 'smartling_check_status';
-  $queue_array[] = 'smartling_send_to_translate';
-  $queue_array[] = 'smartling_download_update_translated_item';
+  $queue_array[] = 'smartling_upload';
+  $queue_array[] = 'smartling_download';
   foreach ($queue_array as $queue_name) {
     $queue = DrupalQueue::get($queue_name);
     $queue->deleteQueue();

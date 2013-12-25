@@ -59,13 +59,6 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  $items['admin/content/smartling'] = array(
-    'title' => 'Smartling Translations',
-    'description' => 'Smartling Translations',
-    'weight' => -10,
-    'access arguments' => array('administer smartling'),
-  );
-
   return $items;
 }
 
@@ -89,10 +82,6 @@ function smartling_menu_alter(&$items) {
   if (isset($items['admin/content'])) {
     $items['admin/content']['page arguments'][0] = 'smartling_node_admin_content';
   }
-  $items['admin/content/smartling']['page callback'] = $items['admin/content/smartling/report-completed']['page callback'];
-  $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
-  $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
-  $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
 }
 
 /**
@@ -581,7 +570,7 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
   $nid = $form['#node']->nid;
   global $user;
 
-  $smartling_queue = DrupalQueue::get('smartling_send_to_translate');
+  $smartling_queue = DrupalQueue::get('smartling_upload');
   $smartling_queue->createQueue();
   $count_op = 0;
 
@@ -763,20 +752,26 @@ function smartling_cron() {
 }
 
 /**
+ * Implements hook_cron_alter().
+ */
+function smartling_cron_alter(&$hooks) {
+  if (isset($hooks['smartling_cron']['description'])) {
+    $hooks['smartling_cron']['description'] = t('Add nodes for translation');
+  }
+}
+
+/**
  * Implements hook_cron_queue_info().
  */
 function smartling_cron_queue_info() {
-  $queues['smartling_send_to_translate'] = array(
+  $queues['smartling_upload'] = array(
     'worker callback' => 'smartling_queue_send_to_translate_process',
-    'time' => variable_get('smartling_mass_time', 58),
   );
   $queues['smartling_check_status'] = array(
     'worker callback' => 'smartling_queue_check_status_process',
-    'time' => variable_get('smartling_mass_time', 58),
   );
-  $queues['smartling_download_update_translated_item'] = array(
+  $queues['smartling_download'] = array(
     'worker callback' => 'smartling_queue_download_update_translated_item_process',
-    'time' => variable_get('smartling_mass_time', 58),
   );
 
   return $queues;
@@ -834,7 +829,7 @@ function smartling_action_info() {
 function smartling_do_translate_action($node, $context) {
   global $user;
 
-  $smartling_queue = DrupalQueue::get('smartling_send_to_translate');
+  $smartling_queue = DrupalQueue::get('smartling_upload');
   $smartling_queue->createQueue();
   $count_op = 0;
 

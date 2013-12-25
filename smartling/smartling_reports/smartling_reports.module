@@ -1,7 +1,33 @@
 <?php
+
 /**
  * @file
  * Code for the Smartling reports feature.
  */
-
 include_once 'smartling_reports.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function smartling_reports_menu() {
+  $items = array();
+
+  $items['admin/content/smartling'] = array(
+    'title' => 'Smartling Translations',
+    'description' => 'Smartling Translations',
+    'weight' => -10,
+    'access arguments' => array('administer smartling'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function smartling_reports_menu_alter(&$items) {
+  $items['admin/content/smartling']['page callback'] = $items['admin/content/smartling/report-completed']['page callback'];
+  $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
+  $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
+  $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
+}
