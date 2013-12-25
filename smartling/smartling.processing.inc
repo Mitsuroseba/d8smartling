@@ -114,16 +114,20 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
             break;
 
           case 'simple-image-field':
-            $node_current_translatable_content[$field_name]['alt-img'] = $node->{$field_name}[$node->language][0]['alt'];
-            $node_current_translatable_content[$field_name]['title-img'] = $node->{$field_name}[$node->language][0]['title'];
-            $node_current_translatable_content[$field_name]['fid-img'] = $node->{$field_name}[$node->language][0]['fid'];
+            if (is_array($node->{$field_name}) && isset($node->{$field_name}[$node->language])) {
+              $node_current_translatable_content[$field_name]['alt-img'] = $node->{$field_name}[$node->language][0]['alt'];
+              $node_current_translatable_content[$field_name]['title-img'] = $node->{$field_name}[$node->language][0]['title'];
+              $node_current_translatable_content[$field_name]['fid-img'] = $node->{$field_name}[$node->language][0]['fid'];
+            }
             break;
 
           case 'multiple-image-field':
-            foreach ($node->{$field_name}[$node->language] as $key => $item) {
-              $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
-              $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
-              $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
+            if (is_array($node->{$field_name}) && isset($node->{$field_name}[$node->language])) {
+              foreach ($node->{$field_name}[$node->language] as $key => $item) {
+                $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
+                $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
+                $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
+              }
             }
             break;
 
