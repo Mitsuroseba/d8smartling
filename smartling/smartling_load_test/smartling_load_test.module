@@ -23,7 +23,7 @@ function smartling_load_test_preprocess_page(&$variables) {
  * Implements hook_form_alter().
  */
 function smartling_load_test_form_alter(&$form, $form_state, $form_id) {
-  if ($form_id == 'smartling_admin_mass_settings_form') {
+  if ($form_id == 'smartling_admin_dev_settings_form') {
     $query = db_select('node', 'n');
     $query->addExpression('COUNT(n.nid)');
     $count = $query->condition('n.type', 'smartling_load_test')

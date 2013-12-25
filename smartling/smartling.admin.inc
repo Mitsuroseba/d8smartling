@@ -23,14 +23,15 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
   $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
-  $mass_settings = drupal_get_form('smartling_admin_mass_settings_form', $show_fieldset);
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
-  $output['smartling'][] = smartling_wrap_in_fieldset($mass_settings, 'Mass settings');
-
+  if (module_exists('smartling_load_test')) {
+    $dev_settings = drupal_get_form('smartling_admin_dev_settings_form', $show_fieldset);
+    $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, 'Dev settings');
+  }
   return $output;
 }
 
@@ -238,45 +239,8 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
 /**
  * Smartling dev settings form
  */
-function smartling_admin_mass_settings_form($form, &$form_state) {
-  $smartling_mass_time = variable_get('smartling_mass_time', 58);
+function smartling_admin_dev_settings_form($form, &$form_state) {
 
-  $form['dev_info']['mass_time'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Smartling mass time'),
-    '#default_value' => $smartling_mass_time,
-    '#description' => t('Lead time for bulk operations queues. 58 sec dy default.'),
-    '#size' => 5,
-    'actions' => array(
-      '#type' => 'actions',
-    ),
-  );
-
-  $form['dev_info']['mass_time_submit'] = array(
-    '#type' => 'submit',
-    '#name' => 'mass_time_submit',
-    '#value' => t('Save'),
-  );
-
-  return $form;
-}
-
-function smartling_admin_mass_settings_form_validate($form, &$form_state) {
-  if ($form_state['clicked_button']['#name'] == 'mass_time_submit') {
-    if (is_numeric($form_state['values']['mass_time'])) {
-      variable_set('smartling_mass_time', $form_state['values']['mass_time']);
-    }
-    else {
-      form_set_error('mass_time', t('Wrong format mass operations time.'));
-    }
-  }
-}
-
-function smartling_admin_mass_settings_form_submit($form, &$form_state) {
-  if ($form_state['clicked_button']['#name'] == 'mass_time_submit') {
-    variable_set('smartling_mass_time', $form_state['values']['mass_time']);
-    smartling_watchdog('Smartling change mass time settings.', FALSE);
-  }
 }
 
 /**
