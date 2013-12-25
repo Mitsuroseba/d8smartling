@@ -12,7 +12,7 @@ dependencies[] = translation
 dependencies[] = i18n
 dependencies[] = i18n_node
 dependencies[] = ctools
-dependencies[] = smartling_reports
+dependencies[] = views
 dependencies[] = ultimate_cron
 dependencies[] = ultimate_cron_queue_scaler
 
