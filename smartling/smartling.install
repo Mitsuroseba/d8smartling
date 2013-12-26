@@ -36,6 +36,50 @@ function smartling_install() {
 
   variable_set('language_negotiation_language', $language_negotiation_language);
   variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
+
+  // Install default cron settings for smartling proccess
+  $cron_base_settings = array();
+
+  $cron_base_settings['smartling_cron'] = array(
+    'enabled' => 1,
+    'rules' => array(0 => '0 * * * *'),
+    'catch_up' => '',
+    'service_group' => '',
+  );
+
+  $cron_base_settings['ultimate_cron_queue_smartling_check_status'] = array(
+    'enabled' => 1,
+    'rules' => array(0 => '1 * * * *'),
+    'catch_up' => '',
+    'queue_lease_time' => '',
+    'service_group' => '',
+    'queue_threads' => '5',
+    'queue_threshold' => '1',
+  );
+
+  $cron_base_settings['ultimate_cron_queue_smartling_upload'] = array(
+    'enabled' => 1,
+    'rules' => array(0 => '* * * * *'),
+    'catch_up' => '',
+    'queue_lease_time' => '',
+    'service_group' => '',
+    'queue_threads' => '5',
+    'queue_threshold' => '1',
+  );
+
+  $cron_base_settings['ultimate_cron_queue_smartling_download'] = array(
+    'enabled' => 1,
+    'rules' => array(0 => '* * * * *'),
+    'catch_up' => '',
+    'queue_lease_time' => '',
+    'service_group' => '',
+    'queue_threads' => '5',
+    'queue_threshold' => '1',
+  );
+
+  foreach ($cron_base_settings as $name => $settings) {
+    ultimate_cron_set_settings($name, $settings);
+  }
 }
 
 /**
