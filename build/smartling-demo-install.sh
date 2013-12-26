@@ -110,6 +110,7 @@ drush_e dis overlay toolbar -y
 drush_e vset --exact ultimate_cron_poorman 0
 drush_e en smartling -y
 drush_e en smartling_demo_content -y
+drush_e en smartling_reports -y
 drush_e fra -y
 drush_e cc all -y
 drush_e vset --exact ultimate_cron_poorman 1
