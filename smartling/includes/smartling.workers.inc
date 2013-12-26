@@ -204,7 +204,8 @@ function smartling_queue_send_to_translate_process($args) {
       );
 
       // Try to upload file
-      $api->uploadFile($file_path, $file_type, $file_name_unic, $upload_params);
+      $upload_result = $api->uploadFile($file_path, $file_type, $file_name_unic, $upload_params);
+      $upload_result = json_decode($upload_result);
 
       if ($api->getCodeStatus() == 'SUCCESS') {
         smartling_watchdog('Smartling upload xml file to service for node id - @nid.', TRUE, array('@nid' => $args->rid), WATCHDOG_INFO, l(t('View file'), $file_path));
