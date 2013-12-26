@@ -49,7 +49,7 @@ function smartling_install() {
 
   $cron_base_settings['ultimate_cron_queue_smartling_check_status'] = array(
     'enabled' => 1,
-    'rules' => array(0 => '1 * * * *'),
+    'rules' => array(0 => '* * * * *'),
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
