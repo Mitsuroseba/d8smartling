@@ -13,8 +13,8 @@ function smartling_reports_menu() {
   $items = array();
 
   $items['admin/content/smartling'] = array(
-    'title' => 'Smartling Translations',
-    'description' => 'Smartling Translations',
+    'title' => 'Submissions',
+    'description' => 'Submissions',
     'weight' => -10,
     'access arguments' => array('administer smartling'),
   );
