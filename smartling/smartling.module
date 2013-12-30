@@ -74,17 +74,6 @@ function smartling_admin_paths() {
 }
 
 /**
- * Implements hook_menu_alter().
- *
- * Smartling use this hook for add update operations on admin/content page
- */
-function smartling_menu_alter(&$items) {
-  if (isset($items['admin/content'])) {
-    $items['admin/content']['page arguments'][0] = 'smartling_node_admin_content';
-  }
-}
-
-/**
  * Implements hook_permission().
  */
 function smartling_permission() {
@@ -250,15 +239,18 @@ function smartling_get_node_settings_form($form, &$form_state) {
       '#description' => t('The Smartlink Translation module was developed to help you tranlate your site. If Target Locale is checked, this locale has already been translated (Process - 100%).'),
     );
 
+    $language_default = language_default();
     // This is node for fields method translate or original for nodes method
     if (($form['#node']->tnid == '0') || ($form['#node']->tnid == $form['#node']->nid)) {
       $languages = language_list('language');
+      unset($languages[$language_default->language]);
     }
     elseif ($form['#node']->tnid != $form['#node']->nid) {
       // This is node for nodes method translate | not original
       $languages = language_list('language');
       $node_original = node_load($form['#node']->tnid);
       unset($languages[$node_original->language]);
+      unset($languages[$language_default->language]);
     }
 
     $options = array();
@@ -654,20 +646,6 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
 }
 
 /**
- * Implements hook_node_operations().
- */
-function smartling_node_operations() {
-  if (smartling_is_configured()) {
-    return array(
-      'smartling_translate' => array(
-        'label' => t('Translate selected content (Smartling)'),
-        'callback' => NULL,
-      ),
-    );
-  }
-}
-
-/**
  * Implements hook_form_BASE_FORM_ID_alter().
  *
  * @param array $form
@@ -882,9 +860,10 @@ function smartling_do_translate_action($node, $context) {
 
 function smartling_do_translate_action_form($context, &$form_state) {
   $languages = language_list();
+  $language_default = language_default();
   $options = array();
   foreach ($languages as $langcode => $language) {
-    if ($language->enabled != '0') {
+    if (($language->enabled != '0') && ($language->language != $language_default->language)) {
       $options[$language->language] = $language->name;
     }
   }
