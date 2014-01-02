@@ -209,8 +209,6 @@ function smartling_update_field($form, $form_state) {
 
 function smartling_get_node_settings_form($form, &$form_state) {
   if (smartling_translate_fields_is_set($form['#node']->type)) {
-    $title = t('Smartling Translation');
-
     // Vertical Tab.
     $form['smartling'] = array(
       '#title' => t('Smartling management'),
@@ -219,24 +217,18 @@ function smartling_get_node_settings_form($form, &$form_state) {
       '#collapsed' => TRUE,
       '#group' => 'additional_settings',
       '#attributes' => array('id' => array('smartling_fieldset')),
-      '#attached' => array(
-        'js' => array(
-          drupal_get_path('module', 'smartling') . '/js/smartling_node_settings.js' => array(
-            'type' => 'file',
-          ),
-        ),
-      ),
+      //'#attached' => array(
+      //  'js' => array(
+      //    drupal_get_path('module', 'smartling') . '/js/smartling_node_settings.js' => array(
+      //      'type' => 'file',
+      //    ),
+      //  ),
+      //),
       '#modal' => TRUE,
     );
 
     $form['smartling']['content'] = array(
       '#type' => 'container',
-    );
-
-    $form['smartling']['content']['note'] = array(
-      '#type' => 'item',
-      '#title' => $title,
-      '#description' => t('The Smartlink Translation module was developed to help you tranlate your site. If Target Locale is checked, this locale has already been translated (Process - 100%).'),
     );
 
     $language_default = language_default();
