@@ -284,6 +284,9 @@ function smartling_get_node_settings_form($form, &$form_state) {
                 case 2:
                   $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
                   break;
+                case 3:
+                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
+                  break;
               }
             }
             else {
@@ -324,6 +327,9 @@ function smartling_get_node_settings_form($form, &$form_state) {
                 case 2:
                   $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
                   break;
+                case 3:
+                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
+                  break;
               }
             }
             else {
@@ -350,6 +356,9 @@ function smartling_get_node_settings_form($form, &$form_state) {
                   break;
                 case 2:
                   $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
+                  break;
+                case 3:
+                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
                   break;
               }
             }
@@ -738,6 +747,23 @@ function smartling_entity_load($entities, $type) {
               smartling_watchdog('Smartlig add field value for @filedname, langcode @lang', TRUE, array('@filedname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity->nid));
             }
           }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function smartling_entity_update($entity, $type) {
+  if (($type == 'node') && smartling_supported_type($entity->type)) {
+    $smartling_entity_data = smartling_entity_load_all_by_conditions(array('rid' => $entity->nid));
+    if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
+      foreach ($smartling_entity_data as $smartling_entity) {
+        if ($smartling_entity->status == 0 || $smartling_entity->status == 1) {
+          $smartling_entity->status = 3;
+          smartling_entity_data_save($smartling_entity);
         }
       }
     }

@@ -26,3 +26,7 @@
 #smartling_fieldset .lang-status.translated {
   background-position: 0 -32px;
 }
+
+#smartling_fieldset .lang-status.status-changed {
+  background-position: 0 -48px;
+}
