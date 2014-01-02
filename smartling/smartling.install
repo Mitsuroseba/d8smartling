@@ -193,6 +193,13 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'status' => array(
+        'description' => '',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
     ),
     'primary key' => array('eid'),
     'indexes' => array(
