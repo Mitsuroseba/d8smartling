@@ -424,7 +424,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
 
   $entity_data->download = 1;
   if ($entity_data->progress == 100) {
-    $entity_data->status = 2;
+    $entity_data->status = SMARTLING_STATUS_TRANSLATED;
   }
   smartling_entity_data_save($entity_data);
 

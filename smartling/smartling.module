@@ -280,16 +280,16 @@ function smartling_get_node_settings_form($form, &$form_state) {
             if ($entity_data !== FALSE) {
               switch ($entity_data->status) {
                 case SMARTLING_STATUS_IN_QUEUE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is waiting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_IN_TRANSLATE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Translation is in progress"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_TRANSLATED:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is translated"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_CHANGE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node was changed after submitting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
               }
             }
@@ -297,7 +297,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
               $options[$langcode] = $language->name;
             }
 
-            $check[] = (smartling_entity_load_by_conditions(array('rid' => $original_nid, 'target_language' => $s_locale))) ? $langcode : FALSE;
+            $check[] = ($entity_data) ? $langcode : FALSE;
           }
         }
       }
@@ -323,16 +323,16 @@ function smartling_get_node_settings_form($form, &$form_state) {
             if ($entity_data !== FALSE) {
               switch ($entity_data->status) {
                 case SMARTLING_STATUS_IN_QUEUE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is waiting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue" title="Node is waiting for translation">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_IN_TRANSLATE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Translation is in progress"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_TRANSLATED:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is translated"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_CHANGE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node was changed after submitting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
               }
             }
@@ -340,7 +340,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
               $options[$langcode] = $language->name;
             }
 
-            $check[] = (smartling_entity_load_by_conditions(array('rid' => $original_nid, 'target_language' => $s_locale))) ? $langcode : FALSE;
+            $check[] = ($entity_data) ? $langcode : FALSE;
           }
         }
       }
@@ -353,23 +353,23 @@ function smartling_get_node_settings_form($form, &$form_state) {
             if ($entity_data !== FALSE) {
               switch ($entity_data->status) {
                 case SMARTLING_STATUS_IN_QUEUE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is waiting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue" title="Node is waiting for translation">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_IN_TRANSLATE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Translation is in progress"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_TRANSLATED:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node is translated"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_CHANGE:
-                  $options[$langcode] = '<span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span>';
+                  $options[$langcode] = '<span title="Node was changed after submitting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
               }
             }
             else {
               $options[$langcode] = $language->name;
             }
-            $check[] = (smartling_entity_load_by_conditions(array('rid' => $form['nid']['#value'], 'target_language' => $s_locale))) ? $langcode : FALSE;
+            $check[] = ($entity_data) ? $langcode : FALSE;
           }
         }
       }
@@ -412,7 +412,10 @@ function smartling_get_node_settings_form($form, &$form_state) {
 /**
  * smartling_download_translate_form_submit
  */
-function smartling_download_translate_form_submit($form, $form_state) {
+function smartling_download_translate_form_submit($form, &$form_state) {
+  $node = node_form_submit_build_node($form, $form_state);
+  node_save($node);
+
   $nid = $form_state['values']['nid'];
   smartling_watchdog('Smartling start force download translated file for node id - @nid', TRUE, array('@nid' => $nid), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
 
@@ -450,7 +453,7 @@ function smartling_download_translate_form_submit($form, $form_state) {
           $entity_data->submission_date = time();
           $entity_data->progress = $progress;
           if ($progress == 100) {
-            $entity_data->status = 2;
+            $entity_data->status = SMARTLING_STATUS_TRANSLATED;
           }
           smartling_entity_data_save($entity_data);
 
@@ -499,13 +502,16 @@ function smartling_download_translate_form_submit($form, $form_state) {
 /**
  * smartling_get_node_settings_form_submit
  */
-function smartling_get_node_settings_form_submit($form, $form_state) {
+function smartling_get_node_settings_form_submit($form, &$form_state) {
+  $node = node_form_submit_build_node($form, $form_state);
+  node_save($node);
+
   $nid = $form['#node']->nid;
   global $user;
 
   $smartling_queue = DrupalQueue::get('smartling_upload');
   $smartling_queue->createQueue();
-  $count_op = 0;
+  $langs = array();
 
   if (smartling_nodes_method($form['#node']->type)) {
     $original_nid = $form['#node']->nid;
@@ -552,13 +558,16 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
             $entity_data->bundle = $form['#node']->type;
             $entity_data->original_language = $s_locale_origin;
             $entity_data->target_language = $s_locale;
+            $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
+          }
+          else {
+            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
           }
 
           $entity_data->translated_file_name = FALSE;
           $entity_data->submitter = $user->uid;
           $entity_data->progress = 0;
           $entity_data->submission_date = time();
-          $entity_data->status = 0;
           smartling_entity_data_save($entity_data);
 
           $obj = new stdClass;
@@ -570,7 +579,8 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
           $obj->submitter = $user->uid;
           // Create queue item
           $smartling_queue->createItem($obj);
-          $count_op++;
+          $langs[] = $s_locale;
+          $title = $original_title;
           unset($obj);
         }
       }
@@ -594,13 +604,16 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
             $entity_data->bundle = $form_state['values']['type'];
             $entity_data->original_language = $s_locale_origin;
             $entity_data->target_language = $s_locale;
+            $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
+          }
+          else {
+            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
           }
 
           $entity_data->translated_file_name = FALSE;
           $entity_data->submitter = $user->uid;
           $entity_data->progress = 0;
           $entity_data->submission_date = time();
-          $entity_data->status = 0;
           smartling_entity_data_save($entity_data);
 
           $obj = new stdClass;
@@ -612,14 +625,16 @@ function smartling_get_node_settings_form_submit($form, $form_state) {
           $obj->submitter = $user->uid;
           // Create queue item
           $smartling_queue->createItem($obj);
-          $count_op++;
+          $langs[] = $s_locale;
+          $title = $form_state['values']['title'];
           unset($obj);
         }
       }
     }
   }
 
-  drupal_set_message(t('Smartling add @count operations', array('@count' => $count_op)));
+  $langs = implode(', ', $langs);
+  drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $title, '@langs' => $langs)));
 }
 
 /**

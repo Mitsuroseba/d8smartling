@@ -119,7 +119,7 @@ function smartling_queue_check_status_process($args) {
           if ($status_result->response->data->approvedStringCount == $status_result->response->data->completedStringCount) {
             $entity_data->progress = 100;
             $entity_data->download = 0;
-            $entity_data->status = 1;
+            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
 
             $smartling_queue = DrupalQueue::get('smartling_download');
             $smartling_queue->createQueue();
@@ -132,14 +132,14 @@ function smartling_queue_check_status_process($args) {
               $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
 
               $entity_data->progress = $progress;
-              $entity_data->status = 1;
+              $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
               smartling_entity_data_save($entity_data);
             }
             else {
               $progress = 100;
 
               $entity_data->progress = $progress;
-              $entity_data->status = 1;
+              $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
               smartling_entity_data_save($entity_data);
             }
           }
@@ -182,7 +182,7 @@ function smartling_queue_send_to_translate_process($args) {
     $entity_data->translated_file_name = FALSE;
     $entity_data->submitter = $args->submitter;
     $entity_data->progress = 0;
-    $entity_data->status = 1;
+    $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
     smartling_entity_data_save($entity_data);
 
     $nodes_method = smartling_nodes_method($args->type);
