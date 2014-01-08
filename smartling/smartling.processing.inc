@@ -382,51 +382,55 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $xpath = new DomXpath($xml);
 
   $node_wrapper = entity_metadata_wrapper('node', $rid);
+  if (!is_null($node_wrapper->label())) {
+    foreach ($fields as $field_name) {
 
-  foreach ($fields as $field_name) {
+      switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
+        case 'node-title':
+          $node_wrapper = smartling_node_title_processing($node_wrapper, $field_name, $xpath);
+          break;
 
-    switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
-      case 'node-title':
-        $node_wrapper = smartling_node_title_processing($node_wrapper, $field_name, $xpath);
-        break;
+        case 'simple-text-field':
+          $node_wrapper = smartling_simple_text_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'simple-text-field':
-        $node_wrapper = smartling_simple_text_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
+        case 'multiple-text-field':
+          $node_wrapper = smartling_multiple_text_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'multiple-text-field':
-        $node_wrapper = smartling_multiple_text_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
+        case 'body-with-summary-field':
+          $node_wrapper = smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'body-with-summary-field':
-        $node_wrapper = smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
+        case 'body-with-summary-multiple-field':
+          $node_wrapper = smartling_body_with_summary_multiple_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'body-with-summary-multiple-field':
-        $node_wrapper = smartling_body_with_summary_multiple_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
+        case 'simple-image-field':
+          $node_wrapper = smartling_simple_image_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'simple-image-field':
-        $node_wrapper = smartling_simple_image_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
+        case 'multiple-image-field':
+          $node_wrapper = smartling_multiple_image_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
+          break;
 
-      case 'multiple-image-field':
-        $node_wrapper = smartling_multiple_image_field_processing($node_wrapper, $field_name, $xpath, $d_locale);
-        break;
-
-      default:
-        smartling_watchdog('Smartling not processed field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
-        break;
+        default:
+          smartling_watchdog('Smartling not processed field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+          break;
+      }
     }
+
+    $node_wrapper->save();
+
+    $entity_data->download = 1;
+    if ($entity_data->progress == 100) {
+      $entity_data->status = SMARTLING_STATUS_TRANSLATED;
+    }
+    smartling_entity_data_save($entity_data);
+
+    smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View translated node'), $d_locale . '/node/' . $rid));
   }
-
-  $node_wrapper->save();
-
-  $entity_data->download = 1;
-  if ($entity_data->progress == 100) {
-    $entity_data->status = SMARTLING_STATUS_TRANSLATED;
+  else {
+    smartling_watchdog('Translatable node with nid - @nid not found in database', TRUE, array('@nid' => $rid), WATCHDOG_INFO);
   }
-  smartling_entity_data_save($entity_data);
-
-  smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View translated node'), $d_locale . '/node/' . $rid));
 }

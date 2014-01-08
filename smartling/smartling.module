@@ -852,7 +852,7 @@ function smartling_push_callback() {
     $s_locale = check_plain($_GET['locale']);
     $file_uri = check_plain($_GET['fileUri']);
 
-    smartling_watchdog('Smartling get parametrs: locale - @locale, fileUri - @fileUri', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
+    smartling_watchdog('Smartling get parameters: locale - @locale, fileUri - @fileUri', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
 
     $entity_data = smartling_entity_load_by_conditions(array('target_language' => $s_locale, 'file_name' => $file_uri));
 
@@ -865,10 +865,18 @@ function smartling_push_callback() {
       }
       smartling_entity_data_save($entity_data);
 
-      smartling_watchdog('Smartling download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $entity_data->rid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
+      smartling_watchdog('The callback function smartling downloaded translation for node id - @nid, language - @language', TRUE, array('@nid' => $entity_data->rid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
     }
     elseif ($entity_data == FALSE) {
-      smartling_watchdog('Smartling FAIL download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $entity_data->rid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
+      smartling_watchdog('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
+    }
+  }
+  else {
+    $params = array('locale', 'fileUri');
+    foreach ($params as $param) {
+      if (!isset($_GET[$param])) {
+        smartling_watchdog('Smartling GET parameter "@param_name" are missing', TRUE, array('@param_name' => $param), WATCHDOG_INFO);
+      }
     }
   }
 }
