@@ -16,6 +16,7 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
     '#type' => 'vertical_tabs',
     '#attached' => array(
       'js' => array(drupal_get_path('module', 'smartling') . '/js/smartling_admin.js'),
+      'css' => array(drupal_get_path('module', 'smartling') . '/css/smartling_admin.css'),
     ),
   );
 
@@ -186,7 +187,6 @@ function smartling_callback_url_settings_form($form, &$form_state, $show_fieldse
   $form['callback_info'] = array(
     '#type' => $show_fieldset ? 'fieldset' : 'item',
     '#title' => t('Callback URL'),
-    '#title_display' => 'invisible',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#group' => 'callback_info',
@@ -197,14 +197,15 @@ function smartling_callback_url_settings_form($form, &$form_state, $show_fieldse
     '#validate' => array('smartling_callback_url_settings_form_validate'),
   );
 
-  $smartling_callback_url = variable_get('smartling_callback_url', FALSE);
+  global $base_url;
+  $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
   $form['callback_info']['callback_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Callback URL'),
-    '#default_value' => $smartling_callback_url ? $smartling_callback_url : '',
+    '#title' => $base_url . '/',
+    '#default_value' => $smartling_callback_url,
     '#size' => 50,
-    '#maxlength' => 50,
-    '#suffix' => 'Example: smartling-callback (do not use / as the first character)',
+    '#maxlength' => 255,
+    '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
     '#required' => FALSE,
   );
 
@@ -220,7 +221,7 @@ function smartling_callback_url_settings_form_validate($form, &$form_state) {
   $callback_url = '';
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
     $callback_url = $form_state['values']['callback_url'];
-    $status = (bool) preg_match("/^(?:[\w#!:\.\?\+=&@$'~*,;\/\(\)\[\]\-]|%[0-9a-f]{2})+$/i", $callback_url);
+    $status = valid_url($callback_url);
     if (!$status) {
       drupal_set_message('Callback URL has wrong format', 'error');
       form_set_error('callback_url');

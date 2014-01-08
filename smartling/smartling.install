@@ -10,6 +10,7 @@
  */
 function smartling_install() {
   variable_set('smartling_log', 1);
+  variable_set('smartling_callback_url', 'smartling-callback');
 
   $language_negotiation_language = array(
     'locale-url' => array(
