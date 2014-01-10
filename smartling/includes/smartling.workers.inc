@@ -210,7 +210,7 @@ function smartling_queue_send_to_translate_process($args) {
       if (SMARTLING_CALLBACK_URL) {
         global $base_url;
         $upload_params['callbackUrl'] = $base_url . '/' . SMARTLING_CALLBACK_URL;
-        smartling_watchdog('SMARTLING_CALLBACK_URL - @scu.', TRUE, array('@scu' => SMARTLING_CALLBACK_URL), WATCHDOG_INFO);
+        smartling_watchdog('Parameter callbackUrl - @scu.', TRUE, array('@scu' => $upload_params['callbackUrl']), WATCHDOG_INFO);
       }
 
       // Try to upload file
