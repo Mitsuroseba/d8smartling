@@ -140,7 +140,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       $form_state['values']['project_id'] = trim($project_id);
     }
     else {
-      drupal_set_message(t('Either Project ID or Key is set wrong. Please input correct Smartling settings.'), 'error');
+      drupal_set_message(t('Please input correct Smartling settings.'), 'error');
       form_set_error('smartling_key', '');
       form_set_error('project_id');
     }
@@ -148,7 +148,9 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   else {
     if (isset($response->error)) {
       drupal_set_message($response->error, 'error');
+      smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
     }
+    drupal_set_message(t('Please input correct Smartling settings.'), 'error');
     form_set_error('smartling_key', '');
     form_set_error('project_id');
   }
@@ -178,6 +180,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
       smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
     }
   }
+  drupal_set_message(t('Account settings saved.'));
 }
 
 /**

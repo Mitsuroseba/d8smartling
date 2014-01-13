@@ -25,3 +25,4 @@ files[] = views/smartling_handler_field_locale_info.inc
 files[] = smartling.utils.inc
 files[] = smartling.processing.inc
 files[] = smartling.module
+files[] = smartling.test
