@@ -882,28 +882,3 @@ function smartling_push_callback() {
     }
   }
 }
-
-/**
- * Implementation of hook_rules_event_info()
- */
-function smartling_rules_event_info() {
-  return array(
-    'smartling_callback_call_event' => array(
-      'label' => t('Smartling callback call'),
-      'module' => 'smartling',
-      'group' => 'smartling',
-      'variables' => array(
-        'locale' => array('type' => 'text', 'label' => t('Locale')),
-        'file_uri' => array('type' => 'text', 'label' => t('File uri')),
-      ),
-    ),
-    'smartling_translation_download_event' => array(
-      'label' => t('Smartling translation download'),
-      'module' => 'smartling',
-      'group' => 'smartling',
-      'variables' => array(
-        'node' => array('type' => 'node', 'label' => t('Translated node.')),
-      ),
-    ),
-  );
-}
