@@ -219,6 +219,10 @@ function smartling_queue_send_to_translate_process($args) {
 
       if ($api->getCodeStatus() == 'SUCCESS') {
         smartling_watchdog('Smartling upload xml file to service for node id - @nid.', TRUE, array('@nid' => $args->rid), WATCHDOG_INFO, l(t('View file'), $file_path));
+        if (module_exists('rules')) {
+          $node_event = smartling_node_load_default($args->rid);
+          rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
+        }
       }
       elseif (is_object($upload_result)) {
         smartling_watchdog('smartling_queue_send_to_translate_process try upload xml to service: <br/>

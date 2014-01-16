@@ -11,7 +11,7 @@
 function smartling_rules_event_info() {
   return array(
     'smartling_callback_call_event' => array(
-      'label' => t('Smartling callback call'),
+      'label' => t('After handling callback from Smartling'),
       'module' => 'smartling',
       'group' => 'smartling',
       'variables' => array(
@@ -20,11 +20,19 @@ function smartling_rules_event_info() {
       ),
     ),
     'smartling_translation_download_event' => array(
-      'label' => t('Smartling translation download'),
+      'label' => t('After downloading translation from Smartling'),
       'module' => 'smartling',
       'group' => 'smartling',
       'variables' => array(
         'node' => array('type' => 'node', 'label' => t('Translated node')),
+      ),
+    ),
+    'smartling_uploading_original_to_smartling_event' => array(
+      'label' => t('After uploading original content to Smartling'),
+      'module' => 'smartling',
+      'group' => 'smartling',
+      'variables' => array(
+        'node' => array('type' => 'node', 'label' => t('Uploaded node')),
       ),
     ),
   );
@@ -36,7 +44,7 @@ function smartling_rules_event_info() {
 function smartling_rules_action_info() {
   $actions = array(
     'smartling_get_translation_status_action' => array(
-      'label' => t('Smartling get translation status'),
+      'label' => t('Get translation status from Smartling'),
       'group' => t('Smartling actions'),
       'parameter' => array(
         'node' => array(
@@ -48,7 +56,7 @@ function smartling_rules_action_info() {
       ),
     ),
     'smartling_download_translation_action' => array(
-      'label' => t('Smartling download translation'),
+      'label' => t('Download translation from Smartling'),
       'group' => t('Smartling actions'),
       'parameter' => array(
         'node' => array(
@@ -60,7 +68,7 @@ function smartling_rules_action_info() {
       ),
     ),
     'smartling_send_to_translate_action' => array(
-      'label' => t('Smartling send to translate'),
+      'label' => t('Upload original content to Smartling'),
       'group' => t('Smartling actions'),
       'parameter' => array(
         'node' => array(
