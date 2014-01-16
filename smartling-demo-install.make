@@ -32,6 +32,9 @@ projects[i18n][version] = "1.10"
 projects[progress][subdir] = "contrib"
 projects[progress][version] = "1.4"
 
+projects[rules][subdir] = "contrib"
+projects[rules][version] = "2.6"
+
 projects[title][subdir] = "contrib"
 projects[title][version] = "1.0-alpha7"
 
