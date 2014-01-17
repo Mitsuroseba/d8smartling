@@ -24,13 +24,11 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
   $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
-  $callback_url = drupal_get_form('smartling_callback_url_settings_form', $show_fieldset);
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
-  $output['smartling'][] = smartling_wrap_in_fieldset($callback_url, 'Callback URL');
   if (module_exists('smartling_load_test')) {
     $dev_settings = drupal_get_form('smartling_admin_dev_settings_form', $show_fieldset);
     $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, 'Dev settings');
@@ -100,6 +98,23 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     ),
   );
 
+  $form['accaunt_info']['callback_info_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Callback URL'),
+  );
+
+  global $base_url;
+  $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
+  $form['accaunt_info']['callback_url'] = array(
+    '#type' => 'textfield',
+    '#title' => $base_url . '/',
+    '#default_value' => $smartling_callback_url,
+    '#size' => 50,
+    '#maxlength' => 255,
+    '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
+    '#required' => FALSE,
+  );
+
   $form['accaunt_info']['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -154,6 +169,17 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     form_set_error('smartling_key', '');
     form_set_error('project_id');
   }
+
+  // Callback validate
+  $callback_url = '';
+  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
+    $callback_url = $form_state['values']['callback_url'];
+    $status = valid_url($callback_url);
+    if (!$status) {
+      drupal_set_message('Callback URL has wrong format', 'error');
+      form_set_error('callback_url');
+    }
+  }
 }
 
 function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
@@ -180,66 +206,13 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
       smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
     }
   }
-  drupal_set_message(t('Account settings saved.'));
-}
 
-/**
- * Callback info form
- */
-function smartling_callback_url_settings_form($form, &$form_state, $show_fieldset = FALSE) {
-  $form['callback_info'] = array(
-    '#type' => $show_fieldset ? 'fieldset' : 'item',
-    '#title' => t('Callback URL'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'callback_info',
-    'actions' => array(
-      '#type' => 'actions',
-    ),
-    '#submit' => array('smartling_callback_url_settings_form_submit'),
-    '#validate' => array('smartling_callback_url_settings_form_validate'),
-  );
-
-  global $base_url;
-  $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
-  $form['callback_info']['callback_url'] = array(
-    '#type' => 'textfield',
-    '#title' => $base_url . '/',
-    '#default_value' => $smartling_callback_url,
-    '#size' => 50,
-    '#maxlength' => 255,
-    '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
-    '#required' => FALSE,
-  );
-
-  $form['callback_info']['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-  );
-
-  return $form;
-}
-
-function smartling_callback_url_settings_form_validate($form, &$form_state) {
-  $callback_url = '';
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    $callback_url = $form_state['values']['callback_url'];
-    $status = valid_url($callback_url);
-    if (!$status) {
-      drupal_set_message('Callback URL has wrong format', 'error');
-      form_set_error('callback_url');
-    }
-  }
-}
-
-function smartling_callback_url_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
     variable_set('smartling_callback_url', $form_state['values']['callback_url']);
   }
   elseif (empty($form_state['values']['callback_url'])) {
-    variable_del('smartling_callback_url');
+    variable_set('smartling_callback_url', 'smartling-callback');
   }
-  drupal_set_message('Callback URL has been changed');
 
   $destination = 'admin/config/regional/smartling';
   $token = drupal_get_token('admin_menu/flush-cache/menu');
@@ -253,6 +226,8 @@ function smartling_callback_url_settings_form_submit($form, &$form_state) {
   $options = array(
     'query' => $data,
   );
+
+  drupal_set_message(t('Account settings saved.'));
 
   drupal_goto($path, $options);
 }

@@ -17,6 +17,7 @@ function smartling_rules_event_info() {
       'variables' => array(
         'locale' => array('type' => 'text', 'label' => t('Locale')),
         'file_uri' => array('type' => 'text', 'label' => t('File uri')),
+      //'entity_data' => array('type' => 'entity', 'label' => t('Smartling entity data')),
       ),
     ),
     'smartling_translation_download_event' => array(
@@ -34,6 +35,40 @@ function smartling_rules_event_info() {
       'variables' => array(
         'node' => array('type' => 'node', 'label' => t('Uploaded node')),
       ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_rules_condition_info().
+ */
+function smartling_rules_condition_info() {
+  return array(
+    'smartling_locale_condition' => array(
+      'label' => t('Locale comparison'),
+      'parameter' => array(
+        'data' => array(
+          'type' => '*',
+          'label' => t('Locale to compare'),
+          'description' => t('The locale to be compared, specified by using a data selector, e.g. "locale".'),
+          'allow null' => TRUE,
+        ),
+        'op' => array(
+          'type' => 'text',
+          'label' => t('Operator'),
+          'description' => t('The comparison operator.'),
+          'optional' => TRUE,
+          'default value' => '==',
+          'options list' => 'rules_condition_data_is_operator_options',
+          'restriction' => 'input',
+        ),
+        'value' => array(
+          'type' => 'text',
+          'label' => t('Locale value'),
+          'description' => t('The value to compare the locale with.'),
+        ),
+      ),
+      'group' => t('Smartling'),
     ),
   );
 }
@@ -89,6 +124,28 @@ function smartling_rules_action_info() {
   );
 
   return $actions;
+}
+
+function smartling_locale_condition($data, $op, $value) {
+  switch ($op) {
+    default:
+    case '==':
+      // In case both values evaluate to FALSE, further differentiate between
+      // NULL values and values evaluating to FALSE.
+      if (!$data && !$value) {
+        return (isset($data) && isset($value)) || (!isset($data) && !isset($value));
+      }
+      return $data == $value;
+    case '<':
+      return $data < $value;
+    case '>':
+      return $data > $value;
+    // Note: This is deprecated by the text comparison condition and IN below.
+    case 'contains':
+      return is_string($data) && strpos($data, $value) !== FALSE || is_array($data) && in_array($value, $data);
+    case 'IN':
+      return is_array($value) && in_array($data, $value);
+  }
 }
 
 /**

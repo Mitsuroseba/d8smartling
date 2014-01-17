@@ -825,6 +825,7 @@ function smartling_do_translate_action_form($context, &$form_state) {
 }
 
 function smartling_do_translate_action_validate($form, &$form_state) {
+  dsm($form_state, '$form_state');
   $select_languages = array();
   foreach ($form_state['input']['languages'] as $d_locale) {
 
@@ -842,6 +843,8 @@ function smartling_do_translate_action_validate($form, &$form_state) {
 }
 
 function smartling_do_translate_action_submit($form, $form_state) {
+  $count_op = count($form_state['selection']);
+  smartling_watchdog('Smartling Bulk Submit - add ' . format_plural($count_op, '1 node', '@count nodes'), TRUE, array(), WATCHDOG_INFO);
   return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
 
@@ -852,16 +855,17 @@ function smartling_push_callback() {
     $s_locale = check_plain($_GET['locale']);
     $file_uri = check_plain($_GET['fileUri']);
 
-    if (module_exists('rules')) {
-      rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri);
-    }
-
     smartling_watchdog('Smartling get parameters: locale - @locale, fileUri - @fileUri', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
 
     $entity_data = smartling_entity_load_by_conditions(array('target_language' => $s_locale, 'file_name' => $file_uri));
 
     if ($entity_data != FALSE) {
-      $progress = smartling_download_translate($entity_data->rid, $s_locale, $entity_data);
+      if (module_exists('rules')) {
+        rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri);
+        //rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri, $entity_data);
+      }
+
+      $progress = smartling_download_translate($entity_data->rid, $s_locale);
 
       $entity_data->progress = $progress;
       if ($progress == 100) {

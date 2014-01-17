@@ -4,9 +4,9 @@
  * Custom css.
  */
 
-#edit-callback-info .form-item-callback-url,
-#edit-callback-info .form-item-callback-url label,
-#edit-callback-info .form-item-callback-url input {
+#edit-accaunt-info .form-item-callback-url,
+#edit-accaunt-info .form-item-callback-url label,
+#edit-accaunt-info .form-item-callback-url input {
   display: inline;
   width: auto;
 }
