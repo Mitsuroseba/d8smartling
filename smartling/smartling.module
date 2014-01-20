@@ -219,16 +219,16 @@ function smartling_get_node_settings_form($form, &$form_state) {
             if ($entity_data !== FALSE) {
               switch ($entity_data->status) {
                 case SMARTLING_STATUS_IN_QUEUE:
-                  $options[$langcode] = '<span title="Node is waiting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
+                  $options[$langcode] = '<span title="' . t('Node is waiting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_IN_TRANSLATE:
-                  $options[$langcode] = '<span title="Translation is in progress"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
+                  $options[$langcode] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_TRANSLATED:
-                  $options[$langcode] = '<span title="Node is translated"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
+                  $options[$langcode] = '<span title="' . t('Node is translated') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
                 case SMARTLING_STATUS_CHANGE:
-                  $options[$langcode] = '<span title="Node was changed after submitting for translation"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
+                  $options[$langcode] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
               }
             }

@@ -17,7 +17,7 @@ function smartling_rules_event_info() {
       'variables' => array(
         'locale' => array('type' => 'text', 'label' => t('Locale')),
         'file_uri' => array('type' => 'text', 'label' => t('File uri')),
-        //'entity_data' => array('type' => 'entity', 'label' => t('Smartling entity data')),
+      //'entity_data' => array('type' => 'entity', 'label' => t('Smartling entity data')),
       ),
     ),
     'smartling_translation_download_event' => array(
@@ -88,6 +88,13 @@ function smartling_rules_action_info() {
           'optional' => FALSE,
           'description' => t('There should be selected node object.'),
         ),
+        'translate_to_langs' => array(
+          'type' => 'list<text>',
+          'label' => t('Languages'),
+          'optional' => FALSE,
+          'options list' => 'smartling_language_list',
+          'description' => t('Translations will be checked for selected languages.'),
+        ),
       ),
     ),
     'smartling_download_translation_action' => array(
@@ -99,6 +106,13 @@ function smartling_rules_action_info() {
           'label' => t('Node'),
           'optional' => FALSE,
           'description' => t('There should be selected node object.'),
+        ),
+        'translate_to_langs' => array(
+          'type' => 'list<text>',
+          'label' => t('Languages'),
+          'optional' => FALSE,
+          'options list' => 'smartling_language_list',
+          'description' => t('Translations will be downloaded for selected languages.'),
         ),
       ),
     ),
@@ -117,7 +131,7 @@ function smartling_rules_action_info() {
           'label' => t('Languages'),
           'optional' => FALSE,
           'options list' => 'smartling_language_list',
-          'description' => t('Node will be translated into the selected language.'),
+          'description' => t('Node will be translated into the selected languages.'),
         ),
       ),
     ),
@@ -152,15 +166,16 @@ function smartling_locale_condition($data, $op, $value) {
  * Get translation status.
  * @param type $node
  */
-function smartling_get_translation_status_action($node) {
-  if (is_object($node)) {
-    $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid));
-    if ($result) {
-      foreach ($result as $value) {
-        if (!empty($value->rid) && !empty($value->target_language)) {
+function smartling_get_translation_status_action($node, $translate_to_langs) {
+  if (is_object($node) && !empty($translate_to_langs)) {
+    foreach ($translate_to_langs as $language => $language_name) {
+      $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+      $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
+      if ($entity_data) {
+        if (!empty($entity_data->rid) && !empty($entity_data->target_language)) {
           $args = new stdClass;
-          $args->rid = $value->rid;
-          $args->s_locale = $value->target_language;
+          $args->rid = $entity_data->rid;
+          $args->s_locale = $entity_data->target_language;
           smartling_watchdog('Smartling start check status action for node id - @nid (@s_locale).', TRUE, array('@nid' => $args->rid, '@s_locale' => $args->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
           smartling_queue_check_status_process($args);
           unset($args);
@@ -170,11 +185,12 @@ function smartling_get_translation_status_action($node) {
   }
 }
 
-function smartling_download_translation_action($node) {
-  if (is_object($node)) {
-    $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid));
-    if ($result) {
-      foreach ($result as $entity_data) {
+function smartling_download_translation_action($node, $translate_to_langs) {
+  if (is_object($node) && !empty($translate_to_langs)) {
+    foreach ($translate_to_langs as $language => $language_name) {
+      $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+      $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
+      if ($entity_data) {
         smartling_watchdog('Smartling start download translation action for node id - @nid (@s_locale).', TRUE, array('@nid' => $entity_data->rid, '@s_locale' => $entity_data->target_language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
         smartling_queue_download_update_translated_item_process($entity_data);
       }
@@ -242,3 +258,4 @@ function smartling_language_list() {
   }
   return $languages_list;
 }
+
