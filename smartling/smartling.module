@@ -860,7 +860,6 @@ function smartling_push_callback() {
     if ($entity_data != FALSE) {
       if (module_exists('rules')) {
         rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri);
-        //rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri, $entity_data);
       }
 
       $progress = smartling_download_translate($entity_data->rid, $s_locale);
@@ -881,7 +880,7 @@ function smartling_push_callback() {
     $params = array('locale', 'fileUri');
     foreach ($params as $param) {
       if (!isset($_GET[$param])) {
-        smartling_watchdog('Smartling GET parameter "@param_name" are missing', TRUE, array('@param_name' => $param), WATCHDOG_INFO);
+        smartling_watchdog('Smartling GET parameter "@param_name" are missing', TRUE, array('@param_name' => $param), WATCHDOG_WARNING);
       }
     }
   }

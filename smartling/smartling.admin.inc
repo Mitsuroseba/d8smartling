@@ -214,22 +214,12 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     variable_set('smartling_callback_url', 'smartling-callback');
   }
 
-  $destination = 'admin/config/regional/smartling';
-  $token = drupal_get_token('admin_menu/flush-cache/menu');
-  $path = 'admin_menu/flush-cache/menu';
-
-  $data = array(
-    'token' => $token,
-    'destination' => $destination,
-  );
-
-  $options = array(
-    'query' => $data,
-  );
+  menu_rebuild();
+  menu_router_build();
 
   drupal_set_message(t('Account settings saved.'));
 
-  drupal_goto($path, $options);
+  drupal_goto(current_path());
 }
 
 /**

@@ -34,25 +34,6 @@ function smartling_entity_info() {
 }
 
 /**
- * Implements hook_entity_property_info().
- */
-/*
-function smartling_entity_property_info() {
-  $items = array();
-
-  $module = 'smartling';
-  module_load_include('inc', 'smartling', "$module.info");
-  if (function_exists($function = "entity_metadata_{$module}_entity_property_info")) {
-    if ($return = $function()) {
-      $items = array_merge_recursive($items, $return);
-    }
-  }
-
-  return $items;
-}
-*/
-
-/**
  * Fetch a basic object.
  */
 function smartling_entity_data_load($entity_id = NULL, $reset = FALSE) {

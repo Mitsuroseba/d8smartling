@@ -17,7 +17,6 @@ function smartling_rules_event_info() {
       'variables' => array(
         'locale' => array('type' => 'text', 'label' => t('Locale')),
         'file_uri' => array('type' => 'text', 'label' => t('File uri')),
-      //'entity_data' => array('type' => 'entity', 'label' => t('Smartling entity data')),
       ),
     ),
     'smartling_translation_download_event' => array(
