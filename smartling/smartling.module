@@ -498,14 +498,11 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
             $entity_data->original_language = $s_locale_origin;
             $entity_data->target_language = $s_locale;
             $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
-          }
-          else {
-            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
+            $entity_data->progress = 0;
           }
 
           $entity_data->translated_file_name = FALSE;
           $entity_data->submitter = $user->uid;
-          $entity_data->progress = 0;
           $entity_data->submission_date = time();
           smartling_entity_data_save($entity_data);
 
@@ -544,14 +541,11 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
             $entity_data->original_language = $s_locale_origin;
             $entity_data->target_language = $s_locale;
             $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
-          }
-          else {
-            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
+            $entity_data->progress = 0;
           }
 
           $entity_data->translated_file_name = FALSE;
           $entity_data->submitter = $user->uid;
-          $entity_data->progress = 0;
           $entity_data->submission_date = time();
           smartling_entity_data_save($entity_data);
 
@@ -570,6 +564,10 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
         }
       }
     }
+  }
+
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
   }
 
   $langs = implode(', ', $langs);

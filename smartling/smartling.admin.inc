@@ -107,7 +107,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
   $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
   $form['accaunt_info']['callback_url'] = array(
     '#type' => 'textfield',
-    '#title' => $base_url . '/',
+    '#title' => check_plain($base_url . '/'),
     '#default_value' => $smartling_callback_url,
     '#size' => 50,
     '#maxlength' => 255,
@@ -176,7 +176,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     $callback_url = $form_state['values']['callback_url'];
     $status = valid_url($callback_url);
     if (!$status) {
-      drupal_set_message('Callback URL has wrong format', 'error');
+      drupal_set_message(t('Callback URL has wrong format'), 'error');
       form_set_error('callback_url');
     }
   }

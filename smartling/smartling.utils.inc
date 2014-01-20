@@ -844,7 +844,8 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
         $entity_data->progress = $progress;
         smartling_entity_data_save($entity_data);
         drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-        drupal_goto($_GET['destination']);
+        unset($_GET['destination']);
+        drupal_goto(current_path());
       }
       return $progress;
     }
@@ -853,7 +854,8 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
         $entity_data->progress = $progress;
         smartling_entity_data_save($entity_data);
         drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-        drupal_goto($_GET['destination']);
+        unset($_GET['destination']);
+        drupal_goto(current_path());
       }
       return $progress = 0;
     }

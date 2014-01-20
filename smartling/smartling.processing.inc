@@ -308,7 +308,7 @@ function smartling_simple_image_field_processing($node_wrapper, $field_name, $xp
   $file_img = file_load($fid);
 
   if ($file_img) {
-    $node_wrapper->language($d_locale)->{$field_name} = (array) $file_img + array('alt' => $alt_img, 'title' => $title_img,);
+    $node_wrapper->language($d_locale)->{$field_name} = (array) $file_img + array('alt' => $alt_img, 'title' => $title_img);
   }
   return $node_wrapper;
 }
@@ -329,7 +329,7 @@ function smartling_multiple_image_field_processing($node_wrapper, $field_name, $
     if ($file_img) {
       $alt_string = (string) $alt_obj->nodeValue;
       $title_string = (string) $title_obj->nodeValue;
-      $node_wrapper->language($d_locale)->{$field_name}[$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string,);
+      $node_wrapper->language($d_locale)->{$field_name}[$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string);
     }
   }
   return $node_wrapper;
