@@ -344,7 +344,7 @@ function smartling_multiple_image_field_processing($node_wrapper, $field_name, $
  * If TRUE - nodes method execute
  */
 function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FALSE) {
-  $d_locale = smartling_convert_locale_drupal_to_smatrtling($s_locale, TRUE);
+  $d_locale = smartling_convert_locale_drupal_to_smartling($s_locale, TRUE);
   smartling_watchdog('Smartling start update fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
 
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));

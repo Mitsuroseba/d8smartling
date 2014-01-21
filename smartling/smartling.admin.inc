@@ -110,7 +110,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     '#title' => check_plain($base_url . '/'),
     '#default_value' => $smartling_callback_url,
     '#size' => 50,
-    '#maxlength' => 255,
+    '#maxlength' => 255 - (strlen($base_url) + 1),
     '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
     '#required' => FALSE,
   );

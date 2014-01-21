@@ -90,7 +90,7 @@ function smartling_rules_action_info() {
         'translate_to_langs' => array(
           'type' => 'list<text>',
           'label' => t('Languages'),
-          'optional' => FALSE,
+          'optional' => TRUE,
           'options list' => 'smartling_language_list',
           'description' => t('Translations will be checked for selected languages.'),
         ),
@@ -109,7 +109,7 @@ function smartling_rules_action_info() {
         'translate_to_langs' => array(
           'type' => 'list<text>',
           'label' => t('Languages'),
-          'optional' => FALSE,
+          'optional' => TRUE,
           'options list' => 'smartling_language_list',
           'description' => t('Translations will be downloaded for selected languages.'),
         ),
@@ -128,7 +128,7 @@ function smartling_rules_action_info() {
         'translate_to_langs' => array(
           'type' => 'list<text>',
           'label' => t('Languages'),
-          'optional' => FALSE,
+          'optional' => TRUE,
           'options list' => 'smartling_language_list',
           'description' => t('Node will be translated into the selected languages.'),
         ),
@@ -167,10 +167,26 @@ function smartling_locale_condition($data, $op, $value) {
  */
 function smartling_get_translation_status_action($node, $translate_to_langs) {
   if (is_object($node) && !empty($translate_to_langs)) {
-    foreach ($translate_to_langs as $language => $language_name) {
-      $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+    foreach ($translate_to_langs as $language) {
+      $s_locale = smartling_convert_locale_drupal_to_smartling($language);
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
       if ($entity_data) {
+        if (!empty($entity_data->rid) && !empty($entity_data->target_language)) {
+          $args = new stdClass;
+          $args->rid = $entity_data->rid;
+          $args->s_locale = $entity_data->target_language;
+          smartling_watchdog('Smartling start check status action for node id - @nid (@s_locale).', TRUE, array('@nid' => $args->rid, '@s_locale' => $args->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+          smartling_queue_check_status_process($args);
+          unset($args);
+        }
+      }
+    }
+  }
+  elseif (is_object($node) && empty($translate_to_langs)) {
+    // No selected languages
+    $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid));
+    if ($result) {
+      foreach ($result as $entity_data) {
         if (!empty($entity_data->rid) && !empty($entity_data->target_language)) {
           $args = new stdClass;
           $args->rid = $entity_data->rid;
@@ -186,10 +202,20 @@ function smartling_get_translation_status_action($node, $translate_to_langs) {
 
 function smartling_download_translation_action($node, $translate_to_langs) {
   if (is_object($node) && !empty($translate_to_langs)) {
-    foreach ($translate_to_langs as $language => $language_name) {
-      $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+    foreach ($translate_to_langs as $language) {
+      $s_locale = smartling_convert_locale_drupal_to_smartling($language);
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
       if ($entity_data) {
+        smartling_watchdog('Smartling start download translation action for node id - @nid (@s_locale).', TRUE, array('@nid' => $entity_data->rid, '@s_locale' => $entity_data->target_language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+        smartling_queue_download_update_translated_item_process($entity_data);
+      }
+    }
+  }
+  elseif (is_object($node) && empty($translate_to_langs)) {
+    // No selected languages
+    $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid));
+    if ($result) {
+      foreach ($result as $entity_data) {
         smartling_watchdog('Smartling start download translation action for node id - @nid (@s_locale).', TRUE, array('@nid' => $entity_data->rid, '@s_locale' => $entity_data->target_language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
         smartling_queue_download_update_translated_item_process($entity_data);
       }
@@ -198,11 +224,10 @@ function smartling_download_translation_action($node, $translate_to_langs) {
 }
 
 function smartling_send_to_translate_action($node, $translate_to_langs) {
+  global $user;
   if (is_object($node) && !empty($translate_to_langs)) {
-    global $user;
-
-    foreach ($translate_to_langs as $language => $language_name) {
-      $s_locale = smartling_convert_locale_drupal_to_smatrtling($language);
+    foreach ($translate_to_langs as $language) {
+      $s_locale = smartling_convert_locale_drupal_to_smartling($language);
       if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
         if (smartling_nodes_method($node->type)) {
           $status = smartling_nodes_method_node_status($node);
@@ -216,7 +241,7 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
               $obj->rid = $node->nid;
               $obj->type = $node->type;
               $obj->title = $node->title;
-              $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
+              $obj->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
               $obj->s_locale = $s_locale;
               $obj->submitter = $user->uid;
               smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locale).', TRUE, array('@nid' => $obj->rid, '@s_locale' => $obj->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
@@ -231,12 +256,59 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
             $obj->rid = $node->nid;
             $obj->type = $node->type;
             $obj->title = $node->title;
-            $obj->original_language = smartling_convert_locale_drupal_to_smatrtling($node->language);
+            $obj->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
             $obj->s_locale = $s_locale;
             $obj->submitter = $user->uid;
             smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locale).', TRUE, array('@nid' => $obj->rid, '@s_locale' => $obj->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
             smartling_queue_send_to_translate_process($obj);
             unset($obj);
+          }
+        }
+      }
+    }
+  }
+  elseif (is_object($node) && empty($translate_to_langs)) {
+    // No selected languages
+    $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid));
+    if ($result) {
+      foreach ($result as $entity_data) {
+        $language = smartling_convert_locale_drupal_to_smartling($entity_data->target_language, TRUE);
+        $s_locale = $entity_data->target_language;
+        if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
+          if (smartling_nodes_method($node->type)) {
+            $status = smartling_nodes_method_node_status($node);
+            if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
+              if ($node->tnid == '0') {
+                $node->tnid = $node->nid;
+                node_save($node);
+              }
+              if ($language != $node->language) {
+                $obj = new stdClass;
+                $obj->rid = $node->nid;
+                $obj->type = $node->type;
+                $obj->title = $node->title;
+                $obj->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
+                $obj->s_locale = $s_locale;
+                $obj->submitter = $user->uid;
+                smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locale).', TRUE, array('@nid' => $obj->rid, '@s_locale' => $obj->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+                smartling_queue_send_to_translate_process($obj);
+                unset($obj);
+              }
+            }
+          }
+          elseif (smartling_fields_method($node->type)) {
+            if ($language != $node->language) {
+              $obj = new stdClass;
+              $obj->rid = $node->nid;
+              $obj->type = $node->type;
+              $obj->title = $node->title;
+              $obj->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
+              $obj->s_locale = $s_locale;
+              $obj->submitter = $user->uid;
+              smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locale).', TRUE, array('@nid' => $obj->rid, '@s_locale' => $obj->s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+              smartling_queue_send_to_translate_process($obj);
+              unset($obj);
+            }
           }
         }
       }

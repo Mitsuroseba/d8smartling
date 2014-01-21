@@ -237,7 +237,20 @@ function smartling_get_full_language_name($s_locale) {
   }
 }
 
-function smartling_convert_locale_drupal_to_smatrtling($locale, $reverse = FALSE) {
+/**
+ * This functions convert locale format.
+ * Example: 'en' => 'en-US'.
+ *
+ * @param string $locale
+ * Locale string in some foormat: 'en' or 'en-US'.
+ *
+ * @param bool $reverse
+ * If TRUE, convert format: 'en-US' => 'en'.
+ * FALSE by default.
+ *
+ * @return string|null
+ */
+function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE) {
   $locales = array(
     'aa' => 'aa-DJ',
     'ab' => 'ab-GE',
