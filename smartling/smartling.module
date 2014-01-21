@@ -860,7 +860,7 @@ function smartling_do_translate_action_form($context, &$form_state) {
 }
 
 function smartling_do_translate_action_validate($form, &$form_state) {
-  dsm($form_state, '$form_state');
+//  dsm($form_state, '$form_state');
   $select_languages = array();
   foreach ($form_state['input']['languages'] as $d_locale) {
 
