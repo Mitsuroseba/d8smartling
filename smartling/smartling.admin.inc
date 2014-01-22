@@ -235,7 +235,7 @@ function smartling_admin_default_language_settings_form($form, &$form_state) {
 
   $default_language = language_default();
   $form['default_language']['language'] = array(
-    '#markup' => '<p>Site default language: ' . $default_language->name . '</p>',
+    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
     '#suffix' => l(t('Change default language'), 'admin/config/regional/language'),
   );
 
@@ -271,11 +271,11 @@ function smartling_admin_log_info_settings_form($form, &$form_state) {
 function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
     if ($form_state['values']['log_mode'] == 0) {
-      smartling_watchdog('smartling', 'Smartling log OFF', FALSE);
+      smartling_watchdog('Smartling log OFF', FALSE);
       variable_set('smartling_log', 0);
     }
     elseif ($form_state['values']['log_mode'] == 1) {
-      smartling_watchdog('smartling', 'Smartling log ON', FALSE);
+      smartling_watchdog('Smartling log ON', FALSE);
       variable_set('smartling_log', 1);
     }
   }

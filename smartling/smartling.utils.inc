@@ -488,10 +488,10 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
     $xml_doc->save($path);
 
     if ($translated_file == FALSE) {
-      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l('View file', $path));
     }
     if ($translated_file == TRUE) {
-      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l('View file', $path));
     }
 
     if (!is_null($nid)) {
@@ -503,10 +503,10 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
     $xml_doc->save($path);
 
     if ($translated_file == FALSE) {
-      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l('View file', $path));
     }
     if ($translated_file == TRUE) {
-      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l('View file', $path));
     }
 
     if (!is_null($nid)) {
@@ -767,7 +767,7 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
       '@s_locale' => $s_locale,
       '@as' => $status_result->response->data->approvedStringCount,
       '@cs' => $status_result->response->data->completedStringCount
-        ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
+        ), WATCHDOG_INFO, l('View original file', $file_uri));
 
     return $progress;
   }
@@ -777,7 +777,7 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
       Action: status <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l('Related entity', 'node/' . $rid));
     drupal_set_message(t('Smartling try to check progress file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
     drupal_goto(current_path());
   }
@@ -849,7 +849,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
         '@s_locale' => $s_locale,
         '@as' => $status_result->response->data->approvedStringCount,
         '@cs' => $status_result->response->data->completedStringCount
-          ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
+          ), WATCHDOG_INFO, l('View original file', $file_uri));
 
       smartling_update_translated_fields($rid, $s_locale, $nodes_method);
 
@@ -879,7 +879,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
       Action: download <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l('Related entity', 'node/' . $rid));
     drupal_set_message(t('Smartling try to download file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
     drupal_goto(current_path());
   }
