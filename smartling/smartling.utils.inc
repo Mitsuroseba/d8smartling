@@ -907,3 +907,38 @@ function smartling_watchdog($message, $consider_log = TRUE, $variables = array()
   }
 }
 
+function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
+  if (!is_null($entity_data) && !is_null($event)) {
+    switch ($event) {
+      case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
+        if (empty($entity_data->status)) {
+          $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
+          smartling_entity_data_save($entity_data);
+        }
+        break;
+
+      case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
+        $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
+        smartling_entity_data_save($entity_data);
+        break;
+
+      case SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE:
+      case SMARTLING_STATUS_EVENT_UPDATE_FIELDS:
+        if ($entity_data->progress == 100) {
+          $entity_data->status = SMARTLING_STATUS_TRANSLATED;
+        }
+        smartling_entity_data_save($entity_data);
+        break;
+
+      case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
+        if ($entity_data->status == SMARTLING_STATUS_IN_QUEUE || $entity_data->status == SMARTLING_STATUS_IN_TRANSLATE) {
+          $entity_data->status = SMARTLING_STATUS_CHANGE;
+          smartling_entity_data_save($entity_data);
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+}

@@ -182,7 +182,6 @@ function smartling_queue_send_to_translate_process($args) {
     $entity_data->translated_file_name = FALSE;
     $entity_data->submitter = $args->submitter;
     $entity_data->progress = 0;
-    $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
     smartling_entity_data_save($entity_data);
 
     $nodes_method = smartling_nodes_method($args->type);
@@ -218,6 +217,7 @@ function smartling_queue_send_to_translate_process($args) {
       $upload_result = json_decode($upload_result);
 
       if ($api->getCodeStatus() == 'SUCCESS') {
+        smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
         smartling_watchdog('Smartling upload xml file to service for node id - @nid.', TRUE, array('@nid' => $args->rid), WATCHDOG_INFO, l('View file', $file_path));
         if (module_exists('rules')) {
           $node_event = smartling_node_load_default($args->rid);

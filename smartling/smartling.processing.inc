@@ -423,10 +423,10 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
     $node_wrapper->save();
 
     $entity_data->download = 1;
-    if ($entity_data->progress == 100) {
-      $entity_data->status = SMARTLING_STATUS_TRANSLATED;
-    }
+
     smartling_entity_data_save($entity_data);
+
+    smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
     smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l('View translated node', $d_locale . '/node/' . $rid));
     if (module_exists('rules')) {
