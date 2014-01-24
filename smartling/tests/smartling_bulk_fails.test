@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingBulkSubmitNoSelectedNodeFailsTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Smartling no selected node bulk submit',
+      'description' => 'Smartling Bulk Submitting assuming no selected node',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function setUp() {
+
+    // Enable Smartling module
+    parent::setUp('smartling');
+
+    // Create a user with access
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer smartling',
+      'administer languages',
+      'access administration pages'
+    ));
+
+    // Authorizing user
+    $this->drupalLogin($this->privileged_user);
+    // Create initial node.
+    $body = $this->randomName(5);
+    for ($i = 0; $i < 50; $i++) {
+      $body .= ' ' . $this->randomName(rand(3, 8));
+    }
+
+    $settings = array(
+      'body' => array('en' => array(array('value' => $body))),
+      'title' => $this->randomName(8),
+      'comment' => 0,
+      'changed' => REQUEST_TIME,
+      'moderate' => 0,
+      'promote' => 0,
+      'revision' => 1,
+      'log' => '',
+      'status' => 1,
+      'sticky' => 0,
+      'type' => 'article',
+      'revisions' => NULL,
+      'language' => 'en',
+    );
+    $this->drupalCreateNode($settings);
+  }
+
+  public function testNoSelectedNodeFailsBulkSubmit() {
+
+    $edit = array();
+    $this->drupalPost('admin/content/smartling-content', $edit, t('Translate'));
+    $this->assertText(t('Please select at least one item.'));
+  }
+
+}
+
+class SmartlingBulkSubmitNoSelectedLanguageFailsTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Smartling no selected language bulk submit',
+      'description' => 'Smartling Bulk Submitting assuming no selected language',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function setUp() {
+
+    // Enable Smartling module
+    parent::setUp('smartling');
+
+    // Create a user with access
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer smartling',
+      'administer languages',
+      'access administration pages'
+    ));
+
+    // Authorizing user
+    $this->drupalLogin($this->privileged_user);
+    // Create initial node.
+    $body = $this->randomName(5);
+    for ($i = 0; $i < 50; $i++) {
+      $body .= ' ' . $this->randomName(rand(3, 8));
+    }
+
+    $settings = array(
+      'body' => array('en' => array(array('value' => $body))),
+      'title' => $this->randomName(8),
+      'comment' => 0,
+      'changed' => REQUEST_TIME,
+      'moderate' => 0,
+      'promote' => 0,
+      'revision' => 1,
+      'log' => '',
+      'status' => 1,
+      'sticky' => 0,
+      'type' => 'article',
+      'revisions' => NULL,
+      'language' => 'en',
+    );
+    $this->drupalCreateNode($settings);
+  }
+
+  public function testNoSelectedLanguageFailsBulkSubmit() {
+
+    // Add predefined language.
+    $edit = array(
+      'langcode' => 'ru',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('ru', 'Language added successfully.');
+
+    $this->drupalGet('admin/content/smartling-content');
+    $edit = array(
+      "views_bulk_operations[0]" => 1,
+    );
+    $this->drupalPost('admin/content/smartling-content', $edit, t('Translate'));
+
+    $edit = array();
+    $this->drupalPost(NULL, $edit, t('Next'));
+    $this->assertText(t('Check language, please.'));
+  }
+
+}

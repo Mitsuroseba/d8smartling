@@ -449,6 +449,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
  * smartling_get_node_settings_form_submit
  */
 function smartling_get_node_settings_form_submit($form, &$form_state) {
+  //dsm($form_state, '$form_state');
   $node = node_form_submit_build_node($form, $form_state);
   node_save($node);
 
@@ -707,7 +708,7 @@ function smartling_entity_load($entities, $type) {
             if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
               // If field have und value and dont have need value
               $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
-              smartling_watchdog('Smartling add field value for @filedname, langcode @lang', TRUE, array('@filedname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l('Edit node', 'node/' . $entity->nid));
+              smartling_watchdog('Smartling add field value for @fieldname, langcode @lang', TRUE, array('@fieldname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l('Edit node', 'node/' . $entity->nid));
             }
           }
         }
