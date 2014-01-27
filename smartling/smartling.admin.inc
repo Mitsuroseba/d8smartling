@@ -22,12 +22,10 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
 
   $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form', $show_fieldset);
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
-  $default_language_info = drupal_get_form('smartling_admin_default_language_settings_form', $show_fieldset);
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
-  $output['smartling'][] = smartling_wrap_in_fieldset($default_language_info, 'Default language info');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
   if (module_exists('smartling_load_test')) {
     $dev_settings = drupal_get_form('smartling_admin_dev_settings_form', $show_fieldset);
@@ -40,6 +38,21 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
  * Account info form
  */
 function smartling_admin_account_info_settings_form($form, &$form_state, $show_fieldset = FALSE) {
+
+  $form['default_language'] = array(
+    '#type' => 'item',
+    '#title' => t('Default language'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'default_language',
+  );
+
+  $default_language = language_default();
+  $form['default_language']['language'] = array(
+    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
+    '#suffix' => l(t('Change default language'), 'admin/config/regional/language'),
+  );
+
   $form['accaunt_info'] = array(
     '#type' => $show_fieldset ? 'fieldset' : 'item',
     '#title' => t('Account info'),
@@ -53,21 +66,29 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     '#validate' => array('smartling_admin_account_info_settings_form_validate'),
   );
 
-  $smartling_project_id = variable_get('smartling_project_id', FALSE);
+  $form['accaunt_info']['api_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API URL'),
+    '#default_value' => SMARTLING_API_URL,
+    '#size' => 25,
+    '#maxlength' => 255,
+    '#required' => FALSE,
+    '#description' => t('Set api url. Default: https://capi.smartling.com/v1'),
+  );
+
   $form['accaunt_info']['project_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Project Id'),
-    '#default_value' => $smartling_project_id ? $smartling_project_id : '',
+    '#default_value' => variable_get('smartling_project_id', ''),
     '#size' => 25,
     '#maxlength' => 25,
     '#required' => FALSE,
   );
 
-  $smartling_key = variable_get('smartling_key', FALSE);
   $form['accaunt_info']['smartling_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Key'),
-    '#default_value' => $smartling_key ? $smartling_key : '',
+    '#default_value' => variable_get('smartling_key', ''),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
@@ -98,6 +119,23 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     ),
   );
 
+  $language_options_list = array();
+  $languages = language_list();
+  unset($languages[$default_language->language]);
+
+  foreach ($languages as $langcode => $language) {
+    if ($language->enabled != '0') {
+      $language_options_list[$langcode] = $language->name;
+    }
+  }
+
+  $form['accaunt_info']['target_locales'] = array(
+    '#type' => 'checkboxes',
+    '#options' => $language_options_list,
+    '#title' => t('Target Locales'),
+    '#default_value' => variable_get('smartling_target_locales', array()),
+  );
+
   $form['accaunt_info']['callback_info_title'] = array(
     '#type' => 'item',
     '#title' => t('Callback URL'),
@@ -115,9 +153,15 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     '#required' => FALSE,
   );
 
-  $form['accaunt_info']['actions']['submit'] = array(
+  $form['accaunt_info']['actions']['submit'][] = array(
     '#type' => 'submit',
+    '#name' => 'save',
     '#value' => t('Save'),
+  );
+  $form['accaunt_info']['actions']['submit'][] = array(
+    '#type' => 'submit',
+    '#name' => 'test_connection',
+    '#value' => t('Test connection'),
   );
 
   return $form;
@@ -126,6 +170,18 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
 function smartling_admin_account_info_settings_form_validate($form, &$form_state) {
   $project_id = '';
   $smartling_key = '';
+  if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
+    $api_url = $form_state['values']['api_url'];
+    $status = valid_url($api_url, TRUE);
+    if (!$status) {
+      drupal_set_message(t('API URL has wrong format'), 'error');
+      form_set_error('api_url');
+    }
+  }
+  else {
+    $api_url = 'https://capi.smartling.com/v1';
+  }
+
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
     $project_id = $form_state['values']['project_id'];
   }
@@ -146,7 +202,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
   );
 
-  $url = 'https://api.smartling.com/v1/file/list';
+  $url = $api_url . '/file/list';
   $response = drupal_http_request($url, $options);
   if ($response->code == 200) {
     $response = json_decode($response->data);
@@ -156,7 +212,8 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     }
     else {
       drupal_set_message(t('Please input correct Smartling settings.'), 'error');
-      form_set_error('smartling_key', '');
+      form_set_error('api_url');
+      form_set_error('smartling_key');
       form_set_error('project_id');
     }
   }
@@ -166,80 +223,136 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
     }
     drupal_set_message(t('Please input correct Smartling settings.'), 'error');
-    form_set_error('smartling_key', '');
+    form_set_error('api_url');
+    form_set_error('smartling_key');
     form_set_error('project_id');
   }
 
-  // Callback validate
-  $callback_url = '';
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    $callback_url = $form_state['values']['callback_url'];
-    $status = valid_url($callback_url);
-    if (!$status) {
-      drupal_set_message(t('Callback URL has wrong format'), 'error');
-      form_set_error('callback_url');
+
+  if ($form_state['clicked_button']['#name'] == 'save') {
+    // Target locales validate
+    if (count(array_filter($form_state['values']['target_locales'])) == 0) {
+      drupal_set_message(t('At least one locale must be selected'), 'error');
+      form_set_error('target_locales');
+    }
+
+    // Callback validate
+    $callback_url = '';
+    if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
+      $callback_url = $form_state['values']['callback_url'];
+      $status = valid_url($callback_url);
+      if (!$status) {
+        drupal_set_message(t('Callback URL has wrong format'), 'error');
+        form_set_error('callback_url');
+      }
     }
   }
 }
 
 function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
-  if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    variable_set('smartling_project_id', $form_state['values']['project_id']);
-  }
-  elseif (empty($form_state['values']['project_id'])) {
-    variable_del('smartling_project_id');
-  }
-  if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    variable_set('smartling_key', $form_state['values']['smartling_key']);
-  }
-  elseif (empty($form_state['values']['smartling_key'])) {
-    variable_del('smartling_key');
-  }
-  if (isset($form_state['values']['smartling_mode'])) {
-    if ($form_state['values']['smartling_mode'] == 0) {
-      variable_set('smartling_mode', 'PRODUCTION');
-      smartling_watchdog('Smartling set in PRODUCTION mode.', FALSE);
-      variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
+  // Save
+  if ($form_state['clicked_button']['#name'] == 'save') {
+    // Account settings
+    if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
+      variable_set('smartling_api_url', $form_state['values']['api_url']);
     }
-    elseif ($form_state['values']['smartling_mode'] == 1) {
-      variable_set('smartling_mode', 'SANDBOX');
-      smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
+    elseif (empty($form_state['values']['api_url'])) {
+      variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
+    }
+    if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
+      variable_set('smartling_project_id', $form_state['values']['project_id']);
+    }
+    elseif (empty($form_state['values']['project_id'])) {
+      variable_del('smartling_project_id');
+    }
+    if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
+      variable_set('smartling_key', $form_state['values']['smartling_key']);
+    }
+    elseif (empty($form_state['values']['smartling_key'])) {
+      variable_del('smartling_key');
+    }
+
+    // Smartling mode
+    if (isset($form_state['values']['smartling_mode'])) {
+      if ($form_state['values']['smartling_mode'] == 0) {
+        variable_set('smartling_mode', 'PRODUCTION');
+        smartling_watchdog('Smartling set in PRODUCTION mode.', FALSE);
+        variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
+      }
+      elseif ($form_state['values']['smartling_mode'] == 1) {
+        variable_set('smartling_mode', 'SANDBOX');
+        smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
+      }
+    }
+
+    // Target locales
+    $target_locales = $form_state['values']['target_locales'];
+    foreach ($form_state['values']['target_locales'] as $key => $lang) {
+      if ($lang === 0) { // Must be ===
+        unset($target_locales[$key]);
+      }
+    }
+    if (!empty($target_locales)) {
+      variable_set('smartling_target_locales', $target_locales);
+    }
+
+    // Callback
+    if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
+      variable_set('smartling_callback_url', $form_state['values']['callback_url']);
+    }
+    elseif (empty($form_state['values']['callback_url'])) {
+      variable_set('smartling_callback_url', 'smartling-callback');
+    }
+
+    menu_rebuild();
+    menu_router_build();
+
+    drupal_set_message(t('Account settings saved.'));
+
+    drupal_goto(current_path());
+  }
+
+  // Test
+  if ($form_state['clicked_button']['#name'] == 'test_connection') {
+    foreach ($form_state['values']['target_locales'] as $key => $lang) {
+      if ($lang !== 0 && $lang == $key) {
+        $s_locale = smartling_convert_locale_drupal_to_smartling($lang);
+        $data = array(
+          'apiKey' => $form_state['values']['smartling_key'],
+          'projectId' => $form_state['values']['project_id'],
+          'offset' => 0,
+          'limit' => 1,
+          'locale' => $s_locale,
+        );
+
+        $options = array(
+          'method' => 'POST',
+          'data' => drupal_http_build_query($data),
+          'timeout' => 5,
+          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
+        );
+
+        $url = variable_get('smartling_api_url') . '/file/list';
+        $response = drupal_http_request($url, $options);
+        if ($response->code == 200) {
+          $response = json_decode($response->data);
+          if ($response->response->code == 'SUCCESS') {
+            drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)));
+          }
+          else {
+            drupal_set_message(t('Test connection for locale @s_locale is fail. Messages: @messages', array('@s_locale' => $s_locale, '@messages' => $response->response->messages)), 'error');
+          }
+        }
+        else {
+          if (isset($response->error)) {
+            drupal_set_message($response->error, 'error');
+            smartling_watchdog('Smartling "Test connection" submit error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
+          }
+          drupal_set_message(t('Test connection for locale @s_locale is fail.', array('@s_locale' => $s_locale)), 'error');
+        }
+      }
     }
   }
-
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', $form_state['values']['callback_url']);
-  }
-  elseif (empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', 'smartling-callback');
-  }
-
-  menu_rebuild();
-  menu_router_build();
-
-  drupal_set_message(t('Account settings saved.'));
-
-  drupal_goto(current_path());
-}
-
-/**
- * Default language info form
- */
-function smartling_admin_default_language_settings_form($form, &$form_state) {
-  $form['default_language'] = array(
-    '#type' => 'item',
-    '#title' => t('Default language'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-
-  $default_language = language_default();
-  $form['default_language']['language'] = array(
-    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
-    '#suffix' => l(t('Change default language'), 'admin/config/regional/language'),
-  );
-
-  return $form;
 }
 
 /**

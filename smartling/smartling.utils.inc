@@ -84,20 +84,28 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  */
 function smartling_is_configured() {
   $required_variables = array(
+    'smartling_api_url',
     'smartling_key',
     'smartling_project_id',
     'smartling_mode',
+    'smartling_target_locales',
   );
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val)) {
-      if ($required_variable == 'smartling_key') {
+      if ($required_variable == 'smartling_api_url') {
+        return FALSE;
+      }
+      elseif ($required_variable == 'smartling_key') {
         return FALSE;
       }
       elseif ($required_variable == 'smartling_project_id') {
         return FALSE;
       }
       elseif ($required_variable == 'smartling_mode') {
+        return FALSE;
+      }
+      elseif ($required_variable == 'smartling_target_locales') {
         return FALSE;
       }
     }
@@ -892,6 +900,32 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
   }
 }
 
+function smartling_language_options_list() {
+  $language_options_list = array();
+  $languages = smartling_language_list();
+
+  foreach ($languages as $langcode => $language) {
+    if ($language->enabled != '0') {
+      $language_options_list[$langcode] = $language->name;
+    }
+  }
+  return $language_options_list;
+}
+
+function smartling_language_list() {
+  $languages_list = array();
+  $languages = language_list('language');
+
+  $smartling_target_locales = variable_get('smartling_target_locales');
+
+  foreach ($languages as $langcode => $language) {
+    if ($language->enabled != '0' && (in_array($langcode, $smartling_target_locales))) {
+      $languages_list[$langcode] = $language;
+    }
+  }
+  return $languages_list;
+}
+
 /**
  * Smartling watchdog function.
  *
@@ -916,6 +950,7 @@ function smartling_watchdog($message, $consider_log = TRUE, $variables = array()
 
 function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   if (!is_null($entity_data) && !is_null($event)) {
+    $entity_data = smartling_entity_load_by_conditions(array('rid' => $entity_data->rid, 'target_language' => $entity_data->target_language));
     switch ($event) {
       case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
         if (empty($entity_data->status)) {

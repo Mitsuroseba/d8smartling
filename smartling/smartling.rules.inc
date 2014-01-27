@@ -91,7 +91,7 @@ function smartling_rules_action_info() {
           'type' => 'list<text>',
           'label' => t('Languages'),
           'optional' => TRUE,
-          'options list' => 'smartling_language_list',
+          'options list' => 'smartling_language_options_list',
           'description' => t('Translations will be checked for selected languages.'),
         ),
       ),
@@ -110,7 +110,7 @@ function smartling_rules_action_info() {
           'type' => 'list<text>',
           'label' => t('Languages'),
           'optional' => TRUE,
-          'options list' => 'smartling_language_list',
+          'options list' => 'smartling_language_options_list',
           'description' => t('Translations will be downloaded for selected languages.'),
         ),
       ),
@@ -129,7 +129,7 @@ function smartling_rules_action_info() {
           'type' => 'list<text>',
           'label' => t('Languages'),
           'optional' => TRUE,
-          'options list' => 'smartling_language_list',
+          'options list' => 'smartling_language_options_list',
           'description' => t('Node will be translated into the selected languages.'),
         ),
       ),
@@ -315,18 +315,3 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
     }
   }
 }
-
-function smartling_language_list() {
-  $languages_list = array();
-  $language_default = language_default();
-  $languages = language_list('language');
-  unset($languages[$language_default->language]);
-
-  foreach ($languages as $langcode => $language) {
-    if ($language->enabled != '0') {
-      $languages_list[$langcode] = $language->name;
-    }
-  }
-  return $languages_list;
-}
-
