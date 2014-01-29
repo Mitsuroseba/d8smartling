@@ -10,3 +10,22 @@
   display: inline;
   width: auto;
 }
+
+.wrap-target-locales {
+  float: left;
+  clear: both;
+  width: 100%;
+}
+.wrap-target-locales .form-item-target-locales,
+.wrap-target-locales .wrap-target-locales-text-key {
+  float: left;
+}
+
+.wrap-target-locales .wrap-target-locales-text-key {
+  margin: 25px 0 0 10px;
+}
+
+.wrap-target-locales .wrap-target-locales-text-key .form-type-textfield{
+  width: auto;
+  padding: 4px 0;
+}

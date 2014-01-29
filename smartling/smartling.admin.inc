@@ -4,12 +4,7 @@
  * @file
  * Admin forms and other for Smartling module administration section.
  */
-function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldset = TRUE) {
-  ctools_include('modal');
-  ctools_modal_add_js();
-
-  $show_fieldset = FALSE;
-
+function smartling_admin_configuration_view() {
   $output = array();
 
   $output['smartling'] = array(
@@ -20,15 +15,15 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
     ),
   );
 
-  $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form', $show_fieldset);
-  $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form', $show_fieldset);
-  $log_info = drupal_get_form('smartling_admin_log_info_settings_form', $show_fieldset);
+  $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form');
+  $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form');
+  $log_info = drupal_get_form('smartling_admin_log_info_settings_form');
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
   if (module_exists('smartling_load_test')) {
-    $dev_settings = drupal_get_form('smartling_admin_dev_settings_form', $show_fieldset);
+    $dev_settings = drupal_get_form('smartling_admin_dev_settings_form');
     $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, 'Dev settings');
   }
   return $output;
@@ -37,24 +32,10 @@ function smartling_admin_configuration_view($form_short_id = NULL, $show_fieldse
 /**
  * Account info form
  */
-function smartling_admin_account_info_settings_form($form, &$form_state, $show_fieldset = FALSE) {
-
-  $form['default_language'] = array(
-    '#type' => 'item',
-    '#title' => t('Default language'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'default_language',
-  );
-
-  $default_language = language_default();
-  $form['default_language']['language'] = array(
-    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
-    '#suffix' => l(t('Change default language'), 'admin/config/regional/language'),
-  );
+function smartling_admin_account_info_settings_form($form, &$form_state) {
 
   $form['accaunt_info'] = array(
-    '#type' => $show_fieldset ? 'fieldset' : 'item',
+    '#type' => 'item',
     '#title' => t('Account info'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
@@ -94,33 +75,9 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     '#required' => FALSE,
   );
 
-  $mode = variable_get('smartling_mode', NULL);
-  $active = array(0 => 'PRODUCTION', 1 => 'SANDBOX');
-  $form['accaunt_info']['smartling_mode'] = array(
-    '#type' => 'radios',
-    '#title' => t('Smartling mode'),
-    '#default_value' => (!is_null($mode) && ($mode == 'PRODUCTION')) ? 0 : 1,
-    '#options' => $active,
-    '#description' => t('Configure Smartling mode.'),
-  );
-
-  $retrieval_type_default = variable_get('smartling_retrieval_type', NULL);
-  $retrieval_type = array('pseudo' => 'pseudo', 'published' => 'published', 'pending' => 'pending');
-  $form['accaunt_info']['production_retrieval_type'] = array(
-    '#type' => 'radios',
-    '#title' => t('Retrieval type'),
-    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'pseudo',
-    '#options' => $retrieval_type,
-    '#description' => t('Param for upload translate.'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="smartling_mode"]' => array('value' => 0),
-      ),
-    ),
-  );
-
   $language_options_list = array();
   $languages = language_list();
+  $default_language = language_default();
   unset($languages[$default_language->language]);
 
   foreach ($languages as $langcode => $language) {
@@ -134,6 +91,74 @@ function smartling_admin_account_info_settings_form($form, &$form_state, $show_f
     '#options' => $language_options_list,
     '#title' => t('Target Locales'),
     '#default_value' => variable_get('smartling_target_locales', array()),
+    '#prefix' => '<div class="wrap-target-locales">',
+  );
+
+  $total = count($language_options_list);
+  $counter = 0;
+  foreach ($language_options_list as $langcode => $lang_name) {
+    $counter++;
+    if ($counter == 1) {
+      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        '#type' => 'textfield',
+        '#title' => t($langcode),
+        '#title_display' => 'invisible',
+        '#default_value' => '',
+        '#size' => 6,
+        '#maxlength' => 10,
+        '#required' => FALSE,
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+          ),
+        ),
+        '#prefix' => '<div class="wrap-target-locales-text-key">',
+      );
+    }
+    else {
+      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        '#type' => 'textfield',
+        '#title' => t($langcode),
+        '#title_display' => 'invisible',
+        '#default_value' => '',
+        '#size' => 6,
+        '#maxlength' => 10,
+        '#required' => FALSE,
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+          ),
+        ),
+      );
+    }
+
+    if ($counter == $total) {
+      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        '#type' => 'textfield',
+        '#title' => t($langcode),
+        '#title_display' => 'invisible',
+        '#default_value' => '',
+        '#size' => 6,
+        '#maxlength' => 10,
+        '#required' => FALSE,
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+          ),
+        ),
+        '#suffix' => '</div></div>',
+      );
+    }
+  }
+
+  $form['accaunt_info']['default_language'] = array(
+    '#type' => 'item',
+    '#title' => t('Default language'),
+  );
+
+  $form['accaunt_info']['default_language_markup'] = array(
+    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
+    '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
 
   $form['accaunt_info']['callback_info_title'] = array(
@@ -272,19 +297,6 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
       variable_del('smartling_key');
     }
 
-    // Smartling mode
-    if (isset($form_state['values']['smartling_mode'])) {
-      if ($form_state['values']['smartling_mode'] == 0) {
-        variable_set('smartling_mode', 'PRODUCTION');
-        smartling_watchdog('Smartling set in PRODUCTION mode.', FALSE);
-        variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
-      }
-      elseif ($form_state['values']['smartling_mode'] == 1) {
-        variable_set('smartling_mode', 'SANDBOX');
-        smartling_watchdog('Smartling set in SANDBOX mode.', FALSE);
-      }
-    }
-
     // Target locales
     $target_locales = $form_state['values']['target_locales'];
     foreach ($form_state['values']['target_locales'] as $key => $lang) {
@@ -404,7 +416,7 @@ function smartling_admin_dev_settings_form($form, &$form_state) {
 /**
  * Content translation form
  */
-function smartling_admin_node_translation_settings_form($form, &$form_state, $show_fieldset = FALSE) {
+function smartling_admin_node_translation_settings_form($form, &$form_state) {
   $setup_complete = smartling_is_configured();
 
   $raw_types = node_type_get_types();
@@ -414,7 +426,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
   $translatable_field_types = smartling_get_translatable_field_types();
 
   $form['node_translation'] = array(
-    '#type' => $show_fieldset ? 'fieldset' : 'item',
+    '#type' => 'item',
     '#title' => t('Which content types do you want translated?'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
@@ -559,7 +571,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state, $sh
  * Node Translation Settings - Form Submit
  */
 function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
-  // This is needed for the setup because of the field/node method selector.
+// This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
   $translate = array();

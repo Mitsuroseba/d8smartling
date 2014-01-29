@@ -87,7 +87,6 @@ function smartling_is_configured() {
     'smartling_api_url',
     'smartling_key',
     'smartling_project_id',
-    'smartling_mode',
     'smartling_target_locales',
   );
   foreach ($required_variables as $required_variable) {
@@ -100,9 +99,6 @@ function smartling_is_configured() {
         return FALSE;
       }
       elseif ($required_variable == 'smartling_project_id') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_mode') {
         return FALSE;
       }
       elseif ($required_variable == 'smartling_target_locales') {
@@ -753,9 +749,8 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
 
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
-  $mode = variable_get('smartling_mode');
   // Init api object
-  $api = new SmartlingAPI($key, $project_id, $mode);
+  $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
   // Try to retrieve file status
   $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -825,13 +820,11 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
 
     $key = variable_get('smartling_key');
     $project_id = variable_get('smartling_project_id');
-    $mode = variable_get('smartling_mode');
     // Init api object
-    $api = new SmartlingAPI($key, $project_id, $mode);
+    $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-    $retrieval_type = variable_get('smartling_retrieval_type');
     $download_param = array(
-      'retrievalType' => $retrieval_type,
+      'retrievalType' => 'published',
     );
 
     // Try to retrieve file status

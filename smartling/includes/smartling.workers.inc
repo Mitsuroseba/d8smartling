@@ -24,43 +24,30 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
 
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
-  $mode = variable_get('smartling_mode');
 
   // Init api object
-  $api = new SmartlingAPI($key, $project_id, $mode);
+  $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-  $retrieval_type = variable_get('smartling_retrieval_type');
   $download_param = array(
-    'retrievalType' => $retrieval_type,
+    'retrievalType' => 'published',
   );
 
   smartling_watchdog('Smartling queue start download xml file and update fields for node id - @nid.', TRUE, array('@nid' => $rid), WATCHDOG_INFO, l('View file', $file_path));
 
   // Try to download file
   $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-  if ($mode == 'PRODUCTION') {
-    if (isset($download_result->response->code)) {
-      $download_result = json_decode($download_result);
-      smartling_watchdog('smartling_queue_download_update_translated_item_process try to download file:<br/>
+
+  if (isset($download_result->response->code)) {
+    $download_result = json_decode($download_result);
+    smartling_watchdog('smartling_queue_download_update_translated_item_process try to download file:<br/>
       Project Id: @project_id <br/>
       Action: download <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, l('Related entity', 'node/' . $args->rid));
-    }
-    else {
-      // This is a $download_result
-      $xml = new DOMDocument();
-      $xml->loadXML($download_result);
-
-      $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
-      if (is_object($save)) {
-        smartling_update_translated_fields($rid, $s_locale, $nodes_method);
-      }
-    }
   }
-  elseif ($mode == 'SANDBOX') {
-    // This is a $download_result. In SANDBOX mode $download_result == xml content
+  else {
+    // This is a $download_result
     $xml = new DOMDocument();
     $xml->loadXML($download_result);
 
@@ -89,10 +76,9 @@ function smartling_queue_check_status_process($args) {
 
         $key = variable_get('smartling_key');
         $project_id = variable_get('smartling_project_id');
-        $mode = variable_get('smartling_mode');
 
         // Init api object
-        $api = new SmartlingAPI($key, $project_id, $mode);
+        $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
         // Try to retrieve file status
         $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -100,13 +86,6 @@ function smartling_queue_check_status_process($args) {
 
         // This is a get status
         if ($api->getCodeStatus() == 'SUCCESS') {
-          if ($mode == 'SANDBOX') {
-            // This code imitation translate file in service
-            $finish_translate = rand(1, 2);
-            if ($finish_translate == 1) {
-              $status_result->response->data->completedStringCount = $status_result->response->data->approvedStringCount;
-            }
-          }
 
           smartling_watchdog('Smartling check status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs', TRUE, array(
             '@nid' => $args->rid,
@@ -197,10 +176,9 @@ function smartling_queue_send_to_translate_process($args) {
 
       $key = variable_get('smartling_key');
       $project_id = variable_get('smartling_project_id');
-      $mode = variable_get('smartling_mode');
 
       // Init api object
-      $api = new SmartlingAPI($key, $project_id, $mode);
+      $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
       $upload_params = array(
         'approved' => TRUE,
