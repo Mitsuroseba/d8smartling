@@ -75,6 +75,16 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#required' => FALSE,
   );
 
+  $retrieval_type_default = variable_get('smartling_retrieval_type', NULL);
+  $retrieval_type = array('pseudo' => 'pseudo', 'published' => 'published', 'pending' => 'pending');
+  $form['accaunt_info']['production_retrieval_type'] = array(
+    '#type' => 'radios',
+    '#title' => t('Retrieval type'),
+    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'pseudo',
+    '#options' => $retrieval_type,
+    '#description' => t('Param for download translate.'),
+  );
+
   $language_options_list = array();
   $languages = language_list();
   $default_language = language_default();
@@ -295,6 +305,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     }
     elseif (empty($form_state['values']['smartling_key'])) {
       variable_del('smartling_key');
+    }
+
+    // Retrieval type
+    if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
+      variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
     }
 
     // Target locales

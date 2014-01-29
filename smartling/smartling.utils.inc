@@ -823,8 +823,9 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
     // Init api object
     $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
+    $retrieval_type = variable_get('smartling_retrieval_type');
     $download_param = array(
-      'retrievalType' => 'published',
+      'retrievalType' => $retrieval_type,
     );
 
     // Try to retrieve file status

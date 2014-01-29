@@ -28,8 +28,9 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
   // Init api object
   $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
 
+  $retrieval_type = variable_get('smartling_retrieval_type');
   $download_param = array(
-    'retrievalType' => 'published',
+    'retrievalType' => $retrieval_type,
   );
 
   smartling_watchdog('Smartling queue start download xml file and update fields for node id - @nid.', TRUE, array('@nid' => $rid), WATCHDOG_INFO, l('View file', $file_path));
