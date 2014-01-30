@@ -106,6 +106,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
 
     $total = count($language_options_list);
     $counter = 0;
+    $locales_convert_array = variable_get('smartling_locales_convert_array', array());
     foreach ($language_options_list as $langcode => $lang_name) {
       $counter++;
       if ($counter == 1) {
@@ -113,7 +114,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
           '#type' => 'textfield',
           '#title' => t($langcode),
           '#title_display' => 'invisible',
-          '#default_value' => '',
+          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
           '#maxlength' => 10,
           '#required' => FALSE,
@@ -130,7 +131,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
           '#type' => 'textfield',
           '#title' => t($langcode),
           '#title_display' => 'invisible',
-          '#default_value' => '',
+          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
           '#maxlength' => 10,
           '#required' => FALSE,
@@ -147,7 +148,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
           '#type' => 'textfield',
           '#title' => t($langcode),
           '#title_display' => 'invisible',
-          '#default_value' => '',
+          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
           '#maxlength' => 10,
           '#required' => FALSE,
@@ -324,14 +325,22 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
     // Target locales
     $target_locales = $form_state['values']['target_locales'];
+    $locales_convert_array = $form_state['values']['target_locales'];
     foreach ($form_state['values']['target_locales'] as $key => $lang) {
       if ($lang === 0) { // Must be ===
         unset($target_locales[$key]);
+        unset($locales_convert_array[$key]);
+      }
+      else {
+        if (!empty($form_state['values']['target_locales_text_key_' . $key])) {
+          $locales_convert_array[$key] = $form_state['values']['target_locales_text_key_' . $key];
+        }
       }
     }
     if (!empty($target_locales)) {
       variable_set('smartling_target_locales', $target_locales);
     }
+    variable_set('smartling_locales_convert_array', $locales_convert_array);
 
     // Callback
     if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {

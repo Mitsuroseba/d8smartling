@@ -185,6 +185,12 @@ function smartling_queue_send_to_translate_process($args) {
         'approved' => TRUE,
         'overwriteApprovedLocales' => FALSE,
       );
+      $locales_convert_array = variable_get('smartling_locales_convert_array', array());
+      $i = 0;
+      foreach ($locales_convert_array as $locale_code) {
+        $upload_params['localesToApprove[' . $i . ']'] = $locale_code;
+        $i++;
+      }
 
       if (SMARTLING_CALLBACK_URL) {
         global $base_url;

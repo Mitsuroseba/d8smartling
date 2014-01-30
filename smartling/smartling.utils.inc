@@ -255,6 +255,7 @@ function smartling_get_full_language_name($s_locale) {
  * @return string|null
  */
 function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE) {
+  /*
   $locales = array(
     'aa' => 'aa-DJ',
     'ab' => 'ab-GE',
@@ -454,6 +455,8 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
     'zh-hant' => 'zh-TW',
     'zu' => 'zu-ZA',
   );
+  */
+  $locales = variable_get('smartling_locales_convert_array', array());
   if (!$reverse) {
     if (isset($locales[$locale])) {
       return $locales[$locale];
