@@ -183,6 +183,7 @@ function smartling_queue_send_to_translate_process($args) {
 
       $upload_params = array(
         'approved' => TRUE,
+        'overwriteApprovedLocales' => FALSE,
       );
 
       if (SMARTLING_CALLBACK_URL) {

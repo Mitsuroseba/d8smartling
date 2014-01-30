@@ -95,70 +95,80 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       $language_options_list[$langcode] = $language->name;
     }
   }
+  if (!empty($language_options_list)) {
+    $form['accaunt_info']['target_locales'] = array(
+      '#type' => 'checkboxes',
+      '#options' => $language_options_list,
+      '#title' => t('Target Locales'),
+      '#default_value' => variable_get('smartling_target_locales', array()),
+      '#prefix' => '<div class="wrap-target-locales">',
+    );
 
-  $form['accaunt_info']['target_locales'] = array(
-    '#type' => 'checkboxes',
-    '#options' => $language_options_list,
-    '#title' => t('Target Locales'),
-    '#default_value' => variable_get('smartling_target_locales', array()),
-    '#prefix' => '<div class="wrap-target-locales">',
-  );
+    $total = count($language_options_list);
+    $counter = 0;
+    foreach ($language_options_list as $langcode => $lang_name) {
+      $counter++;
+      if ($counter == 1) {
+        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+          '#type' => 'textfield',
+          '#title' => t($langcode),
+          '#title_display' => 'invisible',
+          '#default_value' => '',
+          '#size' => 6,
+          '#maxlength' => 10,
+          '#required' => FALSE,
+          '#states' => array(
+            'disabled' => array(
+              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+            ),
+          ),
+          '#prefix' => '<div class="wrap-target-locales-text-key">',
+        );
+      }
+      else {
+        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+          '#type' => 'textfield',
+          '#title' => t($langcode),
+          '#title_display' => 'invisible',
+          '#default_value' => '',
+          '#size' => 6,
+          '#maxlength' => 10,
+          '#required' => FALSE,
+          '#states' => array(
+            'disabled' => array(
+              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+            ),
+          ),
+        );
+      }
 
-  $total = count($language_options_list);
-  $counter = 0;
-  foreach ($language_options_list as $langcode => $lang_name) {
-    $counter++;
-    if ($counter == 1) {
-      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
-        '#type' => 'textfield',
-        '#title' => t($langcode),
-        '#title_display' => 'invisible',
-        '#default_value' => '',
-        '#size' => 6,
-        '#maxlength' => 10,
-        '#required' => FALSE,
-        '#states' => array(
-          'disabled' => array(
-            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+      if ($counter == $total) {
+        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+          '#type' => 'textfield',
+          '#title' => t($langcode),
+          '#title_display' => 'invisible',
+          '#default_value' => '',
+          '#size' => 6,
+          '#maxlength' => 10,
+          '#required' => FALSE,
+          '#states' => array(
+            'disabled' => array(
+              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+            ),
           ),
-        ),
-        '#prefix' => '<div class="wrap-target-locales-text-key">',
-      );
+          '#suffix' => '</div></div>',
+        );
+      }
     }
-    else {
-      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
-        '#type' => 'textfield',
-        '#title' => t($langcode),
-        '#title_display' => 'invisible',
-        '#default_value' => '',
-        '#size' => 6,
-        '#maxlength' => 10,
-        '#required' => FALSE,
-        '#states' => array(
-          'disabled' => array(
-            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
-          ),
-        ),
-      );
-    }
-
-    if ($counter == $total) {
-      $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
-        '#type' => 'textfield',
-        '#title' => t($langcode),
-        '#title_display' => 'invisible',
-        '#default_value' => '',
-        '#size' => 6,
-        '#maxlength' => 10,
-        '#required' => FALSE,
-        '#states' => array(
-          'disabled' => array(
-            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
-          ),
-        ),
-        '#suffix' => '</div></div>',
-      );
-    }
+  }
+  else {
+    $form['accaunt_info']['target_locales'] = array(
+      '#type' => 'checkboxes',
+      '#options' => array(),
+      '#title' => t('Target Locales'),
+      '#default_value' => array(),
+      '#description' => l(t('At least two languages must be enabled. Please change language settings.'), 'admin/config/regional/language'),
+    );
   }
 
   $form['accaunt_info']['default_language'] = array(
