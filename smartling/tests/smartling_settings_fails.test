@@ -22,6 +22,8 @@ class SmartlingSettingsSaveFailsTest extends DrupalWebTestCase {
     // Create a user with access
     $this->privileged_user = $this->drupalCreateUser(array(
       'administer smartling',
+      'administer languages',
+      'access administration pages',
     ));
 
     // Authorizing user
@@ -29,9 +31,19 @@ class SmartlingSettingsSaveFailsTest extends DrupalWebTestCase {
   }
 
   public function testIncorrectSmartlingAccountSettings() {
-    $edit = array();
-    $edit['project_id'] = $this->randomName(9);
-    $edit['smartling_key'] = $this->randomName(36);
+    // Add predefined language.
+    $edit = array(
+      'langcode' => 'ru',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('ru', 'Language added successfully.');
+
+    $edit = array(
+      "target_locales[ru]" => 'ru',
+      "project_id" => $this->randomName(9),
+      "smartling_key" => $this->randomName(36),
+      "target_locales_text_key_ru" => 'ru-RU',
+    );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Please input correct Smartling settings.'));
   }

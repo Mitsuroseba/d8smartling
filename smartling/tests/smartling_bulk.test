@@ -29,13 +29,8 @@ class SmartlingBulkSubmitTest extends DrupalWebTestCase {
     // Authorizing user
     $this->drupalLogin($this->privileged_user);
     // Create initial node.
-    $body = $this->randomName(5);
-    for ($i = 0; $i < 50; $i++) {
-      $body .= ' ' . $this->randomName(rand(3, 8));
-    }
-
     $settings = array(
-      'body' => array('en' => array(array('value' => $body))),
+      'body' => array('en' => array(array('value' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet.'))),
       'title' => $this->randomName(8),
       'comment' => 0,
       'changed' => REQUEST_TIME,
@@ -60,6 +55,16 @@ class SmartlingBulkSubmitTest extends DrupalWebTestCase {
     );
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
     $this->assertText('ru', 'Language added successfully.');
+
+    // Set settings
+    $edit = array(
+      "target_locales[ru]" => 'ru',
+      "project_id" => '1295c174d',
+      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
+      "target_locales_text_key_ru" => 'ru-RU',
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Account settings saved.'));
 
     $this->drupalGet('admin/content/smartling-content');
     $edit = array(
