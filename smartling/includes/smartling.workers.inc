@@ -26,7 +26,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
   $project_id = variable_get('smartling_project_id');
 
   // Init api object
-  $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
   $retrieval_type = variable_get('smartling_retrieval_type');
   $download_param = array(
@@ -79,7 +79,7 @@ function smartling_queue_check_status_process($args) {
         $project_id = variable_get('smartling_project_id');
 
         // Init api object
-        $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
         // Try to retrieve file status
         $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -179,27 +179,28 @@ function smartling_queue_send_to_translate_process($args) {
       $project_id = variable_get('smartling_project_id');
 
       // Init api object
-      $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
+      $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-      $upload_params = array(
-        'approved' => TRUE,
-        'overwriteApprovedLocales' => FALSE,
-      );
       $locales_convert_array = variable_get('smartling_locales_convert_array', array());
-      $i = 0;
-      foreach ($locales_convert_array as $locale_code) {
-        $upload_params['localesToApprove[' . $i . ']'] = $locale_code;
-        $i++;
-      }
+      global $base_url;
 
-      if (SMARTLING_CALLBACK_URL) {
-        global $base_url;
-        $upload_params['callbackUrl'] = $base_url . '/' . SMARTLING_CALLBACK_URL;
-        smartling_watchdog('Parameter callbackUrl - @scu.', TRUE, array('@scu' => $upload_params['callbackUrl']), WATCHDOG_INFO);
-      }
+      $upload_params = new FileUploadParameterBuilder();
+      $upload_params->setFileUri($file_name_unic)
+          ->setFileType($file_type)
+          ->setLocalesToApprove($locales_convert_array)
+          // Error: response code -> VALIDATION_ERROR and message ->
+          // Failed to convert property value of type java.lang.String to required type boolean
+          // for property overwriteApprovedLocales; nested exception
+          // is java.lang.IllegalArgumentException: Invalid boolean value []
+          ->setOverwriteApprovedLocales(0) // Must be set 0 (not FALSE).
+          ->setApproved(0)
+          ->setCallbackUrl($base_url . '/' . SMARTLING_CALLBACK_URL);
+      $upload_params = $upload_params->buildParameters();
+
+      smartling_watchdog('Parameter callbackUrl - @scu.', TRUE, array('@scu' => $upload_params['callbackUrl']), WATCHDOG_INFO);
 
       // Try to upload file
-      $upload_result = $api->uploadFile($file_path, $file_type, $file_name_unic, $upload_params);
+      $upload_result = $api->uploadFile($file_path, $upload_params);
       $upload_result = json_decode($upload_result);
 
       if ($api->getCodeStatus() == 'SUCCESS') {
