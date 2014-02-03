@@ -256,7 +256,7 @@ function smartling_get_full_language_name($s_locale) {
  */
 function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE) {
   /*
-  $locales = array(
+    $locales = array(
     'aa' => 'aa-DJ',
     'ab' => 'ab-GE',
     'af' => 'af-ZA',
@@ -454,8 +454,8 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
     'zh-hans' => 'zh-CN',
     'zh-hant' => 'zh-TW',
     'zu' => 'zu-ZA',
-  );
-  */
+    );
+   */
   $locales = variable_get('smartling_locales_convert_array', array());
   if (!$reverse) {
     if (isset($locales[$locale])) {
@@ -753,7 +753,7 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
   // Init api object
-  $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
   // Try to retrieve file status
   $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -824,7 +824,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
     $key = variable_get('smartling_key');
     $project_id = variable_get('smartling_project_id');
     // Init api object
-    $api = new SmartlingAPI($key, $project_id, SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
     $retrieval_type = variable_get('smartling_retrieval_type');
     $download_param = array(
