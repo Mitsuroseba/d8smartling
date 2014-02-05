@@ -80,7 +80,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   $form['accaunt_info']['production_retrieval_type'] = array(
     '#type' => 'radios',
     '#title' => t('Retrieval type'),
-    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'pseudo',
+    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'published',
     '#options' => $retrieval_type,
     '#description' => t('Param for download translate.'),
   );
@@ -112,7 +112,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       if ($counter == 1) {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => t($langcode),
+          '#title' => check_plain(t($langcode)),
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -129,7 +129,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       else {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => t($langcode),
+          '#title' => check_plain(t($langcode)),
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -146,7 +146,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       if ($counter == $total) {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => t($langcode),
+          '#title' => check_plain(t($langcode)),
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -297,64 +297,64 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
 
 function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
   // Save
+  // Account settings
+  if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
+    variable_set('smartling_api_url', $form_state['values']['api_url']);
+  }
+  elseif (empty($form_state['values']['api_url'])) {
+    variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
+  }
+  if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
+    variable_set('smartling_project_id', $form_state['values']['project_id']);
+  }
+  elseif (empty($form_state['values']['project_id'])) {
+    variable_del('smartling_project_id');
+  }
+  if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
+    variable_set('smartling_key', $form_state['values']['smartling_key']);
+  }
+  elseif (empty($form_state['values']['smartling_key'])) {
+    variable_del('smartling_key');
+  }
+
+  // Retrieval type
+  if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
+    variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
+  }
+
+  // Target locales
+  $target_locales = $form_state['values']['target_locales'];
+  $locales_convert_array = $form_state['values']['target_locales'];
+  foreach ($form_state['values']['target_locales'] as $key => $lang) {
+    if ($lang === 0) { // Must be ===
+      unset($target_locales[$key]);
+      unset($locales_convert_array[$key]);
+    }
+    else {
+      if (!empty($form_state['values']['target_locales_text_key_' . $key])) {
+        $locales_convert_array[$key] = $form_state['values']['target_locales_text_key_' . $key];
+      }
+    }
+  }
+  if (!empty($target_locales)) {
+    variable_set('smartling_target_locales', $target_locales);
+  }
+  variable_set('smartling_locales_convert_array', $locales_convert_array);
+
+  // Callback
+  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
+    variable_set('smartling_callback_url', $form_state['values']['callback_url']);
+  }
+  elseif (empty($form_state['values']['callback_url'])) {
+    variable_set('smartling_callback_url', 'smartling-callback');
+  }
+
+  menu_rebuild();
+  menu_router_build();
+
+  drupal_set_message(t('Account settings saved.'));
+
   if ($form_state['clicked_button']['#name'] == 'save') {
-    // Account settings
-    if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
-      variable_set('smartling_api_url', $form_state['values']['api_url']);
-    }
-    elseif (empty($form_state['values']['api_url'])) {
-      variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
-    }
-    if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-      variable_set('smartling_project_id', $form_state['values']['project_id']);
-    }
-    elseif (empty($form_state['values']['project_id'])) {
-      variable_del('smartling_project_id');
-    }
-    if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-      variable_set('smartling_key', $form_state['values']['smartling_key']);
-    }
-    elseif (empty($form_state['values']['smartling_key'])) {
-      variable_del('smartling_key');
-    }
-
-    // Retrieval type
-    if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
-      variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
-    }
-
-    // Target locales
-    $target_locales = $form_state['values']['target_locales'];
-    $locales_convert_array = $form_state['values']['target_locales'];
-    foreach ($form_state['values']['target_locales'] as $key => $lang) {
-      if ($lang === 0) { // Must be ===
-        unset($target_locales[$key]);
-        unset($locales_convert_array[$key]);
-      }
-      else {
-        if (!empty($form_state['values']['target_locales_text_key_' . $key])) {
-          $locales_convert_array[$key] = $form_state['values']['target_locales_text_key_' . $key];
-        }
-      }
-    }
-    if (!empty($target_locales)) {
-      variable_set('smartling_target_locales', $target_locales);
-    }
-    variable_set('smartling_locales_convert_array', $locales_convert_array);
-
-    // Callback
-    if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-      variable_set('smartling_callback_url', $form_state['values']['callback_url']);
-    }
-    elseif (empty($form_state['values']['callback_url'])) {
-      variable_set('smartling_callback_url', 'smartling-callback');
-    }
-
-    menu_rebuild();
-    menu_router_build();
-
-    drupal_set_message(t('Account settings saved.'));
-
     drupal_goto(current_path());
   }
 
@@ -398,6 +398,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
         }
       }
     }
+    drupal_goto(current_path());
   }
 }
 

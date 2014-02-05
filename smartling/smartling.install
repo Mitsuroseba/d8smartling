@@ -10,6 +10,7 @@
  */
 function smartling_install() {
   variable_set('smartling_log', 1);
+  variable_set('smartling_retrieval_type', 'published');
   variable_set('smartling_callback_url', 'smartling-callback');
   variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
 
