@@ -1,7 +1,6 @@
 name = Smartling reports
 core = 7.x
 package = smartling
-dependencies[] = smartling
 dependencies[] = views
 dependencies[] = views_bulk_operations
 features[ctools][] = views:views_default:3.0
