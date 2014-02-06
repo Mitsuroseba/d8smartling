@@ -89,6 +89,16 @@ function smartling_install() {
  * Implements hook_enable().
  */
 function smartling_enable() {
+  // Set Multilingual support for content types
+  $node_types = node_type_get_types();
+  if (is_array($node_types)) {
+    foreach ($node_types as $type) {
+      $mode = variable_get('language_content_type_' . $type->type, NULL);
+      if (is_null($mode)) {
+        variable_set('language_content_type_' . $type->type, '0'); // Must be string '0'
+      }
+    }
+  }
   // Ensure Smartling module is running after native translation modules
   db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();
 }

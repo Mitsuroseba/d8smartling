@@ -275,22 +275,20 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   }
 
 
-  if ($form_state['clicked_button']['#name'] == 'save') {
-    // Target locales validate
-    if (count(array_filter($form_state['values']['target_locales'])) == 0) {
-      drupal_set_message(t('At least one locale must be selected'), 'error');
-      form_set_error('target_locales');
-    }
+  // Target locales validate
+  if (count(array_filter($form_state['values']['target_locales'])) == 0) {
+    drupal_set_message(t('At least one locale must be selected'), 'error');
+    form_set_error('target_locales');
+  }
 
-    // Callback validate
-    $callback_url = '';
-    if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-      $callback_url = $form_state['values']['callback_url'];
-      $status = valid_url($callback_url);
-      if (!$status) {
-        drupal_set_message(t('Callback URL has wrong format'), 'error');
-        form_set_error('callback_url');
-      }
+  // Callback validate
+  $callback_url = '';
+  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
+    $callback_url = $form_state['values']['callback_url'];
+    $status = valid_url($callback_url);
+    if (!$status) {
+      drupal_set_message(t('Callback URL has wrong format'), 'error');
+      form_set_error('callback_url');
     }
   }
 }
@@ -439,6 +437,7 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
       variable_set('smartling_log', 1);
     }
   }
+  drupal_goto(current_path(), array('fragment' => 'smartling-smartling-log'));
 }
 
 /**
@@ -691,6 +690,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
     batch_set($batch);
   }
+  drupal_goto(current_path(), array('fragment' => 'smartling-content-types-and-fields'));
 }
 
 function smartling_wrap_in_fieldset($form, $title) {
@@ -698,7 +698,7 @@ function smartling_wrap_in_fieldset($form, $title) {
     '#type' => 'fieldset',
     '#group' => 'smartling',
     '#title' => t($title),
-    '#attributes' => array('class' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))),
+    '#attributes' => array('class' => array('smartling-' . strtolower(str_replace(' ', '-', $title))), 'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))),
     'children' => $form,
   );
 }
