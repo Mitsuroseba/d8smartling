@@ -197,8 +197,6 @@ function smartling_queue_send_to_translate_process($args) {
           ->setCallbackUrl($base_url . '/' . SMARTLING_CALLBACK_URL);
       $upload_params = $upload_params->buildParameters();
 
-      smartling_watchdog('Parameter callbackUrl - @scu.', TRUE, array('@scu' => $upload_params['callbackUrl']), WATCHDOG_INFO);
-
       // Try to upload file
       $upload_result = $api->uploadFile($file_path, $upload_params);
       $upload_result = json_decode($upload_result);

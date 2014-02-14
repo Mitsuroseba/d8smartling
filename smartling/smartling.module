@@ -709,7 +709,9 @@ function smartling_entity_load($entities, $type) {
             if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
               // If field have und value and dont have need value
               $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
-              smartling_watchdog('Smartling add field value for @fieldname, langcode @lang', TRUE, array('@fieldname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity->nid));
+              field_attach_presave('node', $entity);
+              field_attach_update('node', $entity);
+              smartling_watchdog('Smartling adds value for field @fieldname, langcode @lang', TRUE, array('@fieldname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity->nid));
             }
           }
         }
