@@ -52,23 +52,31 @@ done
 [ "x$TAG" == "x" ] && { logit err "-tag option should be set"; usage; }
 
 # search for git executable
-logit info "Download source from repo"
+logit info "Download Connector source from repo"
 $GIT clone https://github.com/Smartling/drupal-localization-module.git smartling
+RESULT=$?
+[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+logit info "Done"
+logit info "Download API SDK source from repo"
 $GIT clone https://github.com/Smartling/api-sdk-php.git smartling/smartling/api
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
-logit info "Archiving"
-
+logit info "Switch to Tag"
 cd smartling
 $GIT checkout tags/$TAG
+RESULT=$?
+[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+logit info "Done"
 
+logit info "Archiving"
 rm -R smartling/api/.git
 
-$ZIP  -y -r -q ../smartling.zip smartling/
+rm -f ../smartling-$TAG.zip
+$ZIP  -y -r -q -9 ../smartling-$TAG.zip smartling/
 cd ../
 rm -R smartling/
 
-logit info "Download done"
-exit 0 
+logit info "Module archiving is done"
+exit 0
