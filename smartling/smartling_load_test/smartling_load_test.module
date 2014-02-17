@@ -72,7 +72,6 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
     );
     batch_set($batch);
     smartling_watchdog('Create 10000 load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
-    drupal_goto(current_path(), array('fragment' => 'smartling-dev-settings'));
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_load_tests_submit') {
@@ -93,7 +92,6 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       batch_set($batch);
     }
     smartling_watchdog('Delete all load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
-    drupal_goto(current_path(), array('fragment' => 'smartling-dev-settings'));
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
