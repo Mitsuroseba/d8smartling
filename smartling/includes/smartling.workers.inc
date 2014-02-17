@@ -148,32 +148,29 @@ function smartling_queue_check_status_process($args) {
  */
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
+    $entity_data = smartling_entity_load_by_conditions(array('rid' => $args->rid, 'target_language' => $args->s_locale));
 
-    foreach ($args->s_locales as $s_locale) {
-      $entity_data = smartling_entity_load_by_conditions(array('rid' => $args->rid, 'target_language' => $s_locale));
-
-      if ($entity_data == FALSE) {
-        $entity_data = smartling_entity_data_create();
-        $entity_data->rid = $args->rid;
-        $entity_data->bundle = $args->type;
-        $entity_data->submission_date = time();
-      }
-
-      $entity_data->original_language = $args->original_language;
-      $entity_data->target_language = $s_locale;
-      $entity_data->translated_file_name = FALSE;
-      $entity_data->submitter = $args->submitter;
-      $entity_data->progress = 0;
-      smartling_entity_data_save($entity_data);
-
-      $nodes_method = smartling_nodes_method($args->type);
-
-      $saves[] = smartling_build_xml_by_node_id($args->rid, $s_locale, $args->title, $nodes_method);
+    if ($entity_data == FALSE) {
+      $entity_data = smartling_entity_data_create();
+      $entity_data->rid = $args->rid;
+      $entity_data->bundle = $args->type;
+      $entity_data->submission_date = time();
     }
 
-    if (!in_array(FALSE, $saves) && is_string($saves[0])) {
-      $file_name = $saves[0];
-      $file_name_unic = $file_name;
+    $entity_data->original_language = $args->original_language;
+    $entity_data->target_language = $args->s_locale;
+    $entity_data->translated_file_name = FALSE;
+    $entity_data->submitter = $args->submitter;
+    $entity_data->progress = 0;
+    smartling_entity_data_save($entity_data);
+
+    $nodes_method = smartling_nodes_method($args->type);
+
+    $save = smartling_build_xml_by_node_id($args->rid, $args->s_locale, $args->title, $nodes_method);
+
+    if (($save !== FALSE) && is_string($save)) {
+      $file_name = $save;
+      $file_name_unic = $save;
       $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
       $file_uri = file_create_url('public://smartling/' . $file_name);
       $file_type = 'xml';
@@ -184,13 +181,13 @@ function smartling_queue_send_to_translate_process($args) {
       // Init api object
       $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-      $locales_to_approve = $args->s_locales;
+      $locales_convert_array = variable_get('smartling_locales_convert_array', array());
       global $base_url;
 
       $upload_params = new FileUploadParameterBuilder();
       $upload_params->setFileUri($file_name_unic)
           ->setFileType($file_type)
-          ->setLocalesToApprove($locales_to_approve)
+          ->setLocalesToApprove($locales_convert_array)
           // Error: response code -> VALIDATION_ERROR and message ->
           // Failed to convert property value of type java.lang.String to required type boolean
           // for property overwriteApprovedLocales; nested exception
@@ -200,13 +197,15 @@ function smartling_queue_send_to_translate_process($args) {
           ->setCallbackUrl($base_url . '/' . SMARTLING_CALLBACK_URL);
       $upload_params = $upload_params->buildParameters();
 
+      smartling_watchdog('Parameter callbackUrl - @scu.', TRUE, array('@scu' => $upload_params['callbackUrl']), WATCHDOG_INFO);
+
       // Try to upload file
       $upload_result = $api->uploadFile($file_path, $upload_params);
       $upload_result = json_decode($upload_result);
 
       if ($api->getCodeStatus() == 'SUCCESS') {
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
-        smartling_watchdog('Uploading node @nid for locales: @locales', TRUE, array('@nid' => $args->rid, '@locales' => implode('; ', $locales_to_approve)), WATCHDOG_INFO, l(t('View file'), $file_path));
+        smartling_watchdog('Uploading node @nid for locales: @locales', TRUE, array('@nid' => $args->rid, '@locales' => implode('; ', $locales_convert_array)), WATCHDOG_INFO, l(t('View file'), $file_path));
         if (module_exists('rules')) {
           $node_event = smartling_node_load_default($args->rid);
           rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);

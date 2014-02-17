@@ -72,6 +72,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
     );
     batch_set($batch);
     smartling_watchdog('Create 10000 load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
+    drupal_goto(current_path(), array('fragment' => 'smartling-dev-settings'));
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_load_tests_submit') {
@@ -92,6 +93,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       batch_set($batch);
     }
     smartling_watchdog('Delete all load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
+    drupal_goto(current_path(), array('fragment' => 'smartling-dev-settings'));
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
@@ -118,6 +120,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       );
       batch_set($batch);
     }
+    drupal_goto(current_path(), array('fragment' => 'smartling-dev-settings'));
   }
   smartling_watchdog('Cleanup all submit', TRUE, array(), WATCHDOG_INFO);
 }
@@ -157,8 +160,10 @@ function _delete_smartling_content_batch($eid) {
       $translations = translation_node_get_translations($entity_data->rid);
 
       if (is_array($translations)) {
+        $d_locale_original = smartling_convert_locale_drupal_to_smartling($entity_data->original_language, TRUE);
+
         foreach ($translations as $lang => $value) {
-          if ($entity_data->rid != $value->nid) {
+          if ($lang != $d_locale_original) {
             node_delete($value->nid);
           }
         }

@@ -14,7 +14,7 @@
 function smartling_supported_type($type) {
   $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
 
-  if ($smartling_supported_explicitly == 2 || $smartling_supported_explicitly == SMARTLING_KEY) {
+  if ($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY) {
     $smartling_supported_explicitly = TRUE;
   }
   else {
@@ -25,12 +25,12 @@ function smartling_supported_type($type) {
 }
 
 function smartling_nodes_method($type) {
-  $nodes_method = variable_get('language_content_type_' . $type, NULL) == 2;
+  $nodes_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_NODES_METHOD_KEY;
   return $nodes_method;
 }
 
 function smartling_fields_method($type) {
-  $fields_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_KEY;
+  $fields_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_FIELDS_METHOD_KEY;
   return $fields_method;
 }
 

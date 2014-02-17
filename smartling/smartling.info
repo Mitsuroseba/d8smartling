@@ -11,6 +11,7 @@ dependencies[] = locale
 dependencies[] = translation
 dependencies[] = i18n
 dependencies[] = i18n_node
+dependencies[] = entity_translation
 dependencies[] = ctools
 dependencies[] = views
 dependencies[] = ultimate_cron

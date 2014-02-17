@@ -639,10 +639,10 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
         $parts = explode('_TT_', $key);
         $content_type = $parts[0];
         if ($value == 2) {
-          variable_set('language_content_type_' . $content_type, $value);
+          variable_set('language_content_type_' . $content_type, SMARTLING_NODES_METHOD_KEY);
         }
         elseif ($value == 1) {
-          variable_set('language_content_type_' . $content_type, SMARTLING_KEY);
+          variable_set('language_content_type_' . $content_type, SMARTLING_FIELDS_METHOD_KEY);
         }
       }
     }
