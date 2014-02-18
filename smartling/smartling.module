@@ -661,7 +661,7 @@ function smartling_cron() {
       $obj->s_locale = $gueue_item->target_language;
 
       $smartling_queue->createItem($obj);
-      smartling_watchdog('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid), WATCHDOG_INFO);
+      smartling_watchdog('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid), WATCHDOG_DEBUG);
       unset($obj);
     }
   }
