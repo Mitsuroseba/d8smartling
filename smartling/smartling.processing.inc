@@ -132,7 +132,7 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
             break;
 
           default:
-            smartling_watchdog('Smartling not processed content of field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog('Smartling didn\'t process content of field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_NOTICE);
             break;
         }
       }

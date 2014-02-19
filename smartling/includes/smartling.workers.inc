@@ -33,7 +33,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     'retrievalType' => $retrieval_type,
   );
 
-  smartling_watchdog('Smartling queue start download xml file and update fields for node id - @nid, locale - @locale.', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $file_path));
+  smartling_watchdog('Smartling queue starts to download xml file and updates fields for node id - @nid', TRUE, array('@nid' => $rid), WATCHDOG_INFO, l(t('View file'), $file_path));
 
   // Try to download file
   $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
