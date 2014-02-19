@@ -7,58 +7,45 @@
 include_once 'smartling_load_test.features.inc';
 
 /**
- * Implements template_preprocess_page().
+ * Smartling dev settings form
  */
-function smartling_load_test_preprocess_page(&$variables) {
-  if (isset($variables['page']['content']['system_main']['smartling'])) {
-    $smartling = $variables['page']['content']['system_main']['smartling'];
-    if (isset($smartling['#type']) && $smartling['#type'] == 'vertical_tabs') {
-      $smartling[5]['#title'] = 'Develop settings';
-    }
-    $variables['page']['content']['system_main']['smartling'] = $smartling;
-  }
-}
+function smartling_admin_dev_settings_form($form, &$form_state) {
+  $query = db_select('node', 'n');
+  $query->addExpression('COUNT(n.nid)');
+  $count = $query->condition('n.type', 'smartling_load_test')
+      ->execute()
+      ->fetchCol();
+  $count = $count[0];
 
-/**
- * Implements hook_form_alter().
- */
-function smartling_load_test_form_alter(&$form, $form_state, $form_id) {
-  if ($form_id == 'smartling_admin_dev_settings_form') {
-    $query = db_select('node', 'n');
-    $query->addExpression('COUNT(n.nid)');
-    $count = $query->condition('n.type', 'smartling_load_test')
-        ->execute()
-        ->fetchCol();
-    $count = $count[0];
+  $form['dev_info']['load_tests'] = array(
+    '#type' => 'item',
+    '#title' => t('Load tests'),
+    '#markup' => 'Nodes count: ' . $count,
+  );
+  $form['dev_info']['load_tests_submit'] = array(
+    '#type' => 'submit',
+    '#name' => 'load_tests_submit',
+    '#value' => t('Generate 10K nodes'),
+  );
+  $form['dev_info']['cleanup_load_tests_submit'] = array(
+    '#type' => 'submit',
+    '#name' => 'cleanup_load_tests_submit',
+    '#value' => t('CleanUp test nodes'),
+  );
+  $form['dev_info']['cleanup_all'] = array(
+    '#type' => 'item',
+    '#title' => t('Cleanup all nodes'),
+    '#markup' => 'Cleanup all smartling content',
+  );
+  $form['dev_info']['cleanup_all_submit'] = array(
+    '#type' => 'submit',
+    '#name' => 'cleanup_all_submit',
+    '#attributes' => array('class' => array('confirm-delete-ajax-submit')),
+    '#value' => t('CleanUp all nodes'),
+  );
+  $form['#submit'][] = 'smartling_admin_dev_settings_form_submit';
 
-    $form['dev_info']['load_tests'] = array(
-      '#type' => 'item',
-      '#title' => t('Load tests'),
-      '#markup' => 'Nodes count: ' . $count,
-    );
-    $form['dev_info']['load_tests_submit'] = array(
-      '#type' => 'submit',
-      '#name' => 'load_tests_submit',
-      '#value' => t('Generate 10K nodes'),
-    );
-    $form['dev_info']['cleanup_load_tests_submit'] = array(
-      '#type' => 'submit',
-      '#name' => 'cleanup_load_tests_submit',
-      '#value' => t('CleanUp test nodes'),
-    );
-    $form['dev_info']['cleanup_all'] = array(
-      '#type' => 'item',
-      '#title' => t('Cleanup all nodes'),
-      '#markup' => 'Cleanup all smartling content',
-    );
-    $form['dev_info']['cleanup_all_submit'] = array(
-      '#type' => 'submit',
-      '#name' => 'cleanup_all_submit',
-      '#attributes' => array('class' => array('confirm-delete-ajax-submit')),
-      '#value' => t('CleanUp all nodes'),
-    );
-    $form['#submit'][] = 'smartling_admin_dev_settings_form_submit';
-  }
+  return $form;
 }
 
 function smartling_admin_dev_settings_form_submit($form, &$form_state) {
@@ -118,8 +105,8 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       );
       batch_set($batch);
     }
+    smartling_watchdog('Cleanup all submit', TRUE, array(), WATCHDOG_INFO);
   }
-  smartling_watchdog('Cleanup all submit', TRUE, array(), WATCHDOG_INFO);
 }
 
 function _create_load_test_node_batch() {
