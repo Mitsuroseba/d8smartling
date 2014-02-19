@@ -360,8 +360,15 @@ function smartling_download_translate_form_submit($form, &$form_state) {
   $node = node_form_submit_build_node($form, $form_state);
   node_save($node);
 
+  $langs = array();
+  foreach ($form_state['values']['target'] as $d_locale) {
+    if ($d_locale !== 0) {
+      $langs[] = smartling_convert_locale_drupal_to_smartling($d_locale);
+    }
+  }
+
   $nid = $form_state['values']['nid'];
-  smartling_watchdog('Smartling start force download translated file for node id - @nid', TRUE, array('@nid' => $nid), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
+  smartling_watchdog('Smartling start force download translated file for node id - @nid, locale - @locales', TRUE, array('@nid' => $nid, '@locales' => $langs), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
 
   global $user;
 
