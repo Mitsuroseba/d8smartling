@@ -366,9 +366,8 @@ function smartling_download_translate_form_submit($form, &$form_state) {
       $langs[] = smartling_convert_locale_drupal_to_smartling($d_locale);
     }
   }
-
   $nid = $form_state['values']['nid'];
-  smartling_watchdog('Smartling start force download translated file for node id - @nid, locale - @locales', TRUE, array('@nid' => $nid, '@locales' => $langs), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
+  smartling_watchdog('Smartling start force download translated file for node id - @nid, locale - @locales', TRUE, array('@nid' => $nid, '@locales' => implode('; ', $langs)), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
 
   global $user;
 
@@ -496,8 +495,6 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
         $s_locale_origin = smartling_convert_locale_drupal_to_smartling($form['#node']->language);
       }
 
-      smartling_watchdog('Add smartling queue task for node id - @nid', TRUE, array('@nid' => $original_nid), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
-
       foreach ($form_state['values']['target'] as $d_locale) {
         if ($d_locale !== 0) {
           $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
@@ -536,10 +533,10 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $smartling_queue->createItem($obj);
       $title = $original_title;
       unset($obj);
+      smartling_watchdog('Add smartling queue task for node id - @nid, locale - @locale', TRUE, array('@nid' => $original_nid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
     }
     else {
       // For fields method
-      smartling_watchdog('Add smartling queue task for node id - @nid', TRUE, array('@nid' => $nid), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
 
       foreach ($form_state['values']['target'] as $d_locale) {
         if ($d_locale !== 0 && ($d_locale !== $form['#node']->language)) {
@@ -579,6 +576,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $smartling_queue->createItem($obj);
       $title = $form_state['values']['title'];
       unset($obj);
+      smartling_watchdog('Add smartling queue task for node id - @nid, locale - @locale', TRUE, array('@nid' => $nid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
     }
 
     if (isset($_GET['destination'])) {

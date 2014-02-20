@@ -173,9 +173,10 @@ function _delete_smartling_content_batch($eid) {
               unset($entity->{$field_machine_name}[$d_locale_target_language][$i]);
             }
           }
+
+          // Reset the array to zero-based sequential keys
+          $entity->{$field_machine_name}[$d_locale_target_language] = array_values($entity->{$field_machine_name}[$d_locale_target_language]);
         }
-        // Reset the array to zero-based sequential keys
-        $entity->{$field_machine_name}[$d_locale_target_language] = array_values($entity->{$field_machine_name}[$d_locale_target_language]);
         // Save the entity
         entity_save('node', $entity);
       }

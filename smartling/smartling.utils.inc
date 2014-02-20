@@ -212,15 +212,33 @@ function smartling_translatable_node_field_details() {
  * @param type $nid
  */
 function smartling_entity_data_filename_update($file_name, $nid, $s_locale, $translated_file = FALSE) {
-  if (!$translated_file) {
-    $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $s_locale));
-    $entity_data->file_name = $file_name;
-    smartling_entity_data_save($entity_data);
+  if (is_array($s_locale)) {
+    if (!$translated_file) {
+      foreach ($s_locale as $value) {
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $value));
+        $entity_data->file_name = $file_name;
+        smartling_entity_data_save($entity_data);
+      }
+    }
+    else {
+      foreach ($s_locale as $value) {
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $value));
+        $entity_data->translated_file_name = $file_name;
+        smartling_entity_data_save($entity_data);
+      }
+    }
   }
   else {
-    $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $s_locale));
-    $entity_data->translated_file_name = $file_name;
-    smartling_entity_data_save($entity_data);
+    if (!$translated_file) {
+      $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $s_locale));
+      $entity_data->file_name = $file_name;
+      smartling_entity_data_save($entity_data);
+    }
+    else {
+      $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $s_locale));
+      $entity_data->translated_file_name = $file_name;
+      smartling_entity_data_save($entity_data);
+    }
   }
 }
 
@@ -495,10 +513,20 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
     $xml_doc->save($path);
 
     if ($translated_file == FALSE) {
-      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      if (is_array($s_locale)) {
+        smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => implode('; ', $s_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+      }
+      else {
+        smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      }
     }
     if ($translated_file == TRUE) {
-      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      if (is_array($s_locale)) {
+        smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => implode('; ', $s_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+      }
+      else {
+        smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      }
     }
 
     if (!is_null($nid)) {
@@ -510,10 +538,20 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
     $xml_doc->save($path);
 
     if ($translated_file == FALSE) {
-      smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      if (is_array($s_locale)) {
+        smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => implode('; ', $s_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+      }
+      else {
+        smartling_watchdog('Smartling save original xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      }
     }
     if ($translated_file == TRUE) {
-      smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      if (is_array($s_locale)) {
+        smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => implode('; ', $s_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+      }
+      else {
+        smartling_watchdog('Smartling save translated xml file for node id - @nid. Locale: @locale', TRUE, array('@nid' => $nid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $path));
+      }
     }
 
     if (!is_null($nid)) {
@@ -798,12 +836,13 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
  */
 function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL, $nodes_method = FALSE) {
   smartling_is_configured();
-
+  $report_page = FALSE;
   if (is_null($entity_data)) {
     if (is_numeric($s_locale)) {
       // Use in views report (Download)
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $s_locale));
       $s_locale = $entity_data->target_language;
+      $report_page = TRUE;
     }
     else {
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
@@ -860,7 +899,13 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
 
         smartling_update_translated_fields($rid, $s_locale, $nodes_method);
 
-        if (isset($_GET['destination'])) {
+        if (isset($_GET['destination']) && $report_page) {
+          $entity_data->progress = $progress;
+          smartling_entity_data_save($entity_data);
+          drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
+          drupal_goto(drupal_get_destination());
+        }
+        elseif (isset($_GET['destination'])) {
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);
           drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
@@ -870,7 +915,13 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
         return $progress;
       }
       else {
-        if (isset($_GET['destination'])) {
+        if (isset($_GET['destination']) && $report_page) {
+          $entity_data->progress = $progress;
+          smartling_entity_data_save($entity_data);
+          drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
+          drupal_goto(drupal_get_destination());
+        }
+        elseif (isset($_GET['destination'])) {
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);
           drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));

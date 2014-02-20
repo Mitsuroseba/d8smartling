@@ -165,11 +165,10 @@ function smartling_queue_send_to_translate_process($args) {
       $entity_data->submitter = $args->submitter;
       $entity_data->progress = 0;
       smartling_entity_data_save($entity_data);
-
-      $nodes_method = smartling_nodes_method($args->type);
-
-      $saves[] = smartling_build_xml_by_node_id($args->rid, $s_locale, $args->title, $nodes_method);
     }
+
+    $nodes_method = smartling_nodes_method($args->type);
+    $saves[] = smartling_build_xml_by_node_id($args->rid, $args->s_locales, $args->title, $nodes_method);
 
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
       $file_name = $saves[0];
