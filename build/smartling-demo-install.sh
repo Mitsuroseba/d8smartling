@@ -85,6 +85,7 @@ fi
 
 # search for git executable
 logit info "Download source from repo"
+rm -rf drupal-localization-module/
 $GIT clone https://github.com/Smartling/drupal-localization-module.git
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
