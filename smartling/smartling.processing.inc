@@ -366,6 +366,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $node->language = $d_locale;
       $node->uid = $entity_data->submitter;
       $node->tnid = $original_node->nid;
+      $node->download_smartling = TRUE;
 
       node_save($node);
 
@@ -381,7 +382,10 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $xml->load($file_path);
   $xpath = new DomXpath($xml);
 
-  $node_wrapper = entity_metadata_wrapper('node', $rid);
+  $node_for_wrap = node_load($rid);
+  $node_for_wrap->download_smartling = TRUE;
+
+  $node_wrapper = entity_metadata_wrapper('node', $node_for_wrap);
   if (!is_null($node_wrapper->label())) {
     foreach ($fields as $field_name) {
 
