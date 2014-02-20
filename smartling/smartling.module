@@ -449,6 +449,10 @@ function smartling_download_translate_form_submit($form, &$form_state) {
       }
     }
   }
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+    drupal_goto(current_path());
+  }
 }
 
 /**
