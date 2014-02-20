@@ -83,41 +83,13 @@ fi
 [ "x$DB" == "x" ] && { logit err "-db option should be set"; usage; }
 [ "x$URI" == "x" ] && { logit err "-uri option should be set"; usage; }
 
-# search for git executable
-logit info "Download source from repo"
-rm -rf drupal-localization-module/
-$GIT clone https://github.com/Smartling/drupal-localization-module.git
-RESULT=$?
-[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
-logit info "Done"
-
-mv drupal-localization-module/smartling-demo-install.make ./smartling-demo-install.make
-
 drush_e make smartling-demo-install.make -y
 drush_e site-install standard --db-url=mysql://$UN:$PSWD@$HOST/$DB --account-name=admin --account-pass=admin --site-name=Smartling  -y
 
-mkdir sites/all/modules/custom/
-mv drupal-localization-module/smartling sites/all/modules/custom/
-
-logit info "Download source from repo"
-$GIT clone https://github.com/Smartling/api-sdk-php.git sites/all/modules/custom/smartling/api
-RESULT=$?
-[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
-logit info "Done"
-
 chmod -R 777 sites/default/files
-drush_e en admin_menu ultimate_cron -y
+drush_e en admin_menu -y
 drush_e dis overlay toolbar -y
-drush_e vset --exact ultimate_cron_poorman 0
-drush_e en smartling -y
-drush_e en smartling_demo_content -y
-drush_e en smartling_reports -y
-drush_e fra -y
 drush_e cc all -y
-drush_e vset --exact ultimate_cron_poorman 1
-drush_e --uri=$URI cron-run defaultcontent_cron
-drush_e --uri=$URI cron
-#drush_e --uri=$URI cc all
 
 # don't like this but devs wanna this :)
 #logit info "Set owner to nginx"
