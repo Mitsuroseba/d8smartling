@@ -213,6 +213,13 @@ function smartling_schema() {
         'not null' => FALSE,
         'default' => NULL,
       ),
+      'content_hash' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
     'primary key' => array('eid'),
     'indexes' => array(

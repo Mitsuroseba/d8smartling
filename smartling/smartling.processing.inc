@@ -79,7 +79,12 @@ function smartling_get_field_content_processing_mode($field_name) {
  */
 function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
   $node_current_translatable_content = array();
-  $node = smartling_node_load_default($nid);
+  if (is_numeric($nid)) {
+    $node = smartling_node_load_default($nid);
+  }
+  else {
+    $node = $nid;
+  }
 
   $translate = variable_get('smartling_translate_fields', array());
 
@@ -132,7 +137,7 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
             break;
 
           default:
-            smartling_watchdog('Smartling not processed content of field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog('Smartling not processed content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -366,7 +371,6 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $node->language = $d_locale;
       $node->uid = $entity_data->submitter;
       $node->tnid = $original_node->nid;
-      $node->download_smartling = TRUE;
 
       node_save($node);
 
@@ -382,10 +386,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $xml->load($file_path);
   $xpath = new DomXpath($xml);
 
-  $node_for_wrap = node_load($rid);
-  $node_for_wrap->download_smartling = TRUE;
-
-  $node_wrapper = entity_metadata_wrapper('node', $node_for_wrap);
+  $node_wrapper = entity_metadata_wrapper('node', $rid);
   if (!is_null($node_wrapper->label())) {
     foreach ($fields as $field_name) {
 

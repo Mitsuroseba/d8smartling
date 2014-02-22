@@ -1001,32 +1001,32 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $entity_data->rid, 'target_language' => $entity_data->target_language));
     switch ($event) {
       case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
-        if (empty($entity_data->status)) {
+        if (empty($entity_data->status) || ($entity_data->status == SMARTLING_STATUS_CHANGE)) {
           $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
           smartling_entity_data_save($entity_data);
         }
         break;
 
       case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
-        $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
-        smartling_entity_data_save($entity_data);
+        if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
+          $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
+          smartling_entity_data_save($entity_data);
+        }
         break;
 
       case SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE:
       case SMARTLING_STATUS_EVENT_UPDATE_FIELDS:
-        if ($entity_data->progress == 100) {
-          $entity_data->status = SMARTLING_STATUS_TRANSLATED;
+        if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
+          if ($entity_data->progress == 100) {
+            $entity_data->status = SMARTLING_STATUS_TRANSLATED;
+          }
+          smartling_entity_data_save($entity_data);
         }
-        smartling_entity_data_save($entity_data);
         break;
 
       case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
-        if (!empty($entity_data->file_name)) {
-          if ($entity_data->status == SMARTLING_STATUS_IN_QUEUE || $entity_data->status == SMARTLING_STATUS_IN_TRANSLATE) {
-            $entity_data->status = SMARTLING_STATUS_CHANGE;
-            smartling_entity_data_save($entity_data);
-          }
-        }
+        $entity_data->status = SMARTLING_STATUS_CHANGE;
+        smartling_entity_data_save($entity_data);
         break;
 
       default:
