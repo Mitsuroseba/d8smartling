@@ -1033,4 +1033,5 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
         break;
     }
   }
+  smartling_watchdog('microtime: @microtime | event: @event | status: @status', TRUE, array('@microtime' => microtime(), '@event' => $event, '@status' => $entity_data->status), WATCHDOG_INFO);
 }
