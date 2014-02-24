@@ -1009,6 +1009,7 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 
       case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
         if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
+          smartling_watchdog('@status != @const', TRUE, array('@status' => $entity_data->status, '@const' => SMARTLING_STATUS_CHANGE), WATCHDOG_INFO);
           $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
           smartling_entity_data_save($entity_data);
         }
