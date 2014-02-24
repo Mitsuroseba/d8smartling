@@ -748,11 +748,11 @@ function smartling_entity_insert($entity, $type) {
 function smartling_entity_update($entity, $type) {
   if (($type == 'node') && smartling_supported_type($entity->type)) {
     $smartling_entity_data = smartling_entity_load_all_by_conditions(array('rid' => $entity->nid));
-    if ($smartling_entity_data != FALSE && is_array($smartling_entity_data)) {
+    if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
       foreach ($smartling_entity_data as $smartling_entity) {
         $content_hash = md5(serialize(smartling_node_content_to_translate($entity)));
         $old_content_hash = $smartling_entity->content_hash;
-        if ($content_hash != $old_content_hash) {
+        if ($content_hash !== $old_content_hash) {
           smartling_set_translation_status($smartling_entity, SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE);
         }
         $smartling_entity = smartling_entity_data_load($smartling_entity->eid);
