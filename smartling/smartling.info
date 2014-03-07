@@ -16,7 +16,6 @@ dependencies[] = ctools
 dependencies[] = views
 dependencies[] = ultimate_cron
 dependencies[] = ultimate_cron_queue_scaler
-dependencies[] = smartling_reports
 
 files[] = includes/smartling.entity.inc
 files[] = includes/smartling.entityController.inc
