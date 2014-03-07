@@ -612,6 +612,10 @@ function smartling_form_node_form_alter(&$form, $form_state, $form_id) {
     return;
   }
 
+  if (smartling_fields_method($form['#node']->type) && !isset($form['#node']->tnid)) {
+    return;
+  }
+
   if (smartling_translate_fields_is_set($form['#node']->type)) {
     $form = array_merge($form, smartling_get_node_settings_form($form, $form_state));
   }

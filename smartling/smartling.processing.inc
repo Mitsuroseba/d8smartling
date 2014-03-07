@@ -372,6 +372,11 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $node->uid = $entity_data->submitter;
       $node->tnid = $original_node->nid;
 
+      $node_fields = field_info_instances('node', $original_node->type);
+      foreach ($node_fields as $field) {
+        $node->{$field['field_name']} = $original_node->{$field['field_name']};
+      }
+
       node_save($node);
 
       $rid = $node->nid;
