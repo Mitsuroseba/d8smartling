@@ -12,13 +12,45 @@
  *   Boolean value.
  */
 function smartling_supported_type($type) {
-  $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
+  $entity_type = smartling_get_entity_type_by_bundle($type);
+  $smartling_supported_explicitly = FALSE;
 
-  if ($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY) {
-    $smartling_supported_explicitly = TRUE;
-  }
-  else {
-    $smartling_supported_explicitly = FALSE;
+  switch ($entity_type) {
+    case 'node':
+      $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
+
+      if ($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY) {
+        $smartling_supported_explicitly = TRUE;
+      }
+      else {
+        $smartling_supported_explicitly = FALSE;
+      }
+      break;
+
+    case 'taxonomy_term':
+      // If term not exist, need create new node
+      $vocabulary = taxonomy_vocabulary_machine_name_load($type);
+      $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary->vid);
+      switch ($vocabulary_mode) {
+        case I18N_MODE_TRANSLATE:
+          $smartling_supported_explicitly = TRUE;
+          break;
+
+        default:
+          $smartling_supported_explicitly = FALSE;
+          break;
+      }
+      break;
+
+    case 'comment':
+      break;
+
+    case 'user':
+      break;
+
+    default:
+      $smartling_supported_explicitly = FALSE;
+      break;
   }
 
   return $smartling_supported_explicitly;
@@ -1111,3 +1143,4 @@ function smartling_get_original_entity($rid, $entity_bundle) {
 
   return $entity;
 }
+
