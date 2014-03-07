@@ -441,13 +441,6 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Smartling dev settings form
- */
-function smartling_admin_dev_settings_form($form, &$form_state) {
-
-}
-
-/**
  * Content translation form
  */
 function smartling_admin_node_translation_settings_form($form, &$form_state) {
@@ -690,7 +683,6 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
     batch_set($batch);
   }
-  drupal_goto(current_path(), array('fragment' => 'smartling-content-types-and-fields'));
 }
 
 function smartling_wrap_in_fieldset($form, $title) {

@@ -2,6 +2,7 @@ name = Smartling
 description = Smartling automatical translation.
 core = 7.x
 package = smartling
+version = "7.x-1.1-beta1"
 
 configure = admin/config/regional/smartling
 
@@ -11,6 +12,8 @@ dependencies[] = locale
 dependencies[] = translation
 dependencies[] = i18n
 dependencies[] = i18n_node
+dependencies[] = i18n_taxonomy
+dependencies[] = i18n_field
 dependencies[] = entity_translation
 dependencies[] = ctools
 dependencies[] = views
@@ -32,3 +35,4 @@ files[] = tests/smartling_bulk.test
 files[] = tests/smartling_bulk_fails.test
 files[] = tests/node_upload.test
 files[] = tests/node_download.test
+files[] = tests/node_title_fields.test

@@ -37,6 +37,7 @@ class SmartlingEntityDataController extends EntityAPIController {
       'submission_date' => '',
       'download' => '',
       'status' => '',
+      'content_hash' => '',
     );
 
     return parent::create($values);

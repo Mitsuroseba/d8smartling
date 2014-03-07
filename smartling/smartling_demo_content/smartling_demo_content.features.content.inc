@@ -25,11 +25,8 @@ function smartling_demo_content_content_defaults() {
       'en' => array(
         0 => array(
           'value' => 'Pegatron Corporation, the Taiwanese company that assembles Apple\'s iPhone 5C, has reported lower-than-expected profits.
-
 Analysts have said that Pegatron is experiencing slower orders for the 5C, which is Apple\'s cheaper smartphone.
-
 Net profits were T$2.48bn ($84m; £53m) for its third quarter, slightly below analyst forecasts, but higher than the T$1.35bn it made last year.
-
 Pegatron also makes laptops for Lenovo and former parent Asustek Computer.
 
 The company\'s share price hit an all-time high in May on reports that it was winning orders away from rival Hon Hai Precision Industry, another established Apple supplier.

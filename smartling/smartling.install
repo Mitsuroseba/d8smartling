@@ -29,6 +29,21 @@ function smartling_install() {
     ),
   );
 
+  $language_negotiation_language_content = array(
+    'locale-url' => array(
+      'callbacks' => array(
+        'language' => 'locale_language_from_url',
+        'switcher' => 'locale_language_switcher_url',
+        'url_rewrite' => 'locale_language_url_rewrite_url',
+      ),
+      'file' => 'includes/locale.inc'),
+    'language-default-url' => array(
+      'callbacks' => array(
+        'language' => 'language_from_default',
+      ),
+    ),
+  );
+
   $locale_language_providers_weight_language = array(
     'locale-url' => '-8',
     'locale-session' => '-6',
@@ -37,8 +52,19 @@ function smartling_install() {
     'language-default' => '10',
   );
 
+  $locale_language_providers_weight_language_content = array(
+    'locale-url' => '-8',
+    'locale-session' => '-6',
+    'locale-user' => '-4',
+    'locale-browser' => '-2',
+    'locale-interface' => '8',
+    'language-default' => '10',
+  );
+
   variable_set('language_negotiation_language', $language_negotiation_language);
+  variable_set('language_negotiation_language_content', $language_negotiation_language_content);
   variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
+  variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
 
   // Install default cron settings for smartling proccess
   $cron_base_settings = array();
@@ -83,6 +109,14 @@ function smartling_install() {
   foreach ($cron_base_settings as $name => $settings) {
     ultimate_cron_set_settings($name, $settings);
   }
+
+  // i18 string settings
+  $i18n_string_allowed_formats = array();
+  // As the user has administer filters permissions we get a full list here
+  foreach (filter_formats() as $fid => $format) {
+    $i18n_string_allowed_formats[$fid] = $fid;
+  }
+  variable_set('i18n_string_allowed_formats', $i18n_string_allowed_formats);
 }
 
 /**
@@ -97,7 +131,29 @@ function smartling_enable() {
       if (is_null($mode)) {
         variable_set('language_content_type_' . $type->type, '0'); // Must be string '0'
       }
+      // Entity translate settings
+      if (smartling_fields_method($type->type)) {
+        $entity_translation_settings_node = array(
+          'default_language' => ENTITY_TRANSLATION_LANGUAGE_DEFAULT,
+          'hide_language_selector' => 1,
+          'exclude_language_none' => 1,
+          'lock_language' => 1,
+          'shared_fields_original_only' => 0,
+        );
+        variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings_node);
+      }
     }
+    // Entity translation types and other settings
+    $entity_translation_entity_types = array(
+      'node' => 'node',
+      'taxonomy_term' => 0,
+      'comment' => 0,
+      'user' => 0,
+    );
+    variable_set('entity_translation_entity_types', $entity_translation_entity_types);
+    variable_set('entity_translation_shared_labels', 1);
+    variable_set('entity_translation_workflow_enabled', 0);
+    variable_set('locale_field_language_fallback', 1);
   }
   // Ensure Smartling module is running after native translation modules
   db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();
@@ -212,6 +268,13 @@ function smartling_schema() {
         'unsigned' => TRUE,
         'not null' => FALSE,
         'default' => NULL,
+      ),
+      'content_hash' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
       ),
     ),
     'primary key' => array('eid'),
