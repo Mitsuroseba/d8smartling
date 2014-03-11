@@ -4,6 +4,7 @@ version = "7.x-1.0-beta2"
 package = smartling
 dependencies[] = views
 dependencies[] = views_bulk_operations
+dependencies[] = smartling
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[views_view][] = smartlig_report
