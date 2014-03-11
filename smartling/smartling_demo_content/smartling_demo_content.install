@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the smartling_demo_content module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function smartling_demo_content_install() {
+
+}
