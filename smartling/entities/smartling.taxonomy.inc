@@ -11,10 +11,12 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
-  if (!isset($form_state['confirm_delete'])) {
-    $form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
-    $form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
-    $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be disabled and set Translate when using Smartling.');
+  if (module_exists('i18n') && module_exists('i18n_taxonomy') && module_exists('translation')) {
+    if (!isset($form_state['confirm_delete'])) {
+      $form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
+      $form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
+      $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be disabled and set Translate when using Smartling.');
+    }
   }
 }
 
@@ -24,7 +26,13 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
 function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
   $term = $form_state['term'];
   if (!empty($term->tid)) {
-    $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
+    if (smartling_supported_type($form['#vocabulary']->machine_name)) {
+      $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
+    }
+    else {
+      $link = '<a href="/admin/structure/taxonomy/' . $form['#vocabulary']->machine_name . '/edit">"edit vocabulary"</a>';
+      drupal_set_message(t('Please follow the page !link to set Translation mode for Smartling.', array('!link' => $link)), 'warning');
+    }
   }
   elseif (empty($term->tid) && !isset($_GET['translation']) && !isset($_GET['target'])) {
     $langcode = language_default()->language;
