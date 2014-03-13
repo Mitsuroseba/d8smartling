@@ -675,6 +675,8 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
   smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
 
+  $redirect = url('admin/config/regional/smartling', array('absolute' => true, 'fragment' => 'smartling-content-types-and-fields'));
+
   if (count($operations) >= 1) {
     $batch = array(
       'title' => t('Preparing content'),
@@ -682,6 +684,10 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
     );
 
     batch_set($batch);
+    batch_process($redirect);
+  }
+  else {
+    $form_state['redirect'] = $redirect;
   }
 }
 

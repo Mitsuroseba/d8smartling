@@ -4,12 +4,12 @@
  * @file
  * Tests for smartling
  */
-class SmartlingSettingsSaveFailsTest extends DrupalWebTestCase {
+class SmartlingSettingsAccountInfoSaveFailsTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Smartling account incorrect settings save',
-      'description' => 'Test Smartling account incorrect settings save',
+      'name' => 'Smartling settings - Account info. Save incorrect settings',
+      'description' => 'Test failed flow of saving Smartling settings - Account info',
       'group' => 'Smartling'
     );
   }
@@ -28,9 +28,7 @@ class SmartlingSettingsSaveFailsTest extends DrupalWebTestCase {
 
     // Authorizing user
     $this->drupalLogin($this->privileged_user);
-  }
 
-  public function testIncorrectSmartlingAccountSettings() {
     // Add predefined language.
     $edit = array(
       'langcode' => 'ru',
@@ -38,14 +36,56 @@ class SmartlingSettingsSaveFailsTest extends DrupalWebTestCase {
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
     $this->assertText('ru', 'Language added successfully.');
 
+    // Save correct settings
     $edit = array(
       "target_locales[ru]" => 'ru',
-      "project_id" => $this->randomName(9),
-      "smartling_key" => $this->randomName(36),
+      "project_id" => '1295c174d',
+      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
       "target_locales_text_key_ru" => 'ru-RU',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Account settings saved.'));
+  }
+
+  public function testIncorrectSmartlingAccountInfoSettingsApiUrl() {
+
+    $edit = array(
+      "api_url" => 'https://capi.smartling.com/incorrect',
+    );
+
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Not Found'));
     $this->assertText(t('Please input correct Smartling settings.'));
+  }
+
+  public function testIncorrectSmartlingAccountInfoSettingsProjectId() {
+
+    $edit = array(
+      "project_id" => $this->randomName(9),
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Unauthorized'));
+    $this->assertText(t('Please input correct Smartling settings.'));
+  }
+
+  public function testIncorrectSmartlingAccountInfoSettingsKey() {
+
+    $edit = array(
+      "smartling_key" => $this->randomName(36),
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Unauthorized'));
+    $this->assertText(t('Please input correct Smartling settings.'));
+  }
+
+  public function testIncorrectSmartlingAccountInfoSettingsTargetLocales() {
+
+    $edit = array(
+      "target_locales[ru]" => 0,
+      "target_locales_text_key_ru" => '',
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('At least one locale must be selected'));
   }
 
 }

@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingSettingsInNodePageTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Add content. Create node for translation',
+      'description' => "Test success flow of node creation. We don't have any errors from our module",
+      'group' => 'Smartling'
+    );
+  }
+
+  public function setUp() {
+
+    // Enable Smartling module
+    parent::setUp('smartling');
+
+    // Create a user with access
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'administer smartling',
+      'administer languages',
+      'access administration pages',
+      'administer content types',
+      'administer nodes',
+      'access content',
+      'edit any page content'
+    ));
+
+    // Authorizing user
+    $this->drupalLogin($this->privileged_user);
+    // Create initial node.
+    $this->random_node_title = $this->randomName(8);
+    $settings = array(
+      'body' => array('en' => array(array('value' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet.'))),
+      'title' => $this->random_node_title,
+      'comment' => 0,
+      'changed' => REQUEST_TIME,
+      'moderate' => 0,
+      'promote' => 0,
+      'revision' => 1,
+      'log' => '',
+      'status' => 1,
+      'sticky' => 0,
+      'type' => 'page',
+      'revisions' => NULL,
+      'language' => 'en',
+    );
+    $this->drupalCreateNode($settings);
+  }
+
+  public function testCorrectSmartlingSettingsInNodePage() {
+    // Add predefined language.
+    $edit = array(
+      'langcode' => 'ru',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('ru', 'Language added successfully.');
+
+    // Set correct account settings
+    $edit = array(
+      "target_locales[ru]" => 'ru',
+      "project_id" => '1295c174d',
+      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
+      "target_locales_text_key_ru" => 'ru-RU',
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Account settings saved.'));
+
+    // Set fields method for page CT
+    $edit = array();
+    $edit['page_TT_page'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Set fields for page CT
+    $edit = array();
+    $edit['page_SEPERATOR_body'] = 1;
+    $edit['title_swap_page'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Check node
+    $edit = array(
+      "target[ru]" => 'ru',
+    );
+    $this->drupalGet('node/1/edit');
+    $this->assertNoText(t('Please follow the page "Smartling settings" to setup Smartling configuration.'));
+  }
+
+}

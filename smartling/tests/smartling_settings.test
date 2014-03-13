@@ -4,12 +4,12 @@
  * @file
  * Tests for smartling
  */
-class SmartlingSettingsSaveTest extends DrupalWebTestCase {
+class SmartlingSettingsAccountInfoSaveTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Smartling account correct settings save',
-      'description' => 'Test Smartling account correct settings save',
+      'name' => 'Smartling settings - Account info. Save correct settings',
+      'description' => 'Test success flow of saving Smartling settings - Account info',
       'group' => 'Smartling'
     );
   }
@@ -28,10 +28,8 @@ class SmartlingSettingsSaveTest extends DrupalWebTestCase {
 
     // Authorizing user
     $this->drupalLogin($this->privileged_user);
-  }
 
-  public function testCorrectSmartlingAccountSettings() {
-    // Add predefined language.
+    // Add predefined languages.
     $edit = array(
       'langcode' => 'ru',
     );
@@ -39,13 +37,35 @@ class SmartlingSettingsSaveTest extends DrupalWebTestCase {
     $this->assertText('ru', 'Language added successfully.');
 
     $edit = array(
+      'langcode' => 'zh-hans',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('zh-hans', 'Language added successfully.');
+
+    $edit = array(
+      'langcode' => 'fr',
+    );
+    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    $this->assertText('fr', 'Language added successfully.');
+
+    // Set correct settings
+    $edit = array(
       "target_locales[ru]" => 'ru',
+      "target_locales[zh-hans]" => 'zh-hans',
       "project_id" => '1295c174d',
       "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
       "target_locales_text_key_ru" => 'ru-RU',
+      "target_locales_text_key_zh-hans" => 'zh-CN',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
+  }
+
+  public function testCorrectSmartlingAccountSettings() {
+    $smartling_locales_convert_array = variable_get('smartling_locales_convert_array', array());
+    $must_be_array = array('zh-hans' => 'zh-CN', 'ru' => 'ru-RU');
+    $this->verbose(print_r($smartling_locales_convert_array, TRUE));
+    $this->assertEqual($smartling_locales_convert_array, $must_be_array);
   }
 
 }
