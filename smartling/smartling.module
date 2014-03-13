@@ -37,8 +37,6 @@ define('SMARTLING_DIRECTORY', $smartling_dir);
 
 include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');
-
-// @TODO: check why files[] directive in .info do not work
 include_once('includes/smartling.workers.inc');
 include_once('includes/smartling.entity.inc');
 include_once('includes/smartling.entityController.inc');
@@ -398,7 +396,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
         if ($entity_data != FALSE) {
 
           $progress = smartling_download_translate($original_nid, $s_locale, $entity_data);
-          if ($progress != 'exception') {
+          if ($progress !== 'exception') {
             $entity_data->target_language = $s_locale;
             $entity_data->submitter = $user->uid;
             $entity_data->submission_date = time();

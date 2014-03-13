@@ -252,6 +252,86 @@ function smartling_reports_views_default_views() {
 
   /* Display: Completed Submissions */
   $handler = $view->new_display('page', 'Completed Submissions', 'page');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Nid */
+  $handler->display->display_options['fields']['nid']['id'] = 'nid';
+  $handler->display->display_options['fields']['nid']['table'] = 'node';
+  $handler->display->display_options['fields']['nid']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid']['relationship'] = 'node';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['relationship'] = 'node';
+  /* Field: Smartling Entity Data: Original_language */
+  $handler->display->display_options['fields']['original_language']['id'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
+  $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Target Language */
+  $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
+  /* Field: Smartling Entity Data: File_name */
+  $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['file_name']['field'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['label'] = 'Original filename';
+  $handler->display->display_options['fields']['file_name']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Translated_file_name */
+  $handler->display->display_options['fields']['translated_file_name']['id'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['translated_file_name']['field'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['label'] = 'Translated filename';
+  $handler->display->display_options['fields']['translated_file_name']['exclude'] = TRUE;
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'submitter';
+  $handler->display->display_options['fields']['name']['label'] = 'Submitter name';
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['type']['id'] = 'type';
+  $handler->display->display_options['fields']['type']['table'] = 'node';
+  $handler->display->display_options['fields']['type']['field'] = 'type';
+  $handler->display->display_options['fields']['type']['relationship'] = 'node';
+  $handler->display->display_options['fields']['type']['label'] = 'Content type';
+  /* Field: Smartling Entity Data: Date */
+  $handler->display->display_options['fields']['submission_date']['id'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['submission_date']['field'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['label'] = 'Submission date';
+  /* Field: Smartling Entity Data: Progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['separator'] = '';
+  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
+  /* Field: Smartling Entity Data: Download */
+  $handler->display->display_options['fields']['download']['id'] = 'download';
+  $handler->display->display_options['fields']['download']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['download']['field'] = 'download';
+  $handler->display->display_options['fields']['download']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Smartling entity data ID */
+  $handler->display->display_options['fields']['eid']['id'] = 'eid';
+  $handler->display->display_options['fields']['eid']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['eid']['field'] = 'eid';
+  $handler->display->display_options['fields']['eid']['label'] = '';
+  $handler->display->display_options['fields']['eid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['eid']['element_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_label_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['eid']['element_wrapper_type'] = '0';
+  $handler->display->display_options['fields']['eid']['element_default_classes'] = FALSE;
+  $handler->display->display_options['fields']['eid']['separator'] = '';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Operations';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[eid]?destination=admin/content/smartling">Download</a>';
   $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Completed Submissions';
@@ -342,6 +422,7 @@ function smartling_reports_views_default_views() {
     t('Download'),
     t('Operations'),
     t('<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[eid]?destination=admin/content/smartling/report-in-progress">Download</a>'),
+    t('<a href="/node/[nid]/edit">Edit</a> | <a href="/smartling/download/[nid]/[eid]?destination=admin/content/smartling">Download</a>'),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
