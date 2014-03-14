@@ -44,4 +44,24 @@
     }
   }
 
+  Drupal.behaviors.smartlingTargetLocales = {
+    attach: function(context, settings) {
+      var langList = new Array();
+      var lang = '';
+      var originClass = '';
+      var replaceText = 'form-item form-type-checkbox form-item-target-locales-';
+      $('#edit-target-locales .form-type-checkbox').each(function() {
+        originClass = $(this).attr("class");
+        lang = originClass.replace(replaceText, '');
+        langList.push(lang);
+      });
+      console.log(langList);
+      $.each(langList, function(index, lang) {
+        var element = $('.wrap-target-locales-text-key .form-item-target-locales-text-key-' + lang);
+        $('#edit-target-locales .form-item-target-locales-' + lang).append(element);
+      });
+    }
+  }
+
+
 })(jQuery);
