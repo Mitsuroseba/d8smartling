@@ -148,7 +148,7 @@ function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) 
   // Delete content type in smartling support types
   $smartling_translate_fields = variable_get('smartling_translate_fields', array());
   $type = $form_state['values']['type'];
-  if ($form_state['values']['language_content_type'] != SMARTLING_KEY || $form_state['values']['language_content_type'] != 2) {
+  if ($form_state['values']['language_content_type'] != SMARTLING_KEY && $form_state['values']['language_content_type'] != 2) {
     if (isset($smartling_translate_fields[$type])) {
       unset($smartling_translate_fields[$type]);
       variable_set('smartling_translate_fields', $smartling_translate_fields);
