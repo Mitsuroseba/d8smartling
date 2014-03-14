@@ -4,7 +4,7 @@
  * @file
  * Tests for smartling
  */
-class SmartlingCtSettingsTest extends DrupalWebTestCase {
+class SmartlingCtSettingsTest extends SmartlingWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -14,43 +14,10 @@ class SmartlingCtSettingsTest extends DrupalWebTestCase {
     );
   }
 
-  public function setUp() {
-
-    // Enable Smartling module
-    parent::setUp('smartling');
-
-    // Create a user with access
-    $this->privileged_user = $this->drupalCreateUser(array(
-      'administer smartling',
-      'administer languages',
-      'access administration pages',
-      'administer content types',
-      'administer nodes',
-      'access content',
-      'edit any page content'
-    ));
-
-    // Authorizing user
-    $this->drupalLogin($this->privileged_user);
-  }
-
   public function testCorrectSmartlingCtSettings() {
-    // Add predefined language.
-    $edit = array(
-      'langcode' => 'ru',
-    );
-    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
-    $this->assertText('ru', 'Language added successfully.');
 
     // Set correct account settings
-    $edit = array(
-      "target_locales[ru]" => 'ru',
-      "project_id" => '1295c174d',
-      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
-      "target_locales_text_key_ru" => 'ru-RU',
-    );
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Account settings saved.'));
+    $this->smartlingSetCorrectSettings();
 
     // Set method for CT
     $edit = array();
