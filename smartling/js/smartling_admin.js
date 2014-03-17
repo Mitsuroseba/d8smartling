@@ -55,7 +55,7 @@
         lang = originClass.replace(replaceText, '');
         langList.push(lang);
       });
-      console.log(langList);
+
       $.each(langList, function(index, lang) {
         var element = $('.wrap-target-locales-text-key .form-item-target-locales-text-key-' + lang);
         $('#edit-target-locales .form-item-target-locales-' + lang).append(element);
