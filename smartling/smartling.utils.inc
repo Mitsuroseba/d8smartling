@@ -475,6 +475,7 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
     );
    */
   $locales = variable_get('smartling_locales_convert_array', array());
+  $locales = array_merge($locales, array('en' => 'en-US'));
   if (!$reverse) {
     if (isset($locales[$locale])) {
       return $locales[$locale];
@@ -944,6 +945,11 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
   }
   else {
     smartling_watchdog('Node can not be download at a moment since it is still in a queue for upload. Id: @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
+    $args = arg();
+    if (($args[0] == 'smartling') && ($args[1] == 'download')) {
+      drupal_set_message(t('Node can not be download at a moment since it is still in a queue for upload. Id: @nid. Locale: @locale', array('@nid' => $rid, '@locale' => $s_locale)), 'warning');
+      drupal_goto('admin/content/smartling/report-in-progress');
+    }
     return 'exception';
   }
 }
@@ -1009,7 +1015,6 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 
       case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
         if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
-          smartling_watchdog('@status != @const', TRUE, array('@status' => $entity_data->status, '@const' => SMARTLING_STATUS_CHANGE), WATCHDOG_INFO);
           $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
           smartling_entity_data_save($entity_data);
         }

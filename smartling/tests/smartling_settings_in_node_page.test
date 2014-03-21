@@ -4,47 +4,42 @@
  * @file
  * Tests for smartling
  */
-class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
+class SmartlingSettingsInNodePageTest extends SmartlingWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Smartling bulk submit',
-      'description' => 'Test Smartling Bulk Submit',
+      'name' => 'Content - Add content. Create node for translation',
+      'description' => "Test success flow of node creation. We don't have any errors from our module",
       'group' => 'Smartling'
     );
   }
 
-  public function testBulkSubmit() {
+  public function testCorrectSmartlingSettingsInNodePage() {
+
     // Add one random node page type
     $this->smartlingCreateNode();
 
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
 
-    // Set method for CT
+    // Set fields method for page CT
     $edit = array();
     $edit['page_TT_page'] = 1;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
-    // Set body field for page CT
+    // Set fields for page CT
     $edit = array();
     $edit['page_SEPARATOR_body'] = 1;
+    $edit['title_swap_page'] = 1;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
-    $this->drupalGet('admin/content/smartling-content');
+    // Check node
     $edit = array(
-      "views_bulk_operations[0]" => 1,
+      "target[ru]" => 'ru',
     );
-    $this->drupalPost('admin/content/smartling-content', $edit, t('Translate'));
-
-    $edit = array(
-      "languages[ru]" => 'ru',
-    );
-    $this->drupalPost(NULL, $edit, t('Next'));
-    $this->assertText(t('Performed Translate on 1 item.'));
-    $this->assertNoText(t('Not support type or Smartling configuration problem for content type - page.'));
+    $this->drupalGet('node/1/edit');
     $this->assertNoText(t('Please follow the page "Smartling settings" to setup Smartling configuration.'));
   }
 

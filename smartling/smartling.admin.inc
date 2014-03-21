@@ -484,11 +484,11 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           '#type' => 'checkbox',
           '#title' => check_plain($field_label),
           '#attributes' => array(
-            'id' => array('edit-form-item-' . $value->type . '-seperator-' . $node_title_name),
-            'name' => $value->type . '_SEPERATOR_' . $node_title_name,
+            'id' => array('edit-form-item-' . $value->type . '-separator-' . $node_title_name),
+            'name' => $value->type . '_SEPARATOR_' . $node_title_name,
             'class' => array('field'),
           ),
-          '#id' => 'edit-form-item-' . $value->type . '-seperator-' . $node_title_name,
+          '#id' => 'edit-form-item-' . $value->type . '-separator-' . $node_title_name,
         );
 
         $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
@@ -507,11 +507,11 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),
             '#attributes' => array(
-              'id' => array('edit-form-item-' . $value->type . '-seperator-' . $field_machine_name),
-              'name' => $value->type . '_SEPERATOR_' . $field_machine_name,
+              'id' => array('edit-form-item-' . $value->type . '-separator-' . $field_machine_name),
+              'name' => $value->type . '_SEPARATOR_' . $field_machine_name,
               'class' => array('field'),
             ),
-            '#id' => 'edit-form-item-' . $value->type . '-seperator-' . $field_machine_name,
+            '#id' => 'edit-form-item-' . $value->type . '-separator-' . $field_machine_name,
           );
 
           $is_enabled = !empty($translate[$value->type]) && array_search($field_machine_name, $translate[$value->type]) !== FALSE;
@@ -528,7 +528,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           '#type' => 'checkbox',
           '#title' => 'Title (Note: field will be created.)',
           '#attributes' => array(
-            'id' => array('edit-form-item-' . $value->type . '-seperator-' . $field_machine_name),
+            'id' => array('edit-form-item-' . $value->type . '-separator-' . $field_machine_name),
             'name' => 'title_swap_' . $value->type,
             'class' => array('field'),
           ),
@@ -607,10 +607,10 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   foreach ($form_state['input'] as $key => $value) {
 
     // Look for Selected Content Types and Fields.
-    if (FALSE !== strpos($key, '_SEPERATOR_')) {
+    if (FALSE !== strpos($key, '_SEPARATOR_')) {
       // And only if set to translate
       if ($value != 0) {
-        $parts = explode('_SEPERATOR_', $key);
+        $parts = explode('_SEPARATOR_', $key);
         $content_type = $parts[0];
         $content_field = $parts[1];
 
@@ -675,6 +675,8 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
   smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
 
+  $redirect = url('admin/config/regional/smartling', array('absolute' => true, 'fragment' => 'smartling-content-types-and-fields'));
+
   if (count($operations) >= 1) {
     $batch = array(
       'title' => t('Preparing content'),
@@ -682,6 +684,10 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
     );
 
     batch_set($batch);
+    batch_process($redirect);
+  }
+  else {
+    $form_state['redirect'] = $redirect;
   }
 }
 

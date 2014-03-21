@@ -149,6 +149,7 @@ function smartling_queue_check_status_process($args) {
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
 
+    $entity_data_array = array();
     foreach ($args->s_locales as $s_locale) {
       $entity_data = smartling_entity_load_by_conditions(array('rid' => $args->rid, 'target_language' => $s_locale));
 
@@ -165,6 +166,7 @@ function smartling_queue_send_to_translate_process($args) {
       $entity_data->submitter = $args->submitter;
       $entity_data->progress = 0;
       smartling_entity_data_save($entity_data);
+      $entity_data_array[] = $entity_data;
     }
 
     $nodes_method = smartling_nodes_method($args->type);
@@ -204,7 +206,9 @@ function smartling_queue_send_to_translate_process($args) {
       $upload_result = json_decode($upload_result);
 
       if ($api->getCodeStatus() == 'SUCCESS') {
-        smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
+        foreach ($entity_data_array as $entity) {
+          smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
+        }
         smartling_watchdog('Uploading node @nid for locales: @locales', TRUE, array('@nid' => $args->rid, '@locales' => implode('; ', $locales_to_approve)), WATCHDOG_INFO, l(t('View file'), $file_path));
         if (module_exists('rules')) {
           $node_event = smartling_node_load_default($args->rid);

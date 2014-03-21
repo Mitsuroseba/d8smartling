@@ -4,82 +4,35 @@
  * @file
  * Tests for smartling
  */
-class SmartlingNodeUploadTest extends DrupalWebTestCase {
+class SmartlingNodeUploadTest extends SmartlingWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Smartling node upload',
-      'description' => 'Test Smartling node upload',
+      'name' => 'Content - Upload content. Upload single node from Edit form.',
+      'description' => 'Test success flow of upload from Edit form.',
       'group' => 'Smartling'
     );
   }
 
-  public function setUp() {
-
-    // Enable Smartling module
-    parent::setUp('smartling');
-
-    // Create a user with access
-    $this->privileged_user = $this->drupalCreateUser(array(
-      'administer smartling',
-      'administer languages',
-      'access administration pages',
-      'administer content types',
-      'administer nodes',
-      'access content',
-      'edit any article content'
-    ));
-
-    // Authorizing user
-    $this->drupalLogin($this->privileged_user);
-    // Create initial node.
-    $this->random_node_title = $this->randomName(8);
-    $settings = array(
-      'body' => array('en' => array(array('value' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet.'))),
-      'title' => $this->random_node_title,
-      'comment' => 0,
-      'changed' => REQUEST_TIME,
-      'moderate' => 0,
-      'promote' => 0,
-      'revision' => 1,
-      'log' => '',
-      'status' => 1,
-      'sticky' => 0,
-      'type' => 'article',
-      'revisions' => NULL,
-      'language' => 'en',
-    );
-    $this->drupalCreateNode($settings);
-  }
-
   public function testCorrectNodeUpload() {
-    // Add predefined language.
-    $edit = array(
-      'langcode' => 'ru',
-    );
-    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
-    $this->assertText('ru', 'Language added successfully.');
+    // Add one random node page type
+    $this->smartlingCreateNode();
+
+    // Add predefined languages.
+    $this->smartlingAddSiteLanguage('zh-hans');
 
     // Set correct account settings
-    $edit = array(
-      "target_locales[ru]" => 'ru',
-      "project_id" => '1295c174d',
-      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
-      "target_locales_text_key_ru" => 'ru-RU',
-    );
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Account settings saved.'));
+    $this->smartlingSetCorrectSettings();
 
-    // Set nodes method for article CT
+    // Set nodes method for page CT
     $edit = array();
-    $edit['article_TT_article'] = 2;
+    $edit['page_TT_page'] = 2;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
-    // Set title and body fields for article CT
+    // Set title field for article CT
     $edit = array();
-    $edit['article_SEPERATOR_node_title'] = 1;
-    $edit['article_SEPERATOR_body'] = 1;
+    $edit['page_SEPARATOR_node_title'] = 1;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
@@ -89,6 +42,21 @@ class SmartlingNodeUploadTest extends DrupalWebTestCase {
     );
     $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
     $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $this->random_node_title, '@langs' => 'ru-RU')));
+
+    $queue = db_select('queue', 'q')
+        ->fields('q', array('data'))
+        ->condition('q.name', 'smartling_upload', '=')
+        ->execute()
+        ->fetchObject();
+    if (empty($queue)) {
+      $this->error('Queue smartling_upload is empty.');
+    }
+    else {
+      $data = unserialize($queue->data);
+      $this->verbose(print_r($data, TRUE));
+
+      $this->assertEqual($data->rid, 1);
+    }
   }
 
 }
