@@ -62,6 +62,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       "project_id" => '1295c174d',
       "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
       "target_locales_text_key_ru" => 'ru-RU',
+      "default_language_format" => 'en-US',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
