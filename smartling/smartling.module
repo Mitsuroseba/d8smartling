@@ -548,7 +548,7 @@ function smartling_do_translate_action($node, $context) {
   if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
     $obj = new stdClass;
     $obj->rid = $node->nid;
-    $obj->type = $node->type;
+    $obj->bundle = $node->type;
     $obj->title = $node->title;
     $obj->original_language = $s_locale_origin;
     $obj->s_locales = $s_locales;
