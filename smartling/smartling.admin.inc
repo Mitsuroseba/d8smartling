@@ -179,8 +179,18 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
 
   $form['accaunt_info']['default_language_markup'] = array(
     '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
+  );
+  $form['accaunt_info']['default_language_format'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($default_language->language),
+    '#default_value' => (isset($locales_convert_array[$default_language->language])) ? $locales_convert_array[$default_language->language] : '',
+    '#size' => 6,
+    '#maxlength' => 10,
+    '#required' => TRUE,
+    '#description' => t('Set Smartling format for Default language. Example: en-US for en.'),
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
+  $form_state['smartling_default_language'] = $default_language->language;
 
   $form['accaunt_info']['callback_info_title'] = array(
     '#type' => 'item',
@@ -338,6 +348,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     variable_set('smartling_target_locales', $target_locales);
   }
   variable_set('smartling_locales_convert_array', $locales_convert_array);
+
+  // Default language format
+  $locales = variable_get('smartling_locales_convert_array', array());
+  $locales = array_merge($locales, array($form_state['smartling_default_language'] => $form_state['values']['default_language_format']));
+  variable_set('smartling_locales_convert_array', $locales);
 
   // Callback
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
