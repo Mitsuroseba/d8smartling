@@ -869,11 +869,46 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           );
           $handler->setTranslation($entity_translation);
         }
+        $handler->saveTranslations();
 
         break;
 
       case 'user':
+        $account = user_load($rid);
+        $handler = entity_translation_get_handler('user', $account);
+        $translations = $handler->getTranslations();
 
+        // Initialize translations if they are empty.
+        if (empty($translations->original)) {
+          $handler->initTranslations();
+          $handler->saveTranslations();
+          $translations = $handler->getTranslations();
+        }
+
+        if (isset($translation->data[$d_locale])) {
+          $entity_translation = array(
+            'translate' => '0',
+            'status' => $account->status,
+            'language' => $d_locale,
+            'uid' => $entity_data->submitter,
+            'changed' => $entity_data->submission_date,
+          );
+          $handler->setTranslation($entity_translation);
+        }
+        else {
+          // Add the new translation.
+          $entity_translation = array(
+            'translate' => '0',
+            'status' => $account->status,
+            'language' => $d_locale,
+            'source' => $translations->original,
+            'uid' => $entity_data->submitter,
+            'created' => $account->created,
+            'changed' => $entity_data->submission_date,
+          );
+          $handler->setTranslation($entity_translation);
+        }
+        $handler->saveTranslations();
         break;
 
       default:

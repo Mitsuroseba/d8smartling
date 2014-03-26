@@ -37,6 +37,29 @@ function smartling_views_data_alter(&$data) {
     'handler' => 'views_handler_filter_string',
   );
 
+  $data['smartling_entity_data']['smartling_title'] = array(
+    'title' => t('Smartling entity Title'),
+    'help' => t('Smartling entity Title link.'),
+  );
+  $data['smartling_entity_data']['smartling_title']['field'] = array(
+    'real field' => 'eid',
+    'handler' => 'smartling_handler_field_smartling_title',
+    'click sortable' => TRUE,
+  );
+  $data['smartling_entity_data']['smartling_title']['sort'] = array(
+    'handler' => 'views_handler_sort',
+  );
+
+  $data['smartling_entity_data']['smartling_operations'] = array(
+    'title' => t('Smartling entity OPERATIONS'),
+    'help' => t('Smartling entity OPERATIONS.'),
+  );
+  $data['smartling_entity_data']['smartling_operations']['field'] = array(
+    'real field' => 'eid',
+    'handler' => 'smartling_handler_field_smartling_operations',
+    'click sortable' => TRUE,
+  );
+
   $data['node']['locale_info'] = array(
     'group' => t('Smartling'),
     'title' => t('Locales'),
@@ -46,19 +69,6 @@ function smartling_views_data_alter(&$data) {
     'real field' => 'nid',
     'handler' => 'smartling_handler_field_locale_info',
     'click sortable' => TRUE,
-  );
-
-  $data['smartling_entity_data']['node'] = array(
-    'group' => t('Node'),
-    'title' => t('Node Entity'),
-    'help' => t('Relationship with entity node.'),
-    'relationship' => array(
-      'base' => 'node',
-      'base field' => 'nid',
-      'relationship field' => 'rid',
-      'handler' => 'views_handler_relationship',
-      'label' => t('Node entity ID'),
-    )
   );
 
   $data['smartling_entity_data']['submitter']['relationship'] = array(

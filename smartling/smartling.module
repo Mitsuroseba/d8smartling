@@ -46,6 +46,8 @@ include_once('includes/smartling.entityController.inc');
 include_once('views/smartling.views.inc');
 include_once('views/smartling_handler_field_target_language.inc');
 include_once('views/smartling_handler_field_locale_info.inc');
+include_once('views/smartling_handler_field_smartling_title.inc');
+include_once('views/smartling_handler_field_smartling_operations.inc');
 include_once('entities/smartling.taxonomy.inc');
 include_once('entities/smartling.node.inc');
 include_once('entities/smartling.comments.inc');
