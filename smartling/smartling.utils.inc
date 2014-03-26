@@ -11,13 +11,13 @@
  * @return
  *   Boolean value.
  */
-function smartling_supported_type($type) {
-  $entity_type = smartling_get_entity_type_by_bundle($type);
+function smartling_supported_type($bundle) {
+  $entity_type = smartling_get_entity_type_by_bundle($bundle);
   $smartling_supported_explicitly = FALSE;
 
   switch ($entity_type) {
     case 'node':
-      $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
+      $smartling_supported_explicitly = variable_get('language_content_type_' . $bundle, NULL);
 
       if ($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY) {
         $smartling_supported_explicitly = TRUE;
@@ -29,7 +29,7 @@ function smartling_supported_type($type) {
 
     case 'taxonomy_term':
       // If term not exist, need create new node
-      $vocabulary = taxonomy_vocabulary_machine_name_load($type);
+      $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary->vid);
       switch ($vocabulary_mode) {
         case I18N_MODE_TRANSLATE:
@@ -43,9 +43,14 @@ function smartling_supported_type($type) {
       break;
 
     case 'comment':
+      $node_type = str_ireplace('comment_node_', '', $bundle);
+      if (smartling_fields_method($node_type)) {
+        $smartling_supported_explicitly = smartling_entity_has_translatable_field($entity_type, $bundle);
+      }
       break;
 
     case 'user':
+      $smartling_supported_explicitly = smartling_entity_has_translatable_field($entity_type, $bundle);
       break;
 
     default:
@@ -54,6 +59,19 @@ function smartling_supported_type($type) {
   }
 
   return $smartling_supported_explicitly;
+}
+
+function smartling_entity_has_translatable_field($entity_type, $bundle) {
+  $translatable = FALSE;
+  foreach (field_info_instances($entity_type, $bundle) as $instance) {
+    $field_name = $instance['field_name'];
+    $field = field_info_field($field_name);
+    if ($field['translatable']) {
+      $translatable = TRUE;
+      break;
+    }
+  }
+  return $translatable;
 }
 
 function smartling_nodes_method($type) {
@@ -617,6 +635,14 @@ function smartling_build_xml_by_node_id($rid = NULL, $s_locale, $title = '', $no
         $content_to_translate = smartling_term_content_to_translate($rid);
         break;
 
+      case 'comment':
+        $content_to_translate = smartling_comment_content_to_translate($rid);
+        break;
+
+      case 'user':
+        $content_to_translate = smartling_user_content_to_translate($rid);
+        break;
+
       default:
         return FALSE;
         break;
@@ -851,7 +877,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
     $file_uri = file_create_url('public://smartling/' . $file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
 
-    $translated_filename = $file_name . '_' . $entity_data->bundle . '_' . $s_locale . '.xml';
+    $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
     $key = variable_get('smartling_key');
     $project_id = variable_get('smartling_project_id');
@@ -1144,3 +1170,18 @@ function smartling_get_original_entity($rid, $entity_bundle) {
   return $entity;
 }
 
+function smartling_get_supported_field_names_by_type_and_bundle($entity_type, $bundle) {
+  $field_names = array();
+  $entity_fields = field_info_instances($entity_type, $bundle);
+  $translatable_field_types = smartling_get_translatable_field_types();
+
+  foreach ($entity_fields as $field) {
+    $field_info = field_info_field($field['field_name']);
+    $field_type = $field['widget']['type'];
+    if ((array_search($field_type, $translatable_field_types)) && ($field_info['translatable'])) {
+      $field_names[] = $field['field_name'];
+    }
+  }
+
+  return $field_names;
+}

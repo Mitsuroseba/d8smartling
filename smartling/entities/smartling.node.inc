@@ -101,7 +101,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
         //  ),
         //),
         'css' => array(
-          drupal_get_path('module', 'smartling') . '/css/smartling_node_settings.css' => array(
+          drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
             'type' => 'file',
           ),
         ),

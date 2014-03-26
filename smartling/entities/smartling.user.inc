@@ -10,38 +10,21 @@
  *
  * Disabled method on taxonomy vocabulary form
  */
-function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
-  if (module_exists('i18n') && module_exists('i18n_taxonomy') && module_exists('translation')) {
-    if (!isset($form_state['confirm_delete'])) {
-      $form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
-      $form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
-      $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be disabled and set Translate when using Smartling.');
+function smartling_form_user_profile_form_alter(&$form, &$form_state) {
+
+  if (smartling_supported_type($form['#bundle'])) {
+    $user = $form['#user'];
+
+    if (!empty($user->uid)) {
+      $form = array_merge($form, smartling_get_user_settings_form($form, $form_state));
     }
+  }
+  else {
+    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'info');
   }
 }
 
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
-  $term = $form_state['term'];
-  if (!empty($term->tid)) {
-    if (smartling_supported_type($form['#vocabulary']->machine_name)) {
-      $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
-    }
-    else {
-      $link = '<a href="/admin/structure/taxonomy/' . $form['#vocabulary']->machine_name . '/edit">"edit vocabulary"</a>';
-      drupal_set_message(t('Please follow the page !link to set Translation mode for Smartling.', array('!link' => $link)), 'warning');
-    }
-  }
-  elseif (empty($term->tid) && !isset($_GET['translation']) && !isset($_GET['target'])) {
-    $langcode = language_default()->language;
-    $form['language']['#default_value'] = $langcode;
-    unset($form['language']['#options']['und']);
-  }
-}
-
-function smartling_get_term_settings_form($form, &$form_state) {
+function smartling_get_user_settings_form($form, &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
       '#title' => t('Smartling management'),
@@ -66,26 +49,16 @@ function smartling_get_term_settings_form($form, &$form_state) {
     );
 
     $languages = smartling_language_list();
-
     $options = array();
-
     $check = array();
-    if (!is_null($form['tid']['#value'])) {
-      $language_default = language_default()->language;
+    $user = $form['#user'];
 
-      if ($form['#term']['language'] == $language_default) {
-        $tid = $form['#term']['tid'];
-      }
-      else {
-        $original_term = smartling_get_original_entity($form['#term']['tid'], $form['#term']['vocabulary_machine_name']);
-        $tid = ($original_term) ? $original_term->tid : $original_term;
-      }
-
+    if (!is_null($user->uid)) {
       foreach ($languages as $langcode => $language) {
         if ($language->enabled != '0') {
           $s_locale = smartling_convert_locale_drupal_to_smartling($langcode);
 
-          $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'bundle' => $form['#vocabulary']->machine_name, 'target_language' => $s_locale));
+          $entity_data = smartling_entity_load_by_conditions(array('rid' => $user->uid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
 
           if ($entity_data !== FALSE) {
             switch ($entity_data->status) {
@@ -133,7 +106,7 @@ function smartling_get_term_settings_form($form, &$form_state) {
     $form['smartling']['submit_to_translate'] = array(
       '#type' => 'submit',
       '#value' => 'Send to Smartling',
-      '#submit' => array('smartling_get_term_settings_form_submit'),
+      '#submit' => array('smartling_get_user_settings_form_submit'),
       '#states' => array(
         'invisible' => array(
           // Hide the button if term is language neutral.
@@ -162,42 +135,47 @@ function smartling_get_term_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_get_term_settings_form_submit
+ * smartling_get_user_settings_form_submit
  */
-function smartling_get_term_settings_form_submit($form, &$form_state) {
-  $term = taxonomy_form_term_submit_build_taxonomy_term($form, $form_state);
-  $language_default = language_default()->language;
-  if ($term->language == $language_default) {
-    $tid = $term->tid;
-  }
-  else {
-    $original_term = smartling_get_original_entity($term->tid, $term->vocabulary_machine_name);
-    $tid = $original_term->tid;
-  }
+function smartling_get_user_settings_form_submit($form, &$form_state) {
+  $account = $form_state['user'];
+  $category = $form['#user_category'];
+  // Remove unneeded values.
+  form_state_values_clean($form_state);
 
+  // Before updating the account entity, keep an unchanged copy for use with
+  // user_save() later. This is necessary for modules implementing the user
+  // hooks to be able to react on changes by comparing the values of $account
+  // and $edit.
+  $account_unchanged = clone $account;
+
+  entity_form_submit_build_entity('user', $account, $form, $form_state);
+
+  // Populate $edit with the properties of $account, which have been edited on
+  // this form by taking over all values, which appear in the form values too.
+  $edit = array_intersect_key((array) $account, $form_state['values']);
+
+  $language_original = $account->translations->original;
   $langs = array();
-  $link = smartling_get_link_to_entity($term->tid, $form['#entity_type']);
+  $link = smartling_get_link_to_entity($account->uid, $form['#entity_type']);
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
-
     global $user;
 
     $smartling_queue = DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
-    $s_locale_origin = smartling_convert_locale_drupal_to_smartling($language_default);
-
-    // For fields method
+    $s_locale_origin = smartling_convert_locale_drupal_to_smartling($language_original);
 
     foreach ($form_state['values']['target'] as $d_locale) {
-      if ($d_locale !== 0 && ($language_default !== $d_locale)) {
+      if ($d_locale !== 0 && ($language_original !== $d_locale)) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-        $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'bundle' => $term->vocabulary_machine_name, 'target_language' => $s_locale));
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
 
         if ($entity_data == FALSE) {
           $entity_data = smartling_entity_data_create();
-          $entity_data->rid = $tid;
-          $entity_data->bundle = $term->vocabulary_machine_name;
+          $entity_data->rid = $account->uid;
+          $entity_data->bundle = $form['#bundle'];
           $entity_data->original_language = $s_locale_origin;
           $entity_data->target_language = $s_locale;
           $entity_data->progress = 0;
@@ -213,31 +191,35 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
       }
     }
     $obj = new stdClass;
-    $obj->rid = $tid;
-    $obj->bundle = $term->vocabulary_machine_name;
-    $obj->title = $term->name;
+    $obj->rid = $account->uid;
+    $obj->bundle = $form['#bundle'];
+    $obj->title = $account->name;
     $obj->original_language = $s_locale_origin;
     $obj->s_locales = $langs;
     $obj->submitter = $user->uid;
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for term tid - @tid, locale - @locale', TRUE, array('@tid' => $tid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, $link);
+    smartling_watchdog('Add smartling queue task for user uid - @uid, locale - @locale', TRUE, array('@uid' => $account->uid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, $link);
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $term->name, '@langs' => $langs)));
+    drupal_set_message(t('The user "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $account->name, '@langs' => $langs)));
   }
 
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
 
-  $status = taxonomy_term_save($term);
-  switch ($status) {
-    case SAVED_UPDATED:
-      smartling_watchdog('Updated term %term.', TRUE, array('%term' => $term->name), WATCHDOG_INFO, $link);
-      // Clear the page and block caches to avoid stale data.
-      cache_clear_all();
-      break;
+  user_save($account_unchanged, $edit, $category);
+  $form_state['values']['uid'] = $account->uid;
+
+  if ($category == 'account' && !empty($edit['pass'])) {
+    // Remove the password reset tag since a new password was saved.
+    unset($_SESSION['pass_reset_' . $account->uid]);
   }
+  // Clear the page cache because pages can contain usernames and/or profile information:
+  cache_clear_all();
+
+  smartling_watchdog('Updated user %user.', TRUE, array('%user' => $account->name), WATCHDOG_INFO, $link);
 }
+

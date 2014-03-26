@@ -23,7 +23,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
 
   $file_name = substr($file_name, 0, strlen($file_name) - 4);
 
-  $translated_filename = $file_name . '_' . $entity_data->bundle . '_' . $s_locale . '.xml';
+  $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');

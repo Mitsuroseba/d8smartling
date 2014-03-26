@@ -125,7 +125,16 @@ function smartling_install() {
 function smartling_enable() {
   // Set Multilingual support for content types
   $node_types = node_type_get_types();
+
   if (is_array($node_types)) {
+    $entity_translation_settings = array(
+      'default_language' => ENTITY_TRANSLATION_LANGUAGE_DEFAULT,
+      'hide_language_selector' => 1,
+      'exclude_language_none' => 1,
+      'lock_language' => 1,
+      'shared_fields_original_only' => 0,
+    );
+
     foreach ($node_types as $type) {
       $mode = variable_get('language_content_type_' . $type->type, NULL);
       if (is_null($mode)) {
@@ -133,27 +142,24 @@ function smartling_enable() {
       }
       // Entity translate settings
       if (smartling_fields_method($type->type)) {
-        $entity_translation_settings_node = array(
-          'default_language' => ENTITY_TRANSLATION_LANGUAGE_DEFAULT,
-          'hide_language_selector' => 1,
-          'exclude_language_none' => 1,
-          'lock_language' => 1,
-          'shared_fields_original_only' => 0,
-        );
-        variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings_node);
+        variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
+        variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
       }
     }
     // Entity translation types and other settings
     $entity_translation_entity_types = array(
       'node' => 'node',
       'taxonomy_term' => 0,
-      'comment' => 0,
-      'user' => 0,
+      'comment' => 'comment',
+      'user' => 'user',
     );
+
     variable_set('entity_translation_entity_types', $entity_translation_entity_types);
     variable_set('entity_translation_shared_labels', 1);
     variable_set('entity_translation_workflow_enabled', 0);
     variable_set('locale_field_language_fallback', 1);
+    // Set user settings
+    variable_set('entity_translation_settings_user__user', $entity_translation_settings);
   }
   // Ensure Smartling module is running after native translation modules
   db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();
