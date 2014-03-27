@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingSettingsInNodePageFailsTest extends SmartlingWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Add content. Create node with incorrect settings',
+      'description' => 'Test failed flow of node creation. Smartling is not fully configured',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function testIncorrectSmartlingSettingsInNodePage() {
+
+    // Add one random node page type
+    $this->smartlingCreateNode();
+
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+
+    // Set fields method for page CT
+    $edit = array();
+    $edit['page_TT_page'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Check message
+    $edit = array(
+      "target[ru]" => 'ru',
+    );
+    $this->drupalGet('node/1/edit');
+    $this->assertText(t('Please follow the page "Smartling settings" to setup Smartling configuration.'));
+  }
+
+}

@@ -4,7 +4,7 @@
  * @file
  * Tests for smartling
  */
-class SmartlingNodeDownloadTest extends DrupalWebTestCase {
+class SmartlingNodeDownloadTest extends SmartlingWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -12,20 +12,6 @@ class SmartlingNodeDownloadTest extends DrupalWebTestCase {
       'description' => 'Test Smartling node download',
       'group' => 'Smartling'
     );
-  }
-
-  public function setUp() {
-
-    // Enable Smartling module
-    parent::setUp('smartling');
-
-    // Create a user with access
-    $this->privileged_user = $this->drupalCreateUser(array(
-      'administer smartling',
-    ));
-
-    // Authorizing user
-    $this->drupalLogin($this->privileged_user);
   }
 
   public function testCorrectNodeDownload() {
