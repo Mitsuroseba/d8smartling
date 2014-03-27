@@ -828,54 +828,18 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
 
     // Update Translations info
     switch ($entity_type) {
-      case 'node':
-        break;
-
       case 'taxonomy_term':
+
         break;
 
+      case 'node':
       case 'comment':
-        $comment = comment_load($rid);
-        $handler = entity_translation_get_handler('comment', $comment);
-        $translations = $handler->getTranslations();
-
-        // Initialize translations if they are empty.
-        if (empty($translations->original)) {
-          $handler->initTranslations();
-          $handler->saveTranslations();
-          $translations = $handler->getTranslations();
-        }
-
-        if (isset($translation->data[$d_locale])) {
-          $entity_translation = array(
-            'translate' => '0',
-            'status' => $comment->status,
-            'language' => $d_locale,
-            'uid' => $entity_data->submitter,
-            'changed' => $entity_data->submission_date,
-          );
-          $handler->setTranslation($entity_translation);
-        }
-        else {
-          // Add the new translation.
-          $entity_translation = array(
-            'translate' => '0',
-            'status' => $comment->status,
-            'language' => $d_locale,
-            'source' => $translations->original,
-            'uid' => $entity_data->submitter,
-            'created' => $comment->created,
-            'changed' => $comment->changed,
-          );
-          $handler->setTranslation($entity_translation);
-        }
-        $handler->saveTranslations();
-
-        break;
-
       case 'user':
-        $account = user_load($rid);
-        $handler = entity_translation_get_handler('user', $account);
+        if (($entity_type == 'node') && smartling_nodes_method($entity_data->bundle)) {
+          break;
+        }
+        $entity_load = entity_load_single($entity_type, $rid);
+        $handler = entity_translation_get_handler($entity_type, $entity_load);
         $translations = $handler->getTranslations();
 
         // Initialize translations if they are empty.
@@ -888,7 +852,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
         if (isset($translation->data[$d_locale])) {
           $entity_translation = array(
             'translate' => '0',
-            'status' => $account->status,
+            'status' => $entity_load->status,
             'language' => $d_locale,
             'uid' => $entity_data->submitter,
             'changed' => $entity_data->submission_date,
@@ -899,11 +863,11 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           // Add the new translation.
           $entity_translation = array(
             'translate' => '0',
-            'status' => $account->status,
+            'status' => $entity_load->status,
             'language' => $d_locale,
             'source' => $translations->original,
             'uid' => $entity_data->submitter,
-            'created' => $account->created,
+            'created' => $entity_load->created,
             'changed' => $entity_data->submission_date,
           );
           $handler->setTranslation($entity_translation);

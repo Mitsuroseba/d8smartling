@@ -133,37 +133,8 @@ function smartling_permission() {
  * Disabled some entity translate settings
  */
 function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state) {
-  $form['locale_field_language_fallback']['#disabled'] = TRUE;
-  $form['entity_translation_shared_labels']['#disabled'] = TRUE;
-  $form['locale_field_language_fallback']['#disabled'] = TRUE;
+
   $form['enabled']['entity_translation_entity_types']['#disabled'] = TRUE;
-
-  if (isset($form['settings']['node']) && is_array($form['settings']['node'])) {
-    foreach ($form['settings']['node'] as $key => $settings) {
-      $entity = explode('__', $key);
-      if ($entity[0] == 'entity_translation_settings_node') {
-        $form['settings']['node'][$key]['#disabled'] = TRUE;
-      }
-    }
-  }
-
-  if (isset($form['settings']['user']) && is_array($form['settings']['user'])) {
-    foreach ($form['settings']['user'] as $key => $settings) {
-      $entity = explode('__', $key);
-      if ($entity[0] == 'entity_translation_settings_user') {
-        $form['settings']['user'][$key]['#disabled'] = TRUE;
-      }
-    }
-  }
-
-  if (isset($form['settings']['comment']) && is_array($form['settings']['comment'])) {
-    foreach ($form['settings']['comment'] as $key => $settings) {
-      $entity = explode('__', $key);
-      if ($entity[0] == 'entity_translation_settings_comment') {
-        $form['settings']['comment'][$key]['#disabled'] = TRUE;
-      }
-    }
-  }
 
   $form['smartling'] = array(
     '#type' => 'item',

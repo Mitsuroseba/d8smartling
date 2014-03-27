@@ -9,7 +9,7 @@
  * Implements hook_form_alter().
  */
 function smartling_form_alter(&$form, &$form_state, $form_id) {
-  $active_node_type = variable_get('smartling_translate_fields', array());
+  $active_node_type = node_type_get_types();
   foreach ($active_node_type as $node_type => $value) {
 
     if (smartling_fields_method($node_type) && ($form_id == 'comment_node_' . $node_type . '_form')) {
