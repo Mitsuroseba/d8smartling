@@ -38,8 +38,6 @@ define('SMARTLING_DIRECTORY', $smartling_dir);
 
 include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');
-
-// @TODO: check why files[] directive in .info do not work
 include_once('includes/smartling.workers.inc');
 include_once('includes/smartling.entity.inc');
 include_once('includes/smartling.entityController.inc');
