@@ -849,7 +849,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           $translations = $handler->getTranslations();
         }
 
-        if (isset($translation->data[$d_locale])) {
+        if (isset($translations->data[$d_locale])) {
           $entity_translation = array(
             'translate' => '0',
             'status' => $entity_load->status,
