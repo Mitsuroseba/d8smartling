@@ -12,16 +12,16 @@ projects[devel][subdir] = "contrib"
 projects[devel][version] = "1.3"
 
 projects[background_process][subdir] = "contrib"
-projects[background_process][version] = "1.14"
+projects[background_process][version] = "1.16"
 
 projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.3"
+projects[ctools][version] = "1.4"
 
 projects[defaultcontent][subdir] = "contrib"
 projects[defaultcontent][version] = "1.0-alpha9"
 
 projects[entity][subdir] = "contrib"
-projects[entity][version] = "1.2"
+projects[entity][version] = "1.4"
 
 projects[features][subdir] = "contrib"
 projects[features][version] = "2.0"
@@ -39,13 +39,13 @@ projects[title][subdir] = "contrib"
 projects[title][version] = "1.0-alpha7"
 
 projects[ultimate_cron][subdir] = "contrib"
-projects[ultimate_cron][version] = "1.9"
+projects[ultimate_cron][version] = "1.10"
 
 projects[ultimate_cron_queue_scaler][subdir] = "contrib"
 projects[ultimate_cron_queue_scaler][version] = "1.0"
 
 projects[variable][subdir] = "contrib"
-projects[variable][version] = "2.3"
+projects[variable][version] = "2.4"
 
 projects[views][subdir] = "contrib"
 projects[views][version] = "3.7"

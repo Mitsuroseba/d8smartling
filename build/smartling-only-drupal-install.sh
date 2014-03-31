@@ -89,6 +89,8 @@ drush_e site-install standard --db-url=mysql://$UN:$PSWD@$HOST/$DB --account-nam
 chmod -R 777 sites/default/files
 drush_e en admin_menu -y
 drush_e dis overlay toolbar -y
+drush_e dl module_filter
+drush_e en module_filter -y
 drush_e cc all -y
 
 # don't like this but devs wanna this :)
