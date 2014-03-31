@@ -608,8 +608,6 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $file_name = $entity_data->translated_file_name;
   $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
 
-
-
   // Preproccess for entity type
   switch ($entity_type) {
     case 'node':

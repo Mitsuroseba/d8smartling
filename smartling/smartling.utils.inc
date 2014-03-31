@@ -294,16 +294,6 @@ function smartling_entity_data_filename_update($file_name, $rid, $s_locale, $tra
 
 function smartling_get_full_language_name($s_locale) {
   $d_locale = smartling_convert_locale_drupal_to_smartling($s_locale, TRUE);
-
-  /*
-    $locales = array(
-    'en' => t('English'),
-    'es' => t('Spanish (International)'),
-    'nl-NL' => t('Dutch (Netherlands)'),
-    'ru-RU' => t('Russian (Russia)'),
-    'zh-CN' => t('Chinese (Simplified)'),
-    );
-   */
   $languages = language_list();
   if (isset($languages[$d_locale])) {
     return $languages[$d_locale]->name;
