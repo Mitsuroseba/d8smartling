@@ -702,19 +702,19 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
 
         smartling_update_translated_fields($rid, $s_locale, $nodes_method);
 
+        $entity_data->progress = $progress;
+        smartling_entity_data_save($entity_data);
+        drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
+
         if (isset($_GET['destination']) && $report_page) {
-          $entity_data->progress = $progress;
-          smartling_entity_data_save($entity_data);
-          drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-          drupal_goto(drupal_get_destination());
+          $destination = drupal_get_destination();
+          drupal_goto($destination['destination']);
         }
         elseif (isset($_GET['destination'])) {
-          $entity_data->progress = $progress;
-          smartling_entity_data_save($entity_data);
-          drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
           unset($_GET['destination']);
           drupal_goto(current_path());
         }
+
         return $progress;
       }
       else {

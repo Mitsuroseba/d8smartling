@@ -440,11 +440,14 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
 
     smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View translated node'), $d_locale . '/node/' . $rid));
     if (module_exists('rules')) {
+      smartling_watchdog('Smartling started rules smartling_translation_download_event execution for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
       $node_event = smartling_node_load_default($rid);
       rules_invoke_event('smartling_translation_download_event', $node_event);
+      smartling_watchdog('Smartling finished rules smartling_translation_download_event execution for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
     }
   }
   else {
     smartling_watchdog('Translatable node with nid - @nid not found in database', TRUE, array('@nid' => $rid), WATCHDOG_INFO);
   }
+  smartling_watchdog('Smartling finished update fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
 }
