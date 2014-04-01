@@ -137,7 +137,7 @@ function smartling_node_content_to_translate($nid, $nodes_method = FALSE) {
             break;
 
           default:
-            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_WARNING);
+            smartling_watchdog('Smartling not processed content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -350,7 +350,7 @@ function smartling_multiple_image_field_processing($node_wrapper, $field_name, $
  */
 function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FALSE) {
   $d_locale = smartling_convert_locale_drupal_to_smartling($s_locale, TRUE);
-  smartling_watchdog('Smartling starts to update fields of node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_DEBUG);
+  smartling_watchdog('Smartling start update fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
 
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
   $file_name = $entity_data->translated_file_name;
@@ -425,7 +425,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           break;
 
         default:
-          smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_WARNING);
+          smartling_watchdog('Smartling not processed field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
           break;
       }
     }
@@ -438,16 +438,13 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
 
     smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
-    smartling_watchdog('Smartling updates all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_DEBUG, l(t('View translated node'), $d_locale . '/node/' . $rid));
+    smartling_watchdog('Smartling update all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View translated node'), $d_locale . '/node/' . $rid));
     if (module_exists('rules')) {
-      smartling_watchdog('Smartling started rules smartling_translation_download_event execution for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
       $node_event = smartling_node_load_default($rid);
       rules_invoke_event('smartling_translation_download_event', $node_event);
-      smartling_watchdog('Smartling finished rules smartling_translation_download_event execution for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
     }
   }
   else {
-    smartling_watchdog('Translatable node with nid - @nid was not found in database', TRUE, array('@nid' => $rid), WATCHDOG_WARNING);
+    smartling_watchdog('Translatable node with nid - @nid not found in database', TRUE, array('@nid' => $rid), WATCHDOG_INFO);
   }
-  smartling_watchdog('Smartling finished update fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
 }
