@@ -635,45 +635,89 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
  * @param type $rid
  * @param type $s_locale
  * @param type $entity_data
- * @return int
  */
-function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL, $nodes_method = FALSE) {
-  smartling_is_configured();
-  $report_page = FALSE;
+function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL) {
+  $progress = 'exception';
+  if (smartling_is_configured()) {
+    $report_page = FALSE;
 
-  // Load entity
-  if (is_null($entity_data)) {
-    if (is_numeric($s_locale)) {
-      // Use in views report (Download)
-      $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $s_locale));
-      $s_locale = $entity_data->target_language;
-      $report_page = TRUE;
+    // Load entity
+    if (is_null($entity_data)) {
+      if (is_numeric($s_locale)) {
+        // Use in views report (Download)
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $s_locale));
+        $s_locale = $entity_data->target_language;
+        $report_page = TRUE;
+      }
+      else {
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
+      }
+    }
+
+    $progress = smartling_get_progress_status($entity_data);
+
+    if ($progress !== FALSE) {
+      $xml = smartling_download_file($entity_data);
+
+      $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
+      $translated_filename = $file_name . '_' . $s_locale . '.xml';
+
+      // Save result
+      $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
+
+      // If result is saved
+      if (is_object($save)) {
+        $nodes_method = smartling_nodes_method($entity_data->bundle);
+        smartling_update_translated_fields($rid, $s_locale, $nodes_method);
+        $entity_data->progress = $progress;
+        smartling_entity_data_save($entity_data);
+        $result = t('Downloaded');
+      }
     }
     else {
-      $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
+      $result = t('Progress status Failed');
     }
   }
+  else {
+    $result = t('Smartling not configured');
+  }
 
-  $nodes_method = smartling_nodes_method($entity_data->bundle);
+  return smartling_redirect_if_need_after_download_file($result, $s_locale, $progress, $report_page);
+}
 
+function smartling_download_file($entity_data) {
+  $file_name_unic = $entity_data->file_name;
+  $s_locale = $entity_data->target_language;
+
+  $key = variable_get('smartling_key');
+  $project_id = variable_get('smartling_project_id');
+  // Init api object
+  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+
+  $retrieval_type = variable_get('smartling_retrieval_type');
+  $download_param = array(
+    'retrievalType' => $retrieval_type,
+  );
+
+  // Try to download file
+  $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
+  // This is a $download_result
+  $xml = new DOMDocument();
+  $xml->loadXML($download_result);
+
+  return $xml;
+}
+
+function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0 )) {
-
-    $file_name = $entity_data->file_name;
+    $s_locale = $entity_data->target_language;
     $file_name_unic = $entity_data->file_name;
-    $file_uri = file_create_url('public://smartling/' . $file_name);
-    $file_name = substr($file_name, 0, strlen($file_name) - 4);
-
-    $translated_filename = $file_name . '_' . $s_locale . '.xml';
+    $file_uri = file_create_url('public://smartling/' . $entity_data->file_name);
 
     $key = variable_get('smartling_key');
     $project_id = variable_get('smartling_project_id');
     // Init api object
     $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
-
-    $retrieval_type = variable_get('smartling_retrieval_type');
-    $download_param = array(
-      'retrievalType' => $retrieval_type,
-    );
 
     // Try to retrieve file status
     $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -681,13 +725,6 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
 
     // This is a get status
     if ($api->getCodeStatus() == 'SUCCESS') {
-      // Try to download file
-      $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-      // This is a $download_result
-      $xml = new DOMDocument();
-      $xml->loadXML($download_result);
-      // Save result
-      $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
       // Calc progress
       if ($status_result->response->data->approvedStringCount !== 0) {
         $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
@@ -696,79 +733,64 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL,
         $progress = 100;
       }
 
-      // If result is saved
-      if (is_object($save)) {
-        smartling_watchdog('Smartling progress status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs', TRUE, array(
-          '@nid' => $rid,
-          '@s_locale' => $s_locale,
-          '@as' => $status_result->response->data->approvedStringCount,
-          '@cs' => $status_result->response->data->completedStringCount
-            ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
-
-        smartling_update_translated_fields($rid, $s_locale, $nodes_method);
-
-        $entity_data->progress = $progress;
-        smartling_entity_data_save($entity_data);
-
-        if (isset($_GET['destination']) && $_GET['destination'] != current_path() && !$report_page) {
-          // Redirect user back to node page
-          $variant = 'back to node page';
-        }
-        elseif (isset($_GET['destination']) && $_GET['destination'] != current_path() && $report_page) {
-          // Redirect user back to report page
-          $variant = 'back to report page';
-        }
-        else {
-          // If use for download end get progress
-          $variant = 'download end get progress';
-        }
-      }
+      smartling_watchdog('Smartling progress status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs, progress = @progress', TRUE, array(
+        '@nid' => $entity_data->rid,
+        '@s_locale' => $s_locale,
+        '@as' => $status_result->response->data->approvedStringCount,
+        '@cs' => $status_result->response->data->completedStringCount,
+        '@progress' => $progress,
+          ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
     }
     else {
-      $variant = 'status fail';
-    }
-  }
-  else {
-    $variant = 'exception';
-  }
-
-  switch ($variant) {
-    case 'back to node page':
-      unset($_GET['destination']);
-      drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)));
-      drupal_goto(current_path());
-      exit();
-      break;
-
-    case 'back to report page':
-      drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)));
-      drupal_goto($_GET['destination']);
-      exit();
-      break;
-
-    case 'download end get progress':
-      return $progress;
-      break;
-
-    case 'status fail':
-      smartling_watchdog('Smartling try to download file: <br/>
+      smartling_watchdog('Smartling try to get progress status file: <br/>
       Project Id: @project_id <br/>
-      Action: download <br/>
+      Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $entity_data->rid));
       drupal_set_message(t('Smartling try to download file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
       drupal_goto(current_path());
+    }
+    return $progress;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+function smartling_redirect_if_need_after_download_file($result, $s_locale, $progress, $report_page) {
+  switch ($result) {
+    case t('Downloaded'):
+    case t('Progress status Failed'):
+
+      if (isset($_GET['destination']) && $_GET['destination'] != current_path() && !$report_page) {
+        // Redirect user back to node page
+        unset($_GET['destination']);
+        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
+        drupal_goto(current_path());
+      }
+      elseif (isset($_GET['destination']) && $_GET['destination'] != current_path() && $report_page) {
+        // Redirect user back to report page
+        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
+        drupal_goto($_GET['destination']);
+      }
+      else {
+        // If use for download end get progress
+        return $progress;
+      }
+
       break;
 
-    case 'exception':
-      smartling_watchdog('Node can not be download at a moment since it is still in a queue for upload. Id: @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO);
-      $args = arg();
-      if (($args[0] == 'smartling') && ($args[1] == 'download')) {
-        drupal_set_message(t('Node can not be download at a moment since it is still in a queue for upload. Id: @nid. Locale: @locale', array('@nid' => $rid, '@locale' => $s_locale)), 'warning');
-        drupal_goto('admin/content/smartling/report-in-progress');
+    case t('Smartling not configured'):
+
+      if (isset($_GET['destination']) && $_GET['destination'] != current_path()) {
+        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
+        drupal_goto($_GET['destination']);
       }
-      return 'exception';
+      else {
+        drupal_goto(current_path());
+      }
+
       break;
 
     default:
