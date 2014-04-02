@@ -66,8 +66,7 @@ function smartling_menu() {
     'title' => 'Smartling settings',
     'type' => MENU_CALLBACK,
     'page arguments' => array(2, 3),
-    'page callback' => 'smartling_download_translate', // we should implement this function in smartling.utils.inc file
-    'file' => 'smartling.utils.inc',
+    'page callback' => 'smartling_download_translate_form_submission_form',
     'access arguments' => array('administer smartling'),
   );
 
@@ -96,6 +95,13 @@ function smartling_menu() {
  */
 function smartling_download_translate_simple_callback() {
   return '';
+}
+
+function smartling_download_translate_form_submission_form($rid, $s_locale = '', $entity_data = NULL) {
+  smartling_download_translate($rid, $s_locale, $entity_data);
+  // TODO : Make a wrapper for unset + drupal_goto
+  unset($_GET['destination']);
+  drupal_goto('/admin/content/smartling/report-in-progress');
 }
 
 /**
@@ -412,6 +418,8 @@ function smartling_download_translate_form_submit($form, &$form_state) {
         if ($entity_data != FALSE) {
 
           $progress = smartling_download_translate($original_nid, $s_locale, $entity_data);
+          unset($_GET['destination']);
+          drupal_goto($_SERVER['HTTP_REFERER']);
           if (($progress !== 'exception') && ($progress !== FALSE)) {
             $entity_data->target_language = $s_locale;
             $entity_data->submitter = $user->uid;
@@ -448,6 +456,8 @@ function smartling_download_translate_form_submit($form, &$form_state) {
         if ($entity_data != FALSE) {
 
           $progress = smartling_download_translate($nid, $s_locale, $entity_data);
+          unset($_GET['destination']);
+          drupal_goto($_SERVER['HTTP_REFERER']);
           if (($progress !== 'exception') && ($progress !== FALSE)) {
             $entity_data->target_language = $s_locale;
             $entity_data->submitter = $user->uid;
