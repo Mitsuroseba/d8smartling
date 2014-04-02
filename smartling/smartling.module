@@ -67,8 +67,15 @@ function smartling_menu() {
     'type' => MENU_CALLBACK,
     'page arguments' => array(2, 3),
     'page callback' => 'smartling_download_translate', // we should implement this function in smartling.utils.inc file
-    'file' => 'smartling.utils.inc', // don't forget to add the file and path
-    'file path' => drupal_get_path('module', 'smartling'),
+    'file' => 'smartling.utils.inc',
+    'access arguments' => array('administer smartling'),
+  );
+
+  $items['smartling'] = array(
+    'title' => 'Smartling settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'smartling_download_translate_simple_callback',
+    'page arguments' => array(2, 3),
     'access arguments' => array('administer smartling'),
   );
 
@@ -82,6 +89,13 @@ function smartling_menu() {
   }
 
   return $items;
+}
+
+/**
+ * Simple menu callback to register smartling paths in menu router, to avoid problems with fast_404 module.
+ */
+function smartling_download_translate_simple_callback() {
+  return '';
 }
 
 /**

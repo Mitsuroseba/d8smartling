@@ -682,7 +682,12 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
     $result = t('Smartling not configured');
   }
 
-  return smartling_redirect_if_need_after_download_file($result, $s_locale, $progress, $report_page);
+  if ($report_page) {
+    drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
+    drupal_goto();
+    exit();
+  }
+  return $progress;
 }
 
 function smartling_download_file($entity_data) {
@@ -755,46 +760,6 @@ function smartling_get_progress_status($entity_data) {
   }
   else {
     return FALSE;
-  }
-}
-
-function smartling_redirect_if_need_after_download_file($result, $s_locale, $progress, $report_page) {
-  switch ($result) {
-    case t('Downloaded'):
-    case t('Progress status Failed'):
-
-      if (isset($_GET['destination']) && $_GET['destination'] != current_path() && !$report_page) {
-        // Redirect user back to node page
-        unset($_GET['destination']);
-        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
-        drupal_goto(current_path());
-      }
-      elseif (isset($_GET['destination']) && $_GET['destination'] != current_path() && $report_page) {
-        // Redirect user back to report page
-        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
-        drupal_goto($_GET['destination']);
-      }
-      else {
-        // If use for download end get progress
-        return $progress;
-      }
-
-      break;
-
-    case t('Smartling not configured'):
-
-      if (isset($_GET['destination']) && $_GET['destination'] != current_path()) {
-        drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
-        drupal_goto($_GET['destination']);
-      }
-      else {
-        drupal_goto(current_path());
-      }
-
-      break;
-
-    default:
-      break;
   }
 }
 
