@@ -637,7 +637,6 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
       if (is_numeric($s_locale)) {
         // Use in views report (Download)
         $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $s_locale));
-        $s_locale = $entity_data->target_language;
         $report_page = TRUE;
       }
       else {
@@ -645,24 +644,30 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
       }
     }
 
-    $progress = smartling_get_progress_status($entity_data);
+    if ($entity_data !== FALSE) {
+      $s_locale = $entity_data->target_language;
+      $progress = smartling_get_progress_status($entity_data);
 
-    if ($progress !== FALSE) {
-      $xml = smartling_download_file($entity_data);
+      if ($progress !== FALSE) {
+        $xml = smartling_download_file($entity_data);
 
-      $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
-      $translated_filename = $file_name . '_' . $s_locale . '.xml';
+        $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
+        $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
-      // Save result
-      $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
+        // Save result
+        $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
 
-      // If result is saved
-      if (is_object($save)) {
-        $nodes_method = smartling_nodes_method($entity_data->bundle);
-        smartling_update_translated_fields($rid, $s_locale, $nodes_method);
-        $entity_data->progress = $progress;
-        smartling_entity_data_save($entity_data);
-        $result = t('Downloaded');
+        // If result is saved
+        if (is_object($save)) {
+          $nodes_method = smartling_nodes_method($entity_data->bundle);
+          smartling_update_translated_fields($rid, $s_locale, $nodes_method);
+          $entity_data->progress = $progress;
+          smartling_entity_data_save($entity_data);
+          $result = t('Downloaded');
+        }
+      }
+      else {
+        $result = t('Progress status Failed');
       }
     }
     else {
@@ -834,4 +839,21 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
         break;
     }
   }
+}
+
+function smartling_get_field_format($node_wrapper, $field_name, $original_language, $i = FALSE) {
+  $format = filter_default_format();
+
+  if ($i !== FALSE) {
+    if (isset($node_wrapper->{$field_name}[$original_language][$i]['format']) || is_null($node_wrapper->{$field_name}[$original_language][$i]['format'])) {
+      $format = $node_wrapper->{$field_name}[$original_language][$i]['format'];
+    }
+  }
+  else {
+    if (isset($node_wrapper->{$field_name}[$original_language][0]['format']) || is_null($node_wrapper->{$field_name}[$original_language][0]['format'])) {
+      $format = $node_wrapper->{$field_name}[$original_language][0]['format'];
+    }
+  }
+
+  return $format;
 }
