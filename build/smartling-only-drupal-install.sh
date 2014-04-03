@@ -83,14 +83,16 @@ fi
 [ "x$DB" == "x" ] && { logit err "-db option should be set"; usage; }
 [ "x$URI" == "x" ] && { logit err "-uri option should be set"; usage; }
 
+rm -rf sites/all/modules/custom
+
 drush_e make smartling-demo-install.make -y
 drush_e site-install standard --db-url=mysql://$UN:$PSWD@$HOST/$DB --account-name=admin --account-pass=admin --site-name=Smartling  -y
 
 chmod -R 777 sites/default/files
 drush_e en admin_menu -y
 drush_e dis overlay toolbar -y
-drush_e dl module_filter
-drush_e en module_filter -y
+drush dl module_filter -y
+drush en module_filter -y
 drush_e cc all -y
 
 # don't like this but devs wanna this :)

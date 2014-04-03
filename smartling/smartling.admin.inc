@@ -179,8 +179,18 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
 
   $form['accaunt_info']['default_language_markup'] = array(
     '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
+  );
+  $form['accaunt_info']['default_language_format'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($default_language->language),
+    '#default_value' => (isset($locales_convert_array[$default_language->language])) ? $locales_convert_array[$default_language->language] : '',
+    '#size' => 6,
+    '#maxlength' => 10,
+    '#required' => TRUE,
+    '#description' => t('Set Smartling format for Default language. Example: en-US for en.'),
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
+  $form_state['smartling_default_language'] = $default_language->language;
 
   $form['accaunt_info']['callback_info_title'] = array(
     '#type' => 'item',
@@ -195,7 +205,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#default_value' => $smartling_callback_url,
     '#size' => 50,
     '#maxlength' => 255 - (strlen($base_url) + 1),
-    '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
+    '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
     '#required' => FALSE,
   );
 
@@ -257,7 +267,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       $form_state['values']['project_id'] = trim($project_id);
     }
     else {
-      drupal_set_message(t('Please input correct Smartling settings.'), 'error');
+      drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
       form_set_error('api_url');
       form_set_error('smartling_key');
       form_set_error('project_id');
@@ -268,7 +278,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       drupal_set_message($response->error, 'error');
       smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
     }
-    drupal_set_message(t('Please input correct Smartling settings.'), 'error');
+    drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
     form_set_error('api_url');
     form_set_error('smartling_key');
     form_set_error('project_id');
@@ -338,6 +348,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     variable_set('smartling_target_locales', $target_locales);
   }
   variable_set('smartling_locales_convert_array', $locales_convert_array);
+
+  // Default language format
+  $locales = variable_get('smartling_locales_convert_array', array());
+  $locales = array_merge($locales, array($form_state['smartling_default_language'] => $form_state['values']['default_language_format']));
+  variable_set('smartling_locales_convert_array', $locales);
 
   // Callback
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
@@ -454,7 +469,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
 
   $form['node_translation'] = array(
     '#type' => 'item',
-    '#title' => t('Which content types do you want translated?'),
+    '#title' => t('Which content types do you want to translate?'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#group' => 'administrative_settings',

@@ -27,12 +27,13 @@ class SmartlingSettingsAccountInfoSaveTest extends SmartlingWebTestCase {
       "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
       "target_locales_text_key_ru" => 'ru-RU',
       "target_locales_text_key_zh-hans" => 'zh-CN',
+      "default_language_format" => 'en-US',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
 
     $smartling_locales_convert_array = variable_get('smartling_locales_convert_array', array());
-    $must_be_array = array('zh-hans' => 'zh-CN', 'ru' => 'ru-RU');
+    $must_be_array = array('zh-hans' => 'zh-CN', 'ru' => 'ru-RU', 'en' => 'en-US',);
     $this->verbose(print_r($smartling_locales_convert_array, TRUE));
     $this->assertEqual($smartling_locales_convert_array, $must_be_array);
   }
