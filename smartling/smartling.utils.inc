@@ -365,9 +365,9 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
  * @param type $nid
  * @return boolean
  */
-function smartling_build_xml_by_node_id($rid = NULL, $s_locale, $title = '', $nodes_method = FALSE) {
+function smartling_build_xml_by_node_id($rid = NULL, $s_locale, $title = '') {
   if (!is_null($rid)) {
-    $node_content_to_translate = smartling_node_content_to_translate($rid, $nodes_method);
+    $node_content_to_translate = smartling_node_content_to_translate($rid);
     $xml = new DOMDocument('1.0', 'UTF-8');
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
@@ -416,147 +416,89 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
   $localize->appendChild($localize_attr);
 
   foreach ($strings as $field_name => $field_value) {
-    if (is_string($field_value)) {
-      // Simple field
-      $string = $dom->createElement('string');
-      $string_val = $dom->createTextNode($field_value);
-      $string_attr = $dom->createAttribute('id');
-      $string_attr->value = $field_name;
-      $string->appendChild($string_attr);
-      $string->appendChild($string_val);
-      $localize->appendChild($string);
-    }
-    elseif (is_array($field_value)) {
-      if (count($field_value) >= 1) {
-        // Fields body-summary or image or multifields
-        if (isset($field_value['body'])) {
-          // Field body-summary
+    if (is_array($field_value)) {
+      // Fields body-summary or image or text
+      if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
+        // Field body-summary
+        $quantity = count($field_value);
+        foreach ($field_value as $key => $value) {
           $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($field_value['body']);
+          $string_val = $dom->createTextNode($value['body']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-body';
+          $string_attr->value = $field_name . '-body' . '-' . $key;
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          $localize->appendChild($string);
-
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($field_value['summary']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-summary';
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          $localize->appendChild($string);
-        }
-        elseif (isset($field_value['alt-img'])) {
-          // Field image
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($field_value['alt-img']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-alt-img';
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set image fid
-          $string_attr = $dom->createAttribute('fid');
-          $string_attr->value = $field_value['fid-img'];
+          // Set quantity
+          $string_attr = $dom->createAttribute('quantity');
+          $string_attr->value = $quantity;
           $string->appendChild($string_attr);
           $localize->appendChild($string);
 
           $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($field_value['title-img']);
+          $string_val = $dom->createTextNode($value['summary']);
           $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-title-img';
+          $string_attr->value = $field_name . '-summary' . '-' . $key;
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // Set image fid
-          $string_attr = $dom->createAttribute('fid');
-          $string_attr->value = $field_value['fid-img'];
+          // Set quantity
+          $string_attr = $dom->createAttribute('quantity');
+          $string_attr->value = $quantity;
           $string->appendChild($string_attr);
           $localize->appendChild($string);
         }
-        else {
-          if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
-            // Multifields body-summary
-            $quantity = count($field_value);
-            foreach ($field_value as $key => $value) {
-              $string = $dom->createElement('string');
-              $string_val = $dom->createTextNode($value['body']);
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_name . '-body' . '-' . $key;
-              $string->appendChild($string_attr);
-              $string->appendChild($string_val);
-              // Set quantity of multifields
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-              $localize->appendChild($string);
+      }
+      elseif (!is_string($field_value[0]) && isset($field_value[0]['alt-img'])) {
+        // Field image
+        $quantity = count($field_value);
+        foreach ($field_value as $key => $value) {
+          $string = $dom->createElement('string');
+          $string_val = $dom->createTextNode($value['alt-img']);
+          $string_attr = $dom->createAttribute('id');
+          $string_attr->value = $field_name . '-alt-img' . '-' . $key;
+          $string->appendChild($string_attr);
+          $string->appendChild($string_val);
+          // Set quantity of multifields
+          $string_attr = $dom->createAttribute('quantity');
+          $string_attr->value = $quantity;
+          $string->appendChild($string_attr);
+          // Set image fid
+          $string_attr = $dom->createAttribute('fid');
+          $string_attr->value = $value['fid-img'];
+          $string->appendChild($string_attr);
+          $localize->appendChild($string);
 
-              $string = $dom->createElement('string');
-              $string_val = $dom->createTextNode($value['summary']);
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_name . '-summary' . '-' . $key;
-              $string->appendChild($string_attr);
-              $string->appendChild($string_val);
-              // Set quantity of multifields
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-              $localize->appendChild($string);
-            }
-          }
-          elseif (!is_string($field_value[0]) && isset($field_value[0]['alt-img'])) {
-            // Multifields image
-            $quantity = count($field_value);
-            foreach ($field_value as $key => $value) {
-              $string = $dom->createElement('string');
-              $string_val = $dom->createTextNode($value['alt-img']);
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_name . '-alt-img' . '-' . $key;
-              $string->appendChild($string_attr);
-              $string->appendChild($string_val);
-              // Set quantity of multifields
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-              // Set image fid
-              $string_attr = $dom->createAttribute('fid');
-              $string_attr->value = $value['fid-img'];
-              $string->appendChild($string_attr);
-              $localize->appendChild($string);
-
-              $string = $dom->createElement('string');
-              $string_val = $dom->createTextNode($value['title-img']);
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_name . '-title-img' . '-' . $key;
-              $string->appendChild($string_attr);
-              $string->appendChild($string_val);
-              // Set quantity of multifields
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-              // Set image fid
-              $string_attr = $dom->createAttribute('fid');
-              $string_attr->value = $value['fid-img'];
-              $string->appendChild($string_attr);
-              $localize->appendChild($string);
-            }
-          }
-          elseif (is_string($field_value[0])) {
-            // Multifields
-            $quantity = count($field_value);
-            foreach ($field_value as $key => $value) {
-              $string = $dom->createElement('string');
-              $string_val = $dom->createTextNode($value);
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $field_name . '-' . $key;
-              $string->appendChild($string_attr);
-              $string->appendChild($string_val);
-              // Set quantity of multifields
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-              $localize->appendChild($string);
-            }
-          }
+          $string = $dom->createElement('string');
+          $string_val = $dom->createTextNode($value['title-img']);
+          $string_attr = $dom->createAttribute('id');
+          $string_attr->value = $field_name . '-title-img' . '-' . $key;
+          $string->appendChild($string_attr);
+          $string->appendChild($string_val);
+          // Set quantity of multifields
+          $string_attr = $dom->createAttribute('quantity');
+          $string_attr->value = $quantity;
+          $string->appendChild($string_attr);
+          // Set image fid
+          $string_attr = $dom->createAttribute('fid');
+          $string_attr->value = $value['fid-img'];
+          $string->appendChild($string_attr);
+          $localize->appendChild($string);
+        }
+      }
+      elseif (is_string($field_value[0])) {
+        // Field text
+        $quantity = count($field_value);
+        foreach ($field_value as $key => $value) {
+          $string = $dom->createElement('string');
+          $string_val = $dom->createTextNode($value);
+          $string_attr = $dom->createAttribute('id');
+          $string_attr->value = $field_name . '-' . $key;
+          $string->appendChild($string_attr);
+          $string->appendChild($string_val);
+          // Set quantity of multifields
+          $string_attr = $dom->createAttribute('quantity');
+          $string_attr->value = $quantity;
+          $string->appendChild($string_attr);
+          $localize->appendChild($string);
         }
       }
     }
@@ -736,18 +678,18 @@ function smartling_get_progress_status($entity_data) {
         '@cs' => $status_result->response->data->completedStringCount,
         '@progress' => $progress,
           ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
-      return $progress;
     }
     else {
-      smartling_watchdog('Smartling tried to check file progress: <br/>
+      smartling_watchdog('Smartling try to get progress status file: <br/>
       Project Id: @project_id <br/>
       Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $entity_data->rid));
-      drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
-      return FALSE;
+      drupal_set_message(t('Smartling try to download file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
+      drupal_goto(current_path());
     }
+    return $progress;
   }
   else {
     return FALSE;
@@ -842,17 +784,11 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 }
 
 function smartling_get_field_format($node_wrapper, $field_name, $original_language, $i = FALSE) {
-  $format = filter_default_format();
-
-  if ($i !== FALSE) {
-    if (isset($node_wrapper->{$field_name}[$original_language][$i]['format']) || is_null($node_wrapper->{$field_name}[$original_language][$i]['format'])) {
-      $format = $node_wrapper->{$field_name}[$original_language][$i]['format'];
-    }
+  if (isset($node_wrapper->{$field_name}[$original_language][$i]['format'])) {
+    $format = $node_wrapper->{$field_name}[$original_language][$i]['format'];
   }
   else {
-    if (isset($node_wrapper->{$field_name}[$original_language][0]['format']) || is_null($node_wrapper->{$field_name}[$original_language][0]['format'])) {
-      $format = $node_wrapper->{$field_name}[$original_language][0]['format'];
-    }
+    $format = NULL;
   }
 
   return $format;

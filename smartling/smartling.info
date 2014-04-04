@@ -26,6 +26,7 @@ files[] = smartling.utils.inc
 files[] = smartling.processing.inc
 files[] = smartling.module
 files[] = tests/smartling_settings_ct.test
+files[] = tests/smartling_copy_fields.test
 files[] = tests/smartling_settings_in_node_page.test
 files[] = tests/smartling_settings_in_node_page_fails.test
 files[] = tests/smartling_settings.test
