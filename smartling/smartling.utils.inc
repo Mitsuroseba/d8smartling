@@ -559,7 +559,7 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
       Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
     drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
-    drupal_goto(current_path());
+    return FALSE;
   }
 }
 
