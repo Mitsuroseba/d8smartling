@@ -47,6 +47,8 @@ include_once('api/lib/SmartlingAPI.php');
 include_once('api/lib/HttpClient.php');
 include_once('api/lib/FileUploadParameterBuilder.php');
 
+include_once 'smartling.demo_content.php';
+
 /**
  * Implements hook_menu().
  */
