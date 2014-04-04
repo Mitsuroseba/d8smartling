@@ -783,7 +783,7 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   }
 }
 
-function smartling_get_field_format($node_wrapper, $field_name, $original_language, $i = FALSE) {
+function smartling_get_field_format($node_wrapper, $field_name, $original_language, $i = 0) {
   if (isset($node_wrapper->{$field_name}[$original_language][$i]['format'])) {
     $format = $node_wrapper->{$field_name}[$original_language][$i]['format'];
   }
