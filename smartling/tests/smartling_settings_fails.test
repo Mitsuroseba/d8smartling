@@ -23,7 +23,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Not Found'));
-    $this->assertText(t('Please input correct Smartling settings.'));
+    $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
   public function testIncorrectSmartlingAccountInfoSettingsProjectId() {
@@ -35,7 +35,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Unauthorized'));
-    $this->assertText(t('Please input correct Smartling settings.'));
+    $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
   public function testIncorrectSmartlingAccountInfoSettingsKey() {
@@ -47,7 +47,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Unauthorized'));
-    $this->assertText(t('Please input correct Smartling settings.'));
+    $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
   public function testIncorrectSmartlingAccountInfoSettingsTargetLocales() {
