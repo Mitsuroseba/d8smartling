@@ -66,7 +66,7 @@ function smartling_node_content_to_translate($nid) {
         switch (smartling_get_field_content_processing_mode($field_name)) {
           case 'node-title':
             if (!empty($node->title)) {
-              $node_current_translatable_content[$field_name][0] = $node->title;
+              $node_current_translatable_content[$field_name] = $node->title;
             }
             break;
 
@@ -150,7 +150,7 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
  * Processing for node title ($node->title)
  */
 function smartling_node_title_processing($node_wrapper, $field_name, $xpath) {
-  $node_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
+  $node_title = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
   $string = (string) $node_title->nodeValue;
   $node_wrapper->title = $string;
   return $node_wrapper;

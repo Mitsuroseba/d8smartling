@@ -416,7 +416,17 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
   $localize->appendChild($localize_attr);
 
   foreach ($strings as $field_name => $field_value) {
-    if (is_array($field_value)) {
+    if (is_string($field_value)) {
+      // Title
+      $string = $dom->createElement('string');
+      $string_val = $dom->createTextNode($field_value);
+      $string_attr = $dom->createAttribute('id');
+      $string_attr->value = $field_name;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      $localize->appendChild($string);
+    }
+    elseif (is_array($field_value)) {
       // Fields body-summary or image or text
       if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
         // Field body-summary
@@ -457,7 +467,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string_attr->value = $field_name . '-alt-img' . '-' . $key;
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // Set quantity of multifields
+          // Set quantity
           $string_attr = $dom->createAttribute('quantity');
           $string_attr->value = $quantity;
           $string->appendChild($string_attr);
@@ -473,7 +483,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string_attr->value = $field_name . '-title-img' . '-' . $key;
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // Set quantity of multifields
+          // Set quantity
           $string_attr = $dom->createAttribute('quantity');
           $string_attr->value = $quantity;
           $string->appendChild($string_attr);
@@ -494,7 +504,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
           $string_attr->value = $field_name . '-' . $key;
           $string->appendChild($string_attr);
           $string->appendChild($string_val);
-          // Set quantity of multifields
+          // Set quantity
           $string_attr = $dom->createAttribute('quantity');
           $string_attr->value = $quantity;
           $string->appendChild($string_attr);
@@ -680,14 +690,14 @@ function smartling_get_progress_status($entity_data) {
           ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
     }
     else {
-      smartling_watchdog('Smartling try to get progress status file: <br/>
+      smartling_watchdog('Smartling tried to check file progress: <br/>
       Project Id: @project_id <br/>
       Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $entity_data->rid));
-      drupal_set_message(t('Smartling try to download file: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
-      drupal_goto(current_path());
+      drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
+      return FALSE;
     }
     return $progress;
   }
