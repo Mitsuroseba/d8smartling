@@ -47,6 +47,8 @@ include_once('api/lib/SmartlingAPI.php');
 include_once('api/lib/HttpClient.php');
 include_once('api/lib/FileUploadParameterBuilder.php');
 
+include_once('smartling.demo_content.php');
+
 /**
  * Implements hook_menu().
  */
@@ -101,7 +103,7 @@ function smartling_download_translate_form_submission_form($rid, $s_locale = '',
   smartling_download_translate($rid, $s_locale, $entity_data);
   // TODO : Make a wrapper for unset + drupal_goto
   unset($_GET['destination']);
-  drupal_goto('/admin/content/smartling/report-in-progress');
+  drupal_goto('admin/content/smartling/report-in-progress');
 }
 
 /**
