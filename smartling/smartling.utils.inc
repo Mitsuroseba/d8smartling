@@ -688,6 +688,7 @@ function smartling_get_progress_status($entity_data) {
         '@cs' => $status_result->response->data->completedStringCount,
         '@progress' => $progress,
           ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
+      return $progress;
     }
     else {
       smartling_watchdog('Smartling tried to check file progress: <br/>
@@ -699,7 +700,6 @@ function smartling_get_progress_status($entity_data) {
       drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
       return FALSE;
     }
-    return $progress;
   }
   else {
     return FALSE;
