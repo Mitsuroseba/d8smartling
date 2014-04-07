@@ -363,12 +363,24 @@ function smartling_get_node_settings_form($form, &$form_state) {
       '#type' => 'submit',
       '#value' => 'Send to Smartling',
       '#submit' => array('smartling_get_node_settings_form_submit'),
+      '#states' => array(
+        'invisible' => array(
+          // Hide the button if term is language neutral.
+          'select[name=language]' => array('value' => LANGUAGE_NONE),
+        ),
+      ),
     );
 
     $form['smartling']['submit_to_download'] = array(
       '#type' => 'submit',
       '#value' => 'Download Translation',
       '#submit' => array('smartling_download_translate_form_submit'),
+      '#states' => array(
+        'invisible' => array(
+          // Hide the button if term is language neutral.
+          'select[name=language]' => array('value' => LANGUAGE_NONE),
+        ),
+      ),
     );
 
     return $form;

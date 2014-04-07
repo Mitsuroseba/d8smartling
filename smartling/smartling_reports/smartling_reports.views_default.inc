@@ -509,6 +509,14 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['source_translation']['table'] = 'node';
   $handler->display->display_options['filters']['source_translation']['field'] = 'source_translation';
   $handler->display->display_options['filters']['source_translation']['operator'] = '1';
+  /* Filter criterion: Content: Language */
+  $handler->display->display_options['filters']['language']['id'] = 'language';
+  $handler->display->display_options['filters']['language']['table'] = 'node';
+  $handler->display->display_options['filters']['language']['field'] = 'language';
+  $handler->display->display_options['filters']['language']['operator'] = 'not in';
+  $handler->display->display_options['filters']['language']['value'] = array(
+    'und' => 'und',
+  );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

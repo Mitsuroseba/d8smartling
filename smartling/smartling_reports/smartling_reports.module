@@ -15,8 +15,9 @@ function smartling_reports_menu() {
   $items['admin/content/smartling'] = array(
     'title' => 'Submissions',
     'description' => 'Submissions',
-    'weight' => -10,
+    'weight' => 101,
     'access arguments' => array('administer smartling'),
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
@@ -26,8 +27,10 @@ function smartling_reports_menu() {
  * Implements hook_menu_alter().
  */
 function smartling_reports_menu_alter(&$items) {
-  $items['admin/content/smartling']['page callback'] = $items['admin/content/smartling/report-completed']['page callback'];
-  $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
-  $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
-  $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  if (!empty($items['admin/content/smartling/report-completed'])) {
+    $items['admin/content/smartling']['page callback'] = $items['admin/content/smartling/report-completed']['page callback'];
+    $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
+    $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
+    $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  }
 }

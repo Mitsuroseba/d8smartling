@@ -416,17 +416,7 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
   $localize->appendChild($localize_attr);
 
   foreach ($strings as $field_name => $field_value) {
-    if (is_string($field_value)) {
-      // Title
-      $string = $dom->createElement('string');
-      $string_val = $dom->createTextNode($field_value);
-      $string_attr = $dom->createAttribute('id');
-      $string_attr->value = $field_name;
-      $string->appendChild($string_attr);
-      $string->appendChild($string_val);
-      $localize->appendChild($string);
-    }
-    elseif (is_array($field_value)) {
+    if (is_array($field_value)) {
       // Fields body-summary or image or text
       if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
         // Field body-summary

@@ -160,6 +160,10 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
           '#suffix' => '</div></div>',
         );
       }
+      // For one language
+      if ($total == 1) {
+        $form['accaunt_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
+      }
     }
   }
   else {

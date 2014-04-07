@@ -66,7 +66,7 @@ function smartling_node_content_to_translate($nid) {
         switch (smartling_get_field_content_processing_mode($field_name)) {
           case 'node-title':
             if (!empty($node->title)) {
-              $node_current_translatable_content[$field_name] = $node->title;
+              $node_current_translatable_content[$field_name][0] = $node->title;
             }
             break;
 
@@ -98,7 +98,7 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           default:
-            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_WARNING);
+            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -121,24 +121,26 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
   else {
     // check field variant
     $text_field = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-    $body_with_summary = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
-    $image = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
+    $body = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
+    $summary = $xpath->query('//string[@id="' . $field_name . '-summary-0' . '"][1]')->item(0);
+    $image_alt = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
+    $image_title = $xpath->query('//string[@id="' . $field_name . '-title-img-0' . '"][1]')->item(0);
 
     if (is_object($text_field)) {
-      // If this field is a simple multiple field
+      // If this field is a text field
       if ($text_field instanceof DomElement) {
         return 'text-field';
       }
     }
-    elseif (is_object($body_with_summary)) {
-      // If this field is a multiple body/summary
-      if ($body_with_summary instanceof DomElement) {
+    elseif (is_object($body) || is_object($summary)) {
+      // If this field is a body/summary
+      if (($body instanceof DomElement) || ($summary instanceof DomElement)) {
         return 'body-with-summary-field';
       }
     }
-    elseif (is_object($image)) {
-      // If this field is a multiple image
-      if ($image instanceof DomElement) {
+    elseif (is_object($image_alt) || is_object($image_title)) {
+      // If this field is a image
+      if (($image_alt instanceof DomElement) || ($image_title instanceof DomElement)) {
         return 'image-field';
       }
     }
@@ -150,7 +152,7 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
  * Processing for node title ($node->title)
  */
 function smartling_node_title_processing($node_wrapper, $field_name, $xpath) {
-  $node_title = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
+  $node_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
   $string = (string) $node_title->nodeValue;
   $node_wrapper->title = $string;
   return $node_wrapper;
@@ -286,7 +288,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           break;
 
         default:
-          smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_WARNING);
+          smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
           break;
       }
     }
