@@ -8,53 +8,55 @@
  * Worker callback defined in hook_cron_queue_info()
  */
 function smartling_queue_download_update_translated_item_process($entity_data) {
-  $nodes_method = smartling_nodes_method($entity_data->bundle);
+  if (smartling_is_configured()) {
+    $nodes_method = smartling_nodes_method($entity_data->bundle);
 
-  $s_locale = $entity_data->target_language;
-  $rid = $entity_data->rid;
+    $s_locale = $entity_data->target_language;
+    $rid = $entity_data->rid;
 
-  $file_name = $entity_data->file_name;
-  $file_name_unic = $entity_data->file_name;
+    $file_name = $entity_data->file_name;
+    $file_name_unic = $entity_data->file_name;
 
-  $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
+    $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
 
-  $file_name = substr($file_name, 0, strlen($file_name) - 4);
+    $file_name = substr($file_name, 0, strlen($file_name) - 4);
 
-  $translated_filename = $file_name . '_' . $s_locale . '.xml';
+    $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
-  $key = variable_get('smartling_key');
-  $project_id = variable_get('smartling_project_id');
+    $key = variable_get('smartling_key');
+    $project_id = variable_get('smartling_project_id');
 
-  // Init api object
-  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+    // Init api object
+    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-  $retrieval_type = variable_get('smartling_retrieval_type');
-  $download_param = array(
-    'retrievalType' => $retrieval_type,
-  );
+    $retrieval_type = variable_get('smartling_retrieval_type');
+    $download_param = array(
+      'retrievalType' => $retrieval_type,
+    );
 
-  smartling_watchdog('Smartling queue start download xml file and update fields for node id - @nid, locale - @locale.', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $file_path));
+    smartling_watchdog('Smartling queue start download xml file and update fields for node id - @nid, locale - @locale.', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_INFO, l(t('View file'), $file_path));
 
-  // Try to download file
-  $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
+    // Try to download file
+    $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
 
-  if (isset($download_result->response->code)) {
-    $download_result = json_decode($download_result);
-    smartling_watchdog('smartling_queue_download_update_translated_item_process try to download file:<br/>
+    if (isset($download_result->response->code)) {
+      $download_result = json_decode($download_result);
+      smartling_watchdog('smartling_queue_download_update_translated_item_process try to download file:<br/>
       Project Id: @project_id <br/>
       Action: download <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
-  }
-  else {
-    // This is a $download_result
-    $xml = new DOMDocument();
-    $xml->loadXML($download_result);
+    }
+    else {
+      // This is a $download_result
+      $xml = new DOMDocument();
+      $xml->loadXML($download_result);
 
-    $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
-    if (is_object($save)) {
-      smartling_update_translated_fields($rid, $s_locale, $nodes_method);
+      $save = smartling_save_xml($xml, $rid, $s_locale, $translated_filename, TRUE);
+      if (is_object($save)) {
+        smartling_update_translated_fields($rid, $s_locale, $nodes_method);
+      }
     }
   }
 }

@@ -83,6 +83,15 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  * @return string|boolean
  */
 function smartling_is_configured() {
+  // Update once for 7000
+  if (!variable_get('smartling_update_7000_locales_convert_array', FALSE)) {
+    drupal_set_message(t('Please fill in a Default language option in order to complete update.'), 'warning');
+    if (current_path() != 'admin/config/regional/smartling') {
+      $options['query'] = array('destination' => current_path());
+      drupal_goto('admin/config/regional/smartling', $options);
+    }
+  }
+
   $required_variables = array(
     'smartling_api_url',
     'smartling_key',
@@ -709,6 +718,7 @@ function smartling_language_options_list() {
 }
 
 function smartling_language_list() {
+  smartling_is_configured();
   $languages_list = array();
   $languages = language_list('language');
 
@@ -792,4 +802,36 @@ function smartling_get_field_format($node_wrapper, $field_name, $original_langua
   }
 
   return $format;
+}
+
+function _smartling_update_7000_locales_convert_array() {
+  // Update content hash
+  $query = db_select('smartling_entity_data', 'sed');
+  $results = $query->fields('sed', array('eid'))
+      ->execute()
+      ->fetchAll();
+
+  if (!empty($results)) {
+    foreach ($results as $res) {
+      $operations[] = array('_update_sed_original_language', array($res->eid));
+    }
+
+    $batch = array(
+      'title' => t('Update original_language'),
+      'operations' => $operations
+    );
+
+    variable_set('smartling_update_7000_locales_convert_array', TRUE);
+    batch_set($batch);
+    batch_process();
+  }
+}
+
+function _update_sed_original_language($eid) {
+  $smartling_entity_data = smartling_entity_data_load($eid);
+  if ($smartling_entity_data) {
+    $node = node_load($smartling_entity_data->rid);
+    $smartling_entity_data->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
+    smartling_entity_data_save($smartling_entity_data);
+  }
 }

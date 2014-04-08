@@ -230,3 +230,45 @@ function smartling_schema() {
 
   return $schema;
 }
+
+/**
+ * Update 7.x-1.0-beta1 => 7.x-1.0-beta4
+ */
+function smartling_update_7000(&$sandbox) {
+  variable_set('smartling_update_7000_locales_convert_array', FALSE);
+
+  $sandbox['#finished'] = 0;
+  // Multi-part update.
+  if (!isset($sandbox['user_from'])) {
+
+    db_add_field('smartling_entity_data', 'content_hash', array(
+      'description' => '',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'default' => '',
+    ));
+
+    $sandbox['user_from'] = 0;
+    $sandbox['user_count'] = db_query("SELECT COUNT(eid) FROM {smartling_entity_data}")->fetchField();
+  }
+  else {
+    // Update this many per page load.
+    $count = 1;
+    $result = db_query_range("SELECT eid, rid FROM {smartling_entity_data} ORDER BY eid", $sandbox['user_from'], $count);
+    foreach ($result as $res) {
+      $content_array = smartling_node_content_to_translate($res->rid);
+      $content_hash = md5(serialize($content_array));
+
+      if (!empty($content_hash)) {
+        db_query("UPDATE {smartling_entity_data} SET content_hash = :content_hash WHERE eid = :eid", array(':content_hash' => $content_hash, ':eid' => $res->eid));
+      }
+    }
+    $sandbox['#finished'] = $sandbox['user_from'] / $sandbox['user_count'];
+    $sandbox['user_from'] += 1;
+    if ($sandbox['user_from'] == $sandbox['user_count']) {
+      $sandbox['#finished'] = 1;
+      return t('Update content hash complete');
+    }
+  }
+}

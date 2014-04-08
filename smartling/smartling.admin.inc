@@ -358,6 +358,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   $locales = array_merge($locales, array($form_state['smartling_default_language'] => $form_state['values']['default_language_format']));
   variable_set('smartling_locales_convert_array', $locales);
 
+  // Update once for 7000
+  if (!variable_get('smartling_update_7000_locales_convert_array', FALSE)) {
+    _smartling_update_7000_locales_convert_array();
+  }
+
   // Callback
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
     variable_set('smartling_callback_url', $form_state['values']['callback_url']);
