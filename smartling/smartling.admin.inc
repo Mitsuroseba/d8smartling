@@ -359,7 +359,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
-  if (!variable_get('smartling_update_7000_locales_convert_array', FALSE)) {
+  if (variable_get('smartling_update_7000_locales_convert_array', NULL) === FALSE) {
     _smartling_update_7000_locales_convert_array();
   }
 

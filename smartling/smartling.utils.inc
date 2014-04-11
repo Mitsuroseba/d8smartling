@@ -84,7 +84,7 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  */
 function smartling_is_configured() {
   // Update once for 7000
-  if (!variable_get('smartling_update_7000_locales_convert_array', FALSE)) {
+  if (variable_get('smartling_update_7000_locales_convert_array', NULL) === FALSE) {
     drupal_set_message(t('Please fill in a Default language option in order to complete update.'), 'warning');
     if (current_path() != 'admin/config/regional/smartling') {
       $options['query'] = array('destination' => current_path());
