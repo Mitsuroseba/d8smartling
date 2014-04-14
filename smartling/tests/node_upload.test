@@ -41,7 +41,7 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
       "target[ru]" => 'ru',
     );
     $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
-    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $this->random_node_title, '@langs' => 'ru-RU')));
+    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $this->random_node_title, '@langs' => 'ru')));
 
     $queue = db_select('queue', 'q')
         ->fields('q', array('data'))

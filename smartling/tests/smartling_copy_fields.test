@@ -1,0 +1,292 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Copy all fields to translated node.',
+      'description' => 'Test copying content of all fields from the original node to translated node',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function testCorrectCopyFieldsTranslatedNodeNotExist() {
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling
+    $edit = array(
+      "production_retrieval_type" => 'pseudo',
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Account settings saved.'));
+
+    // Add Price field
+    $edit = array(
+      "fields[_add_new_field][label]" => 'Price',
+      "fields[_add_new_field][weight]" => '-3',
+      "fields[_add_new_field][field_name]" => 'price',
+      "fields[_add_new_field][type]" => 'number_decimal',
+      "fields[_add_new_field][widget_type]" => 'number',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Price configuration.'));
+
+    // Add Client help url field
+    $edit = array(
+      "fields[_add_new_field][label]" => 'Client help url',
+      "fields[_add_new_field][weight]" => '-2',
+      "fields[_add_new_field][field_name]" => 'client_help_url',
+      "fields[_add_new_field][type]" => 'text',
+      "fields[_add_new_field][widget_type]" => 'text_textfield',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Client help url configuration.'));
+
+    // Add Tags field
+    $edit = array(
+      "fields[_add_existing_field][label]" => 'Tags',
+      "fields[_add_existing_field][weight]" => '0',
+      "fields[_add_existing_field][field_name]" => 'field_tags',
+      "fields[_add_existing_field][widget_type]" => 'taxonomy_autocomplete',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Tags configuration.'));
+
+    // Set method for CT
+    $edit = array();
+    $edit['page_TT_page'] = 2;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Set fields for page CT
+    $edit = array();
+    $edit['page_SEPARATOR_body'] = 1;
+    $edit['page_SEPARATOR_node_title'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Create term for testing.
+    $name = 'Test term';
+    $this->drupalPost('admin/structure/taxonomy/tags/add', array('name' => $name), 'Save');
+
+    // Create node page type
+    $settings = array(
+      'title' => 'Title test node',
+      'comment' => 0,
+      'changed' => REQUEST_TIME,
+      'moderate' => 0,
+      'promote' => 0,
+      'revision' => 1,
+      'log' => '',
+      'status' => 1,
+      'sticky' => 0,
+      'type' => 'page',
+      'revisions' => NULL,
+      'language' => 'en',
+      'tnid' => '1',
+    );
+    $settings['body'][$settings['language']][0]['value'] = 'fix'; // Need for fix error "Unsupported operand types in \modules\simpletest\drupal_web_test_case.php on line 956"
+    $this->smartlingCreateNode('page', $settings);
+
+    // Set node values
+    $node = node_load(1);
+    $node->body[$node->language][0]['value'] = 'Body text';
+    $node->field_price[LANGUAGE_NONE][0]['value'] = '123.00';
+    $node->field_client_help_url[LANGUAGE_NONE][0]['value'] = 'Client help url';
+    $node->field_tags[LANGUAGE_NONE][0]['tid'] = '1';
+
+    $node->body[LANGUAGE_NONE][0]['value'] = 'Body text';
+    $node->field_price[$node->language][0]['value'] = '123.00';
+    $node->field_client_help_url[$node->language][0]['value'] = 'Client help url';
+    $node->field_tags[$node->language][0]['tid'] = '1';
+
+    node_save($node);
+
+    // Send node to smartling
+    $edit = array(
+      "target[ru]" => 'ru',
+    );
+    $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
+    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => 'Title test node', '@langs' => 'ru-RU')));
+
+    // Run cron
+    drupal_cron_run();
+
+    // Go to report-in-progress and download
+    $this->drupalGet('admin/content/smartling/report-in-progress');
+    $this->clickLink('Download');
+    $this->assertText(t('Downloaded for language translation ru-RU'));
+
+    $this->drupalGet('node/1/edit');
+    $this->drupalGet('node/1/devel');
+    $this->drupalGet('node/2/edit');
+    $this->drupalGet('node/2/devel');
+
+    // Check
+    $original_node = node_load(1);
+    $translated_node = node_load(2);
+    $this->assertTrue(($translated_node->tnid == 1), t('Translated node linked to original'), t('Browser'));
+    $this->drupalGet('node/2/translate');
+
+    $translated_value = $translated_node->title;
+    $original_value = $original_node->title;
+    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Title conteins translated value'), t('Browser'));
+
+    $translated_value = $translated_node->body[$translated_node->language][0]['value'];
+    $original_value = $original_node->body[$original_node->language][0]['value'];
+    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body conteins translated value'), t('Browser'));
+
+    // Equal client help url
+    $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
+    $original_value = $original_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
+    $this->assertEqual($original_value, $translated_value);
+
+    // Equal tags
+    $translated_value = $translated_node->field_tags[LANGUAGE_NONE][0]['tid'];
+    $original_value = $original_node->field_tags[LANGUAGE_NONE][0]['tid'];
+    $this->assertEqual($original_value, $translated_value);
+
+    // Equal price
+    $translated_value = $translated_node->field_price[LANGUAGE_NONE][0]['value'];
+    $original_value = $original_node->field_price[LANGUAGE_NONE][0]['value'];
+    $this->assertEqual($original_value, $translated_value);
+  }
+
+  /*
+    public function testCorrectCopyFieldsTranslatedNodeExist() {
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling
+    $edit = array(
+    "production_retrieval_type" => 'pseudo',
+    );
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+    $this->assertText(t('Account settings saved.'));
+
+    // Add Price field
+    $edit = array(
+    "fields[_add_new_field][label]" => 'Price',
+    "fields[_add_new_field][weight]" => '-3',
+    "fields[_add_new_field][field_name]" => 'field_price',
+    "fields[_add_new_field][type]" => 'number_decimal',
+    "fields[_add_new_field][widget_type]" => 'number',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Price configuration.'));
+
+    // Add Client help url field
+    $edit = array(
+    "fields[_add_new_field][label]" => 'Client help url',
+    "fields[_add_new_field][weight]" => '-2',
+    "fields[_add_new_field][field_name]" => 'field_client_help_url',
+    "fields[_add_new_field][type]" => 'text',
+    "fields[_add_new_field][widget_type]" => 'text_textfield',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Client help url configuration.'));
+
+    // Add Tags field
+    $edit = array(
+    "fields[_add_existing_field][label]" => 'Tags',
+    "fields[_add_existing_field][weight]" => '0',
+    "fields[_add_existing_field][field_name]" => 'field_tags',
+    "fields[_add_existing_field][widget_type]" => 'taxonomy_autocomplete',
+    );
+    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved Tags configuration.'));
+
+    // Set method for CT
+    $edit = array();
+    $edit['page_TT_page'] = 2;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Set fields for page CT
+    $edit = array();
+    $edit['page_SEPARATOR_body'] = 1;
+    $edit['page_SEPARATOR_node_title'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Create term for testing.
+    $name = 'Test term';
+    $this->drupalPost('admin/structure/taxonomy/tags/add', array('name' => $name), 'Save');
+    $name = 'Translated test term';
+    $this->drupalPost('admin/structure/taxonomy/tags/add', array('name' => $name), 'Save');
+
+    // Create node page type
+    $settings = array(
+    'title' => 'Title test node',
+    'comment' => 0,
+    'changed' => REQUEST_TIME,
+    'moderate' => 0,
+    'promote' => 0,
+    'revision' => 1,
+    'log' => '',
+    'status' => 1,
+    'sticky' => 0,
+    'type' => 'page',
+    'revisions' => NULL,
+    'language' => 'en',
+    'tnid' => '1',
+    );
+
+    $settings['body'][$settings['language']][0]['value'] = 'Body text';
+    $settings['field_price'][LANGUAGE_NONE][0]['value'] = '123.00';
+    $settings['field_client_help_url'][LANGUAGE_NONE][0]['value'] = 'Client help url';
+    $settings['field_tags'][LANGUAGE_NONE][0]['tid'] = '1';
+    $this->smartlingCreateNode('page', $settings);
+
+    // Create translated node
+    $settings = array(
+    'title' => 'Title translated node',
+    'comment' => 0,
+    'changed' => REQUEST_TIME,
+    'moderate' => 0,
+    'promote' => 0,
+    'revision' => 1,
+    'log' => '',
+    'status' => 1,
+    'sticky' => 0,
+    'type' => 'page',
+    'revisions' => NULL,
+    'language' => 'ru',
+    'tnid' => '1',
+    );
+
+    $settings['body'][$settings['language']][0]['value'] = 'Translated body text';
+    $settings['field_price'][LANGUAGE_NONE][0]['value'] = '52.00';
+    $settings['field_client_help_url'][LANGUAGE_NONE][0]['value'] = 'Translated client help url';
+    $settings['field_tags'][LANGUAGE_NONE][0]['tid'] = '2';
+    $this->smartlingCreateNode('page', $settings);
+
+    // Send node to smartling
+    $edit = array(
+    "target[ru]" => 'ru',
+    );
+    $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
+    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => 'Title test node', '@langs' => 'ru-RU')));
+
+    // Run cron
+    drupal_cron_run();
+
+    // Go to report-in-progress and download
+    $this->drupalGet('admin/content/smartling/report-in-progress');
+    $this->clickLink('Download');
+    $this->assertText(t('Downloaded for language translation ru-RU'));
+    } */
+}

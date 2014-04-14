@@ -13,13 +13,20 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     // Create a user with access
     $this->privileged_user = $this->drupalCreateUser(array(
       'administer smartling',
+      'administer taxonomy',
+      'administer ultimate cron',
+      'translate interface',
+      'translate content',
+      'use text format filtered_html',
+      'use text format full_html',
       'administer languages',
       'access administration pages',
       'administer content types',
       'administer nodes',
       'access content',
+      'bypass node access',
       'edit any page content',
-      'edit any article content'
+      'edit any article content',
     ));
 
     // Authorizing user
@@ -33,10 +40,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText('ru', 'Language added successfully.');
   }
 
-  public function smartlingCreateNode($type = 'page') {
+  public function smartlingCreateNode($type = 'page', $settings = array()) {
     // Create initial node.
     $this->random_node_title = $this->randomName(8);
-    $settings = array(
+    $base_settings = array(
       'title' => $this->random_node_title,
       'comment' => 0,
       'changed' => REQUEST_TIME,
@@ -51,9 +58,14 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       'language' => 'en',
     );
 
-    $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
+    $base_settings['body'][$base_settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
 
-    $this->drupalCreateNode($settings);
+    if (empty($settings)) {
+      $this->drupalCreateNode($base_settings);
+    }
+    else {
+      $this->drupalCreateNode($settings);
+    }
   }
 
   public function smartlingSetCorrectSettings() {
@@ -62,7 +74,6 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       "project_id" => '1295c174d',
       "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
       "target_locales_text_key_ru" => 'ru-RU',
-      "default_language_format" => 'en-US',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
