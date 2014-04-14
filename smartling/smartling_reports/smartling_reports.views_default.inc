@@ -200,6 +200,11 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
   $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
+  /* Field: Smartling Entity Data: Entity_type */
+  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
   /* Sort criterion: Smartling Entity Data: Date */
   $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
   $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
@@ -276,6 +281,11 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
   $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
+  /* Field: Smartling Entity Data: Entity_type */
+  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
   $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Completed Submissions';
@@ -349,6 +359,7 @@ function smartling_reports_views_default_views() {
     t(' %'),
     t('Download'),
     t('OPERATIONS'),
+    t('Entity_type'),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
@@ -435,6 +446,14 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['source_translation']['table'] = 'node';
   $handler->display->display_options['filters']['source_translation']['field'] = 'source_translation';
   $handler->display->display_options['filters']['source_translation']['operator'] = '1';
+  /* Filter criterion: Content: Language */
+  $handler->display->display_options['filters']['language']['id'] = 'language';
+  $handler->display->display_options['filters']['language']['table'] = 'node';
+  $handler->display->display_options['filters']['language']['field'] = 'language';
+  $handler->display->display_options['filters']['language']['operator'] = 'not in';
+  $handler->display->display_options['filters']['language']['value'] = array(
+    'und' => 'und',
+  );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

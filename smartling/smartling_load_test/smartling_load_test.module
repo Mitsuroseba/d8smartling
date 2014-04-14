@@ -154,7 +154,7 @@ function _delete_smartling_content_batch($eid) {
     }
     elseif (smartling_fields_method($entity_data->bundle)) {
       // If fields method
-      $d_locale_target_language = smartling_convert_locale_drupal_to_smartling($entity_data->target_language, TRUE);
+      $d_locale_target_language = $entity_data->target_language;
       $entity = entity_load_single('node', $entity_data->rid);
 
       foreach (field_info_instances('node', $entity_data->bundle) as $field) {
