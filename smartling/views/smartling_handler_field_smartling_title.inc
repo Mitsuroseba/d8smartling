@@ -11,7 +11,7 @@
 class smartling_handler_field_smartling_title extends views_handler_field {
 
   function render($values) {
-    $entity_type = smartling_get_entity_type_by_bundle($values->smartling_entity_data_bundle);
+    $entity_type = $values->smartling_entity_data_entity_type;
     $rid = $values->smartling_entity_data_rid;
 
     switch ($entity_type) {

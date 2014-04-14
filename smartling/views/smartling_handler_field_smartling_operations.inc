@@ -13,10 +13,10 @@ class smartling_handler_field_smartling_operations extends views_handler_field {
   function render($values) {
     $output = '';
 
-    $entity_type = smartling_get_entity_type_by_bundle($values->smartling_entity_data_bundle);
+    $entity_type = $values->smartling_entity_data_entity_type;
     $rid = $values->smartling_entity_data_rid;
     $eid = $values->eid;
-    $d_locale = smartling_convert_locale_drupal_to_smartling($values->smartling_entity_data_target_language, TRUE);
+    $d_locale = $values->smartling_entity_data_target_language;
     $destination = 'admin/content/smartling';
     if (arg(3) == 'report-in-progress') {
       $destination = $destination . '/report-in-progress';
