@@ -27,6 +27,7 @@ class SmartlingEntityDataController extends EntityAPIController {
   public function create(array $values = array()) {
     $values += array(
       'rid' => '',
+      'entity_type' => '',
       'bundle' => '',
       'original_language' => '',
       'target_language' => '',
