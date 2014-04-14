@@ -41,7 +41,7 @@ class SmartlingSettingsSaveTest extends DrupalWebTestCase {
     $edit['project_id'] = $this->randomName(9);
     $edit['smartling_key'] = $this->randomName(36);
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Please input correct Smartling settings.'));
+    $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
 }

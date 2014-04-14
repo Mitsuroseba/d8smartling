@@ -160,6 +160,10 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
           '#suffix' => '</div></div>',
         );
       }
+      // For one language
+      if ($total == 1) {
+        $form['accaunt_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
+      }
     }
   }
   else {
@@ -179,18 +183,8 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
 
   $form['accaunt_info']['default_language_markup'] = array(
     '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
-  );
-  $form['accaunt_info']['default_language_format'] = array(
-    '#type' => 'textfield',
-    '#title' => check_plain($default_language->language),
-    '#default_value' => (isset($locales_convert_array[$default_language->language])) ? $locales_convert_array[$default_language->language] : '',
-    '#size' => 6,
-    '#maxlength' => 10,
-    '#required' => TRUE,
-    '#description' => t('Set Smartling format for Default language. Example: en-US for en.'),
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
-  $form_state['smartling_default_language'] = $default_language->language;
 
   $form['accaunt_info']['callback_info_title'] = array(
     '#type' => 'item',
@@ -205,7 +199,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#default_value' => $smartling_callback_url,
     '#size' => 50,
     '#maxlength' => 255 - (strlen($base_url) + 1),
-    '#suffix' => '<div>' . t('Example: smartling-callback (do not use / as the first character)') . '</div>',
+    '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
     '#required' => FALSE,
   );
 
@@ -267,7 +261,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       $form_state['values']['project_id'] = trim($project_id);
     }
     else {
-      drupal_set_message(t('Please input correct Smartling settings.'), 'error');
+      drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
       form_set_error('api_url');
       form_set_error('smartling_key');
       form_set_error('project_id');
@@ -278,7 +272,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
       drupal_set_message($response->error, 'error');
       smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
     }
-    drupal_set_message(t('Please input correct Smartling settings.'), 'error');
+    drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
     form_set_error('api_url');
     form_set_error('smartling_key');
     form_set_error('project_id');
@@ -351,7 +345,6 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Default language format
   $locales = variable_get('smartling_locales_convert_array', array());
-  $locales = array_merge($locales, array($form_state['smartling_default_language'] => $form_state['values']['default_language_format']));
   variable_set('smartling_locales_convert_array', $locales);
 
   // Callback
@@ -373,9 +366,9 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Test
   if ($form_state['clicked_button']['#name'] == 'test_connection') {
-    foreach ($form_state['values']['target_locales'] as $key => $lang) {
-      if ($lang !== 0 && $lang == $key) {
-        $s_locale = smartling_convert_locale_drupal_to_smartling($lang);
+    foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
+      if ($d_locale !== 0 && $d_locale == $key) {
+        $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
         $data = array(
           'apiKey' => $form_state['values']['smartling_key'],
           'projectId' => $form_state['values']['project_id'],
@@ -396,10 +389,10 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
         if ($response->code == 200) {
           $response = json_decode($response->data);
           if ($response->response->code == 'SUCCESS') {
-            drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)));
+            drupal_set_message(t('Test connection for locale @d_locale is success.', array('@d_locale' => $d_locale)));
           }
           else {
-            drupal_set_message(t('Test connection for locale @s_locale is fail. Messages: @messages', array('@s_locale' => $s_locale, '@messages' => $response->response->messages)), 'error');
+            drupal_set_message(t('Test connection for locale @d_locale is fail. Messages: @messages', array('d_locale' => $d_locale, '@messages' => $response->response->messages)), 'error');
           }
         }
         else {
@@ -407,7 +400,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
             drupal_set_message($response->error, 'error');
             smartling_watchdog('Smartling "Test connection" submit error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
           }
-          drupal_set_message(t('Test connection for locale @s_locale is fail.', array('@s_locale' => $s_locale)), 'error');
+          drupal_set_message(t('Test connection for locale @d_locale is fail.', array('@d_locale' => $d_locale)), 'error');
         }
       }
     }
@@ -469,7 +462,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
 
   $form['node_translation'] = array(
     '#type' => 'item',
-    '#title' => t('Which content types do you want translated?'),
+    '#title' => t('Which content types do you want to translate?'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#group' => 'administrative_settings',
@@ -482,7 +475,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
   $rows = array();
 
   foreach ($raw_types as $value) {
-    if (smartling_supported_type($value->type)) {
+    if (smartling_supported_type('node', $value->type)) {
       $fr_tt['from'] = array(
         '#type' => 'item',
         '#title' => t('Fields method'),

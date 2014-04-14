@@ -206,6 +206,13 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'entity_type' => array(
+        'description' => '',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'bundle' => array(
         'description' => '',
         'type' => 'varchar',
@@ -294,174 +301,183 @@ function smartling_schema() {
 }
 
 /**
- * First update 7.x-1.0-beta2 => 7.x-1.1-beta1
+ * Update 7.x-1.0-beta1 => 7.x-1.1-beta1
  */
-function smartling_update_7100() {
-  // New dependencies
-  $module_names = array('i18n_taxonomy', 'i18n_field', 'entity_translation');
-  foreach ($module_names as $module_name) {
-    if (!module_exists($module_name)) {
-      $module_list[] = $module_name;
-    }
-  }
+function smartling_update_7100(&$sandbox) {
+  $sandbox['#finished'] = 0;
+  // Multi-part update.
+  if (!isset($sandbox['user_from'])) {
 
-  // Disable and uninstall the module.
-  if (module_exists('smartling_reports')) {
-    module_disable(array('smartling_reports'));
-    drupal_uninstall_modules(array('smartling_reports'));
-    $module_list[] = 'smartling_reports';
-  }
-
-  module_enable($module_list);
-
-  $language_negotiation_language_content = array(
-    'locale-url' => array(
-      'callbacks' => array(
-        'language' => 'locale_language_from_url',
-        'switcher' => 'locale_language_switcher_url',
-        'url_rewrite' => 'locale_language_url_rewrite_url',
-      ),
-      'file' => 'includes/locale.inc'),
-    'language-default-url' => array(
-      'callbacks' => array(
-        'language' => 'language_from_default',
-      ),
-    ),
-  );
-
-  $locale_language_providers_weight_language_content = array(
-    'locale-url' => '-8',
-    'locale-session' => '-6',
-    'locale-user' => '-4',
-    'locale-browser' => '-2',
-    'locale-interface' => '8',
-    'language-default' => '10',
-  );
-
-  variable_set('language_negotiation_language_content', $language_negotiation_language_content);
-  variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
-
-  // i18 string settings
-  $i18n_string_allowed_formats = array();
-  // As the user has administer filters permissions we get a full list here
-  foreach (filter_formats() as $fid => $format) {
-    $i18n_string_allowed_formats[$fid] = $fid;
-  }
-  variable_set('i18n_string_allowed_formats', $i18n_string_allowed_formats);
-
-  // Set Multilingual support for content types
-  $node_types = node_type_get_types();
-
-  if (is_array($node_types)) {
-    $entity_translation_settings = array(
-      'default_language' => ENTITY_TRANSLATION_LANGUAGE_DEFAULT,
-      'hide_language_selector' => 1,
-      'exclude_language_none' => 1,
-      'lock_language' => 1,
-      'shared_fields_original_only' => 0,
-    );
-
-    $field_method_types = array();
-
-    foreach ($node_types as $type) {
-      // Update mode key for new smartling version
-      $mode = variable_get('language_content_type_' . $type->type, NULL);
-      if (!is_null($mode) && ($mode == 'smartling')) {
-        $field_method_types[] = $type->type;
-        variable_set('language_content_type_' . $type->type, '4'); // Set define SMARTLING_FIELDS_METHOD_KEY
-      }
-      // Entity translate settings
-      if (smartling_fields_method($type->type)) {
-        variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
-        variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
+    // New dependencies
+    $module_names = array('i18n_taxonomy', 'i18n_field', 'entity_translation');
+    foreach ($module_names as $module_name) {
+      if (!module_exists($module_name)) {
+        $module_list[] = $module_name;
       }
     }
-    // Entity translation types and other settings
-    $entity_translation_entity_types = array(
-      'node' => 'node',
-      'taxonomy_term' => 0,
-      'comment' => 'comment',
-      'user' => 'user',
+
+    // Disable and uninstall the module.
+    if (module_exists('smartling_reports')) {
+      module_disable(array('smartling_reports'));
+      drupal_uninstall_modules(array('smartling_reports'));
+      $module_list[] = 'smartling_reports';
+    }
+
+    module_enable($module_list);
+
+    $language_negotiation_language_content = array(
+      'locale-url' => array(
+        'callbacks' => array(
+          'language' => 'locale_language_from_url',
+          'switcher' => 'locale_language_switcher_url',
+          'url_rewrite' => 'locale_language_url_rewrite_url',
+        ),
+        'file' => 'includes/locale.inc'),
+      'language-default-url' => array(
+        'callbacks' => array(
+          'language' => 'language_from_default',
+        ),
+      ),
     );
 
-    variable_set('entity_translation_entity_types', $entity_translation_entity_types);
-    variable_set('entity_translation_shared_labels', 1);
-    variable_set('entity_translation_workflow_enabled', 0);
-    variable_set('locale_field_language_fallback', 1);
-    // Set user settings
-    variable_set('entity_translation_settings_user__user', $entity_translation_settings);
-  }
+    $locale_language_providers_weight_language_content = array(
+      'locale-url' => '-8',
+      'locale-session' => '-6',
+      'locale-user' => '-4',
+      'locale-browser' => '-2',
+      'locale-interface' => '8',
+      'language-default' => '10',
+    );
 
-  // Add translation info for nodes with field method
-  if (!empty($field_method_types)) {
-    $query = db_select('smartling_entity_data', 'sed');
-    $results = $query->fields('sed', array('rid', 'original_language', 'target_language'))
-        ->condition('sed.bundle', $field_method_types, 'IN')
-        ->execute()
-        ->fetchAll();
+    variable_set('language_negotiation_language_content', $language_negotiation_language_content);
+    variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
 
-    if (!empty($results)) {
+    // i18 string settings
+    $i18n_string_allowed_formats = array();
+    // As the user has administer filters permissions we get a full list here
+    foreach (filter_formats() as $fid => $format) {
+      $i18n_string_allowed_formats[$fid] = $fid;
+    }
+    variable_set('i18n_string_allowed_formats', $i18n_string_allowed_formats);
+
+    // Set Multilingual support for content types
+    $node_types = node_type_get_types();
+
+    if (is_array($node_types)) {
+      $entity_translation_settings = array(
+        'default_language' => ENTITY_TRANSLATION_LANGUAGE_DEFAULT,
+        'hide_language_selector' => 1,
+        'exclude_language_none' => 1,
+        'lock_language' => 1,
+        'shared_fields_original_only' => 0,
+      );
+
+      $field_method_types = array();
+
+      foreach ($node_types as $type) {
+        // Update mode key for new smartling version
+        $mode = variable_get('language_content_type_' . $type->type, NULL);
+        if (!is_null($mode) && ($mode == 'smartling')) {
+          $field_method_types[] = $type->type;
+          variable_set('language_content_type_' . $type->type, '4'); // Set define SMARTLING_FIELDS_METHOD_KEY
+        }
+        // Entity translate settings
+        if (smartling_fields_method($type->type)) {
+          variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
+          variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
+        }
+      }
+      // Entity translation types and other settings
+      $entity_translation_entity_types = array(
+        'node' => 'node',
+        'taxonomy_term' => 0,
+        'comment' => 'comment',
+        'user' => 'user',
+      );
+
+      variable_set('entity_translation_entity_types', $entity_translation_entity_types);
+      variable_set('entity_translation_shared_labels', 1);
+      variable_set('entity_translation_workflow_enabled', 0);
+      variable_set('locale_field_language_fallback', 1);
+      // Set user settings
+      variable_set('entity_translation_settings_user__user', $entity_translation_settings);
+    }
+
+    $sandbox['user_from'] = 0;
+
+    if (!empty($field_method_types)) {
+      $query = db_select('smartling_entity_data', 'sed');
+      $results = $query->fields('sed', array('rid', 'original_language', 'target_language'))
+          ->condition('sed.bundle', $field_method_types, 'IN')
+          ->execute()
+          ->fetchAll();
 
       $items = array();
 
-      foreach ($results as $res) {
-        $items[$res->rid]['rid'] = $res->rid;
-        $items[$res->rid]['target_languages'][] = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
+      if (!empty($results)) {
+        foreach ($results as $res) {
+          $items[$res->rid]['rid'] = $res->rid;
+          $items[$res->rid]['target_languages'][] = $res->target_language;
+        }
       }
 
-      foreach ($items as $item) {
-        $operations[] = array('_update_translatinon_info_for_fields_method', array($item));
-      }
-
-      $batch = array(
-        'title' => t('Update nodes translation info for fields method'),
-        'operations' => $operations
-      );
-      batch_set($batch);
+      $sandbox['user_count'] = (empty($items)) ? 1 : count($items);
     }
+    else {
+      $sandbox['user_count'] = 1;
+    }
+
+    $sandbox['process_items'] = $items;
   }
-}
+  else {
+    // Add translation info for nodes with field method
+    $node = node_load($sandbox['process_items'][$sandbox['user_from']]['rid']);
 
-function _update_translatinon_info_for_fields_method($item) {
-  $node = node_load($item['rid']);
+    if ($node->language != LANGUAGE_NONE) {
+      $handler = entity_translation_get_handler('node', $node);
 
-  if ($node->language != LANGUAGE_NONE) {
-    $handler = entity_translation_get_handler('node', $node);
-
-    foreach ($item['target_languages'] as $d_locale) {
-      $translations = $handler->getTranslations();
-
-      // Initialize translations if they are empty.
-      if (empty($translations->original)) {
-        $handler->initTranslations();
-        $handler->saveTranslations();
+      foreach ($sandbox['process_items'][$sandbox['user_from']]['target_languages'] as $d_locale) {
         $translations = $handler->getTranslations();
-      }
 
-      if (isset($translations->data[$d_locale])) {
-        $entity_translation = array(
-          'translate' => '0',
-          'status' => $node->status,
-          'language' => $d_locale,
-          'uid' => $node->uid,
-          'changed' => $node->changed,
-        );
-        $handler->setTranslation($entity_translation);
+        // Initialize translations if they are empty.
+        if (empty($translations->original)) {
+          $handler->initTranslations();
+          $handler->saveTranslations();
+          $translations = $handler->getTranslations();
+        }
+
+        if (isset($translations->data[$d_locale])) {
+          $entity_translation = array(
+            'translate' => '0',
+            'status' => $node->status,
+            'language' => $d_locale,
+            'uid' => $node->uid,
+            'changed' => $node->changed,
+          );
+          $handler->setTranslation($entity_translation);
+        }
+        else {
+          // Add the new translation.
+          $entity_translation = array(
+            'translate' => '0',
+            'status' => $node->status,
+            'language' => $d_locale,
+            'source' => $node->language,
+            'uid' => $node->uid,
+            'created' => $node->created,
+            'changed' => $node->changed,
+          );
+          $handler->setTranslation($entity_translation);
+        }
+        $handler->saveTranslations();
       }
-      else {
-        // Add the new translation.
-        $entity_translation = array(
-          'translate' => '0',
-          'status' => $node->status,
-          'language' => $d_locale,
-          'source' => $node->language,
-          'uid' => $node->uid,
-          'created' => $node->created,
-          'changed' => $node->changed,
-        );
-        $handler->setTranslation($entity_translation);
-      }
-      $handler->saveTranslations();
+    }
+
+    $sandbox['#finished'] = $sandbox['user_from'] / $sandbox['user_count'];
+    $sandbox['user_from'] += 1;
+    if ($sandbox['user_from'] == $sandbox['user_count']) {
+      $sandbox['#finished'] = 1;
+      return t('Update content hash complete');
     }
   }
 }

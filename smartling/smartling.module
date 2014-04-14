@@ -40,6 +40,7 @@ include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');
 include_once('includes/smartling.workers.inc');
 include_once('includes/smartling.entity.inc');
+include_once('includes/smartling_translation.handler.inc');
 include_once('includes/smartling.entityController.inc');
 include_once('views/smartling.views.inc');
 include_once('views/smartling_handler_field_target_language.inc');
@@ -53,6 +54,8 @@ include_once('entities/smartling.user.inc');
 include_once('api/lib/SmartlingAPI.php');
 include_once('api/lib/HttpClient.php');
 include_once('api/lib/FileUploadParameterBuilder.php');
+
+include_once('smartling.demo_content.php');
 
 /**
  * Implements hook_menu().
@@ -72,7 +75,15 @@ function smartling_menu() {
   $items['smartling/download/%/%'] = array(
     'title' => 'Smartling settings',
     'type' => MENU_CALLBACK,
-    'page callback' => 'smartling_download_translate',
+    'page arguments' => array(2, 3),
+    'page callback' => 'smartling_download_translate_form_submission_form',
+    'access arguments' => array('administer smartling'),
+  );
+
+  $items['smartling'] = array(
+    'title' => 'Smartling settings',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'smartling_download_translate_simple_callback',
     'page arguments' => array(2, 3),
     'access arguments' => array('administer smartling'),
   );
@@ -87,6 +98,20 @@ function smartling_menu() {
   }
 
   return $items;
+}
+
+/**
+ * Simple menu callback to register smartling paths in menu router, to avoid problems with fast_404 module.
+ */
+function smartling_download_translate_simple_callback() {
+  return '';
+}
+
+function smartling_download_translate_form_submission_form($rid, $d_locale = '', $entity_data = NULL) {
+  smartling_download_translate($rid, $d_locale, $entity_data);
+  // TODO : Make a wrapper for unset + drupal_goto
+  unset($_GET['destination']);
+  drupal_goto('admin/content/smartling/report-in-progress');
 }
 
 /**
@@ -106,7 +131,7 @@ function smartling_admin_paths() {
 function smartling_permission() {
   $permissions = array(
     'administer smartling' => array(
-      'title' => 'Administer Smartling',
+      'title' => t('Administer Smartling'),
       'description' => t('Access the administrative settings for the module.')
     ),
     'administer smartling_entity_data entities' => array(
@@ -146,17 +171,16 @@ function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state
  */
 function smartling_download_translate_form_submit($form, &$form_state) {
   if (count(array_filter($form_state['values']['target'])) !== 0) {
-    $entity_type = smartling_get_entity_type_by_bundle($form['#bundle']);
     global $user;
-
     $langs = array();
+
     foreach ($form_state['values']['target'] as $d_locale) {
       if ($d_locale !== 0) {
-        $langs[] = smartling_convert_locale_drupal_to_smartling($d_locale);
+        $langs[] = $d_locale;
       }
     }
 
-    switch ($entity_type) {
+    switch ($form['#entity_type']) {
       case 'node':
         $node = node_form_submit_build_node($form, $form_state);
         node_save($node);
@@ -171,7 +195,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           if (!empty($translations)) {
             foreach ($translations as $langcode => $value) {
               if ($translations[$langcode]->nid == $form['#node']->tnid) {
-                $s_locale_origin = smartling_convert_locale_drupal_to_smartling($langcode);
+                $d_locale_origin = $langcode;
                 $original_nid = $translations[$langcode]->nid;
                 break;
               }
@@ -179,35 +203,27 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           }
           else {
             $original_nid = 'error';
-            $s_locale_origin = 'error';
+            $d_locale_origin = 'error';
           }
 
           foreach ($form_state['values']['target'] as $d_locale) {
             if ($d_locale !== 0) {
-              $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-              $entity_data = smartling_entity_load_by_conditions(array('rid' => $original_nid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+              $entity_data = smartling_entity_load_by_conditions(array('rid' => $original_nid, 'bundle' => $form['#bundle'], 'target_language' => $d_locale));
 
               if ($entity_data != FALSE) {
-                $progress = smartling_download_translate($original_nid, $s_locale, $entity_data, $form['#bundle']);
+                smartling_download_translate($original_nid, $d_locale, $entity_data);
 
-                if ($progress !== 'exception') {
-                  $entity_data->target_language = $s_locale;
-                  $entity_data->submitter = $user->uid;
-                  $entity_data->submission_date = time();
-                  $entity_data->progress = $progress;
+                $entity_data->target_language = $d_locale;
+                $entity_data->submitter = $user->uid;
+                $entity_data->submission_date = time();
 
-                  smartling_entity_data_save($entity_data);
-
-                  smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
-
-                  smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $original_nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
-
-                  drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-                }
+                smartling_entity_data_save($entity_data);
+                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
+                smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $original_nid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
               }
               elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
-                smartling_watchdog('Smartling FAIL force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $original_nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
-                drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $s_locale)));
+                smartling_watchdog('Smartling FAIL force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $original_nid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
+                drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
               }
             }
           }
@@ -217,27 +233,22 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           foreach ($form_state['values']['target'] as $d_locale) {
 
             if ($d_locale !== 0 && ($d_locale !== $form['#node']->language)) {
-              $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-              $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+              $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'bundle' => $form['#bundle'], 'target_language' => $d_locale));
 
               if ($entity_data != FALSE) {
-                $progress = smartling_download_translate($nid, $s_locale, $entity_data, $form['#bundle']);
+                smartling_download_translate($nid, $d_locale, $entity_data);
 
-                if ($progress !== 'exception') {
-                  $entity_data->target_language = $s_locale;
-                  $entity_data->submitter = $user->uid;
-                  $entity_data->submission_date = time();
-                  $entity_data->progress = $progress;
-                  smartling_entity_data_save($entity_data);
+                $entity_data->target_language = $d_locale;
+                $entity_data->submitter = $user->uid;
+                $entity_data->submission_date = time();
 
-                  smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
-
-                  drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-                }
+                smartling_entity_data_save($entity_data);
+                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
+                smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
               }
               elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
-                smartling_watchdog('Smartling FAIL force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
-                drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $s_locale)));
+                smartling_watchdog('Smartling FAIL force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
+                drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
               }
             }
           }
@@ -263,35 +274,28 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           $tid = $term->tid;
         }
         else {
-          $original_term = smartling_get_original_entity($term->tid, $term->vocabulary_machine_name);
+          $original_term = smartling_get_original_entity($term->tid, $form['#entity_type']);
           $tid = ($original_term) ? $original_term->tid : $original_term;
         }
 
         foreach ($form_state['values']['target'] as $d_locale) {
           if ($d_locale !== 0) {
-            $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-            $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+            $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
 
             if ($entity_data != FALSE) {
-              $progress = smartling_download_translate($tid, $s_locale, $entity_data, $form['#bundle']);
+              smartling_download_translate($tid, $d_locale, $entity_data);
 
-              if ($progress !== 'exception') {
-                $entity_data->target_language = $s_locale;
-                $entity_data->submitter = $user->uid;
-                $entity_data->submission_date = time();
-                $entity_data->progress = $progress;
+              $entity_data->target_language = $d_locale;
+              $entity_data->submitter = $user->uid;
+              $entity_data->submission_date = time();
 
-                smartling_entity_data_save($entity_data);
-
-                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
-
-                smartling_watchdog('Smartling finish force download translated file for term id - @rid, language - @language', TRUE, array('@rid' => $tid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit term'), 'taxonomy/term/' . $tid . '/edit'));
-                drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-              }
+              smartling_entity_data_save($entity_data);
+              smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
+              smartling_watchdog('Smartling finish force download translated file for term id - @rid, language - @language', TRUE, array('@rid' => $tid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit term'), 'taxonomy/term/' . $tid . '/edit'));
             }
             elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
-              smartling_watchdog('Smartling FAIL force download translated file for term id - @rid, language - @language', TRUE, array('@rid' => $tid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit term'), 'taxonomy/term/' . $tid . '/edit'));
-              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $s_locale)));
+              smartling_watchdog('Smartling FAIL force download translated file for term id - @rid, language - @language', TRUE, array('@rid' => $tid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit term'), 'taxonomy/term/' . $tid . '/edit'));
+              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }
           }
         }
@@ -308,29 +312,22 @@ function smartling_download_translate_form_submit($form, &$form_state) {
 
         foreach ($form_state['values']['target'] as $d_locale) {
           if ($d_locale !== 0) {
-            $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-            $entity_data = smartling_entity_load_by_conditions(array('rid' => $comment->cid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+            $entity_data = smartling_entity_load_by_conditions(array('rid' => $comment->cid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
 
             if ($entity_data != FALSE) {
-              $progress = smartling_download_translate($comment->cid, $s_locale, $entity_data, $form['#bundle']);
+              smartling_download_translate($comment->cid, $d_locale, $entity_data);
 
-              if ($progress !== 'exception') {
-                $entity_data->target_language = $s_locale;
-                $entity_data->submitter = $user->uid;
-                $entity_data->submission_date = time();
-                $entity_data->progress = $progress;
+              $entity_data->target_language = $d_locale;
+              $entity_data->submitter = $user->uid;
+              $entity_data->submission_date = time();
 
-                smartling_entity_data_save($entity_data);
-
-                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
-
-                smartling_watchdog('Smartling finish force download translated file for comment id - @rid, language - @language', TRUE, array('@rid' => $comment->cid, '@language' => $s_locale), WATCHDOG_INFO, $link);
-                drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-              }
+              smartling_entity_data_save($entity_data);
+              smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
+              smartling_watchdog('Smartling finish force download translated file for comment id - @rid, language - @language', TRUE, array('@rid' => $comment->cid, '@language' => $d_locale), WATCHDOG_INFO, $link);
             }
             elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
-              smartling_watchdog('Smartling FAIL force download translated file for comment id - @rid, language - @language', TRUE, array('@rid' => $comment->cid, '@language' => $s_locale), WATCHDOG_INFO, $link);
-              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $s_locale)));
+              smartling_watchdog('Smartling FAIL force download translated file for comment id - @rid, language - @language', TRUE, array('@rid' => $comment->cid, '@language' => $d_locale), WATCHDOG_INFO, $link);
+              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }
           }
         }
@@ -340,36 +337,29 @@ function smartling_download_translate_form_submit($form, &$form_state) {
       case 'user':
 
         $account = $form['#user'];
-        $link = smartling_get_link_to_entity($comment->cid, $form['#entity_type']);
+        $link = smartling_get_link_to_entity($account->uid, $form['#entity_type']);
         user_save($account);
         smartling_watchdog('Updated user %user.', TRUE, array('%user' => $account->name), WATCHDOG_INFO, $link);
         smartling_watchdog('Smartling start force download translated file for user id - @uid, locale - @locales', TRUE, array('@uid' => $account->uid, '@locales' => implode('; ', $langs)), WATCHDOG_INFO, $link);
 
         foreach ($form_state['values']['target'] as $d_locale) {
           if ($d_locale !== 0) {
-            $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-            $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+            $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
 
             if ($entity_data != FALSE) {
-              $progress = smartling_download_translate($account->uid, $s_locale, $entity_data, $form['#bundle']);
+              smartling_download_translate($account->uid, $d_locale, $entity_data);
 
-              if ($progress !== 'exception') {
-                $entity_data->target_language = $s_locale;
-                $entity_data->submitter = $user->uid;
-                $entity_data->submission_date = time();
-                $entity_data->progress = $progress;
+              $entity_data->target_language = $d_locale;
+              $entity_data->submitter = $user->uid;
+              $entity_data->submission_date = time();
 
-                smartling_entity_data_save($entity_data);
-
-                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
-
-                smartling_watchdog('Smartling finish force download translated file for user id - @rid, language - @language', TRUE, array('@rid' => $account->uid, '@language' => $s_locale), WATCHDOG_INFO, $link);
-                drupal_set_message(t('Uploaded for language translation @language', array('@language' => $s_locale)));
-              }
+              smartling_entity_data_save($entity_data);
+              smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
+              smartling_watchdog('Smartling finish force download translated file for user id - @rid, language - @language', TRUE, array('@rid' => $account->uid, '@language' => $d_locale), WATCHDOG_INFO, $link);
             }
             elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
-              smartling_watchdog('Smartling FAIL force download translated file for user id - @rid, language - @language', TRUE, array('@rid' => $account->uid, '@language' => $s_locale), WATCHDOG_INFO, $link);
-              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $s_locale)));
+              smartling_watchdog('Smartling FAIL force download translated file for user id - @rid, language - @language', TRUE, array('@rid' => $account->uid, '@language' => $d_locale), WATCHDOG_INFO, $link);
+              drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }
           }
         }
@@ -401,7 +391,7 @@ function smartling_views_api() {
  */
 function smartling_cron() {
   $check_queue = db_select('smartling_entity_data', 'sed')
-      ->fields('sed', array('eid', 'rid', 'bundle', 'target_language'))
+      ->fields('sed', array('eid', 'rid', 'entity_type', 'bundle', 'target_language'))
       ->condition('sed.progress', 100, '<>')
       ->condition('sed.target_language', 'original', '<>')
       ->execute()
@@ -414,8 +404,9 @@ function smartling_cron() {
       $obj = new stdClass;
       $obj->eid = $gueue_item->eid;
       $obj->rid = $gueue_item->rid;
+      $obj->entity_type = $gueue_item->entity_type;
       $obj->bundle = $gueue_item->bundle;
-      $obj->s_locale = $gueue_item->target_language;
+      $obj->d_locale = $gueue_item->target_language;
 
       $smartling_queue->createItem($obj);
       smartling_watchdog('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid), WATCHDOG_INFO);
@@ -458,7 +449,7 @@ function smartling_entity_load($entities, $type) {
 
     foreach ($entities as $entity) {
 
-      if (smartling_supported_type($entity->type)) {
+      if (smartling_supported_type($type, $entity->type)) {
         $fields = variable_get('smartling_translate_fields');
         if (isset($fields[$entity->type])) {
           foreach ($fields[$entity->type] as $field_name) {
@@ -481,7 +472,7 @@ function smartling_entity_load($entities, $type) {
  * Implements hook_entity_update().
  */
 function smartling_entity_update($entity, $type) {
-  if (($type == 'node') && smartling_supported_type($entity->type)) {
+  if (($type == 'node') && smartling_supported_type($type, $entity->type)) {
     $smartling_entity_data = smartling_entity_load_all_by_conditions(array('rid' => $entity->nid, 'bundle' => $entity->type));
     if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
       $content_array = smartling_node_content_to_translate($entity);
@@ -555,6 +546,30 @@ function smartling_entity_update($entity, $type) {
 }
 
 /**
+ * Implements hook_entity_delete().
+ */
+function smartling_entity_delete($entity, $type) {
+  $rid = 0;
+  if (isset($entity->nid)) {
+    $rid = $entity->nid;
+  }
+  elseif (isset($entity->tid)) {
+    $rid = $entity->tid;
+  }
+  elseif (isset($entity->cid)) {
+    $rid = $entity->cid;
+  }
+  elseif (isset($entity->uid)) {
+    $rid = $entity->uid;
+  }
+
+  db_delete('smartling_entity_data')
+      ->condition('rid', $rid)
+      ->condition('entity_type', $type)
+      ->execute();
+}
+
+/**
  * Implements hook_views_pre_render().
  */
 function smartling_views_pre_render(&$view) {
@@ -584,10 +599,9 @@ function smartling_do_translate_action($node, $context) {
   $smartling_queue = DrupalQueue::get('smartling_upload');
   $smartling_queue->createQueue();
 
-  foreach ($context['translate_to_langs'] as $language) {
-    $s_locale = smartling_convert_locale_drupal_to_smartling($language);
-    $s_locale_origin = smartling_convert_locale_drupal_to_smartling($node->language);
-    if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
+  foreach ($context['translate_to_langs'] as $d_locale) {
+    $d_locale_origin = $node->language;
+    if (smartling_supported_type('node', $node->type) && smartling_translate_fields_is_set($node->type)) {
       if (smartling_nodes_method($node->type)) {
         $status = smartling_nodes_method_node_status($node);
         if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
@@ -595,16 +609,17 @@ function smartling_do_translate_action($node, $context) {
             $node->tnid = $node->nid;
             node_save($node);
           }
-          if ($language != $node->language) {
+          if ($d_locale != $node->language) {
 
-            $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'bundle' => $node->type, 'target_language' => $s_locale));
+            $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'entity_type' => 'node', 'target_language' => $d_locale));
 
             if ($entity_data == FALSE) {
               $entity_data = smartling_entity_data_create();
               $entity_data->rid = $node->nid;
               $entity_data->bundle = $node->type;
-              $entity_data->original_language = $s_locale_origin;
-              $entity_data->target_language = $s_locale;
+              $entity_data->entity_type = 'node';
+              $entity_data->original_language = $d_locale_origin;
+              $entity_data->target_language = $d_locale;
               $entity_data->progress = 0;
             }
 
@@ -613,22 +628,23 @@ function smartling_do_translate_action($node, $context) {
             $entity_data->submission_date = time();
             smartling_entity_data_save($entity_data);
 
-            $s_locales[] = $s_locale;
+            $d_locales[] = $d_locale;
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
           }
         }
       }
       elseif (smartling_fields_method($node->type)) {
-        if ($language != $node->language) {
+        if ($d_locale != $node->language) {
 
-          $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'bundle' => $node->type, 'target_language' => $s_locale));
+          $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'entity_type' => 'node', 'target_language' => $d_locale));
 
           if ($entity_data == FALSE) {
             $entity_data = smartling_entity_data_create();
             $entity_data->rid = $node->nid;
             $entity_data->bundle = $node->type;
-            $entity_data->original_language = $s_locale_origin;
-            $entity_data->target_language = $s_locale;
+            $entity_data->entity_type = 'node';
+            $entity_data->original_language = $d_locale_origin;
+            $entity_data->target_language = $d_locale;
             $entity_data->progress = 0;
           }
 
@@ -637,7 +653,7 @@ function smartling_do_translate_action($node, $context) {
           $entity_data->submission_date = time();
           smartling_entity_data_save($entity_data);
 
-          $s_locales[] = $s_locale;
+          $d_locales[] = $d_locale;
           smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
         }
       }
@@ -647,13 +663,14 @@ function smartling_do_translate_action($node, $context) {
       smartling_watchdog('Not support type or Smartling configuration problem for content type - @type.', FALSE, array('@type' => $node->type), WATCHDOG_ERROR, l(t('Edit node'), 'node/' . $node->nid));
     }
   }
-  if (smartling_supported_type($node->type) && smartling_translate_fields_is_set($node->type)) {
+  if (smartling_supported_type('node', $node->type) && smartling_translate_fields_is_set($node->type)) {
     $obj = new stdClass;
     $obj->rid = $node->nid;
+    $obj->entity_type = 'node';
     $obj->bundle = $node->type;
     $obj->title = $node->title;
-    $obj->original_language = $s_locale_origin;
-    $obj->s_locales = $s_locales;
+    $obj->original_language = $d_locale_origin;
+    $obj->d_locales = $d_locales;
     $obj->submitter = $user->uid;
     // Create queue item
     $smartling_queue->createItem($obj);
@@ -699,30 +716,25 @@ function smartling_push_callback() {
   smartling_watchdog('function "smartling_push_callback" call', TRUE, array(), WATCHDOG_INFO);
 
   if (isset($_GET['locale']) && isset($_GET['fileUri'])) {
-    $s_locale = check_plain($_GET['locale']);
+    $d_locale = check_plain(smartling_convert_locale_drupal_to_smartling($_GET['locale'], TRUE));
     $file_uri = check_plain($_GET['fileUri']);
 
-    smartling_watchdog('Smartling get parameters: locale - @locale, fileUri - @fileUri', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
+    smartling_watchdog('Smartling get parameters: locale - @locale, fileUri - @fileUri', TRUE, array('@locale' => $d_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
 
-    $entity_data = smartling_entity_load_by_conditions(array('target_language' => $s_locale, 'file_name' => $file_uri));
+    $entity_data = smartling_entity_load_by_conditions(array('target_language' => $d_locale, 'file_name' => $file_uri));
 
     if ($entity_data != FALSE) {
       if (module_exists('rules')) {
-        rules_invoke_event('smartling_callback_call_event', $s_locale, $file_uri);
+        rules_invoke_event('smartling_callback_call_event', $d_locale, $file_uri);
       }
 
-      $progress = smartling_download_translate($entity_data->rid, $s_locale, $entity_data->bundle);
-
-      $entity_data->progress = $progress;
-
-      smartling_entity_data_save($entity_data);
-
+      smartling_download_translate($entity_data->rid, $d_locale, $entity_data);
       smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
 
-      smartling_watchdog('The callback function smartling downloaded translation for node id - @nid, language - @language', TRUE, array('@nid' => $entity_data->rid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
+      smartling_watchdog('The callback function smartling downloaded translation for bundle - @bundle, entity id - @rid, language - @language', TRUE, array('@bundle' => $entity_data->bundle, '@rid' => $entity_data->rid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
     }
     elseif ($entity_data == FALSE) {
-      smartling_watchdog('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
+      smartling_watchdog('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', TRUE, array('@locale' => $d_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
     }
   }
   else {
