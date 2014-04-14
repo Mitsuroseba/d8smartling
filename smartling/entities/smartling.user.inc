@@ -11,8 +11,7 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_user_profile_form_alter(&$form, &$form_state) {
-
-  if (smartling_supported_type($form['#bundle'])) {
+  if (smartling_supported_type($form['#entity_type'], $form['#bundle'])) {
     $user = $form['#user'];
 
     if (!empty($user->uid)) {
@@ -54,33 +53,32 @@ function smartling_get_user_settings_form($form, &$form_state) {
     $user = $form['#user'];
 
     if (!is_null($user->uid)) {
-      foreach ($languages as $langcode => $language) {
+      foreach ($languages as $d_locale => $language) {
         if ($language->enabled != '0') {
-          $s_locale = smartling_convert_locale_drupal_to_smartling($langcode);
 
-          $entity_data = smartling_entity_load_by_conditions(array('rid' => $user->uid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+          $entity_data = smartling_entity_load_by_conditions(array('rid' => $user->uid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
 
           if ($entity_data !== FALSE) {
             switch ($entity_data->status) {
               case SMARTLING_STATUS_IN_QUEUE:
-                $options[$langcode] = '<span title="' . t('Term is waiting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
+                $options[$d_locale] = '<span title="' . t('Term is waiting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                 break;
               case SMARTLING_STATUS_IN_TRANSLATE:
-                $options[$langcode] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
+                $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                 break;
               case SMARTLING_STATUS_TRANSLATED:
-                $options[$langcode] = '<span title="' . t('Term is translated') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
+                $options[$d_locale] = '<span title="' . t('Term is translated') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                 break;
               case SMARTLING_STATUS_CHANGE:
-                $options[$langcode] = '<span title="' . t('Term was changed after submitting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
+                $options[$d_locale] = '<span title="' . t('Term was changed after submitting for translation') . '"><span class="lang-name">' . $language->name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                 break;
             }
           }
           else {
-            $options[$langcode] = $language->name;
+            $options[$d_locale] = $language->name;
           }
 
-          $check[] = ($entity_data) ? $langcode : FALSE;
+          $check[] = ($entity_data) ? $d_locale : FALSE;
         }
       }
 
@@ -155,7 +153,7 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
   // this form by taking over all values, which appear in the form values too.
   $edit = array_intersect_key((array) $account, $form_state['values']);
 
-  $language_original = $account->translations->original;
+  $d_locale_origin = $account->translations->original;
   $langs = array();
   $link = smartling_get_link_to_entity($account->uid, $form['#entity_type']);
 
@@ -165,19 +163,18 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     $smartling_queue = DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
-    $s_locale_origin = smartling_convert_locale_drupal_to_smartling($language_original);
-
     foreach ($form_state['values']['target'] as $d_locale) {
-      if ($d_locale !== 0 && ($language_original !== $d_locale)) {
-        $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-        $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'bundle' => $form['#bundle'], 'target_language' => $s_locale));
+      if ($d_locale !== 0 && ($d_locale_origin !== $d_locale)) {
+
+        $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
 
         if ($entity_data == FALSE) {
           $entity_data = smartling_entity_data_create();
           $entity_data->rid = $account->uid;
+          $entity_data->entity_type = $form['#entity_type'];
           $entity_data->bundle = $form['#bundle'];
-          $entity_data->original_language = $s_locale_origin;
-          $entity_data->target_language = $s_locale;
+          $entity_data->original_language = $d_locale_origin;
+          $entity_data->target_language = $d_locale;
           $entity_data->progress = 0;
         }
 
@@ -187,15 +184,16 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
         smartling_entity_data_save($entity_data);
 
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-        $langs[] = $s_locale;
+        $langs[] = $d_locale;
       }
     }
     $obj = new stdClass;
     $obj->rid = $account->uid;
+    $obj->entity_type = $form['#entity_type'];
     $obj->bundle = $form['#bundle'];
     $obj->title = $account->name;
-    $obj->original_language = $s_locale_origin;
-    $obj->s_locales = $langs;
+    $obj->original_language = $d_locale_origin;
+    $obj->d_locales = $langs;
     $obj->submitter = $user->uid;
     // Create queue item
     $smartling_queue->createItem($obj);
@@ -222,4 +220,3 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
 
   smartling_watchdog('Updated user %user.', TRUE, array('%user' => $account->name), WATCHDOG_INFO, $link);
 }
-
