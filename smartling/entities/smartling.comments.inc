@@ -24,7 +24,7 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
       }
       else {
         $link = '<a href="/admin/config/regional/entity_translation/translatable/comment_body?destination=' . current_path() . '">Enable translation</a>';
-        drupal_set_message(t('Add translatable field to comment or !link for comment_body field to use Smartling translate.', array('!link' => $link)), 'info');
+        drupal_set_message(t('Add translatable field to comment or @link for comment_body field to use Smartling translate.', array('@link' => filter_xss($link))), 'info');
       }
     }
   }
