@@ -369,37 +369,18 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
       if ($d_locale !== 0 && $d_locale == $key) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-        $data = array(
-          'apiKey' => $form_state['values']['smartling_key'],
-          'projectId' => $form_state['values']['project_id'],
-          'offset' => 0,
-          'limit' => 1,
-          'locale' => $s_locale,
-        );
 
-        $options = array(
-          'method' => 'POST',
-          'data' => drupal_http_build_query($data),
-          'timeout' => 5,
-          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-        );
+        $key = variable_get('smartling_key');
+        $project_id = variable_get('smartling_project_id');
 
-        $url = variable_get('smartling_api_url') . '/file/list';
-        $response = drupal_http_request($url, $options);
-        if ($response->code == 200) {
-          $response = json_decode($response->data);
-          if ($response->response->code == 'SUCCESS') {
-            drupal_set_message(t('Test connection for locale @d_locale is success.', array('@d_locale' => $d_locale)));
-          }
-          else {
-            drupal_set_message(t('Test connection for locale @d_locale is fail. Messages: @messages', array('d_locale' => $d_locale, '@messages' => $response->response->messages)), 'error');
-          }
+        // Init api object
+        $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api->getList($s_locale);
+
+        if ($api->getCodeStatus() == 'SUCCESS') {
+          drupal_set_message(t('Test connection for locale @d_locale is success.', array('@d_locale' => $d_locale)));
         }
         else {
-          if (isset($response->error)) {
-            drupal_set_message($response->error, 'error');
-            smartling_watchdog('Smartling "Test connection" submit error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
-          }
           drupal_set_message(t('Test connection for locale @d_locale is fail.', array('@d_locale' => $d_locale)), 'error');
         }
       }
