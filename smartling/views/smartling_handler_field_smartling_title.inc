@@ -6,7 +6,7 @@
  */
 
 /**
- * Handler for field locale_info.
+ * Handler for field title.
  */
 class smartling_handler_field_smartling_title extends views_handler_field {
 

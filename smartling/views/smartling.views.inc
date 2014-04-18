@@ -9,11 +9,11 @@
  * Implements hook_views_data_alter().
  */
 function smartling_views_data_alter(&$data) {
-
+  // Node relationship
   $data['node']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
-    'help' => t('Relate a user to the orders they have placed. This relationship will create one record for each order placed by the user.'),
+    'help' => t('Relationship.'),
     'relationship' => array(
       'base' => 'smartling_entity_data',
       'base field' => 'rid',
@@ -62,11 +62,44 @@ function smartling_views_data_alter(&$data) {
 
   $data['node']['locale_info'] = array(
     'group' => t('Smartling'),
-    'title' => t('Locales'),
+    'title' => t('Locales for node'),
     'help' => t('Smartling locales property.'),
   );
   $data['node']['locale_info']['field'] = array(
     'real field' => 'nid',
+    'handler' => 'smartling_handler_field_locale_info',
+    'click sortable' => TRUE,
+  );
+
+  $data['taxonomy_term_data']['locale_info'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Locales for taxonomy_term_data'),
+    'help' => t('Smartling locales property.'),
+  );
+  $data['taxonomy_term_data']['locale_info']['field'] = array(
+    'real field' => 'tid',
+    'handler' => 'smartling_handler_field_locale_info',
+    'click sortable' => TRUE,
+  );
+
+  $data['comment']['locale_info'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Locales for comment'),
+    'help' => t('Smartling locales property.'),
+  );
+  $data['comment']['locale_info']['field'] = array(
+    'real field' => 'cid',
+    'handler' => 'smartling_handler_field_locale_info',
+    'click sortable' => TRUE,
+  );
+
+  $data['users']['locale_info'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Locales for user'),
+    'help' => t('Smartling locales property.'),
+  );
+  $data['users']['locale_info']['field'] = array(
+    'real field' => 'uid',
     'handler' => 'smartling_handler_field_locale_info',
     'click sortable' => TRUE,
   );

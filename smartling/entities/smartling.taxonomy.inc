@@ -30,8 +30,7 @@ function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
       $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
     }
     else {
-      $link = '<a href="/admin/structure/taxonomy/' . $form['#vocabulary']->machine_name . '/edit">"edit vocabulary"</a>';
-      drupal_set_message(t('Please follow the page @link to set Translation mode for Smartling.', array('@link' => filter_xss($link))));
+      drupal_set_message(t('Please follow the page <a href="/admin/structure/taxonomy/@machine_name/edit">"edit vocabulary"</a> to set Translation mode for Smartling.', array('@machine_name' => $form['#vocabulary']->machine_name)));
     }
   }
   elseif (empty($term->tid) && !isset($_GET['translation']) && !isset($_GET['target'])) {

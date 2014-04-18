@@ -158,6 +158,10 @@ function smartling_queue_check_status_process($args) {
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
     $entity_type = $args->entity_type;
+    // Check filename length
+    if (!smartling_check_filename_length($args->title, $entity_type, $args->rid)) {
+      return NULL;
+    }
 
     $entity_data_array = array();
     foreach ($args->d_locales as $d_locale) {

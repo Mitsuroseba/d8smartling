@@ -409,8 +409,11 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
 /**
  *
- * @param type $nid
- * @return boolean
+ * @param type $rid
+ * @param type $d_locale
+ * @param type $title
+ * @param type $entity_type
+ * @return boolean|string
  */
 function smartling_build_xml($rid = NULL, $d_locale, $title = '', $entity_type = NULL) {
   if (!is_null($rid)) {
@@ -911,4 +914,18 @@ function smartling_entity_translation_save($handler, $entity) {
   // Update the wrapped entity
   $handler->setEntity($entity);
   $handler->smartlingEntityTranslationFieldAttach();
+}
+
+function smartling_check_filename_length($title, $entity_type, $rid) {
+
+  $file_name = strtolower(trim(preg_replace('#\W+#', '_', $title), '_')) . '_' . $entity_type . '_' . $rid . '.xml';
+
+  if (strlen($file_name) > 255) {
+    $count = (strlen($file_name) - 240);
+    $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
+
+    smartling_watchdog('Generated file name is too long. Remove approximately @count characters. Filename: @file_name, related entity - @rid, entity type - @entity_type', FALSE, array('@count' => $count, '@file_name' => $file_name, '@rid' => $rid, '@entity_type' => $entity_type), WATCHDOG_ERROR, $link_to_entity);
+    return FALSE;
+  }
+  return TRUE;
 }

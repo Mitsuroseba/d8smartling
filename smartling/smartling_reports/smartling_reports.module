@@ -19,6 +19,13 @@ function smartling_reports_menu() {
     'access arguments' => array('administer smartling'),
     'type' => MENU_LOCAL_TASK,
   );
+  $items['admin/content/smartling-content'] = array(
+    'title' => 'Smartling Bulk Submit',
+    'description' => 'Smartling Bulk Submit',
+    'weight' => 100,
+    'access arguments' => array('administer smartling'),
+    'type' => MENU_LOCAL_TASK,
+  );
 
   return $items;
 }
@@ -32,5 +39,12 @@ function smartling_reports_menu_alter(&$items) {
     $items['admin/content/smartling']['page arguments'] = $items['admin/content/smartling/report-completed']['page arguments'];
     $items['admin/content/smartling']['load arguments'] = $items['admin/content/smartling/report-completed']['load arguments'];
     $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  }
+
+  if (!empty($items['admin/content/smartling-content/node'])) {
+    $items['admin/content/smartling-content']['page callback'] = $items['admin/content/smartling-content/node']['page callback'];
+    $items['admin/content/smartling-content']['page arguments'] = $items['admin/content/smartling-content/node']['page arguments'];
+    $items['admin/content/smartling-content']['load arguments'] = $items['admin/content/smartling-content/node']['load arguments'];
+    $items['admin/content/smartling-content/node']['type'] = MENU_DEFAULT_LOCAL_TASK;
   }
 }
