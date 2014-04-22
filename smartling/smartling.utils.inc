@@ -415,31 +415,30 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
  * @param type $entity_type
  * @return boolean|string
  */
-function smartling_build_xml($rid = NULL, $d_locale, $title = '', $entity_type = NULL) {
-  if (!is_null($rid)) {
+function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) {
+  switch ($entity_type) {
+    case 'node':
+      $content_to_translate = smartling_node_content_to_translate($rid);
+      break;
 
-    switch ($entity_type) {
-      case 'node':
-        $content_to_translate = smartling_node_content_to_translate($rid);
-        break;
+    case 'taxonomy_term':
+      $content_to_translate = smartling_term_content_to_translate($rid);
+      break;
 
-      case 'taxonomy_term':
-        $content_to_translate = smartling_term_content_to_translate($rid);
-        break;
+    case 'comment':
+      $content_to_translate = smartling_comment_content_to_translate($rid);
+      break;
 
-      case 'comment':
-        $content_to_translate = smartling_comment_content_to_translate($rid);
-        break;
+    case 'user':
+      $content_to_translate = smartling_user_content_to_translate($rid);
+      break;
 
-      case 'user':
-        $content_to_translate = smartling_user_content_to_translate($rid);
-        break;
+    default:
+      return FALSE;
+      break;
+  }
 
-      default:
-        return FALSE;
-        break;
-    }
-
+  if (!empty($content_to_translate)) {
     $xml = new DOMDocument('1.0', 'UTF-8');
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
@@ -461,6 +460,8 @@ function smartling_build_xml($rid = NULL, $d_locale, $title = '', $entity_type =
     }
   }
   else {
+    smartling_entity_delete_all_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type));
+    smartling_watchdog('Entity has no strings to translate for entity_type - @entity_type, id - @rid.', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid), WATCHDOG_WARNING);
     return FALSE;
   }
 }

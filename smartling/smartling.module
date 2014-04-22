@@ -391,7 +391,7 @@ function smartling_views_api() {
  */
 function smartling_cron() {
   $check_queue = db_select('smartling_entity_data', 'sed')
-      ->fields('sed', array('eid', 'rid', 'entity_type', 'bundle', 'target_language'))
+      ->fields('sed', array('eid', 'rid', 'entity_type', 'bundle', 'file_name', 'target_language'))
       ->condition('sed.progress', 100, '<>')
       ->condition('sed.target_language', 'original', '<>')
       ->execute()
@@ -401,16 +401,21 @@ function smartling_cron() {
     $smartling_queue = DrupalQueue::get('smartling_check_status');
     $smartling_queue->createQueue();
     foreach ($check_queue as $gueue_item) {
-      $obj = new stdClass;
-      $obj->eid = $gueue_item->eid;
-      $obj->rid = $gueue_item->rid;
-      $obj->entity_type = $gueue_item->entity_type;
-      $obj->bundle = $gueue_item->bundle;
-      $obj->d_locale = $gueue_item->target_language;
+      if (!empty($gueue_item->file_name)) {
+        $obj = new stdClass;
+        $obj->eid = $gueue_item->eid;
+        $obj->rid = $gueue_item->rid;
+        $obj->entity_type = $gueue_item->entity_type;
+        $obj->bundle = $gueue_item->bundle;
+        $obj->d_locale = $gueue_item->target_language;
 
-      $smartling_queue->createItem($obj);
-      smartling_watchdog('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid), WATCHDOG_INFO);
-      unset($obj);
+        $smartling_queue->createItem($obj);
+        smartling_watchdog('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid, '@entity_type' => $gueue_item->entity_type), WATCHDOG_INFO);
+        unset($obj);
+      }
+      else {
+        smartling_watchdog('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid, '@entity_type' => $gueue_item->entity_type), WATCHDOG_INFO);
+      }
     }
   }
 }
@@ -841,8 +846,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t('Not support user id - @uid.', array('@uid' => $entity->uid)), 'warning');
-        smartling_watchdog('Not support user id - @uid.', FALSE, array('@uid' => $entity->uid), WATCHDOG_ERROR, $link);
+        drupal_set_message(t('Users do not translatable fields.'), 'warning');
+        smartling_watchdog('Users do not translatable fields.', FALSE, array(), WATCHDOG_ERROR, $link);
       }
 
       break;

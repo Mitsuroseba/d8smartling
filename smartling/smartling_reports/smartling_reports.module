@@ -48,3 +48,21 @@ function smartling_reports_menu_alter(&$items) {
     $items['admin/content/smartling-content/node']['type'] = MENU_DEFAULT_LOCAL_TASK;
   }
 }
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function smartling_reports_views_query_alter(&$view, &$query) {
+  // Exclude und language
+  if ($view->name == 'smartling_bulk_submit_taxonomy_terms') {
+    $query->where[] = array(
+      'conditions' => array(array(
+          'field' => 'taxonomy_term_data.language',
+          'value' => array('und'),
+          'operator' => '<>',
+        )),
+      'args' => array(),
+      'type' => 'AND',
+    );
+  }
+}

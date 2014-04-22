@@ -101,6 +101,32 @@ function smartling_entity_load_all_by_conditions($properties = NULL) {
 }
 
 /**
+ * Delete entity by conditions.
+ */
+function smartling_entity_delete_all_by_conditions($properties = NULL) {
+  $entity_type = 'smartling_entity_data';
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', $entity_type);
+  if ($properties) {
+    foreach ($properties as $name => $value) {
+      $query->propertyCondition($name, $value);
+    }
+  }
+
+  $result = $query->execute();
+  if ($result) {
+    foreach ($result[$entity_type] as $entity_data) {
+      $ids[] = $entity_data->eid;
+    }
+    smartling_entity_data_delete_multiple($ids);
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
  * We create the entity by calling the controller.
  */
 function smartling_entity_data_create() {

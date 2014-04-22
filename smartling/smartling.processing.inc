@@ -64,6 +64,7 @@ function smartling_node_content_to_translate($nid) {
   }
 
   $translate = variable_get('smartling_translate_fields', array());
+  $language = (!empty($node->language)) ? $node->language : language_default()->language;
 
   foreach ($translate as $type => $field_names) {
     if ($node->type === $type) {
@@ -76,16 +77,16 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           case 'text-field':
-            if (!empty($node->{$field_name}[$node->language])) {
-              foreach ($node->{$field_name}[$node->language] as $key => $item) {
+            if (!empty($node->{$field_name}[$language])) {
+              foreach ($node->{$field_name}[$language] as $key => $item) {
                 $node_current_translatable_content[$field_name][$key] = $item['value'];
               }
             }
             break;
 
           case 'body-with-summary-field':
-            if (!empty($node->{$field_name}[$node->language])) {
-              foreach ($node->{$field_name}[$node->language] as $key => $item) {
+            if (!empty($node->{$field_name}[$language])) {
+              foreach ($node->{$field_name}[$language] as $key => $item) {
                 $node_current_translatable_content[$field_name][$key]['body'] = $item['value'];
                 $node_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
               }
@@ -93,8 +94,8 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           case 'image-field':
-            if (is_array($node->{$field_name}) && !empty($node->{$field_name}[$node->language])) {
-              foreach ($node->{$field_name}[$node->language] as $key => $item) {
+            if (is_array($node->{$field_name}) && !empty($node->{$field_name}[$language])) {
+              foreach ($node->{$field_name}[$language] as $key => $item) {
                 $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
                 $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
                 $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
@@ -133,6 +134,7 @@ function smartling_term_content_to_translate($tid) {
   $field_names[] = 'taxonomy-term-description';
 
   $field_names = array_merge($field_names, smartling_get_supported_field_names_by_type_and_bundle('taxonomy_term', $term->vocabulary_machine_name));
+  $language = (!empty($term->language)) ? $term->language : language_default()->language;
 
   foreach ($field_names as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
@@ -149,16 +151,16 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       case 'text-field':
-        if (!empty($term->{$field_name}[$term->language])) {
-          foreach ($term->{$field_name}[$term->language] as $key => $item) {
+        if (!empty($term->{$field_name}[$language])) {
+          foreach ($term->{$field_name}[$language] as $key => $item) {
             $term_current_translatable_content[$field_name][$key] = $item['value'];
           }
         }
         break;
 
       case 'body-with-summary-field':
-        if (!empty($term->{$field_name}[$term->language])) {
-          foreach ($term->{$field_name}[$term->language] as $key => $item) {
+        if (!empty($term->{$field_name}[$language])) {
+          foreach ($term->{$field_name}[$language] as $key => $item) {
             $term_current_translatable_content[$field_name][$key]['body'] = $item['value'];
             $term_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
           }
@@ -166,8 +168,8 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       case 'image-field':
-        if (is_array($term->{$field_name}) && !empty($term->{$field_name}[$term->language])) {
-          foreach ($term->{$field_name}[$term->language] as $key => $item) {
+        if (is_array($term->{$field_name}) && !empty($term->{$field_name}[$language])) {
+          foreach ($term->{$field_name}[$language] as $key => $item) {
             $term_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
             $term_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
             $term_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
@@ -201,20 +203,21 @@ function smartling_comment_content_to_translate($cid) {
   }
 
   $field_names = smartling_get_supported_field_names_by_type_and_bundle('comment', $comment->node_type);
+  $language = (!empty($comment->language)) ? $comment->language : language_default()->language;
 
   foreach ($field_names as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
-        if (!empty($comment->{$field_name}[$comment->language])) {
-          foreach ($comment->{$field_name}[$comment->language] as $key => $item) {
+        if (!empty($comment->{$field_name}[$language])) {
+          foreach ($comment->{$field_name}[$language] as $key => $item) {
             $comment_current_translatable_content[$field_name][$key] = $item['value'];
           }
         }
         break;
 
       case 'body-with-summary-field':
-        if (!empty($comment->{$field_name}[$comment->language])) {
-          foreach ($comment->{$field_name}[$comment->language] as $key => $item) {
+        if (!empty($comment->{$field_name}[$language])) {
+          foreach ($comment->{$field_name}[$language] as $key => $item) {
             $comment_current_translatable_content[$field_name][$key]['body'] = $item['value'];
             $comment_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
           }
@@ -222,8 +225,8 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       case 'image-field':
-        if (is_array($comment->{$field_name}) && !empty($comment->{$field_name}[$comment->language])) {
-          foreach ($comment->{$field_name}[$comment->language] as $key => $item) {
+        if (is_array($comment->{$field_name}) && !empty($comment->{$field_name}[$language])) {
+          foreach ($comment->{$field_name}[$language] as $key => $item) {
             $comment_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
             $comment_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
             $comment_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
@@ -257,20 +260,21 @@ function smartling_user_content_to_translate($uid) {
   }
 
   $field_names = smartling_get_supported_field_names_by_type_and_bundle('user', 'user');
+  $language = (!empty($user->language)) ? $user->language : language_default()->language;
 
   foreach ($field_names as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
-        if (!empty($user->{$field_name}[$user->language])) {
-          foreach ($user->{$field_name}[$user->language] as $key => $item) {
+        if (!empty($user->{$field_name}[$language])) {
+          foreach ($user->{$field_name}[$language] as $key => $item) {
             $user_current_translatable_content[$field_name][$key] = $item['value'];
           }
         }
         break;
 
       case 'body-with-summary-field':
-        if (!empty($user->{$field_name}[$user->language])) {
-          foreach ($user->{$field_name}[$user->language] as $key => $item) {
+        if (!empty($user->{$field_name}[$language])) {
+          foreach ($user->{$field_name}[$language] as $key => $item) {
             $user_current_translatable_content[$field_name][$key]['body'] = $item['value'];
             $user_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
           }
@@ -278,8 +282,8 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       case 'image-field':
-        if (is_array($user->{$field_name}) && !empty($user->{$field_name}[$user->language])) {
-          foreach ($user->{$field_name}[$user->language] as $key => $item) {
+        if (is_array($user->{$field_name}) && !empty($user->{$field_name}[$language])) {
+          foreach ($user->{$field_name}[$language] as $key => $item) {
             $user_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
             $user_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
             $user_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
@@ -308,8 +312,12 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
     return 'taxonomy-term-title';
   }
   elseif ($field_name == 'taxonomy-term-description') {
-    return 'taxonomy-term-description';
+    $taxonomy_term_description = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
+    if (is_object($taxonomy_term_description) && ($taxonomy_term_description instanceof DomElement)) {
+      return 'taxonomy-term-description';
+    }
   }
+
   if ($field_name == 'node_title') {
     return 'node-title';
   }

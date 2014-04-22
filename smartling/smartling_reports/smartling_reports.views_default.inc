@@ -990,6 +990,14 @@ function smartling_reports_views_default_views() {
     1 => 0,
     3 => 0,
   );
+  /* Filter criterion: Comment: Language */
+  $handler->display->display_options['filters']['language']['id'] = 'language';
+  $handler->display->display_options['filters']['language']['table'] = 'comment';
+  $handler->display->display_options['filters']['language']['field'] = 'language';
+  $handler->display->display_options['filters']['language']['operator'] = 'not in';
+  $handler->display->display_options['filters']['language']['value'] = array(
+    'und' => 'und',
+  );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
@@ -1414,6 +1422,20 @@ function smartling_reports_views_default_views() {
     1 => array(),
     2 => array(),
     3 => array(),
+  );
+  /* Filter criterion: User: The user ID */
+  $handler->display->display_options['filters']['uid_raw']['id'] = 'uid_raw';
+  $handler->display->display_options['filters']['uid_raw']['table'] = 'users';
+  $handler->display->display_options['filters']['uid_raw']['field'] = 'uid_raw';
+  $handler->display->display_options['filters']['uid_raw']['operator'] = '!=';
+  $handler->display->display_options['filters']['uid_raw']['value']['value'] = '0';
+  /* Filter criterion: User: Language */
+  $handler->display->display_options['filters']['language']['id'] = 'language';
+  $handler->display->display_options['filters']['language']['table'] = 'users';
+  $handler->display->display_options['filters']['language']['field'] = 'language';
+  $handler->display->display_options['filters']['language']['operator'] = 'not in';
+  $handler->display->display_options['filters']['language']['value'] = array(
+    'und' => 'und',
   );
 
   /* Display: Page */
