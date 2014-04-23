@@ -18,14 +18,24 @@ define('TRAVEL_VOCABULARY_DELETED', 'The travel taxonomy has been removed from D
 define('TRAVEL_VOCABULARY_NOT_FOUND', 'The travel taxonomy not found in taxonomy vocabularies.');
 define('TRAVEL_TAXONOMY_ADDED_TO_NODE', 'The travel taxonomy added to travel nodes randomly.');
 define('TAXONOMY_TRAVEL', 'travel');
+define('DEMO_LANGUAGE_DEFAULT', language_default()->language);
 
 function smartling_modules_enabled($modules)
 {
     if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
+        drupal_cron_run();
+
         _create_comments_to_nodes();
         _create_additional_fields_for_account();
         _create_taxonomy();
-        _add_taxonomy_to_travel_node();
+        //_add_taxonomy_to_travel_node();
+
+        db_query("UPDATE {block} SET region = :region, status = :status WHERE delta = :delta AND module = :module", array(
+          ':region' => 'sidebar_first',
+          ':status' => 1,
+          ':delta' => 'language_content',
+          ':module' => 'locale',
+        ));
     }
 }
 
@@ -55,9 +65,9 @@ function _create_comments_to_nodes()
                 'homepage' => '',
                 'status' => COMMENT_PUBLISHED,
                 'subject' => devel_create_greeking(mt_rand(1, 3), TRUE),
-                'language' => LANGUAGE_NONE,
+                'language' => DEMO_LANGUAGE_DEFAULT,
                 'comment_body' => array(
-                    LANGUAGE_NONE => array(
+                    DEMO_LANGUAGE_DEFAULT => array(
                         0 => array(
                             'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
                             'format' => 'filtered_html'
@@ -296,7 +306,8 @@ function _create_taxonomy()
     foreach ($terms_data as $term_data) {
         taxonomy_term_save((object)array(
             'name' => $term_data,
-            'vid' => $get_taxonomy_vocabulary->vid
+            'vid' => $get_taxonomy_vocabulary->vid,
+            'language' => DEMO_LANGUAGE_DEFAULT,
         ));
     }
 
