@@ -391,7 +391,7 @@ function smartling_views_api() {
  */
 function smartling_cron() {
   $check_queue = db_select('smartling_entity_data', 'sed')
-      ->fields('sed', array('eid', 'rid', 'entity_type', 'bundle', 'file_name', 'target_language'))
+      ->fields('sed', array('eid', 'rid', 'entity_type', 'bundle', 'file_name', 'target_language', 'status'))
       ->condition('sed.progress', 100, '<>')
       ->condition('sed.target_language', 'original', '<>')
       ->execute()
@@ -414,7 +414,9 @@ function smartling_cron() {
         unset($obj);
       }
       else {
-        smartling_watchdog('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid, '@entity_type' => $gueue_item->entity_type), WATCHDOG_INFO);
+        if ($gueue_item->status != 0) {
+          smartling_watchdog('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type', TRUE, array('@eid' => $gueue_item->eid, '@rid' => $gueue_item->rid, '@entity_type' => $gueue_item->entity_type), WATCHDOG_WARNING);
+        }
       }
     }
   }
