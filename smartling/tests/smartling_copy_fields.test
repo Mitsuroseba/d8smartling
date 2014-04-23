@@ -115,11 +115,6 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->clickLink('Download');
     $this->assertText(t('Downloaded for language translation ru'));
 
-    $this->drupalGet('node/1/edit');
-    $this->drupalGet('node/1/devel');
-    $this->drupalGet('node/2/edit');
-    $this->drupalGet('node/2/devel');
-
     // Check
     $original_node = node_load(1);
     $translated_node = node_load(2);
@@ -135,19 +130,22 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body conteins translated value'), t('Browser'));
 
     // Equal client help url
-    $translated_value = $translated_node->field_client_help_url[$translated_node->language][0]['value'];
-    $original_value = $original_node->field_client_help_url[$original_node->language][0]['value'];
+    $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
+    $original_value = $original_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_client_help_url conteins original value'), t('Browser'));
 
     // Equal tags
-    $translated_value = $translated_node->field_tags[$translated_node->language][0]['tid'];
-    $original_value = $original_node->field_tags[$original_node->language][0]['tid'];
+    $translated_value = $translated_node->field_tags[LANGUAGE_NONE][0]['tid'];
+    $original_value = $original_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $this->assertEqual($original_value, $translated_value);
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_tags conteins original value'), t('Browser'));
 
     // Equal price
-    $translated_value = $translated_node->field_price[$translated_node->language][0]['value'];
-    $original_value = $original_node->field_price[$original_node->language][0]['value'];
+    $translated_value = $translated_node->field_price[LANGUAGE_NONE][0]['value'];
+    $original_value = $original_node->field_price[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_price conteins original value'), t('Browser'));
   }
 
   /*
