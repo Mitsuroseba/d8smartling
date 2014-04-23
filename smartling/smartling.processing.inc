@@ -451,7 +451,7 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
  */
 function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
 
-  smartling_watchdog('Smartling start update fields for entity type @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO);
+  smartling_watchdog('Smartling starts update fields for entity type @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO);
 
   if (smartling_supported_type($entity_type, $bundle)) {
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type, 'target_language' => $d_locale));
@@ -664,7 +664,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
       $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
-      smartling_watchdog('Smartling update all translated fields for @entity_type id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, $link_to_entity);
+      smartling_watchdog('Smartling updates all translated fields for @entity_type id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, $link_to_entity);
 
       // Update Translations info
       switch ($entity_type) {

@@ -2,7 +2,7 @@
 core = 7.x
 
 api = 2
-projects[drupal][version] = "7.26"
+projects[drupal][version] = "7.27"
 
 ; Modules
 projects[admin_menu][subdir] = "contrib"
@@ -21,7 +21,7 @@ projects[defaultcontent][subdir] = "contrib"
 projects[defaultcontent][version] = "1.0-alpha9"
 
 projects[entity][subdir] = "contrib"
-projects[entity][version] = "1.4"
+projects[entity][version] = "1.5"
 
 projects[features][subdir] = "contrib"
 projects[features][version] = "2.0"

@@ -355,18 +355,18 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
     if ($translated_file == FALSE) {
       if (is_array($d_locale)) {
-        smartling_watchdog('Smartling save original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
       }
       else {
-        smartling_watchdog('Smartling save original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
       }
     }
     if ($translated_file == TRUE) {
       if (is_array($d_locale)) {
-        smartling_watchdog('Smartling save translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
       }
       else {
-        smartling_watchdog('Smartling save translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
       }
     }
 
@@ -380,18 +380,18 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
     if ($translated_file == FALSE) {
       if (is_array($d_locale)) {
-        smartling_watchdog('Smartling save original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
       }
       else {
-        smartling_watchdog('Smartling save original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
       }
     }
     if ($translated_file == TRUE) {
       if (is_array($d_locale)) {
-        smartling_watchdog('Smartling save translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)), WATCHDOG_INFO, l(t('View file'), $path));
       }
       else {
-        smartling_watchdog('Smartling save translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
+        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO, l(t('View file'), $path));
       }
     }
 
@@ -724,6 +724,7 @@ function smartling_language_options_list() {
 }
 
 function smartling_language_list() {
+  smartling_is_configured();
   $languages_list = array();
   $languages = language_list('language');
 
