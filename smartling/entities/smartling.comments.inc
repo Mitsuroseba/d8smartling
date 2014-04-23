@@ -18,8 +18,39 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
       if (smartling_supported_type($form['#entity_type'], $form['#bundle'])) {
 
         if (!empty($comment->cid)) {
-          $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
-          break;
+          if (($comment->language != LANGUAGE_NONE)) {
+            $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
+            break;
+          }
+          else {
+            $form['smartling'] = array(
+              '#title' => t('Smartling management'),
+              '#type' => 'fieldset',
+              '#collapsible' => TRUE,
+              '#collapsed' => TRUE,
+              '#weight' => 100,
+              '#group' => 'additional_settings',
+              '#attributes' => array('id' => array('smartling_fieldset')),
+              '#attached' => array(
+                'css' => array(
+                  drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
+                    'type' => 'file',
+                  ),
+                ),
+              ),
+              '#modal' => TRUE,
+            );
+
+            $form['smartling']['content'] = array(
+              '#type' => 'container',
+            );
+
+            $form['smartling']['content']['lang'] = array(
+              '#type' => 'item',
+              '#title' => '',
+              '#markup' => t('This entity is as to be Language Neutral.'),
+            );
+          }
         }
       }
       else {
