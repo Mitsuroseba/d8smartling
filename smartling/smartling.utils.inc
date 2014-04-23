@@ -724,7 +724,6 @@ function smartling_language_options_list() {
 }
 
 function smartling_language_list() {
-  smartling_is_configured();
   $languages_list = array();
   $languages = language_list('language');
 

@@ -925,4 +925,3 @@ function smartling_push_callback() {
     }
   }
 }
-
