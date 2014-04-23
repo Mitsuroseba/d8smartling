@@ -25,22 +25,22 @@ class smartling_handler_field_smartling_operations extends views_handler_field {
 
     switch ($entity_type) {
       case 'node':
-        $output = l(t('Edit'), $d_locale . '/node/' . $rid . '/edit/' . $d_locale) . ' | '
+        $output = l(t('Edit'), 'node/' . $rid . '/edit/' . $d_locale) . ' | '
             . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
 
       case 'taxonomy_term':
-        $output = l(t('Edit'), $d_locale . '/taxonomy/term/' . $rid . '/edit/' . $d_locale) . ' | '
+        $output = l(t('Edit'), 'taxonomy/term/' . $rid . '/edit/' . $d_locale) . ' | '
             . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
 
       case 'comment':
-        $output = l(t('Edit'), $d_locale . '/comment/' . $rid . '/edit/' . $d_locale) . ' | '
+        $output = l(t('Edit'), 'comment/' . $rid . '/edit/' . $d_locale) . ' | '
             . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
 
       case 'user':
-        $output = l(t('Edit'), $d_locale . '/user/' . $rid . '/edit/' . $d_locale) . ' | '
+        $output = l(t('Edit'), 'user/' . $rid . '/edit/' . $d_locale) . ' | '
             . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
 
