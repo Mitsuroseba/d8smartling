@@ -228,7 +228,7 @@ function smartling_queue_send_to_translate_process($args) {
         smartling_watchdog('Uploading @entity_type @nid for locales: @locales', TRUE, array('@entity_type' => $entity_type, '@nid' => $args->rid, '@locales' => implode('; ', $locales_to_approve)), WATCHDOG_INFO, l(t('View file'), $file_path));
 
         if (module_exists('rules') && ($entity_type == 'node')) {
-          $node_event = smartling_node_load_default($args->rid);
+          $node_event = node_load($args->rid);
           rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
         }
       }
