@@ -152,8 +152,6 @@ function smartling_permission() {
 
 /**
  * Implements hook_form_FORM_ID_alter().
- *
- * Disabled some entity translate settings
  */
 function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state) {
 
@@ -164,6 +162,45 @@ function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state
     '#title' => t('Some settings should be disabled when using Smartling.'),
     '#weight' => -100,
   );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @see smartling_field_settings_update_submit()
+ */
+function smartling_form_entity_translation_translatable_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'smartling_field_settings_update_submit';
+}
+
+/**
+ * smartling_field_settings_update_submit().
+ *
+ * If a translation for the field was turned off, remove the field from the configuration node smartling
+ */
+function smartling_field_settings_update_submit($form, &$form_state) {
+
+  if (($form_state['values']['translatable'] == 1) && ($form_state['values']['confirm'] == 1) && !empty($form_state['field']['bundles']['node'])) {
+    foreach ($form_state['field']['bundles']['node'] as $node_type) {
+      $field_name = $form_state['field']['field_name'];
+      $translate_filds = variable_get('smartling_translate_fields', array());
+
+      if (isset($translate_filds[$node_type][$field_name])) {
+        unset($translate_filds[$node_type][$field_name]);
+
+        if (count($translate_filds[$node_type]) == 0) {
+          unset($translate_filds[$node_type]);
+        }
+
+        if ($translate_filds == array()) {
+          variable_delete('smartling_translate_fields');
+        }
+        else {
+          variable_set('smartling_translate_fields', $translate_filds);
+        }
+      }
+    }
+  }
 }
 
 /**

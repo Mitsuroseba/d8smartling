@@ -88,7 +88,7 @@ function smartling_fields_method($type) {
  */
 function smartling_nodes_method_node_status($nid) {
   if (is_int($nid) || is_numeric($nid)) {
-    $node = smartling_node_load_default($nid);
+    $node = node_load($nid);
   }
   elseif (is_object($nid)) {
     $node = $nid;
@@ -103,27 +103,6 @@ function smartling_nodes_method_node_status($nid) {
   elseif (isset($node->tnid) && $node->tnid == '0') {
     return SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE;
   }
-}
-
-/**
- * Smartling custom wrapper function for node_load
- *
- * This is needed because the Smartling module should translate only the most current revision of any node
- *
- * @param $nid entity_id of node to load
- *
- * @return $node most current revision of the node at $nid
- */
-function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
-  if ($vid == NULL) {
-    $query = db_select('node_revision', 'nr')
-        ->condition('nid', $nid, '=');
-    $query->addExpression('MAX(vid)', 'max_vid');
-    $vid = $query->execute()->fetchField();
-  }
-
-  $node = node_load($nid, $vid, $reset);
-  return $node;
 }
 
 /**

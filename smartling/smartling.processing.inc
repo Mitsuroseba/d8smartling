@@ -57,7 +57,7 @@ function smartling_get_field_content_processing_mode($field_name) {
 function smartling_node_content_to_translate($nid) {
   $node_current_translatable_content = array();
   if (is_numeric($nid)) {
-    $node = smartling_node_load_default($nid);
+    $node = node_load($nid);
   }
   else {
     $node = $nid;
@@ -492,7 +492,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     switch ($entity_type) {
       case 'node':
         if (smartling_nodes_method($bundle)) {
-          $original_node = smartling_node_load_default($rid);
+          $original_node = node_load($rid);
           $translations = translation_node_get_translations($original_node->tnid);
           if (isset($translations[$d_locale])) {
             $rid = $translations[$d_locale]->nid;
@@ -719,7 +719,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       }
 
       if (module_exists('rules') && ($entity_type == 'node')) {
-        $node_event = smartling_node_load_default($rid);
+        $node_event = node_load($rid);
         rules_invoke_event('smartling_translation_download_event', $node_event);
       }
     }
