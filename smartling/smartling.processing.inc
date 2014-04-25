@@ -104,7 +104,7 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           default:
-            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -178,7 +178,7 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -235,7 +235,7 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -292,7 +292,7 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -650,7 +650,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             break;
 
           default:
-            smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog("Smartling didn't process field - @field_name", TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }

@@ -885,8 +885,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t('User entity doesn\'t have translatable fields'), 'warning');
-        smartling_watchdog('User entity doesn\'t have translatable fields', FALSE, array(), WATCHDOG_ERROR, $link);
+        drupal_set_message(t("User entity doesn't have translatable fields"), 'warning');
+        smartling_watchdog("User entity doesn't have translatable fields", FALSE, array(), WATCHDOG_ERROR, $link);
       }
 
       break;
