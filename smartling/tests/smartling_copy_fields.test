@@ -76,28 +76,25 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
-    // Create term for testing.
-    $name = 'Test term';
-    $this->drupalPost('admin/structure/taxonomy/tags/add', array('name' => $name), 'Save');
+    $terms = array(
+      'term1' => 'Test term',
+    );
 
     // Create node content
     $node_array = array(
       'title' => 'Title test',
       'language' => 'en',
+      'field_tags[und]' => drupal_implode_tags($terms),
     );
+
     $this->drupalPost('node/add/page', $node_array, t('Save'));
 
     $node_array = array(
       'body[en][0][value]' => 'Boby text',
       'field_price[und][0][value]' => '123.00',
       'field_client_help_url[und][0][value]' => 'url',
-        /* 'field_tags[und][0][tid]' => '1',
-          'field_tags[und][0][vid]' => '1',
-          'field_tags[und][0][name]' => 'Test term',
-          'field_tags[und][0][language]' => 'und',
-          'field_tags[und][0][i18n_tsid]' => '0',
-          'field_tags[und][0][vocabulary_machine_name]' => 'tags', */
     );
+
     $this->drupalPost('node/1/edit', $node_array, t('Save'));
 
     // Send node to smartling
