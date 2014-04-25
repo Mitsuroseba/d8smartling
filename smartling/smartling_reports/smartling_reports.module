@@ -64,5 +64,14 @@ function smartling_reports_views_query_alter(&$view, &$query) {
       'args' => array(),
       'type' => 'AND',
     );
+    $query->where[] = array(
+      'conditions' => array(array(
+          'field' => 'taxonomy_term_data.language',
+          'value' => array(language_default()->language),
+          'operator' => '=',
+        )),
+      'args' => array(),
+      'type' => 'AND',
+    );
   }
 }
