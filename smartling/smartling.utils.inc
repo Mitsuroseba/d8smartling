@@ -575,14 +575,14 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
     }
 
     if (($entity_data !== FALSE) && (smartling_supported_type($entity_data->entity_type, $entity_data->bundle))) {
-      $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
       $progress = smartling_get_progress_status($entity_data);
 
       if ($progress !== FALSE) {
         $xml = smartling_download_file($entity_data);
 
         $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
-        $translated_filename = $file_name . '_' . $entity_data->target_language . '.xml';
+        $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
+        $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
         // Save result
         $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_data->entity_type);
@@ -612,7 +612,6 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
 
 function smartling_download_file($entity_data) {
   $file_name_unic = $entity_data->file_name;
-  $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
 
   $key = variable_get('smartling_key');
   $project_id = variable_get('smartling_project_id');
@@ -625,6 +624,7 @@ function smartling_download_file($entity_data) {
   );
 
   // Try to download file
+  $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
   $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
   // This is a $download_result
   $xml = new DOMDocument();
