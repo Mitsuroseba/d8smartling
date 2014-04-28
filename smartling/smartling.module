@@ -726,8 +726,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t('Not support type or Smartling configuration problem for content type - @type.', array('@type' => $entity->type)), 'warning');
-        smartling_watchdog('Not support type or Smartling configuration problem for content type - @type.', FALSE, array('@type' => $entity->type), WATCHDOG_ERROR, $link);
+        drupal_set_message(t('Content type @type is not supported or it has wrong Smartling configuration', array('@type' => $entity->type)), 'warning');
+        smartling_watchdog('Content type @type is not supported or it has wrong Smartling configuration', FALSE, array('@type' => $entity->type), WATCHDOG_ERROR, $link);
       }
 
       break;
@@ -885,8 +885,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t('Users do not translatable fields.'), 'warning');
-        smartling_watchdog('Users do not translatable fields.', FALSE, array(), WATCHDOG_ERROR, $link);
+        drupal_set_message(t("User entity doesn't have translatable fields"), 'warning');
+        smartling_watchdog("User entity doesn't have translatable fields", FALSE, array(), WATCHDOG_ERROR, $link);
       }
 
       break;
