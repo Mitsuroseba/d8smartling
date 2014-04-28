@@ -323,10 +323,6 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   }
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
 
-  if ($translated_file !== FALSE) {
-    $translated_file = file_munge_filename(preg_replace('@^.*/@', '', $translated_file), '', TRUE);
-  }
-
   $path = $directory . '/' . $file_name;
 
   if (is_dir($directory) && is_writable($directory)) {
@@ -585,7 +581,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
         $xml = smartling_download_file($entity_data);
 
         $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
-        $translated_filename = $file_name . '_' . $s_locale . '.xml';
+        $translated_filename = $file_name . '_' . $entity_data->target_language . '.xml';
 
         // Save result
         $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_data->entity_type);
