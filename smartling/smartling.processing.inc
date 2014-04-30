@@ -153,8 +153,20 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
  */
 function smartling_node_title_processing($node_wrapper, $field_name, $xpath) {
   $node_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-  $string = (string) $node_title->nodeValue;
-  $node_wrapper->title = $string;
+  if ($node_title instanceof DomElement) {
+    $string = (string) $node_title->nodeValue;
+    $node_wrapper->title = $string;
+  }
+  else {
+    $node_title = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
+    if ($node_title instanceof DomElement) {
+      $string = (string) $node_title->nodeValue;
+      $node_wrapper->title = $string;
+    }
+    else {
+      drupal_set_message(t('Please re-upload entity <em>@title</em>', array('@title' => $node_wrapper->title)), 'error');
+    }
+  }
   return $node_wrapper;
 }
 
