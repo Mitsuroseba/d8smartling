@@ -1,7 +1,7 @@
 name = Smartling reports
 core = 7.x
 package = smartling
-version = "7.x-1.0-beta4"
+version = 7.x-1.0-beta4
 dependencies[] = smartling
 dependencies[] = views
 dependencies[] = views_bulk_operations

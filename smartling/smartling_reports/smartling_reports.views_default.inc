@@ -444,6 +444,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '500';
@@ -453,6 +454,10 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  /* Relationship: Smartling: Smartling Entity */
+  $handler->display->display_options['relationships']['smartling_entity_data']['id'] = 'smartling_entity_data';
+  $handler->display->display_options['relationships']['smartling_entity_data']['table'] = 'node';
+  $handler->display->display_options['relationships']['smartling_entity_data']['field'] = 'smartling_entity_data';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -469,11 +474,11 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = 'All';
+  $handler->display->display_options['filters']['status']['value'] = '0';
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['exposed'] = TRUE;
   $handler->display->display_options['filters']['status']['expose']['operator_id'] = '';
-  $handler->display->display_options['filters']['status']['expose']['label'] = 'Status';
+  $handler->display->display_options['filters']['status']['expose']['label'] = 'Published';
   $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
   $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
   $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
@@ -517,6 +522,21 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['language']['value'] = array(
     'und' => 'und',
   );
+  /* Filter criterion: Smartling Entity Data: Smartling status */
+  $handler->display->display_options['filters']['status_1']['id'] = 'status_1';
+  $handler->display->display_options['filters']['status_1']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['status_1']['field'] = 'status';
+  $handler->display->display_options['filters']['status_1']['relationship'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['status_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status_1']['expose']['operator_id'] = 'status_1_op';
+  $handler->display->display_options['filters']['status_1']['expose']['label'] = 'Status';
+  $handler->display->display_options['filters']['status_1']['expose']['operator'] = 'status_1_op';
+  $handler->display->display_options['filters']['status_1']['expose']['identifier'] = 'status_1';
+  $handler->display->display_options['filters']['status_1']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
@@ -528,10 +548,9 @@ function smartling_reports_views_default_views() {
     'type' => 'type',
     'name' => 'name',
     'status' => 'status',
-    'changed' => 'changed',
     'language' => 'language',
-    'delete_node' => 'delete_node',
-    'edit_node' => 'edit_node',
+    'locale_info' => 'locale_info',
+    'changed' => 'changed',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
@@ -568,13 +587,6 @@ function smartling_reports_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'changed' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
     'language' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
@@ -582,12 +594,16 @@ function smartling_reports_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'delete_node' => array(
+    'locale_info' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'edit_node' => array(
+    'changed' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -782,8 +798,10 @@ function smartling_reports_views_default_views() {
     t('next ›'),
     t('last »'),
     t('author'),
-    t('Status'),
+    t('Smartling related ID'),
+    t('Published'),
     t('Type'),
+    t('Status'),
     t('Page'),
     t('Smartling translate'),
     t('Title'),
