@@ -270,7 +270,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
 
                 smartling_entity_data_save($entity_data);
                 smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE);
-                smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
+                smartling_watchdog('Smartling finish force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
               }
               elseif ($entity_data == FALSE || empty($entity_data->translated_file_name)) {
                 smartling_watchdog('Smartling FAIL force download translated file for node id - @nid, language - @language', TRUE, array('@nid' => $nid, '@language' => $d_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
