@@ -454,28 +454,6 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
       $fr_fields = array();
       $smartling_translate_fields = variable_get('smartling_translate_fields', FALSE);
 
-      if (smartling_nodes_method($value->type)) {
-        $fr_tt['from']['#title'] = t('Nodes method');
-        $field_label = t('Title');
-        $node_title_name = 'node_title';
-        $fr_fields[$node_title_name] = array(
-          '#type' => 'checkbox',
-          '#title' => check_plain($field_label),
-          '#attributes' => array(
-            'id' => array('edit-form-item-' . $value->type . '-separator-' . $node_title_name),
-            'name' => $value->type . '_SEPARATOR_' . $node_title_name,
-            'class' => array('field'),
-          ),
-          '#id' => 'edit-form-item-' . $value->type . '-separator-' . $node_title_name,
-        );
-
-        $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
-
-        if ($is_in_conf) {
-          $fr_fields[$node_title_name]['#attributes']['checked'] = 'checked';
-        }
-      }
-
       foreach (field_info_instances('node', $value->type) as $field) {
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
@@ -501,6 +479,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           }
         }
       }
+
       if (!isset($fr_fields['title_field']) && smartling_fields_method($value->type)) {
         $fr_fields['title_field'] = array(
           '#type' => 'checkbox',
@@ -515,6 +494,31 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
         $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
         if ($setup_complete && $is_in_conf) {
           $fr_fields['title_field']['#attributes']['checked'] = 'checked';
+        }
+      }
+
+      if (smartling_nodes_method($value->type)) {
+        $fr_tt['from']['#title'] = t('Nodes method');
+        // If !isset(title_field)
+        if (!isset($fr_fields['title_field'])) {
+          $field_label = t('Title');
+          $node_title_name = 'node_title';
+          $fr_fields[$node_title_name] = array(
+            '#type' => 'checkbox',
+            '#title' => check_plain($field_label),
+            '#attributes' => array(
+              'id' => array('edit-form-item-' . $value->type . '-separator-' . $node_title_name),
+              'name' => $value->type . '_SEPARATOR_' . $node_title_name,
+              'class' => array('field'),
+            ),
+            '#id' => 'edit-form-item-' . $value->type . '-separator-' . $node_title_name,
+          );
+
+          $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
+
+          if ($is_in_conf) {
+            $fr_fields[$node_title_name]['#attributes']['checked'] = 'checked';
+          }
         }
       }
     }
