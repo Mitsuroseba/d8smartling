@@ -243,51 +243,25 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   }
 
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    $project_id = $form_state['values']['project_id'];
+    $project_id = trim($form_state['values']['project_id']);
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    $smartling_key = $form_state['values']['smartling_key'];
+    $smartling_key = trim($form_state['values']['smartling_key']);
   }
+  // Init api object
+  $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api->getList('en', array('limit' => 1));
 
-  $data = array(
-    'apiKey' => trim($smartling_key),
-    'projectId' => trim($project_id),
-    'limit' => 1
-  );
-
-  $options = array(
-    'method' => 'POST',
-    'data' => drupal_http_build_query($data),
-    'timeout' => 5,
-    'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-  );
-
-  $url = $api_url . '/file/list';
-  $response = drupal_http_request($url, $options);
-  if ($response->code == 200) {
-    $response = json_decode($response->data);
-    if ($response->response->code == 'SUCCESS') {
-      $form_state['values']['smartling_key'] = trim($smartling_key);
-      $form_state['values']['project_id'] = trim($project_id);
-    }
-    else {
-      drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
-      form_set_error('api_url');
-      form_set_error('smartling_key');
-      form_set_error('project_id');
-    }
+  if ($api->getCodeStatus() == 'SUCCESS') {
+    $form_state['values']['smartling_key'] = trim($smartling_key);
+    $form_state['values']['project_id'] = trim($project_id);
   }
   else {
-    if (isset($response->error)) {
-      drupal_set_message($response->error, 'error');
-      smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
-    }
     drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
     form_set_error('api_url');
     form_set_error('smartling_key');
     form_set_error('project_id');
   }
-
 
   // Target locales validate
   if (count(array_filter($form_state['values']['target_locales'])) == 0) {
@@ -382,40 +356,20 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Test
   if ($form_state['clicked_button']['#name'] == 'test_connection') {
-    foreach ($form_state['values']['target_locales'] as $key => $lang) {
-      if ($lang !== 0 && $lang == $key) {
-        $s_locale = smartling_convert_locale_drupal_to_smartling($lang);
-        $data = array(
-          'apiKey' => $form_state['values']['smartling_key'],
-          'projectId' => $form_state['values']['project_id'],
-          'offset' => 0,
-          'limit' => 1,
-          'locale' => $s_locale,
-        );
+    foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
+      if ($d_locale !== 0 && $d_locale == $key) {
+        $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
+        // Init api object
+        $api_url = variable_get('smartling_api_url');
+        $project_id = variable_get('smartling_project_id');
+        $key = variable_get('smartling_key');
+        $api = new SmartlingAPI($api_url, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api->getList($s_locale);
 
-        $options = array(
-          'method' => 'POST',
-          'data' => drupal_http_build_query($data),
-          'timeout' => 5,
-          'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-        );
-
-        $url = variable_get('smartling_api_url') . '/file/list';
-        $response = drupal_http_request($url, $options);
-        if ($response->code == 200) {
-          $response = json_decode($response->data);
-          if ($response->response->code == 'SUCCESS') {
-            drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)));
-          }
-          else {
-            drupal_set_message(t('Test connection for locale @s_locale is fail. Messages: @messages', array('@s_locale' => $s_locale, '@messages' => $response->response->messages)), 'error');
-          }
+        if ($api->getCodeStatus() == 'SUCCESS') {
+          drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)));
         }
         else {
-          if (isset($response->error)) {
-            drupal_set_message($response->error, 'error');
-            smartling_watchdog('Smartling "Test connection" submit error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
-          }
           drupal_set_message(t('Test connection for locale @s_locale is fail.', array('@s_locale' => $s_locale)), 'error');
         }
       }

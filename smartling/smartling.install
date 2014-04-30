@@ -249,6 +249,14 @@ function smartling_update_7000(&$sandbox) {
       'default' => '',
     ));
 
+    $queue_array[] = 'smartling_check_status';
+    $queue_array[] = 'smartling_upload';
+    $queue_array[] = 'smartling_download';
+    foreach ($queue_array as $queue_name) {
+      $queue = DrupalQueue::get($queue_name);
+      $queue->deleteQueue();
+    }
+
     $sandbox['user_from'] = 0;
     $sandbox['user_count'] = db_query("SELECT COUNT(eid) FROM {smartling_entity_data}")->fetchField();
   }

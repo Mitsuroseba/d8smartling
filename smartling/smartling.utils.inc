@@ -306,10 +306,6 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
   }
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
 
-  if ($translated_file !== FALSE) {
-    $translated_file = file_munge_filename(preg_replace('@^.*/@', '', $translated_file), '', TRUE);
-  }
-
   $path = $directory . '/' . $file_name;
 
   if (is_dir($directory) && is_writable($directory)) {
