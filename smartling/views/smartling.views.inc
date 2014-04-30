@@ -23,6 +23,14 @@ function smartling_views_data_alter(&$data) {
     )
   );
 
+  $data['smartling_entity_data']['status'] = array(
+    'title' => t('Smartling status'),
+    'help' => t('The status type (for example, "in queue", "in translate", etc).'),
+    'filter' => array(
+      'handler' => 'smartling_handler_filter_entity_status',
+    ),
+  );
+
   // Add views handler
   $data['smartling_entity_data']['target_language'] = array(
     'title' => t('Target Language'),
