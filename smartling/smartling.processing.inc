@@ -63,10 +63,9 @@ function smartling_node_content_to_translate($nid) {
     $node = $nid;
   }
 
-  $translate = variable_get('smartling_translate_fields', array());
   $language = (!empty($node->language)) ? $node->language : language_default()->language;
 
-  foreach ($translate as $type => $field_names) {
+  foreach (smartling_settings_get_handler()->nodeGetFieldsSettings() as $type => $field_names) {
     if ($node->type === $type) {
       foreach ($field_names as $field_name) {
         switch (smartling_get_field_content_processing_mode($field_name)) {
@@ -104,7 +103,7 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           default:
-            smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -129,14 +128,9 @@ function smartling_term_content_to_translate($tid) {
     $term = $tid;
   }
 
-  $field_names = array();
-  $field_names[] = 'taxonomy-term-title';
-  $field_names[] = 'taxonomy-term-description';
-
-  $field_names = array_merge($field_names, smartling_get_supported_field_names_by_type_and_bundle('taxonomy_term', $term->vocabulary_machine_name));
   $language = (!empty($term->language)) ? $term->language : language_default()->language;
 
-  foreach ($field_names as $field_name) {
+  foreach (smartling_settings_get_handler()->taxonomy_termGetFieldsSettings() as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'taxonomy-term-title':
         if (!empty($term->name)) {
@@ -178,7 +172,7 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -235,7 +229,7 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -292,7 +286,7 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -454,6 +448,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
   smartling_watchdog('Smartling starts update fields for entity type @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO);
 
   if (smartling_supported_type($entity_type, $bundle)) {
+    $smartling_settings = smartling_settings_get_handler();
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type, 'target_language' => $d_locale));
     $file_name = $entity_data->translated_file_name;
     $original_language = $entity_data->original_language;
@@ -462,25 +457,19 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     // Get field names for entity
     switch ($entity_type) {
       case 'node':
-        $fields = array();
-        $smartling_translate_fields = variable_get('smartling_translate_fields');
-        $fields = $smartling_translate_fields[$entity_data->bundle];
+        $fields = $smartling_settings->nodeGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       case 'taxonomy_term':
-        $fields = array();
-        $fields[] = 'taxonomy-term-title';
-        $fields[] = 'taxonomy-term-description';
-
-        $fields = array_merge($fields, smartling_get_supported_field_names_by_type_and_bundle($entity_type, $entity_data->bundle));
+        $fields = $smartling_settings->taxonomy_termGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       case 'comment':
-        $fields = smartling_get_supported_field_names_by_type_and_bundle($entity_type, $entity_data->bundle);
+        $fields = $smartling_settings->commentGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       case 'user':
-        $fields = smartling_get_supported_field_names_by_type_and_bundle($entity_type, $entity_data->bundle);
+        $fields = $smartling_settings->userGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       default:
@@ -650,7 +639,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             break;
 
           default:
-            smartling_watchdog("Smartling didn't process field - @field_name", TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }

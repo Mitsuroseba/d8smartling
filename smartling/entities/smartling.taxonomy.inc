@@ -11,13 +11,15 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
-  if (module_exists('i18n') && module_exists('i18n_taxonomy') && module_exists('translation')) {
+  /*
+    if (module_exists('i18n') && module_exists('i18n_taxonomy') && module_exists('translation')) {
     if (!isset($form_state['confirm_delete'])) {
-      //$form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
-      //$form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
-      $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be set Translate for using Smartling.');
+    //$form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
+    //$form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
+    $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be set Translate for using Smartling.');
     }
-  }
+    }
+   */
 }
 
 /**

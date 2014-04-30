@@ -22,9 +22,13 @@ define('SMARTLING_STATUS_EVENT_UPDATE_FIELDS', 'smartling_update_node_fields');
 define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity_update');
 
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
-define('SMARTLING_CALLBACK_URL', variable_get('smartling_callback_url', FALSE));
-define('SMARTLING_API_URL', variable_get('smartling_api_url', 'https://capi.smartling.com/v1'));
-define('SMARTLING_LOG', variable_get('smartling_log', 1));
+
+include_once('smartling.utils.inc');
+include_once('includes/smartling_settings.handler.inc');
+$smartling_settings = smartling_settings_get_handler();
+define('SMARTLING_CALLBACK_URL', $smartling_settings->getCallbackUrl());
+define('SMARTLING_API_URL', $smartling_settings->getApiUrl());
+define('SMARTLING_LOG', $smartling_settings->getLogMode());
 
 $smartling_dir = variable_get('file_public_path');
 if (is_null($smartling_dir)) {
@@ -35,8 +39,6 @@ else {
 }
 define('SMARTLING_DIRECTORY', $smartling_dir);
 
-
-include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');
 include_once('includes/smartling.workers.inc');
 include_once('includes/smartling.entity.inc');
@@ -180,24 +182,11 @@ function smartling_form_entity_translation_translatable_form_alter(&$form, &$for
  */
 function smartling_field_settings_update_submit($form, &$form_state) {
 
-  if (($form_state['values']['translatable'] == 1) && ($form_state['values']['confirm'] == 1) && !empty($form_state['field']['bundles']['node'])) {
-    foreach ($form_state['field']['bundles']['node'] as $node_type) {
-      $field_name = $form_state['field']['field_name'];
-      $translate_filds = variable_get('smartling_translate_fields', array());
-
-      if (isset($translate_filds[$node_type][$field_name])) {
-        unset($translate_filds[$node_type][$field_name]);
-
-        if (count($translate_filds[$node_type]) == 0) {
-          unset($translate_filds[$node_type]);
-        }
-
-        if ($translate_filds == array()) {
-          variable_delete('smartling_translate_fields');
-        }
-        else {
-          variable_set('smartling_translate_fields', $translate_filds);
-        }
+  if (($form_state['values']['translatable'] == 1) && ($form_state['values']['confirm'] == 1) && !empty($form_state['field']['bundles'])) {
+    $smartling_settings = smartling_settings_get_handler();
+    foreach ($form_state['field']['bundles'] as $entity_type => $bundles) {
+      foreach ($bundles as $bundle) {
+        $smartling_settings->deleteSingleFieldFromSettings($entity_type, $bundle, $form_state['field']['field_name']);
       }
     }
   }
@@ -494,17 +483,14 @@ function smartling_entity_load($entities, $type) {
     foreach ($entities as $entity) {
 
       if (smartling_supported_type($type, $entity->type)) {
-        $fields = variable_get('smartling_translate_fields');
-        if (isset($fields[$entity->type])) {
-          foreach ($fields[$entity->type] as $field_name) {
+        foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($entity->type) as $field_name) {
 
-            if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
-              // If field have und value and dont have need value
-              $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
-              field_attach_presave('node', $entity);
-              field_attach_update('node', $entity);
-              smartling_watchdog('Smartling adds value for field @fieldname, langcode @lang', TRUE, array('@fieldname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity->nid));
-            }
+          if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
+            // If field have und value and dont have need value
+            $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
+            field_attach_presave('node', $entity);
+            field_attach_update('node', $entity);
+            smartling_watchdog('Smartling adds value for field @fieldname, langcode @lang', TRUE, array('@fieldname' => $field_name, '@lang' => $entity->language), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity->nid));
           }
         }
       }
@@ -726,8 +712,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t('Content type @type is not supported or it has wrong Smartling configuration', array('@type' => $entity->type)), 'warning');
-        smartling_watchdog('Content type @type is not supported or it has wrong Smartling configuration', FALSE, array('@type' => $entity->type), WATCHDOG_ERROR, $link);
+        drupal_set_message(t('Not support type or Smartling configuration problem for content type - @type.', array('@type' => $entity->type)), 'warning');
+        smartling_watchdog('Not support type or Smartling configuration problem for content type - @type.', FALSE, array('@type' => $entity->type), WATCHDOG_ERROR, $link);
       }
 
       break;
@@ -885,8 +871,8 @@ function smartling_do_translate_action($entity, $context) {
         unset($obj);
       }
       else {
-        drupal_set_message(t("User entity doesn't have translatable fields"), 'warning');
-        smartling_watchdog("User entity doesn't have translatable fields", FALSE, array(), WATCHDOG_ERROR, $link);
+        drupal_set_message(t('Users do not translatable fields.'), 'warning');
+        smartling_watchdog('Users do not translatable fields.', FALSE, array(), WATCHDOG_ERROR, $link);
       }
 
       break;

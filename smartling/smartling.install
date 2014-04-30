@@ -125,6 +125,7 @@ function smartling_install() {
 function smartling_enable() {
   // Set Multilingual support for content types
   $node_types = node_type_get_types();
+  $taxonomy_vocabularies = taxonomy_get_vocabularies();
 
   if (is_array($node_types)) {
     $entity_translation_settings = array(
@@ -135,6 +136,7 @@ function smartling_enable() {
       'shared_fields_original_only' => 0,
     );
 
+    // Set node and comments settings
     foreach ($node_types as $type) {
       $mode = variable_get('language_content_type_' . $type->type, NULL);
       if (is_null($mode)) {
@@ -146,6 +148,15 @@ function smartling_enable() {
         variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
       }
     }
+
+    // Set taxonomy settings
+    foreach ($taxonomy_vocabularies as $vocabulary) {
+      variable_set('entity_translation_settings_taxonomy_term__' . $vocabulary->machine_name, $entity_translation_settings);
+    }
+
+    // Set user settings
+    variable_set('entity_translation_settings_user__user', $entity_translation_settings);
+
     // Entity translation types and other settings
     $entity_translation_entity_types = array(
       'node' => 'node',
@@ -158,8 +169,6 @@ function smartling_enable() {
     variable_set('entity_translation_shared_labels', 1);
     variable_set('entity_translation_workflow_enabled', 0);
     variable_set('locale_field_language_fallback', 1);
-    // Set user settings
-    variable_set('entity_translation_settings_user__user', $entity_translation_settings);
   }
   // Ensure Smartling module is running after native translation modules
   db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();

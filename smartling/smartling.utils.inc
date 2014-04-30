@@ -142,23 +142,13 @@ function smartling_is_configured() {
  * Checks smartling_translate_fields variable and check settings for content type.
  */
 function smartling_translate_fields_is_set($type = FALSE) {
-  $val = variable_get('smartling_translate_fields', NULL);
+  $val = smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($type);
 
-  if (is_null($val) || empty($val)) {
+  if (empty($val)) {
     $result = FALSE;
   }
   else {
-    if ($type !== FALSE) {
-      if (isset($val[$type])) {
-        $result = TRUE;
-      }
-      else {
-        $result = FALSE;
-      }
-    }
-    else {
-      $result = TRUE;
-    }
+    $result = TRUE;
   }
   if (!$result) {
     drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
@@ -418,7 +408,6 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
     $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string '));
-    $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
 
     $data = $xml->createElement('data');
 
@@ -883,6 +872,16 @@ function smartling_entity_translation_get_handler($entity_type, $entity) {
   // @todo remove fourth parameter once 3rd-party translation handlers have
   // been fixed and no longer require the deprecated entity_id parameter.
   $handler = new $class($entity_type, $entity_info, $entity, NULL);
+  return $handler;
+}
+
+/**
+ *
+ * @return \class
+ */
+function smartling_settings_get_handler() {
+  $class = 'SmartlingSettingsHandler';
+  $handler = new $class();
   return $handler;
 }
 

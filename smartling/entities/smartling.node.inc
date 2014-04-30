@@ -62,13 +62,9 @@ function smartling_multilanguage_support_node_type_validate(&$form, &$form_state
 
 function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) {
   // Delete content type in smartling support types
-  $smartling_translate_fields = variable_get('smartling_translate_fields', array());
-  $type = $form_state['values']['type'];
+  $bundle = $form_state['values']['type'];
   if ($form_state['values']['language_content_type'] != SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] != SMARTLING_NODES_METHOD_KEY) {
-    if (isset($smartling_translate_fields[$type])) {
-      unset($smartling_translate_fields[$type]);
-      variable_set('smartling_translate_fields', $smartling_translate_fields);
-    }
+    smartling_settings_get_handler()->deleteSingleBundleFromSettings('node', $bundle);
   }
 }
 

@@ -17,10 +17,16 @@ function smartling_admin_configuration_view() {
 
   $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form');
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form');
+  $taxonomy_translation_settings = drupal_get_form('smartling_admin_taxonomy_translation_settings_form');
+  $comments_translation_settings = drupal_get_form('smartling_admin_comments_translation_settings_form');
+  $users_translation_settings = drupal_get_form('smartling_admin_users_translation_settings_form');
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form');
 
   $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, 'Account info');
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, 'Content types and fields');
+  $output['smartling'][] = smartling_wrap_in_fieldset($taxonomy_translation_settings, 'Taxonomy vocabularies and fields');
+  $output['smartling'][] = smartling_wrap_in_fieldset($comments_translation_settings, 'Comment fields');
+  $output['smartling'][] = smartling_wrap_in_fieldset($users_translation_settings, 'User fields');
   $output['smartling'][] = smartling_wrap_in_fieldset($log_info, 'Smartling log');
   if (module_exists('smartling_load_test')) {
     $dev_settings = drupal_get_form('smartling_admin_dev_settings_form');
@@ -33,6 +39,7 @@ function smartling_admin_configuration_view() {
  * Account info form
  */
 function smartling_admin_account_info_settings_form($form, &$form_state) {
+  $smartling_settings = smartling_settings_get_handler();
 
   $form['accaunt_info'] = array(
     '#type' => 'item',
@@ -60,7 +67,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   $form['accaunt_info']['project_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Project Id'),
-    '#default_value' => variable_get('smartling_project_id', ''),
+    '#default_value' => $smartling_settings->getProjectId(),
     '#size' => 25,
     '#maxlength' => 25,
     '#required' => FALSE,
@@ -69,45 +76,34 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   $form['accaunt_info']['smartling_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Key'),
-    '#default_value' => variable_get('smartling_key', ''),
+    '#default_value' => $smartling_settings->getKey(),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
   );
 
-  $retrieval_type_default = variable_get('smartling_retrieval_type', NULL);
-  $retrieval_type = array('pseudo' => 'pseudo', 'published' => 'published', 'pending' => 'pending');
   $form['accaunt_info']['production_retrieval_type'] = array(
     '#type' => 'radios',
     '#title' => t('Retrieval type'),
-    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'published',
-    '#options' => $retrieval_type,
+    '#default_value' => $smartling_settings->getRetrievalType(),
+    '#options' => $smartling_settings->getRetrievalTypeOptions(),
     '#description' => t('Param for download translate.'),
   );
 
-  $language_options_list = array();
-  $languages = language_list();
-  $default_language = language_default();
-  unset($languages[$default_language->language]);
-
-  foreach ($languages as $langcode => $language) {
-    if ($language->enabled != '0') {
-      $language_options_list[$langcode] = $language->name;
-    }
-  }
-  if (!empty($language_options_list)) {
+  $target_language_options_list = $smartling_settings->getTargetLanguageOptionsList();
+  if (!empty($target_language_options_list)) {
     $form['accaunt_info']['target_locales'] = array(
       '#type' => 'checkboxes',
-      '#options' => $language_options_list,
+      '#options' => $target_language_options_list,
       '#title' => t('Target Locales'),
-      '#default_value' => variable_get('smartling_target_locales', array()),
+      '#default_value' => $smartling_settings->getTargetLocales(),
       '#prefix' => '<div class="wrap-target-locales">',
     );
 
-    $total = count($language_options_list);
+    $total = count($target_language_options_list);
     $counter = 0;
-    $locales_convert_array = variable_get('smartling_locales_convert_array', array());
-    foreach ($language_options_list as $langcode => $lang_name) {
+    $locales_convert_array = $smartling_settings->getlocalesConvertArray();
+    foreach ($target_language_options_list as $langcode => $lang_name) {
       $counter++;
       if ($counter == 1) {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
@@ -181,6 +177,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#title' => t('Default language'),
   );
 
+  $default_language = language_default();
   $form['accaunt_info']['default_language_markup'] = array(
     '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
@@ -192,11 +189,10 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   );
 
   global $base_url;
-  $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
   $form['accaunt_info']['callback_url'] = array(
     '#type' => 'textfield',
     '#title' => check_plain($base_url . '/'),
-    '#default_value' => $smartling_callback_url,
+    '#default_value' => $smartling_settings->getCallbackUrl(),
     '#size' => 50,
     '#maxlength' => 255 - (strlen($base_url) + 1),
     '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
@@ -233,51 +229,25 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   }
 
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    $project_id = $form_state['values']['project_id'];
+    $project_id = trim($form_state['values']['project_id']);
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    $smartling_key = $form_state['values']['smartling_key'];
+    $smartling_key = trim($form_state['values']['smartling_key']);
   }
+  // Init api object
+  $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api->getList('en', array('limit' => 1));
 
-  $data = array(
-    'apiKey' => trim($smartling_key),
-    'projectId' => trim($project_id),
-    'limit' => 1
-  );
-
-  $options = array(
-    'method' => 'POST',
-    'data' => drupal_http_build_query($data),
-    'timeout' => 5,
-    'headers' => array('Content-Type' => 'application/x-www-form-urlencoded'),
-  );
-
-  $url = $api_url . '/file/list';
-  $response = drupal_http_request($url, $options);
-  if ($response->code == 200) {
-    $response = json_decode($response->data);
-    if ($response->response->code == 'SUCCESS') {
-      $form_state['values']['smartling_key'] = trim($smartling_key);
-      $form_state['values']['project_id'] = trim($project_id);
-    }
-    else {
-      drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
-      form_set_error('api_url');
-      form_set_error('smartling_key');
-      form_set_error('project_id');
-    }
+  if ($api->getCodeStatus() == 'SUCCESS') {
+    $form_state['values']['smartling_key'] = trim($smartling_key);
+    $form_state['values']['project_id'] = trim($project_id);
   }
   else {
-    if (isset($response->error)) {
-      drupal_set_message($response->error, 'error');
-      smartling_watchdog('Smartling account settings error - @error', TRUE, array('@error' => $response->error), WATCHDOG_INFO);
-    }
     drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
     form_set_error('api_url');
     form_set_error('smartling_key');
     form_set_error('project_id');
   }
-
 
   // Target locales validate
   if (count(array_filter($form_state['values']['target_locales'])) == 0) {
@@ -299,60 +269,30 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
 
 function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
   // Save
+  $smartling_settings = smartling_settings_get_handler();
   // Account settings
-  if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
-    variable_set('smartling_api_url', $form_state['values']['api_url']);
+  if (isset($form_state['values']['api_url'])) {
+    $smartling_settings->setApiUrl($form_state['values']['api_url']);
   }
-  elseif (empty($form_state['values']['api_url'])) {
-    variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
+  if (isset($form_state['values']['project_id'])) {
+    $smartling_settings->setProjectId($form_state['values']['project_id']);
   }
-  if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    variable_set('smartling_project_id', $form_state['values']['project_id']);
-  }
-  elseif (empty($form_state['values']['project_id'])) {
-    variable_del('smartling_project_id');
-  }
-  if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    variable_set('smartling_key', $form_state['values']['smartling_key']);
-  }
-  elseif (empty($form_state['values']['smartling_key'])) {
-    variable_del('smartling_key');
+  if (isset($form_state['values']['smartling_key'])) {
+    $smartling_settings->setKey($form_state['values']['smartling_key']);
   }
 
   // Retrieval type
   if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
-    variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
+    $smartling_settings->setRetrievalType($form_state['values']['production_retrieval_type']);
   }
 
   // Target locales
-  $target_locales = $form_state['values']['target_locales'];
-  $locales_convert_array = $form_state['values']['target_locales'];
-  foreach ($form_state['values']['target_locales'] as $key => $lang) {
-    if ($lang === 0) { // Must be ===
-      unset($target_locales[$key]);
-      unset($locales_convert_array[$key]);
-    }
-    else {
-      if (!empty($form_state['values']['target_locales_text_key_' . $key])) {
-        $locales_convert_array[$key] = $form_state['values']['target_locales_text_key_' . $key];
-      }
-    }
-  }
-  if (!empty($target_locales)) {
-    variable_set('smartling_target_locales', $target_locales);
-  }
-  variable_set('smartling_locales_convert_array', $locales_convert_array);
-
-  // Default language format
-  $locales = variable_get('smartling_locales_convert_array', array());
-  variable_set('smartling_locales_convert_array', $locales);
+  $smartling_settings->makeTargetLocales($form_state['values']['target_locales']);
+  $smartling_settings->makeLocalesConvertArray($form_state['values']);
 
   // Callback
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', $form_state['values']['callback_url']);
-  }
-  elseif (empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', 'smartling-callback');
+  if (isset($form_state['values']['callback_url'])) {
+    $smartling_settings->setCallbackUrl($form_state['values']['callback_url']);
   }
 
   menu_rebuild();
@@ -369,12 +309,8 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
       if ($d_locale !== 0 && $d_locale == $key) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-
-        $key = variable_get('smartling_key');
-        $project_id = variable_get('smartling_project_id');
-
         // Init api object
-        $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api = new SmartlingAPI(SMARTLING_API_URL, $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
         $api->getList($s_locale);
 
         if ($api->getCodeStatus() == 'SUCCESS') {
@@ -393,13 +329,12 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
  * Smartling log info form
  */
 function smartling_admin_log_info_settings_form($form, &$form_state) {
-  $mode = variable_get('smartling_log', 1);
-  $active = array(0 => 'OFF', 1 => 'ON');
+  $smartling_settings = smartling_settings_get_handler();
   $form['log_info']['log_mode'] = array(
     '#type' => 'radios',
     '#title' => t('Smartling mode'),
-    '#default_value' => ($mode) ? 1 : 0,
-    '#options' => $active,
+    '#default_value' => $smartling_settings->getLogMode(),
+    '#options' => $smartling_settings->getLogModeOptions(),
     '#description' => t('Log ON dy default.'),
     'actions' => array(
       '#type' => 'actions',
@@ -416,15 +351,15 @@ function smartling_admin_log_info_settings_form($form, &$form_state) {
 }
 
 function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
+  $smartling_settings = smartling_settings_get_handler();
   if (isset($form_state['values']['log_mode'])) {
-    if ($form_state['values']['log_mode'] == 0) {
+    if ($form_state['values']['log_mode'] == FALSE) {
       smartling_watchdog('Smartling log OFF', FALSE);
-      variable_set('smartling_log', 0);
     }
-    elseif ($form_state['values']['log_mode'] == 1) {
+    elseif ($form_state['values']['log_mode'] == TRUE) {
       smartling_watchdog('Smartling log ON', FALSE);
-      variable_set('smartling_log', 1);
     }
+    $smartling_settings->setLogMode($form_state['values']['log_mode']);
   }
   drupal_goto(current_path(), array('fragment' => 'smartling-smartling-log'));
 }
@@ -434,9 +369,10 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
  */
 function smartling_admin_node_translation_settings_form($form, &$form_state) {
   $setup_complete = smartling_is_configured();
+  $smartling_settings = smartling_settings_get_handler();
 
   $raw_types = node_type_get_types();
-  $translate = variable_get('smartling_translate_fields', array());
+  $node_translate_fields = $smartling_settings->nodeGetFieldsSettings();
 
   // What types of fields DO we translate?
   $translatable_field_types = smartling_get_translatable_field_types();
@@ -463,7 +399,6 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
       );
 
       $fr_fields = array();
-      $smartling_translate_fields = variable_get('smartling_translate_fields', FALSE);
 
       if (smartling_nodes_method($value->type)) {
         $fr_tt['from']['#title'] = t('Nodes method');
@@ -480,7 +415,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           '#id' => 'edit-form-item-' . $value->type . '-separator-' . $node_title_name,
         );
 
-        $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
+        $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
 
         if ($is_in_conf) {
           $fr_fields[$node_title_name]['#attributes']['checked'] = 'checked';
@@ -503,11 +438,9 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
             '#id' => 'edit-form-item-' . $value->type . '-separator-' . $field_machine_name,
           );
 
-          $is_enabled = !empty($translate[$value->type]) && array_search($field_machine_name, $translate[$value->type]) !== FALSE;
+          $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$value->type][$field_machine_name])) ? TRUE : FALSE;
 
-          $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type][$field_machine_name])) ? TRUE : FALSE;
-
-          if ($is_enabled && $is_in_conf) {
+          if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
           }
         }
@@ -523,7 +456,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           ),
         );
 
-        $is_in_conf = (!empty($smartling_translate_fields) && $smartling_translate_fields && isset($smartling_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
+        $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
         if ($setup_complete && $is_in_conf) {
           $fr_fields['title_field']['#attributes']['checked'] = 'checked';
         }
@@ -571,7 +504,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
     '#suffix' => '* Note: Title field is not used if the content type specified method of translating nodes.',
   );
 
-  foreach (array_keys($translate) as $content_type) {
+  foreach (array_keys($node_translate_fields) as $content_type) {
     $form['node_translation']['types']['#default_value'][$content_type] = 1;
   }
 
@@ -587,14 +520,14 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
  * Node Translation Settings - Form Submit
  */
 function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
-// This is needed for the setup because of the field/node method selector.
+  $smartling_settings = smartling_settings_get_handler();
+  // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
   $translate = array();
   $operations = array();
 
   foreach ($form_state['input'] as $key => $value) {
-
     // Look for Selected Content Types and Fields.
     if (FALSE !== strpos($key, '_SEPARATOR_')) {
       // And only if set to translate
@@ -654,12 +587,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
     }
   }
 
-  if (!empty($translate)) {
-    variable_set('smartling_translate_fields', $translate);
-  }
-  else {
-    variable_delete('smartling_translate_fields');
-  }
+  $smartling_settings->nodeSetFieldsSettings($translate);
   drupal_set_message(t('Your content types have been updated.'));
 
   smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
@@ -678,6 +606,57 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   else {
     $form_state['redirect'] = $redirect;
   }
+}
+
+function smartling_admin_taxonomy_translation_settings_form($form, &$form_state) {
+
+  $form['taxonomy_translation']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Taxonomy Translation Settings - Form Submit
+ */
+function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form_state) {
+
+}
+
+function smartling_admin_comments_translation_settings_form($form, &$form_state) {
+
+  $form['comments_translation']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Comments Translation Settings - Form Submit
+ */
+function smartling_admin_comments_translation_settings_form_submit($form, &$form_state) {
+
+}
+
+function smartling_admin_users_translation_settings_form($form, &$form_state) {
+
+  $form['users_translation']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Users Translation Settings - Form Submit
+ */
+function smartling_admin_users_translation_settings_form_submit($form, &$form_state) {
+
 }
 
 function smartling_wrap_in_fieldset($form, $title) {
