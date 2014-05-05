@@ -90,7 +90,7 @@ function smartling_queue_check_status_process($args) {
         // This is a get status
         if ($api->getCodeStatus() == 'SUCCESS') {
 
-          smartling_watchdog('Smartling check status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs', TRUE, array(
+          smartling_watchdog('Smartling checks status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs', TRUE, array(
             '@nid' => $args->rid,
             '@s_locale' => $args->s_locale,
             '@as' => $status_result->response->data->approvedStringCount,
@@ -127,7 +127,7 @@ function smartling_queue_check_status_process($args) {
           }
         }
         else {
-          smartling_watchdog('Smartling check status for node id - @nid: <br/>
+          smartling_watchdog('Smartling checks status for node id - @nid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
       URI: @file_uri <br/>
@@ -140,7 +140,7 @@ function smartling_queue_check_status_process($args) {
       }
     }
     else {
-      smartling_watchdog('Smartling check status for node id - @nid is FAIL! Smartling entity not exist.', FALSE, array('@nid' => $args->rid), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
+      smartling_watchdog('Smartling checks status for node id - @nid is FAIL! Smartling entity not exist.', FALSE, array('@nid' => $args->rid), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
     }
   }
 }
