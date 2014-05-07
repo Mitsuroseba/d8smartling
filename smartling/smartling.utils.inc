@@ -287,16 +287,25 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
 }
 
 /**
+ * Return path for smartling dir
+ * @return string
+ */
+function smartling_get_dir() {
+  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  return (string) $smartling_dir;
+}
+
+/**
  *
  * @param type $xml_doc
  */
 function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name = NULL, $translated_file = FALSE) {
-  $directory = SMARTLING_DIRECTORY;
   if (is_null($file_name)) {
     $file_name = 'smartling_translate_' . $nid . '.xml';
   }
-  $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
 
+  $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
+  $directory = smartling_get_dir();
   $path = $directory . '/' . $file_name;
 
   if (is_dir($directory) && is_writable($directory)) {

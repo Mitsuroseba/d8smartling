@@ -246,7 +246,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
   $file_name = $entity_data->translated_file_name;
   $original_language = smartling_convert_locale_drupal_to_smartling($entity_data->original_language, TRUE);
-  $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
+  $file_path = smartling_get_dir() . '/' . $file_name;
 
   if ($nodes_method) {
     $original_node = smartling_node_load_default($rid);

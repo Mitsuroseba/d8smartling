@@ -24,16 +24,6 @@ define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_API_URL', variable_get('smartling_api_url', 'https://capi.smartling.com/v1'));
 define('SMARTLING_LOG', variable_get('smartling_log', 1));
 
-$smartling_dir = variable_get('file_public_path');
-if (is_null($smartling_dir)) {
-  $smartling_dir = conf_path() . '/files/smartling';
-}
-else {
-  $smartling_dir = $smartling_dir . '/smartling';
-}
-define('SMARTLING_DIRECTORY', $smartling_dir);
-
-
 include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');
 include_once('includes/smartling.workers.inc');
