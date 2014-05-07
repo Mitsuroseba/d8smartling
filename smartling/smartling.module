@@ -68,8 +68,8 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  if (SMARTLING_CALLBACK_URL) {
-    $items[SMARTLING_CALLBACK_URL . '/%'] = array(
+  if (variable_get('smartling_callback_url_use', TRUE)) {
+    $items['smartling/callback/%'] = array(
       'title' => 'Smartling push',
       'type' => MENU_CALLBACK,
       'page callback' => 'smartling_push_callback',

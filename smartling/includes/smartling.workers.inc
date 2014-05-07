@@ -200,7 +200,7 @@ function smartling_queue_send_to_translate_process($args) {
           // is java.lang.IllegalArgumentException: Invalid boolean value []
           ->setOverwriteApprovedLocales(0) // Must be set 0 (not FALSE).
           ->setApproved(0)
-          ->setCallbackUrl($base_url . '/' . SMARTLING_CALLBACK_URL);
+          ->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
       $upload_params = $upload_params->buildParameters();
 
       // Try to upload file

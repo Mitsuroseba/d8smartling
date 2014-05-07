@@ -201,13 +201,11 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#title' => t('Callback URL'),
   );
 
-  $form['accaunt_info']['callback_url'] = array(
-    '#type' => 'textfield',
-    '#title' => check_plain($base_url . '/'),
-    '#default_value' => variable_get('smartling_callback_url', 'smartling-callback'),
-    '#size' => 50,
-    '#maxlength' => 255 - (strlen($base_url) + 1),
-    '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
+  $form['accaunt_info']['callback_url_use'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use Smartling callback: /smartling/callback/%cron_key'),
+    '#default_value' => variable_get('smartling_callback_url_use', TRUE),
+   // '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
     '#required' => FALSE,
   );
 
@@ -336,11 +334,8 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   }
 
   // Callback
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', check_plain($form_state['values']['callback_url']));
-  }
-  elseif (empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', 'smartling-callback');
+  if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
+    variable_set('smartling_callback_url_use', (int)$form_state['values']['callback_url_use']);
   }
 
   menu_rebuild();
