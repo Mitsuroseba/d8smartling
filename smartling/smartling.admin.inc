@@ -112,7 +112,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       if ($counter == 1) {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => check_plain(t($langcode)),
+          '#title' => '',
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -129,7 +129,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       else {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => check_plain(t($langcode)),
+          '#title' => '',
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -146,7 +146,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       if ($counter == $total) {
         $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
-          '#title' => check_plain(t($langcode)),
+          '#title' => '',
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
           '#size' => 6,
@@ -205,7 +205,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Use Smartling callback: /smartling/callback/%cron_key'),
     '#default_value' => variable_get('smartling_callback_url_use', TRUE),
-   // '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
+    // '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
     '#required' => FALSE,
   );
 
@@ -329,13 +329,13 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array', FALSE) === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
     _smartling_update_7000_locales_convert_array();
   }
 
   // Callback
   if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
-    variable_set('smartling_callback_url_use', (int)$form_state['values']['callback_url_use']);
+    variable_set('smartling_callback_url_use', (int) $form_state['values']['callback_url_use']);
   }
 
   menu_rebuild();
