@@ -759,7 +759,7 @@ function smartling_entity_load($entities, $type) {
     foreach ($entities as $entity) {
 
       if (smartling_supported_type($entity->type)) {
-        $fields = variable_get('smartling_translate_fields');
+        $fields = variable_get('smartling_translate_fields', array());
         if (isset($fields[$entity->type])) {
           foreach ($fields[$entity->type] as $field_name) {
 
@@ -937,12 +937,12 @@ function smartling_do_translate_action_validate($form, &$form_state) {
 
 function smartling_do_translate_action_submit($form, $form_state) {
   $count_op = count($form_state['selection']);
-  smartling_watchdog(format_plural($count_op, 'Smartling Bulk Submit - add 1 node', 'Smartling Bulk Submit - add @count nodes'), TRUE, array(), WATCHDOG_INFO);
+  smartling_watchdog(format_plural($count_op, 'Smartling Bulk Submit - add 1 node to queue', 'Smartling Bulk Submit - add @count nodes to queue'), TRUE, array(), WATCHDOG_INFO);
   return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
 
 function smartling_push_callback() {
-  smartling_watchdog('function "smartling_push_callback" call', TRUE, array(), WATCHDOG_INFO);
+  smartling_watchdog('Smartling starts to process callback request', TRUE, array(), WATCHDOG_INFO);
 
   if (isset($_GET['locale']) && isset($_GET['fileUri'])) {
     $s_locale = check_plain($_GET['locale']);

@@ -14,6 +14,7 @@
 function smartling_supported_type($type) {
   $smartling_supported_explicitly = variable_get('language_content_type_' . $type, NULL);
 
+  //ToDo: change "2" for human readable constant.
   if ($smartling_supported_explicitly == 2 || $smartling_supported_explicitly == SMARTLING_KEY) {
     $smartling_supported_explicitly = TRUE;
   }
@@ -25,6 +26,7 @@ function smartling_supported_type($type) {
 }
 
 function smartling_nodes_method($type) {
+  //ToDo: change "2" for human readable constant.
   $nodes_method = variable_get('language_content_type_' . $type, NULL) == 2;
   return $nodes_method;
 }
@@ -84,7 +86,7 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  */
 function smartling_is_configured() {
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array', NULL) === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array', FALSE) === FALSE) {
     drupal_set_message(t('Please fill in a Default language option in order to complete update.'), 'warning');
     if (current_path() != 'admin/config/regional/smartling') {
       $options['query'] = array('destination' => current_path());
@@ -100,19 +102,8 @@ function smartling_is_configured() {
   );
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
-    if (empty($val)) {
-      if ($required_variable == 'smartling_api_url') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_key') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_project_id') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_target_locales') {
-        return FALSE;
-      }
+    if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
+      return FALSE;
     }
   }
   // All required configuration variables are set
@@ -529,8 +520,8 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
   $file_name_unic = $entity_data->file_name;
   $file_uri = file_create_url('public://smartling/' . $file_name);
 
-  $key = variable_get('smartling_key');
-  $project_id = variable_get('smartling_project_id');
+  $key = variable_get('smartling_key', '');
+  $project_id = variable_get('smartling_project_id', '');
   // Init api object
   $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
@@ -632,12 +623,12 @@ function smartling_download_file($entity_data) {
   $file_name_unic = $entity_data->file_name;
   $s_locale = $entity_data->target_language;
 
-  $key = variable_get('smartling_key');
-  $project_id = variable_get('smartling_project_id');
+  $key = variable_get('smartling_key', '');
+  $project_id = variable_get('smartling_project_id', '');
   // Init api object
   $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-  $retrieval_type = variable_get('smartling_retrieval_type');
+  $retrieval_type = variable_get('smartling_retrieval_type', 'published');
   $download_param = array(
     'retrievalType' => $retrieval_type,
   );
@@ -657,8 +648,8 @@ function smartling_get_progress_status($entity_data) {
     $file_name_unic = $entity_data->file_name;
     $file_uri = file_create_url('public://smartling/' . $entity_data->file_name);
 
-    $key = variable_get('smartling_key');
-    $project_id = variable_get('smartling_project_id');
+    $key = variable_get('smartling_key', '');
+    $project_id = variable_get('smartling_project_id', '');
     // Init api object
     $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 

@@ -33,6 +33,7 @@ function smartling_admin_configuration_view() {
  * Account info form
  */
 function smartling_admin_account_info_settings_form($form, &$form_state) {
+  global $base_url;
 
   $form['accaunt_info'] = array(
     '#type' => 'item',
@@ -75,12 +76,11 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#required' => FALSE,
   );
 
-  $retrieval_type_default = variable_get('smartling_retrieval_type', NULL);
   $retrieval_type = array('pseudo' => 'pseudo', 'published' => 'published', 'pending' => 'pending');
   $form['accaunt_info']['production_retrieval_type'] = array(
     '#type' => 'radios',
     '#title' => t('Retrieval type'),
-    '#default_value' => (!is_null($retrieval_type_default)) ? $retrieval_type_default : 'published',
+    '#default_value' => variable_get('smartling_retrieval_type', 'published'),
     '#options' => $retrieval_type,
     '#description' => t('Param for download translate.'),
   );
@@ -201,12 +201,10 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#title' => t('Callback URL'),
   );
 
-  global $base_url;
-  $smartling_callback_url = variable_get('smartling_callback_url', 'smartling-callback');
   $form['accaunt_info']['callback_url'] = array(
     '#type' => 'textfield',
     '#title' => check_plain($base_url . '/'),
-    '#default_value' => $smartling_callback_url,
+    '#default_value' => variable_get('smartling_callback_url', 'smartling-callback'),
     '#size' => 50,
     '#maxlength' => 255 - (strlen($base_url) + 1),
     '#suffix' => '<div>' . t('Example: smartling-callback (do not use "/" as the first character)') . '</div>',
@@ -333,7 +331,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array', FALSE) === FALSE) {
     _smartling_update_7000_locales_convert_array();
   }
 
@@ -360,9 +358,9 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
       if ($d_locale !== 0 && $d_locale == $key) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
         // Init api object
-        $api_url = variable_get('smartling_api_url');
-        $project_id = variable_get('smartling_project_id');
-        $key = variable_get('smartling_key');
+        $api_url = variable_get('smartling_api_url', '');
+        $project_id = variable_get('smartling_project_id', '');
+        $key = variable_get('smartling_key', '');
         $api = new SmartlingAPI($api_url, $key, $project_id, SMARTLING_PRODUCTION_MODE);
         $api->getList($s_locale);
 
