@@ -264,17 +264,6 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     drupal_set_message(t('At least one locale must be selected'), 'error');
     form_set_error('target_locales');
   }
-
-  // Callback validate
-  $callback_url = '';
-  if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    $callback_url = check_plain($form_state['values']['callback_url']);
-    $status = valid_url($callback_url);
-    if (!$status) {
-      drupal_set_message(t('Callback URL has wrong format'), 'error');
-      form_set_error('callback_url');
-    }
-  }
 }
 
 function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
@@ -334,7 +323,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   }
 
   // Callback
-  if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
+  if (isset($form_state['values']['callback_url_use'])) {
     variable_set('smartling_callback_url_use', (int)$form_state['values']['callback_url_use']);
   }
 
