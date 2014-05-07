@@ -23,13 +23,13 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
 
     $translated_filename = $file_name . '_' . $s_locale . '.xml';
 
-    $key = variable_get('smartling_key');
-    $project_id = variable_get('smartling_project_id');
+    $key = variable_get('smartling_key', '');
+    $project_id = variable_get('smartling_project_id', '');
 
     // Init api object
     $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
-    $retrieval_type = variable_get('smartling_retrieval_type');
+    $retrieval_type = variable_get('smartling_retrieval_type', 'published');
     $download_param = array(
       'retrievalType' => $retrieval_type,
     );
@@ -77,8 +77,8 @@ function smartling_queue_check_status_process($args) {
 
         $file_uri = file_create_url('public://smartling/' . $file_name);
 
-        $key = variable_get('smartling_key');
-        $project_id = variable_get('smartling_project_id');
+        $key = variable_get('smartling_key', '');
+        $project_id = variable_get('smartling_project_id', '');
 
         // Init api object
         $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
@@ -181,8 +181,8 @@ function smartling_queue_send_to_translate_process($args) {
       $file_uri = file_create_url('public://smartling/' . $file_name);
       $file_type = 'xml';
 
-      $key = variable_get('smartling_key');
-      $project_id = variable_get('smartling_project_id');
+      $key = variable_get('smartling_key', '');
+      $project_id = variable_get('smartling_project_id', '');
 
       // Init api object
       $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
