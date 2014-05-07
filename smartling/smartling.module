@@ -81,11 +81,12 @@ function smartling_menu() {
   );
 
   if (SMARTLING_CALLBACK_URL) {
-    $items[SMARTLING_CALLBACK_URL] = array(
+    $items[SMARTLING_CALLBACK_URL . '/%'] = array(
       'title' => 'Smartling push',
       'type' => MENU_CALLBACK,
       'page callback' => 'smartling_push_callback',
-      'access callback' => TRUE,
+      'access callback' => 'smartling_push_callback_access',
+      'access arguments' => array(2),
     );
   }
 
@@ -936,6 +937,10 @@ function smartling_do_translate_action_submit($form, $form_state) {
   return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
 
+function smartling_push_callback_access($key) {
+  return  (variable_get('cron_key', 'drupal') == $key && empty($_POST));
+}
+
 function smartling_push_callback() {
   smartling_watchdog('Smartling starts to process callback request', TRUE, array(), WATCHDOG_INFO);
 
@@ -963,7 +968,8 @@ function smartling_push_callback() {
       smartling_watchdog('The callback function smartling downloaded translation for node id - @nid, language - @language', TRUE, array('@nid' => $entity_data->rid, '@language' => $s_locale), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $entity_data->rid . '/edit'));
     }
     elseif ($entity_data == FALSE) {
-      smartling_watchdog('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_INFO);
+      smartling_watchdog('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', TRUE, array('@locale' => $s_locale, '@fileUri' => $file_uri), WATCHDOG_WARNING);
+      //404
     }
   }
   else {
@@ -971,6 +977,7 @@ function smartling_push_callback() {
     foreach ($params as $param) {
       if (!isset($_GET[$param])) {
         smartling_watchdog('Smartling GET parameter "@param_name" are missing', TRUE, array('@param_name' => $param), WATCHDOG_WARNING);
+        //404
       }
     }
   }
