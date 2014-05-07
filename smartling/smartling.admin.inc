@@ -92,7 +92,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
 
   foreach ($languages as $langcode => $language) {
     if ($language->enabled != '0') {
-      $language_options_list[$langcode] = $language->name;
+      $language_options_list[$langcode] = check_plain($language->name);
     }
   }
   if (!empty($language_options_list)) {
@@ -182,7 +182,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   );
 
   $form['accaunt_info']['default_language_markup'] = array(
-    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => $default_language->name)) . '</p>',
+    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => check_plain($default_language->name))) . '</p>',
   );
   $form['accaunt_info']['default_language_format'] = array(
     '#type' => 'textfield',
@@ -229,7 +229,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   $project_id = '';
   $smartling_key = '';
   if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
-    $api_url = $form_state['values']['api_url'];
+    $api_url = check_plain($form_state['values']['api_url']);
     $status = valid_url($api_url, TRUE);
     if (!$status) {
       drupal_set_message(t('API URL has wrong format'), 'error');
@@ -241,10 +241,10 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   }
 
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    $project_id = trim($form_state['values']['project_id']);
+    $project_id = check_plain(trim($form_state['values']['project_id']));
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    $smartling_key = trim($form_state['values']['smartling_key']);
+    $smartling_key = check_plain(trim($form_state['values']['smartling_key']));
   }
   // Init api object
   $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
@@ -270,7 +270,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   // Callback validate
   $callback_url = '';
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    $callback_url = $form_state['values']['callback_url'];
+    $callback_url = check_plain($form_state['values']['callback_url']);
     $status = valid_url($callback_url);
     if (!$status) {
       drupal_set_message(t('Callback URL has wrong format'), 'error');
@@ -283,19 +283,19 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   // Save
   // Account settings
   if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
-    variable_set('smartling_api_url', $form_state['values']['api_url']);
+    variable_set('smartling_api_url', check_plain($form_state['values']['api_url']));
   }
   elseif (empty($form_state['values']['api_url'])) {
     variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
   }
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
-    variable_set('smartling_project_id', $form_state['values']['project_id']);
+    variable_set('smartling_project_id', check_plain($form_state['values']['project_id']));
   }
   elseif (empty($form_state['values']['project_id'])) {
     variable_del('smartling_project_id');
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    variable_set('smartling_key', $form_state['values']['smartling_key']);
+    variable_set('smartling_key', check_plain($form_state['values']['smartling_key']));
   }
   elseif (empty($form_state['values']['smartling_key'])) {
     variable_del('smartling_key');
@@ -316,7 +316,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     }
     else {
       if (!empty($form_state['values']['target_locales_text_key_' . $key])) {
-        $locales_convert_array[$key] = $form_state['values']['target_locales_text_key_' . $key];
+        $locales_convert_array[$key] = check_plain($form_state['values']['target_locales_text_key_' . $key]);
       }
     }
   }
@@ -327,7 +327,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Default language format
   $locales = variable_get('smartling_locales_convert_array', array());
-  $locales = array_merge($locales, array($form_state['smartling_default_language'] => $form_state['values']['default_language_format']));
+  $locales = array_merge($locales, array($form_state['smartling_default_language'] => check_plain($form_state['values']['default_language_format'])));
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
@@ -337,7 +337,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Callback
   if (isset($form_state['values']['callback_url']) && !empty($form_state['values']['callback_url'])) {
-    variable_set('smartling_callback_url', $form_state['values']['callback_url']);
+    variable_set('smartling_callback_url', check_plain($form_state['values']['callback_url']));
   }
   elseif (empty($form_state['values']['callback_url'])) {
     variable_set('smartling_callback_url', 'smartling-callback');
@@ -443,6 +443,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
   $rows = array();
 
   foreach ($raw_types as $value) {
+
     if (smartling_supported_type($value->type)) {
       $fr_tt['from'] = array(
         '#type' => 'item',
@@ -540,7 +541,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
       $fr_fields = array();
     }
     $rows[$value->type] = array(
-      array('data' => $value->name, 'width' => '20%'),
+      array('data' => check_plain($value->name), 'width' => '20%'),
       array('data' => drupal_render($fr_tt), 'width' => '20%'),
       array('data' => drupal_render($fr_fields), 'width' => '60%'),
     );
