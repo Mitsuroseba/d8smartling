@@ -53,7 +53,16 @@ function smartling_reports_menu_alter(&$items) {
  * Implements hook_views_data_alter().
  */
 function smartling_reports_views_query_alter(&$view, &$query) {
-  // Exclude und language
+  // Add relationships info for node
+  if ($view->name == 'smartling_bulk_submit') {
+    $query->table_queue['smartling_entity_data_node']['join']->extra = array(
+      array(
+        'field' => 'entity_type',
+        'value' => 'node',
+      )
+    );
+  }
+  // Exclude und language and add relationships info for term
   if ($view->name == 'smartling_bulk_submit_taxonomy_terms') {
     $query->where[] = array(
       'conditions' => array(array(
@@ -72,6 +81,30 @@ function smartling_reports_views_query_alter(&$view, &$query) {
         )),
       'args' => array(),
       'type' => 'AND',
+    );
+    $query->table_queue['smartling_entity_data_taxonomy_term_data']['join']->extra = array(
+      array(
+        'field' => 'entity_type',
+        'value' => 'taxonomy_term',
+      )
+    );
+  }
+  // Add relationships info for comment
+  if ($view->name == 'smartling_bulk_submit_comments') {
+    $query->table_queue['smartling_entity_data_comment']['join']->extra = array(
+      array(
+        'field' => 'entity_type',
+        'value' => 'comment',
+      )
+    );
+  }
+  // Add relationships info for user
+  if ($view->name == 'smartling_bulk_submit_users') {
+    $query->table_queue['smartling_entity_data_users']['join']->extra = array(
+      array(
+        'field' => 'entity_type',
+        'value' => 'user',
+      )
     );
   }
 }
