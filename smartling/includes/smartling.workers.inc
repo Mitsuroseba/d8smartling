@@ -10,19 +10,13 @@
 function smartling_queue_download_update_translated_item_process($entity_data) {
   if (smartling_is_configured()) {
     $nodes_method = smartling_nodes_method($entity_data->bundle);
-
     $s_locale = $entity_data->target_language;
     $rid = $entity_data->rid;
-
     $file_name = $entity_data->file_name;
     $file_name_unic = $entity_data->file_name;
-
     $file_path = smartling_get_dir() . '/' . $file_name;
-
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
-
     $translated_filename = $file_name . '_' . $s_locale . '.xml';
-
     $key = variable_get('smartling_key', '');
     $project_id = variable_get('smartling_project_id', '');
 
@@ -68,15 +62,13 @@ function smartling_queue_check_status_process($args) {
   if (smartling_is_configured()) {
     $rid = $args->rid;
     $s_locale = $args->s_locale;
-
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
+
     if ($entity_data !== FALSE) {
       if ($entity_data->progress != 100) {
         $file_name = $entity_data->file_name;
         $file_name_unic = $entity_data->file_name;
-
         $file_uri = file_create_url('public://smartling/' . $file_name);
-
         $key = variable_get('smartling_key', '');
         $project_id = variable_get('smartling_project_id', '');
 

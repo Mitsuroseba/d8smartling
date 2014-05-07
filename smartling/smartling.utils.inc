@@ -535,62 +535,6 @@ function smartling_build_localize($dom, $title = '', $strings = array(), $index 
  * @param type $rid
  * @param type $s_locale
  * @param type $entity_data
- * @return int
- */
-function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
-  smartling_is_configured();
-
-  if (is_null($entity_data)) {
-    $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
-  }
-  $file_name = $entity_data->file_name;
-  $file_name_unic = $entity_data->file_name;
-  $file_uri = file_create_url('public://smartling/' . $file_name);
-
-  $key = variable_get('smartling_key', '');
-  $project_id = variable_get('smartling_project_id', '');
-  // Init api object
-  $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
-
-  // Try to retrieve file status
-  $status_result = $api->getStatus($file_name_unic, $s_locale);
-  $status_result = json_decode($status_result);
-
-  // This is a get status
-  if ($api->getCodeStatus() == 'SUCCESS') {
-
-    if ($status_result->response->data->approvedStringCount !== 0) {
-      $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
-    }
-    else {
-      $progress = 100;
-    }
-    smartling_watchdog('Smartling progress status for node id - @nid (@s_locale). approvedString = @as, completedString = @cs', TRUE, array(
-      '@nid' => $rid,
-      '@s_locale' => $s_locale,
-      '@as' => $status_result->response->data->approvedStringCount,
-      '@cs' => $status_result->response->data->completedStringCount
-        ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
-
-    return $progress;
-  }
-  else {
-    smartling_watchdog('Smartling tried to check file progress: <br/>
-      Project Id: @project_id <br/>
-      Action: status <br/>
-      URI: @file_uri <br/>
-      Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@s_locale' => $s_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $rid));
-    drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
-    return FALSE;
-  }
-}
-
-/**
- *
- * @param type $rid
- * @param type $s_locale
- * @param type $entity_data
  */
 function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL) {
   $progress = 'exception';
