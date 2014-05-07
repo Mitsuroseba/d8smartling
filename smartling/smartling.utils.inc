@@ -296,6 +296,24 @@ function smartling_get_dir() {
 }
 
 /**
+ * Return api url
+ * @return string
+ */
+function smartling_get_api_url() {
+  $url = variable_get('smartling_api_url', 'https://capi.smartling.com/v1');
+  return (string) $url;
+}
+
+/**
+ * Return log mode
+ * @return bool
+ */
+function smartling_get_log_mode() {
+  $mode = variable_get('smartling_log', TRUE);
+  return (bool) $mode;
+}
+
+/**
  *
  * @param type $xml_doc
  */
@@ -532,7 +550,7 @@ function smartling_check_translate($rid, $s_locale = '', $entity_data = NULL) {
   $key = variable_get('smartling_key', '');
   $project_id = variable_get('smartling_project_id', '');
   // Init api object
-  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
   // Try to retrieve file status
   $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -635,7 +653,7 @@ function smartling_download_file($entity_data) {
   $key = variable_get('smartling_key', '');
   $project_id = variable_get('smartling_project_id', '');
   // Init api object
-  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
   $retrieval_type = variable_get('smartling_retrieval_type', 'published');
   $download_param = array(
@@ -660,7 +678,7 @@ function smartling_get_progress_status($entity_data) {
     $key = variable_get('smartling_key', '');
     $project_id = variable_get('smartling_project_id', '');
     // Init api object
-    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
     // Try to retrieve file status
     $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -741,7 +759,7 @@ function smartling_language_list() {
  */
 function smartling_watchdog($message, $consider_log = TRUE, $variables = array(), $severity = WATCHDOG_INFO, $link = NULL) {
   if ($consider_log) {
-    if (SMARTLING_LOG) {
+    if (smartling_get_log_mode()) {
       watchdog('smartling', $message, $variables, $severity, $link);
     }
   }

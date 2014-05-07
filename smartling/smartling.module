@@ -22,8 +22,6 @@ define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity
 
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_CALLBACK_URL', variable_get('smartling_callback_url', FALSE));
-define('SMARTLING_API_URL', variable_get('smartling_api_url', 'https://capi.smartling.com/v1'));
-define('SMARTLING_LOG', variable_get('smartling_log', 1));
 
 include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');

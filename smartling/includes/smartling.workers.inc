@@ -27,7 +27,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $project_id = variable_get('smartling_project_id', '');
 
     // Init api object
-    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
     $retrieval_type = variable_get('smartling_retrieval_type', 'published');
     $download_param = array(
@@ -81,7 +81,7 @@ function smartling_queue_check_status_process($args) {
         $project_id = variable_get('smartling_project_id', '');
 
         // Init api object
-        $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
         // Try to retrieve file status
         $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -185,7 +185,7 @@ function smartling_queue_send_to_translate_process($args) {
       $project_id = variable_get('smartling_project_id', '');
 
       // Init api object
-      $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+      $api = new SmartlingAPI(smartling_get_api_url(), $key, $project_id, SMARTLING_PRODUCTION_MODE);
 
       $locales_to_approve = $args->s_locales;
       global $base_url;

@@ -51,7 +51,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   $form['accaunt_info']['api_url'] = array(
     '#type' => 'textfield',
     '#title' => t('API URL'),
-    '#default_value' => SMARTLING_API_URL,
+    '#default_value' => smartling_get_api_url(),
     '#size' => 25,
     '#maxlength' => 255,
     '#required' => FALSE,
@@ -380,12 +380,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
  * Smartling log info form
  */
 function smartling_admin_log_info_settings_form($form, &$form_state) {
-  $mode = variable_get('smartling_log', 1);
   $active = array(0 => 'OFF', 1 => 'ON');
   $form['log_info']['log_mode'] = array(
     '#type' => 'radios',
     '#title' => t('Smartling mode'),
-    '#default_value' => ($mode) ? 1 : 0,
+    '#default_value' => (smartling_get_log_mode()) ? 1 : 0,
     '#options' => $active,
     '#description' => t('Log ON dy default.'),
     'actions' => array(
@@ -406,11 +405,11 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
     if ($form_state['values']['log_mode'] == 0) {
       smartling_watchdog('Smartling log OFF', FALSE);
-      variable_set('smartling_log', 0);
+      variable_set('smartling_log', FALSE);
     }
     elseif ($form_state['values']['log_mode'] == 1) {
       smartling_watchdog('Smartling log ON', FALSE);
-      variable_set('smartling_log', 1);
+      variable_set('smartling_log', TRUE);
     }
   }
   drupal_goto(current_path(), array('fragment' => 'smartling-smartling-log'));
