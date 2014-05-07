@@ -32,7 +32,7 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
 
     // Set title field for article CT
     $edit = array();
-    $edit['page_SEPARATOR_node_title'] = 1;
+    $edit['page_SEPARATOR_title_field'] = 1;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
