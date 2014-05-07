@@ -256,7 +256,7 @@ function smartling_get_full_language_name($s_locale) {
 
   $languages = language_list();
   if (isset($languages[$d_locale])) {
-    return $languages[$d_locale]->name;
+    return check_plain($languages[$d_locale]->name);
   }
   else {
     return NULL;
@@ -707,7 +707,7 @@ function smartling_language_options_list() {
 
   foreach ($languages as $langcode => $language) {
     if ($language->enabled != '0') {
-      $language_options_list[$langcode] = $language->name;
+      $language_options_list[$langcode] = check_plain($language->name);
     }
   }
   return $language_options_list;
