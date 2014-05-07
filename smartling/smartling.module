@@ -21,7 +21,6 @@ define('SMARTLING_STATUS_EVENT_UPDATE_FIELDS', 'smartling_update_node_fields');
 define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity_update');
 
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
-define('SMARTLING_CALLBACK_URL', variable_get('smartling_callback_url', FALSE));
 define('SMARTLING_API_URL', variable_get('smartling_api_url', 'https://capi.smartling.com/v1'));
 define('SMARTLING_LOG', variable_get('smartling_log', 1));
 
@@ -80,8 +79,8 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  if (SMARTLING_CALLBACK_URL) {
-    $items[SMARTLING_CALLBACK_URL . '/%'] = array(
+  if (variable_get('smartling_callback_url_use', TRUE)) {
+    $items['smartling/callback/%'] = array(
       'title' => 'Smartling push',
       'type' => MENU_CALLBACK,
       'page callback' => 'smartling_push_callback',

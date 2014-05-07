@@ -11,7 +11,7 @@
 function smartling_install() {
   variable_set('smartling_log', 1);
   variable_set('smartling_retrieval_type', 'published');
-  variable_set('smartling_callback_url', 'smartling-callback');
+  variable_set('smartling_callback_url_use', TRUE);
   variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
 
   $language_negotiation_language = array(
@@ -122,6 +122,8 @@ function smartling_uninstall() {
     $queue = DrupalQueue::get($queue_name);
     $queue->deleteQueue();
   }
+
+  variable_del('smartling_callback_url');
 }
 
 /**
