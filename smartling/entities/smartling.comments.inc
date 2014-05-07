@@ -6,6 +6,18 @@
  */
 
 /**
+ * Implements hook_comment_presave().
+ */
+function smartling_comment_presave($comment) {
+  // Make sure the title isn't overwritten with the translation when using the title module.
+  if (module_exists('title') && array_key_exists('subject_field', $comment)) {
+    if (isset($comment->subject_field[$comment->language][0]['value'])) {
+      $comment->subject = $comment->subject_field[$comment->language][0]['value'];
+    }
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function smartling_form_alter(&$form, &$form_state, $form_id) {
@@ -227,7 +239,8 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-
+  // For not change comment status to red when send comment and change content
+  $comment->send_to_smartling = TRUE;
   comment_save($comment);
   smartling_watchdog('Updated comment %comment.', TRUE, array('%comment' => $comment->subject), WATCHDOG_INFO, $link);
 }

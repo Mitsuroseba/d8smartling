@@ -12,17 +12,8 @@
  */
 function smartling_get_field_content_processing_mode($field_name) {
   $info = field_info_field($field_name);
-
-  if ($field_name == 'node_title') {
-    return 'node-title';
-  }
-  if ($field_name == 'taxonomy-term-title') {
-    return 'taxonomy-term-title';
-  }
-  if ($field_name == 'taxonomy-term-description') {
-    return 'taxonomy-term-description';
-  }
-  elseif ($field_name == 'title_field') {
+  $swap_array = array('title_field', 'name_field', 'description_field', 'subject_field');
+  if (in_array($field_name, $swap_array)) {
     return 'text-field';
   }
   else {
@@ -65,48 +56,44 @@ function smartling_node_content_to_translate($nid) {
 
   $language = (!empty($node->language)) ? $node->language : language_default()->language;
 
-  foreach (smartling_settings_get_handler()->nodeGetFieldsSettings() as $type => $field_names) {
-    if ($node->type === $type) {
-      foreach ($field_names as $field_name) {
-        switch (smartling_get_field_content_processing_mode($field_name)) {
-          case 'node-title':
-            if (!empty($node->title)) {
-              $node_current_translatable_content[$field_name][0] = $node->title;
-            }
-            break;
-
-          case 'text-field':
-            if (!empty($node->{$field_name}[$language])) {
-              foreach ($node->{$field_name}[$language] as $key => $item) {
-                $node_current_translatable_content[$field_name][$key] = $item['value'];
-              }
-            }
-            break;
-
-          case 'body-with-summary-field':
-            if (!empty($node->{$field_name}[$language])) {
-              foreach ($node->{$field_name}[$language] as $key => $item) {
-                $node_current_translatable_content[$field_name][$key]['body'] = $item['value'];
-                $node_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
-              }
-            }
-            break;
-
-          case 'image-field':
-            if (is_array($node->{$field_name}) && !empty($node->{$field_name}[$language])) {
-              foreach ($node->{$field_name}[$language] as $key => $item) {
-                $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
-                $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
-                $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
-              }
-            }
-            break;
-
-          default:
-            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
-            break;
+  foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($node->type) as $field_name) {
+    switch (smartling_get_field_content_processing_mode($field_name)) {
+      case 'node-title':
+        if (!empty($node->title)) {
+          $node_current_translatable_content[$field_name][0] = $node->title;
         }
-      }
+        break;
+
+      case 'text-field':
+        if (!empty($node->{$field_name}[$language])) {
+          foreach ($node->{$field_name}[$language] as $key => $item) {
+            $node_current_translatable_content[$field_name][$key] = $item['value'];
+          }
+        }
+        break;
+
+      case 'body-with-summary-field':
+        if (!empty($node->{$field_name}[$language])) {
+          foreach ($node->{$field_name}[$language] as $key => $item) {
+            $node_current_translatable_content[$field_name][$key]['body'] = $item['value'];
+            $node_current_translatable_content[$field_name][$key]['summary'] = $item['summary'];
+          }
+        }
+        break;
+
+      case 'image-field':
+        if (is_array($node->{$field_name}) && !empty($node->{$field_name}[$language])) {
+          foreach ($node->{$field_name}[$language] as $key => $item) {
+            $node_current_translatable_content[$field_name][$key]['alt-img'] = $item['alt'];
+            $node_current_translatable_content[$field_name][$key]['title-img'] = $item['title'];
+            $node_current_translatable_content[$field_name][$key]['fid-img'] = $item['fid'];
+          }
+        }
+        break;
+
+      default:
+        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        break;
     }
   }
   return $node_current_translatable_content;
@@ -130,7 +117,7 @@ function smartling_term_content_to_translate($tid) {
 
   $language = (!empty($term->language)) ? $term->language : language_default()->language;
 
-  foreach (smartling_settings_get_handler()->taxonomy_termGetFieldsSettings() as $field_name) {
+  foreach (smartling_settings_get_handler()->taxonomy_termGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'taxonomy-term-title':
         if (!empty($term->name)) {
@@ -196,10 +183,9 @@ function smartling_comment_content_to_translate($cid) {
     $comment = $cid;
   }
 
-  $field_names = smartling_get_supported_field_names_by_type_and_bundle('comment', $comment->node_type);
   $language = (!empty($comment->language)) ? $comment->language : language_default()->language;
 
-  foreach ($field_names as $field_name) {
+  foreach (smartling_settings_get_handler()->commentGetFieldsSettingsByBundle($comment->node_type) as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($comment->{$field_name}[$language])) {
@@ -253,10 +239,9 @@ function smartling_user_content_to_translate($uid) {
     $user = $uid;
   }
 
-  $field_names = smartling_get_supported_field_names_by_type_and_bundle('user', 'user');
   $language = (!empty($user->language)) ? $user->language : language_default()->language;
 
-  foreach ($field_names as $field_name) {
+  foreach (smartling_settings_get_handler()->userGetFieldsSettingsByBundle('user') as $field_name) {
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($user->{$field_name}[$language])) {
@@ -302,77 +287,32 @@ function smartling_user_content_to_translate($uid) {
  * @return string
  */
 function smartling_get_update_field_processing_mode($field_name, $xpath) {
-  if ($field_name == 'taxonomy-term-title') {
-    return 'taxonomy-term-title';
-  }
-  elseif ($field_name == 'taxonomy-term-description') {
-    $taxonomy_term_description = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-    if (is_object($taxonomy_term_description) && ($taxonomy_term_description instanceof DomElement)) {
-      return 'taxonomy-term-description';
-    }
-  }
+  // check field variant
+  $text_field = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
+  $body = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
+  $summary = $xpath->query('//string[@id="' . $field_name . '-summary-0' . '"][1]')->item(0);
+  $image_alt = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
+  $image_title = $xpath->query('//string[@id="' . $field_name . '-title-img-0' . '"][1]')->item(0);
 
-  if ($field_name == 'node_title') {
-    return 'node-title';
+  if (is_object($text_field)) {
+    // If this field is a text field
+    if ($text_field instanceof DomElement) {
+      return 'text-field';
+    }
   }
-  else {
-    // check field variant
-    $text_field = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-    $body = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
-    $summary = $xpath->query('//string[@id="' . $field_name . '-summary-0' . '"][1]')->item(0);
-    $image_alt = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
-    $image_title = $xpath->query('//string[@id="' . $field_name . '-title-img-0' . '"][1]')->item(0);
-
-    if (is_object($text_field)) {
-      // If this field is a text field
-      if ($text_field instanceof DomElement) {
-        return 'text-field';
-      }
+  elseif (is_object($body) || is_object($summary)) {
+    // If this field is a body/summary
+    if (($body instanceof DomElement) || ($summary instanceof DomElement)) {
+      return 'body-with-summary-field';
     }
-    elseif (is_object($body) || is_object($summary)) {
-      // If this field is a body/summary
-      if (($body instanceof DomElement) || ($summary instanceof DomElement)) {
-        return 'body-with-summary-field';
-      }
-    }
-    elseif (is_object($image_alt) || is_object($image_title)) {
-      // If this field is a image
-      if (($image_alt instanceof DomElement) || ($image_title instanceof DomElement)) {
-        return 'image-field';
-      }
+  }
+  elseif (is_object($image_alt) || is_object($image_title)) {
+    // If this field is a image
+    if (($image_alt instanceof DomElement) || ($image_title instanceof DomElement)) {
+      return 'image-field';
     }
   }
   return FALSE;
-}
-
-/**
- * Processing for node title ($node->title)
- */
-function smartling_node_title_processing($entity_wrapper, $field_name, $xpath) {
-  $node_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-  $string = (string) $node_title->nodeValue;
-  $entity_wrapper->title = $string;
-  return $entity_wrapper;
-}
-
-/**
- * Processing for term title ($term->name)
- */
-function smartling_term_title_processing($entity_wrapper, $field_name, $xpath) {
-  $term_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-  $string = (string) $term_title->nodeValue;
-  $entity_wrapper->name = $string;
-  return $entity_wrapper;
-}
-
-/**
- * Processing for term description ($term->description)
- */
-function smartling_term_description_processing($entity_wrapper, $field_name, $xpath) {
-  $term_description = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-  $string = (string) $term_description->nodeValue;
-  $entity_wrapper->description = $string;
-  return $entity_wrapper;
 }
 
 /**
@@ -537,7 +477,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
           $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
 
           // Add language field or not depending on taxonomy mode.
-          $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary->vid);
+          $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
           switch ($vocabulary_mode) {
             case I18N_MODE_TRANSLATE:
 
@@ -614,18 +554,6 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     if ($entity_wrapper) {
       foreach ($fields as $field_name) {
         switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
-          case 'taxonomy-term-title':
-            $entity_wrapper = smartling_term_title_processing($entity_wrapper, $field_name, $xpath);
-            break;
-
-          case 'taxonomy-term-description':
-            $entity_wrapper = smartling_term_description_processing($entity_wrapper, $field_name, $xpath);
-            break;
-
-          case 'node-title':
-            $entity_wrapper = smartling_node_title_processing($entity_wrapper, $field_name, $xpath);
-            break;
-
           case 'text-field':
             $entity_wrapper = smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $d_locale, $original_language);
             break;

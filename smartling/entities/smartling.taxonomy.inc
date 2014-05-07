@@ -11,15 +11,43 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
-  /*
-    if (module_exists('i18n') && module_exists('i18n_taxonomy') && module_exists('translation')) {
-    if (!isset($form_state['confirm_delete'])) {
-    //$form['i18n_translation']['i18n_mode']['#disabled'] = TRUE;
-    //$form['i18n_translation']['i18n_mode']['#default_value'] = I18N_MODE_TRANSLATE;
-    $form['i18n_translation']['i18n_mode']['#description'] .= '<br>' . t('Should be set Translate for using Smartling.');
+  $form['#validate'][] = 'smartling_vocabulary_support_type_validate';
+  $form['#submit'][] = 'smartling_vocabulary_support_type_submit';
+}
+
+function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
+  if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
+    if (!smartling_is_configured()) {
+      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+      form_set_error('i18n_translation');
     }
+  }
+}
+
+function smartling_vocabulary_support_type_submit(&$form, &$form_state) {
+  // Delete content type in smartling support types
+  $bundle = $form_state['values']['machine_name'];
+  if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
+    smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
+  }
+}
+
+/**
+ * Implements hook_taxonomy_term_presave().
+ */
+function smartling_taxonomy_term_presave($term) {
+  // Make sure the title isn't overwritten with the translation when using the title module.
+  if (module_exists('title')) {
+    $term_field_names = array('name', 'description');
+    foreach ($term_field_names as $term_property) {
+      $term_field_name = $term_property . '_field';
+      if (array_key_exists($term_field_name, $term)) {
+        if (isset($term->{$term_field_name}[$term->language][0]['value'])) {
+          $term->{$term_property} = $term->{$term_field_name}[$term->language][0]['value'];
+        }
+      }
     }
-   */
+  }
 }
 
 /**
@@ -233,7 +261,8 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-
+  // For not change term status to red when send term and change content
+  $term->send_to_smartling = TRUE;
   $status = taxonomy_term_save($term);
   switch ($status) {
     case SAVED_UPDATED:

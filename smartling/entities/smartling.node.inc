@@ -402,5 +402,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
     $langs = implode(', ', $langs);
     drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $title, '@langs' => $langs)));
   }
+  // For not change node status to red when send node and change content
+  $node->send_to_smartling = TRUE;
   node_save($node);
 }

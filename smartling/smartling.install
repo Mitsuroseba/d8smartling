@@ -160,7 +160,7 @@ function smartling_enable() {
     // Entity translation types and other settings
     $entity_translation_entity_types = array(
       'node' => 'node',
-      'taxonomy_term' => 0,
+      'taxonomy_term' => 'taxonomy_term',
       'comment' => 'comment',
       'user' => 'user',
     );

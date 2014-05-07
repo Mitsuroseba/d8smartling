@@ -207,7 +207,8 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-
+  // For not change account status to red when send account and change content
+  $account_unchanged->send_to_smartling = TRUE;
   user_save($account_unchanged, $edit, $category);
   $form_state['values']['uid'] = $account->uid;
 

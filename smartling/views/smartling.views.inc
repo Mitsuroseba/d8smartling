@@ -13,7 +13,7 @@ function smartling_views_data_alter(&$data) {
   $data['node']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
-    'help' => t('Relationship.'),
+    'help' => t('Node relationship.'),
     'relationship' => array(
       'base' => 'smartling_entity_data',
       'base field' => 'rid',
@@ -21,6 +21,57 @@ function smartling_views_data_alter(&$data) {
       'handler' => 'views_handler_relationship',
       'label' => t('Smartling related ID'),
     )
+  );
+
+  // Term relationship
+  $data['taxonomy_term_data']['smartling_entity_data'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Smartling Entity'),
+    'help' => t('Taxonomy relationship.'),
+    'relationship' => array(
+      'base' => 'smartling_entity_data',
+      'base field' => 'rid',
+      'relationship field' => 'tid',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Smartling related ID'),
+    )
+  );
+
+  // Comment relationship
+  $data['comment']['smartling_entity_data'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Smartling Entity'),
+    'help' => t('Comment relationship.'),
+    'relationship' => array(
+      'base' => 'smartling_entity_data',
+      'base field' => 'rid',
+      'relationship field' => 'cid',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Smartling related ID'),
+    )
+  );
+
+  // User relationship
+  $data['users']['smartling_entity_data'] = array(
+    'group' => t('Smartling'),
+    'title' => t('Smartling Entity'),
+    'help' => t('User relationship.'),
+    'relationship' => array(
+      'base' => 'smartling_entity_data',
+      'base field' => 'rid',
+      'relationship field' => 'uid',
+      'handler' => 'views_handler_relationship',
+      'label' => t('Smartling related ID'),
+    )
+  );
+
+  // Add filter
+  $data['smartling_entity_data']['status'] = array(
+    'title' => t('Smartling status'),
+    'help' => t('The status type (for example, "in queue", "in translate", etc).'),
+    'filter' => array(
+      'handler' => 'smartling_handler_filter_entity_status',
+    ),
   );
 
   // Add views handler
