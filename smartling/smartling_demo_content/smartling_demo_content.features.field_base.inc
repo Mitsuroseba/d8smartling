@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * smartling_demo_content.features.field_base.inc
@@ -35,7 +36,7 @@ function smartling_demo_content_field_default_field_bases() {
     'locked' => 0,
     'module' => 'text',
     'settings' => array(),
-    'translatable' => 1,
+    'translatable' => 0,
     'type' => 'text_with_summary',
   );
 
@@ -95,7 +96,7 @@ function smartling_demo_content_field_default_field_bases() {
       'max_length' => 255,
     ),
     'smartling_translatable' => 0,
-    'translatable' => 1,
+    'translatable' => 0,
     'type' => 'text',
   );
 
