@@ -64,13 +64,14 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#default_value' => variable_get('smartling_project_id', ''),
     '#size' => 25,
     '#maxlength' => 25,
-    '#required' => FALSE,
+    '#required' => TRUE,
   );
 
   $form['accaunt_info']['smartling_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Key'),
-    '#default_value' => variable_get('smartling_key', ''),
+    '#default_value' => '',
+    '#description' => t('Current key:') . ' ' . smartling_hide_key(variable_get('smartling_key', '')),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
@@ -242,17 +243,16 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     $project_id = check_plain(trim($form_state['values']['project_id']));
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    $smartling_key = check_plain(trim($form_state['values']['smartling_key']));
+    $smartling_key = trim($form_state['values']['smartling_key']);
+  }
+  else {
+    $smartling_key = variable_get('smartling_key', '');
   }
   // Init api object
   $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
   $api->getList('en', array('limit' => 1));
 
-  if ($api->getCodeStatus() == 'SUCCESS') {
-    $form_state['values']['smartling_key'] = trim($smartling_key);
-    $form_state['values']['project_id'] = trim($project_id);
-  }
-  else {
+  if ($api->getCodeStatus() !== 'SUCCESS') {
     drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
     form_set_error('api_url');
     form_set_error('smartling_key');
@@ -293,11 +293,11 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     variable_del('smartling_project_id');
   }
   if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-    variable_set('smartling_key', check_plain($form_state['values']['smartling_key']));
+    variable_set('smartling_key', check_plain(trim($form_state['values']['smartling_key'])));
   }
-  elseif (empty($form_state['values']['smartling_key'])) {
-    variable_del('smartling_key');
-  }
+//  elseif (empty($form_state['values']['smartling_key'])) {
+//    variable_del('smartling_key');
+//  }
 
   // Retrieval type
   if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
@@ -675,4 +675,17 @@ function smartling_wrap_in_fieldset($form, $title) {
     '#attributes' => array('class' => array('smartling-' . strtolower(str_replace(' ', '-', $title))), 'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))),
     'children' => $form,
   );
+}
+
+
+function smartling_hide_key($key = '') {
+  return substr($key, 0, -10) . str_repeat("*", 10);
+}
+
+function smartling_api_key_check($key) {
+  return preg_match("/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}/", $key);
+}
+
+function smartling_project_id_check($project_id) {
+  return preg_match("/[a-z0-9]{9}/", $project_id);
 }
