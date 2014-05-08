@@ -1,6 +1,6 @@
 name = Smartling demo content
 core = 7.x
-version = "7.x-1.0-beta4"
+version = "7.x-1.0-beta6"
 package = smartling
 dependencies[] = smartling
 dependencies[] = defaultcontent
