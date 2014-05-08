@@ -134,7 +134,7 @@ function smartling_translate_fields_is_set($type = FALSE) {
     }
   }
   if (!$result) {
-    drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
   }
 
   return $result;

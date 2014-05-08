@@ -172,7 +172,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
       '#options' => array(),
       '#title' => t('Target Locales'),
       '#default_value' => array(),
-      '#description' => l(t('At least two languages must be enabled. Please change language settings.'), 'admin/config/regional/language'),
+      '#description' => l(t('At least two languages must be enabled. Please change language settings.'), url('admin/config/regional/language')),
     );
   }
 
@@ -192,7 +192,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#maxlength' => 10,
     '#required' => TRUE,
     '#description' => t('Set Smartling format for Default language. Example: en-US for en.'),
-    '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
+    '#suffix' => '<p>' . l(t('Change default language'), url('admin/config/regional/language')) . '</p>',
   );
   $form_state['smartling_default_language'] = $default_language->language;
 

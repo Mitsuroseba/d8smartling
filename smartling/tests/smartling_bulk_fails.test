@@ -36,7 +36,7 @@ class SmartlingBulkSubmitNoSelectedLanguageFailsTest extends SmartlingWebTestCas
   }
 
   public function testNoSelectedLanguageFailsBulkSubmit() {
-    // Add one random node page type
+    // Add one random node of page type
     $this->smartlingCreateNode();
 
     $this->drupalGet('admin/content/smartling-content');

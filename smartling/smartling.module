@@ -154,7 +154,7 @@ function smartling_multilanguage_support_node_type_validate(&$form, &$form_state
 
   if ($form_state['values']['language_content_type'] == SMARTLING_KEY || $form_state['values']['language_content_type'] == 2) {
     if (!smartling_is_configured()) {
-      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
       form_set_error('workflow');
     }
   }
