@@ -580,7 +580,6 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   $operations = array();
 
   foreach ($form_state['input'] as $key => $value) {
-
     // Look for Selected Content Types and Fields.
     if (FALSE !== strpos($key, '_SEPARATOR_')) {
       // And only if set to translate
@@ -593,10 +592,12 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
         // Set this field to 'translatable'.
         // Update the field via the Field API (Instead of the direct db_update)
-        if ($content_field != 'node_title') {
-          $field = field_info_field($content_field);
-          $field['translatable'] = 1;
-          field_update_field($field);
+        if (smartling_fields_method($content_type)) {
+          if ($content_field != 'node_title') {
+            $field = field_info_field($content_field);
+            $field['translatable'] = 1;
+            field_update_field($field);
+          }
         }
       }
     } // END:  Selected Content Types and Fields

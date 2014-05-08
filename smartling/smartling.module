@@ -389,9 +389,11 @@ function smartling_get_node_settings_form($form, &$form_state) {
         ),
       ),
     );
-
-    return $form;
   }
+  else {
+    $form = array();
+  }
+  return $form;
 }
 
 /**
@@ -752,7 +754,7 @@ function smartling_entity_load($entities, $type) {
         if (isset($fields[$entity->type])) {
           foreach ($fields[$entity->type] as $field_name) {
 
-            if (isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
+            if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
               // If field have und value and dont have need value
               $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
               field_attach_presave('node', $entity);
@@ -931,7 +933,7 @@ function smartling_do_translate_action_submit($form, $form_state) {
 }
 
 function smartling_push_callback_access($key) {
-  return  (variable_get('cron_key', 'drupal') == $key && empty($_POST));
+  return (variable_get('cron_key', 'drupal') == $key && empty($_POST));
 }
 
 function smartling_push_callback() {

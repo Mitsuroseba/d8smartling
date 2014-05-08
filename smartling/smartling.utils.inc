@@ -103,6 +103,7 @@ function smartling_is_configured() {
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
+      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
       return FALSE;
     }
   }
@@ -204,6 +205,11 @@ function smartling_translatable_node_field_details() {
   }
 
   return $translatable_fields;
+}
+
+function smartling_field_is_translatable_by_field_name($field_name) {
+  $field = field_info_field($field_name);
+  return (bool) $field['translatable'];
 }
 
 /**
@@ -751,9 +757,9 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   }
 }
 
-function smartling_get_field_format($node_wrapper, $field_name, $original_language, $i = 0) {
-  if (isset($node_wrapper->{$field_name}[$original_language][$i]['format'])) {
-    $format = $node_wrapper->{$field_name}[$original_language][$i]['format'];
+function smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i = 0) {
+  if (isset($node_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $node_wrapper->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;

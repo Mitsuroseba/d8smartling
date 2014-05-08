@@ -163,8 +163,7 @@ function smartling_queue_send_to_translate_process($args) {
       $entity_data_array[] = $entity_data;
     }
 
-    $nodes_method = smartling_nodes_method($args->type);
-    $saves[] = smartling_build_xml_by_node_id($args->rid, $args->s_locales, $args->title, $nodes_method);
+    $saves[] = smartling_build_xml_by_node_id($args->rid, $args->s_locales, $args->title);
 
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
       $file_name = $saves[0];
