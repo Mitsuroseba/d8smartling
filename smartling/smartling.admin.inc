@@ -71,7 +71,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Key'),
     '#default_value' => '',
-    '#description' => t('Current key:') . ' ' . smartling_hide_key(variable_get('smartling_key', '')),
+    '#description' => t('Current key:') . ' ' . check_plain(smartling_hide_key(variable_get('smartling_key', ''))),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
