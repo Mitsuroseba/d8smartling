@@ -64,6 +64,7 @@ $UNZIP $MODULE -d ./sites/all/modules/custom
 logit info "Enabling Connector module"
 drush_e en smartling smartling_reports -y
 drush_e en smartling_demo_content -y
+drush_e en devel -y
 logit info "Generate demo content"
 drush_e cron -y
 logit info "Prepare env for running tests"

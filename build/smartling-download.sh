@@ -51,6 +51,10 @@ done
 # check params
 [ "x$TAG" == "x" ] && { logit err "-tag option should be set"; usage; }
 
+logit info "Remove temporary files"
+rm -rf smartling/
+rm -f ../smartling-$TAG.zip
+
 # search for git executable
 logit info "Download Connector source from repo"
 $GIT clone https://github.com/Smartling/drupal-localization-module.git smartling
@@ -65,18 +69,17 @@ logit info "Done"
 
 logit info "Switch to Tag"
 cd smartling
-$GIT checkout tags/$TAG
-RESULT=$?
-[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+$GIT checkout $TAG
+#RESULT=$?
+#[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
 logit info "Archiving"
 rm -R smartling/api/.git
 
-rm -f ../smartling-$TAG.zip
 $ZIP  -y -r -q -9 ../smartling-$TAG.zip smartling/
 cd ../
 rm -R smartling/
 
 logit info "Module archiving is done"
-exit 0
+exit 0 
