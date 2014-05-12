@@ -306,7 +306,9 @@ function smartling_get_dir() {
  * @return string
  */
 function smartling_clean_filename($filename, $allow_dirs = FALSE) {
-  if (empty(trim($filename))) {
+  //Prior to PHP 5.5, empty() only supports variables (http://www.php.net/manual/en/function.empty.php)
+  $trim_filename = trim($filename);
+  if (empty($trim_filename)) {
     return '';
   }
 
