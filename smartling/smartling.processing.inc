@@ -237,7 +237,7 @@ function smartling_image_field_processing($node_wrapper, $field_name, $xpath, $l
 /**
  * Parsing the translated file and record the results in the field.
  *
- * @param type $nid
+ * @param type $rid
  * @param type $s_locale locale in Smartling format
  * @param bool $nodes_method
  * If TRUE - nodes method execute
@@ -271,7 +271,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $rid = $node->nid;
     }
   }
-  $smartling_translate_fields = variable_get('smartling_translate_fields', '');
+  $smartling_translate_fields = variable_get('smartling_translate_fields', array());
 
   $fields = $smartling_translate_fields[$entity_data->bundle];
 
@@ -285,7 +285,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
     foreach ($fields as $field_name) {
       // Get language key for field translatable type
       if (smartling_field_is_translatable_by_field_name($field_name)) {
-        $language_key = $node->language;
+        $language_key = $d_locale;
         $language_key_format = smartling_convert_locale_drupal_to_smartling($entity_data->original_language, TRUE);
       }
       else {
