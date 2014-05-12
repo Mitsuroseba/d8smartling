@@ -293,12 +293,35 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
 }
 
 /**
- * Return path for smartling dir
+ * Return path for smartling dir (https://code.google.com/p/teenage-mutant-ninja-turtles/wiki/AdvancedObfuscationPathtraversal)
  * @return string
  */
 function smartling_get_dir() {
   $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path', '') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
   return (string) $smartling_dir;
+}
+
+/**
+ * Return clean filename, sanitized for path traversal vulnerability
+ * @return string
+ */
+function smartling_clean_filename($filename, $allow_dirs = FALSE) {
+  if (empty(trim($filename))) {
+    return '';
+  }
+
+  $pattern = '/[^a-zA-Z0-9_]/i';
+  $info = pathinfo(trim($filename));
+  $filename = preg_replace($pattern, '_', $info['filename']);
+  if (isset($info['extension']) && !empty($info['extension'])) {
+    $filename .= '.' . preg_replace($pattern, '_', $info['extension']);
+  }
+
+  if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
+    $filename = preg_replace('/[^a-zA-Z0-9_\/]/i', '_', $info['dirname']) . '/' . $filename;
+  }
+
+  return (string) $filename;
 }
 
 /**
@@ -330,7 +353,7 @@ function smartling_save_xml($xml_doc, $nid = NULL, $s_locale = FALSE, $file_name
 
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
   $directory = smartling_get_dir();
-  $path = $directory . '/' . $file_name;
+  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
 
   if (is_dir($directory) && is_writable($directory)) {
     $xml_doc->save($path);
