@@ -312,7 +312,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
     return '';
   }
 
-  $pattern = '/[^a-zA-Z0-9_]/i';
+  $pattern = '/[^a-zA-Z0-9_\-]/i';
   $info = pathinfo(trim($filename));
   $filename = preg_replace($pattern, '_', $info['filename']);
   if (isset($info['extension']) && !empty($info['extension'])) {
@@ -320,7 +320,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
   }
 
   if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
-    $filename = preg_replace('/[^a-zA-Z0-9_\/]/i', '_', $info['dirname']) . '/' . $filename;
+    $filename = preg_replace('/[^a-zA-Z0-9_\/\-]/i', '_', $info['dirname']) . '/' . $filename;
   }
 
   return (string) $filename;
