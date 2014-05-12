@@ -339,7 +339,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array', '') === FALSE) {
     _smartling_update_7000_locales_convert_array();
   }
 
@@ -351,7 +351,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   menu_rebuild();
   menu_router_build();
 
-  drupal_set_message(t('Account settings saved.'));
+  drupal_set_message(t('Account settings saved.'), 'success');
 
   if ($form_state['clicked_button']['#name'] == 'save') {
     drupal_goto(current_path());
@@ -370,7 +370,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
         $api->getList($s_locale);
 
         if ($api->getCodeStatus() == 'SUCCESS') {
-          drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)));
+          drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $s_locale)), 'success');
         }
         else {
           drupal_set_message(t('Test connection for locale @s_locale is fail.', array('@s_locale' => $s_locale)), 'error');
@@ -657,7 +657,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
   else {
     variable_delete('smartling_translate_fields');
   }
-  drupal_set_message(t('Your content types have been updated.'));
+  drupal_set_message(t('Your content types have been updated.'), 'success');
 
   smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
 

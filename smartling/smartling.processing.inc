@@ -271,7 +271,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
       $rid = $node->nid;
     }
   }
-  $smartling_translate_fields = variable_get('smartling_translate_fields');
+  $smartling_translate_fields = variable_get('smartling_translate_fields', '');
 
   $fields = $smartling_translate_fields[$entity_data->bundle];
 

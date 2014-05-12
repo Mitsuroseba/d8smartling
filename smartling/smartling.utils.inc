@@ -86,7 +86,7 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  */
 function smartling_is_configured() {
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array', '') === FALSE) {
     drupal_set_message(t('Please fill in a Default language option in order to complete update.'), 'warning');
     if (current_path() != 'admin/config/regional/smartling') {
       $options['query'] = array('destination' => current_path());
@@ -297,7 +297,7 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  * @return string
  */
 function smartling_get_dir() {
-  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path', '') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
   return (string) $smartling_dir;
 }
 
@@ -593,7 +593,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
     $result = t('Smartling not configured');
   }
 
-  drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
+  drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)), 'success');
 }
 
 function smartling_download_file($entity_data) {
