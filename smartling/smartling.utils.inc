@@ -593,7 +593,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
     $result = t('Smartling not configured');
   }
 
-  drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)), 'success');
+  drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $s_locale)));
 }
 
 function smartling_download_file($entity_data) {
