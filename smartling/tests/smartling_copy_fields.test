@@ -18,11 +18,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
     // Set pseudo for smartling
-    $edit = array(
-      "production_retrieval_type" => 'pseudo',
-    );
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Account settings saved.'));
+    $this->smartlingSetRetrievalType('pseudo');
 
     // Add Price field
     $edit = array(

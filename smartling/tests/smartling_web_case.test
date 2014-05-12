@@ -80,6 +80,71 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText(t('Account settings saved.'));
   }
 
+  /**
+   * These values are supported for value:
+   *   - 0
+   *   - 1
+   * @param string $field_name
+   * @param int $value
+   */
+  public function smartlingSetTranslatableFieldSettings($field_name, $value) {
+    $field = field_info_field($field_name);
+    $field['translatable'] = $value;
+    field_update_field($field);
+  }
+
+  public function smartlingGetTranslatableFieldSettings($field_name) {
+    $field = field_info_field($field_name);
+    if (isset($field['translatable'])) {
+      return $field['translatable'];
+    }
+    else {
+      $this->error(t('Field @field_name do not have translatable parameter.', array('@field_name' => $field_name)));
+      return 'error';
+    }
+  }
+
+  /**
+   * Defaults to 'published'. These values are supported:
+   *   - 'pseudo'
+   *   - 'published'
+   *   - 'pending'
+   * @param string $type
+   */
+  public function smartlingSetRetrievalType($type = 'published') {
+    if (!empty($type)) {
+      $edit = array(
+        "production_retrieval_type" => (string) $type,
+      );
+      $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
+      $this->assertText(t('Account settings saved.'));
+    }
+  }
+
+  /**
+   *
+   * @param string $node_type
+   * 'page' by default
+   * @param string $field_machine_name
+   * '' by default
+   */
+  public function smartlingAddTextFieldToNode($node_type = 'page', $field_machine_name = '') {
+    if (!empty($field_machine_name)) {
+      // Add field to CT
+      $edit = array(
+        "fields[_add_new_field][label]" => (string) $field_machine_name,
+        "fields[_add_new_field][weight]" => '-2',
+        "fields[_add_new_field][field_name]" => (string) $field_machine_name,
+        "fields[_add_new_field][type]" => 'text',
+        "fields[_add_new_field][widget_type]" => 'text_textfield',
+      );
+      $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
+      $this->drupalPost(NULL, array(), t('Save field settings'));
+      $this->drupalPost(NULL, array(), t('Save settings'));
+      $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
+    }
+  }
+
   public function smartlingAddSiteLanguage($lang = 'ru') {
     // Add predefined languages.
     $edit = array(
@@ -87,6 +152,61 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
     $this->assertText($lang, 'Language added successfully.');
+  }
+
+  public function smartlingDifferentFieldsSetUpTest() {
+    // Start Set Up
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling
+    $this->smartlingSetRetrievalType('pseudo');
+    // Add field
+    $this->smartlingAddTextFieldToNode('page', 'translatable_data');
+    // Add field
+    $this->smartlingAddTextFieldToNode('page', 'not_translatable_data');
+
+    // Set nodes method for CT
+    $edit = array();
+    $edit['page_TT_page'] = 2;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+
+    // Set fields for page CT
+    $edit = array();
+    $edit['page_SEPARATOR_field_translatable_data'] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+    // End Set Up
+  }
+
+  /**
+   * Send node to Smartling service and download them. Works for a single node on the site.
+   * @param type $nid
+   * @param array $langs
+   * Example: array('ru', 'nl')
+   */
+  public function smartlingTranslateNode($nid, $langs) {
+    $node = node_load($nid);
+    if ($node) {
+      // Send node to smartling
+      foreach ($langs as $lang) {
+        $edit['target[' . $lang . ']'] = $lang;
+        $convert_array[] = smartling_convert_locale_drupal_to_smartling($lang);
+      }
+
+      $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
+      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $node->title, '@langs' => implode(', ', $convert_array))));
+
+      // Run cron
+      drupal_cron_run();
+
+      // Go to report-in-progress and download
+      $this->drupalGet('admin/content/smartling/report-in-progress');
+      $this->clickLink('Download');
+      foreach ($convert_array as $s_locale) {
+        $this->assertText(t('Downloaded for language translation @locale', array('@locale' => $s_locale)));
+      }
+    }
   }
 
 }

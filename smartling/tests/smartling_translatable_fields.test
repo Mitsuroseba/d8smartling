@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Translations - Save translations in different fields',
+      'description' => 'Test saving translations to fields if they are translatable or not',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function testCorrectNotTranslatableFields() {
+    // Set Up Test
+    $this->smartlingDifferentFieldsSetUpTest();
+    // Disable Drupal translations for fields
+    $this->smartlingSetTranslatableFieldSettings('field_translatable_data', 0);
+    $this->smartlingSetTranslatableFieldSettings('field_not_translatable_data', 0);
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 0);
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 0);
+    // Create new node
+    $this->smartlingCreateNode();
+    // Set node values
+    $node_original = node_load(1);
+    $node_original->field_translatable_data[LANGUAGE_NONE][0]['value'] = 'Translatable data field text';
+    $node_original->field_not_translatable_data[LANGUAGE_NONE][0]['value'] = 'Not translatable data field text';
+    node_save($node_original);
+    // Send and download node
+    $this->smartlingTranslateNode($node_original->nid, array('ru'));
+
+    // Asserts
+    $node_original = node_load(1);
+    $node_translated = node_load(2);
+    $fields = array('field_translatable_data', 'field_not_translatable_data');
+
+    foreach ($fields as $field_name) {
+      $this->assertTrue((isset($node_original->{$field_name}[LANGUAGE_NONE]) && (count($node_original->{$field_name}) == 1)), t('Original node has only UND language for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+      $this->assertTrue((isset($node_translated->{$field_name}[LANGUAGE_NONE]) && (count($node_translated->{$field_name}) == 1)), t('Translated node has only UND language for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+    }
+
+    $this->assertTrue(($node_translated->field_translatable_data[LANGUAGE_NONE][0]['value'] != 'Translatable data field text'), t('Translated node has translated content for field_translatable_data'), t('Browser'));
+    $this->assertTrue(($node_translated->field_not_translatable_data[LANGUAGE_NONE][0]['value'] == 'Not translatable data field text'), t('Translated node has original content for field_not_translatable_data'), t('Browser'));
+  }
+
+}
