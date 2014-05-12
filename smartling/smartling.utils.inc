@@ -265,7 +265,7 @@ function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $tra
 function smartling_get_full_language_name($d_locale) {
   $languages = language_list();
   if (isset($languages[$d_locale])) {
-    return $languages[$d_locale]->name;
+    return check_plain($languages[$d_locale]->name);
   }
   else {
     return NULL;
@@ -305,11 +305,20 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
 }
 
 /**
+ * Return path for smartling dir
+ * @return string
+ */
+function smartling_get_dir() {
+  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  return (string) $smartling_dir;
+}
+
+/**
  *
  * @param type $xml_doc
  */
 function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
-  $directory = SMARTLING_DIRECTORY;
+  $directory = smartling_get_dir();
   if (is_null($file_name)) {
     $file_name = 'smartling_translate_' . $entity_type . '_' . $rid . '.xml';
   }
@@ -684,7 +693,7 @@ function smartling_language_options_list() {
 
   foreach ($languages as $langcode => $language) {
     if ($language->enabled != '0') {
-      $language_options_list[$langcode] = $language->name;
+      $language_options_list[$langcode] = check_plain($language->name);
     }
   }
   return $language_options_list;

@@ -43,11 +43,27 @@ class SmartlingSettingsHandler {
     $this->userFieldsSettings = variable_get('smartling_user_fields_settings', array());
   }
 
-  public function getPropertyName($entity_type) {
+  /**
+   * Return property name by entity type.
+   *
+   * @param string $entity_type
+   * Example: if $entity_type = 'node', function returns 'nodeFieldsSettings'
+   *
+   * @return string
+   */
+  public static function getPropertyName($entity_type) {
     return $entity_type . 'FieldsSettings';
   }
 
-  public function getMethodName($entity_type) {
+  /**
+   * Return method name by entity type.
+   *
+   * @param string $entity_type
+   * Example: if $entity_type = 'node', function returns 'nodeGetFieldsSettings'
+   *
+   * @return string
+   */
+  public static function getMethodName($entity_type) {
     return $entity_type . 'GetFieldsSettings';
   }
 
@@ -189,7 +205,7 @@ class SmartlingSettingsHandler {
     if (empty($apiUrl)) {
       $apiUrl = 'https://capi.smartling.com/v1';
     }
-    $this->apiUrl = (string) $apiUrl;
+    $this->apiUrl = check_plain((string) $apiUrl);
     variable_set('smartling_api_url', $this->apiUrl);
   }
 
@@ -201,7 +217,7 @@ class SmartlingSettingsHandler {
     if (empty($callbackUrl)) {
       $callbackUrl = 'smartling-callback';
     }
-    $this->callbackUrl = (string) $callbackUrl;
+    $this->callbackUrl = check_plain((string) $callbackUrl);
     variable_set('smartling_callback_url', $this->callbackUrl);
   }
 
@@ -228,7 +244,7 @@ class SmartlingSettingsHandler {
       variable_del('smartling_project_id');
     }
     else {
-      $this->projectId = (string) $projectId;
+      $this->projectId = check_plain((string) $projectId);
       variable_set('smartling_project_id', $this->projectId);
     }
   }
@@ -243,7 +259,7 @@ class SmartlingSettingsHandler {
       variable_del('smartling_key');
     }
     else {
-      $this->key = (string) $key;
+      $this->key = check_plain((string) $key);
       variable_set('smartling_key', $this->key);
     }
   }
@@ -269,7 +285,7 @@ class SmartlingSettingsHandler {
 
     foreach ($languages as $langcode => $language) {
       if ($language->enabled != '0') {
-        $target_language_options_list[$langcode] = $language->name;
+        $target_language_options_list[$langcode] = check_plain($language->name);
       }
     }
     return $target_language_options_list;
@@ -296,11 +312,11 @@ class SmartlingSettingsHandler {
     }
   }
 
-  public function getlocalesConvertArray() {
+  public function getLocalesConvertArray() {
     return $this->localesConvertArray;
   }
 
-  public function setlocalesConvertArray($localesConvertArray) {
+  public function setLocalesConvertArray($localesConvertArray) {
     $this->localesConvertArray = $localesConvertArray;
     variable_set('smartling_locales_convert_array', $localesConvertArray);
   }
@@ -313,7 +329,7 @@ class SmartlingSettingsHandler {
       }
       else {
         if (!empty($values['target_locales_text_key_' . $key])) {
-          $localesConvertArray[$key] = $values['target_locales_text_key_' . $key];
+          $localesConvertArray[$key] = check_plain($values['target_locales_text_key_' . $key]);
         }
       }
     }

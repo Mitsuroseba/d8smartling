@@ -392,7 +392,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type, 'target_language' => $d_locale));
     $file_name = $entity_data->translated_file_name;
     $original_language = $entity_data->original_language;
-    $file_path = SMARTLING_DIRECTORY . '/' . $file_name;
+    $file_path = smartling_get_dir() . '/' . $file_name;
 
     // Get field names for entity
     switch ($entity_type) {

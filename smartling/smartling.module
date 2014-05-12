@@ -30,15 +30,6 @@ define('SMARTLING_CALLBACK_URL', $smartling_settings->getCallbackUrl());
 define('SMARTLING_API_URL', $smartling_settings->getApiUrl());
 define('SMARTLING_LOG', $smartling_settings->getLogMode());
 
-$smartling_dir = variable_get('file_public_path');
-if (is_null($smartling_dir)) {
-  $smartling_dir = conf_path() . '/files/smartling';
-}
-else {
-  $smartling_dir = $smartling_dir . '/smartling';
-}
-define('SMARTLING_DIRECTORY', $smartling_dir);
-
 include_once('smartling.processing.inc');
 include_once('includes/smartling.workers.inc');
 include_once('includes/smartling.entity.inc');

@@ -123,6 +123,11 @@ function smartling_install() {
  * Implements hook_enable().
  */
 function smartling_enable() {
+  // Add default private path
+  if (variable_get('file_private_path', '') == '') {
+    variable_set('file_private_path', 'sites/default/files/private');
+  }
+
   // Set Multilingual support for content types
   $node_types = node_type_get_types();
   $taxonomy_vocabularies = taxonomy_get_vocabularies();
@@ -508,8 +513,8 @@ function smartling_update_7100(&$sandbox) {
       // Update file_name and translated_file_name for new version
       if (!empty($res->file_name)) {
         $file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '.xml';
-        $file_path_old = SMARTLING_DIRECTORY . '/' . $res->file_name;
-        $file_path_new = SMARTLING_DIRECTORY . '/' . $file_name;
+        $file_path_old = smartling_get_dir() . '/' . $res->file_name;
+        $file_path_new = smartling_get_dir() . '/' . $file_name;
         if (!rename($file_path_old, $file_path_new)) {
           $status = '3';
         }
@@ -520,8 +525,8 @@ function smartling_update_7100(&$sandbox) {
 
       if (!empty($res->translated_file_name)) {
         $translated_file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_' . $target_language . '.xml';
-        $file_path_old = SMARTLING_DIRECTORY . '/' . $res->translated_file_name;
-        $file_path_new = SMARTLING_DIRECTORY . '/' . $translated_file_name;
+        $file_path_old = smartling_get_dir() . '/' . $res->translated_file_name;
+        $file_path_new = smartling_get_dir() . '/' . $translated_file_name;
         if (!rename($file_path_old, $file_path_new)) {
           $status = '3';
         }
