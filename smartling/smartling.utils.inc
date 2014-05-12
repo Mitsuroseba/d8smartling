@@ -103,7 +103,7 @@ function smartling_is_configured() {
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
-      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
       return FALSE;
     }
   }
