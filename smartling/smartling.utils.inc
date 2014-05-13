@@ -293,16 +293,17 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
 }
 
 /**
- * Return path for smartling dir (https://code.google.com/p/teenage-mutant-ninja-turtles/wiki/AdvancedObfuscationPathtraversal)
+ * Return path for smartling dir
  * @return string
  */
-function smartling_get_dir() {
+function smartling_get_dir($file_name = '') {
   $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  $smartling_dir .= (empty($file_name))?'':'/' . $file_name;
   return (string) $smartling_dir;
 }
 
 /**
- * Return clean filename, sanitized for path traversal vulnerability
+ * Return clean filename, sanitized for path traversal vulnerability (https://code.google.com/p/teenage-mutant-ninja-turtles/wiki/AdvancedObfuscationPathtraversal)
  * @return string
  */
 function smartling_clean_filename($filename, $allow_dirs = FALSE) {

@@ -247,7 +247,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   smartling_watchdog('Smartling starts to update fields of node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_DEBUG);
 
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
-  $file_path = smartling_clean_filename(smartling_get_dir() . '/' . $entity_data->translated_file_name, TRUE);
+  $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
 
   if ($nodes_method) {
     $original_node = smartling_node_load_default($rid);
