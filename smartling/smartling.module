@@ -97,17 +97,6 @@ function smartling_download_translate_form_submission_form($rid, $s_locale = '',
 }
 
 /**
- * Implements hook_admin_paths().
- */
-function smartling_admin_paths() {
-  $paths = array(
-    'admin/config/regional/smartling' => TRUE,
-  );
-
-  return $paths;
-}
-
-/**
  * Implements hook_permission().
  */
 function smartling_permission() {
