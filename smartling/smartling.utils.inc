@@ -86,7 +86,7 @@ function smartling_node_load_default($nid, $vid = NULL, $reset = FALSE) {
  */
 function smartling_is_configured() {
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array', FALSE) === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
     drupal_set_message(t('Please fill in a Default language option in order to complete update.'), 'warning');
     if (current_path() != 'admin/config/regional/smartling') {
       $options['query'] = array('destination' => current_path());
@@ -307,7 +307,7 @@ function smartling_get_dir($file_name = '') {
  * @return string
  */
 function smartling_clean_filename($filename, $allow_dirs = FALSE) {
-  //Prior to PHP 5.5, empty() only supports variables (http://www.php.net/manual/en/function.empty.php)
+  // Prior to PHP 5.5, empty() only supports variables (http://www.php.net/manual/en/function.empty.php)
   $trim_filename = trim($filename);
   if (empty($trim_filename)) {
     return '';
@@ -647,7 +647,7 @@ function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0 )) {
     $s_locale = $entity_data->target_language;
     $file_name_unic = $entity_data->file_name;
-    $file_uri = file_create_url('public://smartling/' . $entity_data->file_name);
+    $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $entity_data->file_name, TRUE);
 
     $key = variable_get('smartling_key', '');
     $project_id = variable_get('smartling_project_id', '');

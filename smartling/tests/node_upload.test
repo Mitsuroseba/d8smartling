@@ -8,8 +8,8 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => 'Content - Upload content. Upload single node from Edit form.',
-      'description' => 'Test success flow of upload from Edit form.',
+      'name' => 'Content - Upload content. Upload single node from Edit form',
+      'description' => 'Test success flow of upload from Edit form',
       'group' => 'Smartling'
     );
   }

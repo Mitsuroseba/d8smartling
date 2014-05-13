@@ -21,6 +21,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       'use text format full_html',
       'administer languages',
       'access administration pages',
+      'access site reports',
       'administer content types',
       'administer nodes',
       'access content',
@@ -69,6 +70,11 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   public function smartlingSetCorrectSettings() {
+    // Set file public path for tests
+    variable_set('file_public_path', 'sites/default/files');
+    // Add default private path
+    variable_set('file_private_path', 'sites/default/files/private');
+
     $edit = array(
       "target_locales[ru]" => 'ru',
       "project_id" => '1295c174d',
@@ -198,7 +204,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $node->title, '@langs' => implode(', ', $convert_array))));
 
       // Run cron
-      drupal_cron_run();
+      $cron = FALSE;
+      while (!$cron) {
+        $cron = drupal_cron_run();
+      }
 
       // Go to report-in-progress and download
       $this->drupalGet('admin/content/smartling/report-in-progress');

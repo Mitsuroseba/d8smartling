@@ -68,7 +68,7 @@ function smartling_queue_check_status_process($args) {
       if ($entity_data->progress != 100) {
         $file_name = $entity_data->file_name;
         $file_name_unic = $entity_data->file_name;
-        $file_uri = file_create_url('public://smartling/' . $file_name);
+        $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $file_name, TRUE);
         $key = variable_get('smartling_key', '');
         $project_id = variable_get('smartling_project_id', '');
 
