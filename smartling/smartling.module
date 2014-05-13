@@ -368,7 +368,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
 
     $form['smartling']['submit_to_translate'] = array(
       '#type' => 'submit',
-      '#value' => 'Send to Smartling',
+      '#value' => t('Send to Smartling'),
       '#submit' => array('smartling_get_node_settings_form_submit'),
       '#states' => array(
         'invisible' => array(
@@ -380,7 +380,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
 
     $form['smartling']['submit_to_download'] = array(
       '#type' => 'submit',
-      '#value' => 'Download Translation',
+      '#value' => t('Download Translation'),
       '#submit' => array('smartling_download_translate_form_submit'),
       '#states' => array(
         'invisible' => array(
