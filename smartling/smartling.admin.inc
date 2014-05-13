@@ -248,26 +248,28 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
   else {
     $smartling_key = variable_get('smartling_key', '');
   }
-  if(smartling_api_key_check($smartling_key)) {
-      if(smartling_project_id_check($project_id)) {
-          // Init api object
-          $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
-          $api->getList('en', array('limit' => 1));
+  if (smartling_api_key_check($smartling_key)) {
+    if (smartling_project_id_check($project_id)) {
+      // Init api object
+      $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
+      $api->getList('en', array('limit' => 1));
 
-          if ($api->getCodeStatus() !== 'SUCCESS') {
-            drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
-            form_set_error('api_url');
-            form_set_error('smartling_key');
-            form_set_error('project_id');
-          }
-      } else {
+      if ($api->getCodeStatus() !== 'SUCCESS') {
+        drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
+        form_set_error('api_url');
+        form_set_error('smartling_key');
+        form_set_error('project_id');
+      }
+    }
+    else {
       drupal_set_message(t('Please enter valid Smartling Project Id.'), 'error');
       form_set_error('project_id');
+    }
   }
-} else {
-  drupal_set_message(t('Please enter valid Smartling key.'), 'error');
-  form_set_error('smartling_key');
-}
+  else {
+    drupal_set_message(t('Please enter valid Smartling key.'), 'error');
+    form_set_error('smartling_key');
+  }
 
   // Target locales validate
   if (count(array_filter($form_state['values']['target_locales'])) == 0) {
@@ -297,7 +299,6 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 //  elseif (empty($form_state['values']['smartling_key'])) {
 //    variable_del('smartling_key');
 //  }
-
   // Retrieval type
   if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
     variable_set('smartling_retrieval_type', $form_state['values']['production_retrieval_type']);
@@ -328,7 +329,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   variable_set('smartling_locales_convert_array', $locales);
 
   // Update once for 7000
-  if (variable_get('smartling_update_7000_locales_convert_array', FALSE) === FALSE) {
+  if (variable_get('smartling_update_7000_locales_convert_array') === FALSE) {
     _smartling_update_7000_locales_convert_array();
   }
 
@@ -675,7 +676,6 @@ function smartling_wrap_in_fieldset($form, $title) {
     'children' => $form,
   );
 }
-
 
 function smartling_hide_key($key = '') {
   return substr($key, 0, -10) . str_repeat("*", 10);
