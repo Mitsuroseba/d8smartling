@@ -339,7 +339,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
 
       $form['smartling']['content']['target'] = array(
         '#type' => 'checkboxes',
-        '#title' => 'Target Locales',
+        '#title' => t('Target Locales'),
         '#options' => $options,
         '#default_value' => $check,
       );
@@ -351,7 +351,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
 
       $form['smartling']['content']['target'] = array(
         '#type' => 'checkboxes',
-        '#title' => 'Target Locales',
+        '#title' => t('Target Locales'),
         '#options' => $options,
       );
     }

@@ -476,7 +476,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
       if (!isset($fr_fields['title_field']) && smartling_fields_method($value->type)) {
         $fr_fields['title_field'] = array(
           '#type' => 'checkbox',
-          '#title' => 'Title (Note: field will be created.)',
+          '#title' => t('Title (Note: field will be created.)'),
           '#attributes' => array(
             'id' => array('edit-form-item-' . $value->type . '-separator-' . $field_machine_name),
             'name' => 'title_swap_' . $value->type,
