@@ -331,7 +331,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  * @return string
  */
 function smartling_get_api_url() {
-  $url = variable_get('smartling_api_url', 'https://capi.smartling.com/v1');
+  $url = variable_get('smartling_api_url', SMARTLING_DEFAULT_API_URL);
   return (string) $url;
 }
 

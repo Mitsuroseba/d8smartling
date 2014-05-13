@@ -21,7 +21,8 @@ define('SMARTLING_STATUS_EVENT_UPDATE_FIELDS', 'smartling_update_node_fields');
 define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity_update');
 
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
-define('SMARTLING_CALLBACK_URL', variable_get('smartling_callback_url', FALSE));
+
+define('SMARTLING_DEFAULT_API_URL', 'https://capi.smartling.com/v1');
 
 include_once('smartling.utils.inc');
 include_once('smartling.processing.inc');

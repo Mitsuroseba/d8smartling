@@ -55,7 +55,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
     '#size' => 25,
     '#maxlength' => 255,
     '#required' => FALSE,
-    '#description' => t('Set api url. Default: https://capi.smartling.com/v1'),
+    '#description' => t('Set api url. Default: ' . SMARTLING_DEFAULT_API_URL),
   );
 
   $form['accaunt_info']['project_id'] = array(
@@ -236,7 +236,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
     }
   }
   else {
-    $api_url = 'https://capi.smartling.com/v1';
+    $api_url = SMARTLING_DEFAULT_API_URL;
   }
 
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
@@ -285,7 +285,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
     variable_set('smartling_api_url', check_plain($form_state['values']['api_url']));
   }
   elseif (empty($form_state['values']['api_url'])) {
-    variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
+    variable_set('smartling_api_url', SMARTLING_DEFAULT_API_URL);
   }
   if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
     variable_set('smartling_project_id', check_plain($form_state['values']['project_id']));
