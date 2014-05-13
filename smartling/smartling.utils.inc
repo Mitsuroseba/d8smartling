@@ -819,7 +819,7 @@ function _update_sed_original_language($eid) {
   $smartling_entity_data = smartling_entity_data_load($eid);
   if ($smartling_entity_data) {
     $node = node_load($smartling_entity_data->rid);
-    $smartling_entity_data->original_language = smartling_convert_locale_drupal_to_smartling($node->language);
+    $smartling_entity_data->original_language = smartling_convert_locale_drupal_to_smartling(entity_language('node', $node));
     smartling_entity_data_save($smartling_entity_data);
   }
 }

@@ -209,7 +209,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
       // This is node for nodes method translate | not original
       $languages = smartling_language_list();
       $node_original = node_load($form['#node']->tnid);
-      unset($languages[$node_original->language]);
+      unset($languages[entity_language('node', $node_original)]);
     }
 
     $options = array();
@@ -450,7 +450,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
     // For fields method
     foreach ($form_state['values']['target'] as $d_locale) {
 
-      if ($d_locale !== 0 && ($d_locale !== $form['#node']->language)) {
+      if ($d_locale !== 0 && ($d_locale !== entity_language('node', $form['#node']))) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
         $entity_data = smartling_entity_load_by_conditions(array('rid' => $nid, 'target_language' => $s_locale));
 
@@ -518,7 +518,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
         }
       }
       elseif ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
-        $s_locale_origin = smartling_convert_locale_drupal_to_smartling($node->language);
+        $s_locale_origin = smartling_convert_locale_drupal_to_smartling(entity_language('node', $node));
       }
 
       foreach ($form_state['values']['target'] as $d_locale) {
@@ -565,7 +565,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       // For fields method
 
       foreach ($form_state['values']['target'] as $d_locale) {
-        if ($d_locale !== 0 && ($d_locale !== $node->language)) {
+        if ($d_locale !== 0 && ($d_locale !== entity_language('node', $node))) {
           $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
           if (smartling_supported_type($form_state['values']['type'])) {
             $s_locale_origin = smartling_convert_locale_drupal_to_smartling($node->language);
@@ -650,9 +650,10 @@ function smartling_form_node_form_alter(&$form, $form_state, $form_id) {
  */
 function smartling_node_presave($node) {
   // Make sure the title isn't overwritten with the translation when using the title module.
-  if (module_exists('title') && array_key_exists('title_field', $node)) {
-    if (isset($node->title_field[$node->language][0]['value'])) {
-      $node->title = $node->title_field[$node->language][0]['value'];
+  if (module_exists('title') && property_exists($node, 'title_field')) {
+    $titles = field_get_items('node', $node, 'title_field');
+    if (isset($titles[0]['value'])) {
+      $node->title = $titles[0]['value'];
     }
   }
 }
@@ -744,7 +745,8 @@ function smartling_entity_load($entities, $type) {
         if (isset($fields[$entity->type])) {
           foreach ($fields[$entity->type] as $field_name) {
 
-            if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
+            if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name})
+                && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
               // If field have und value and dont have need value
               $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
               field_attach_presave('node', $entity);
@@ -822,7 +824,7 @@ function smartling_do_translate_action($node, $context) {
             $node->tnid = $node->nid;
             node_save($node);
           }
-          if ($language != $node->language) {
+          if ($language != entity_language('node', $node)) {
 
             $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
 
@@ -846,7 +848,7 @@ function smartling_do_translate_action($node, $context) {
         }
       }
       elseif (smartling_fields_method($node->type)) {
-        if ($language != $node->language) {
+        if ($language != entity_language('node', $node)) {
 
           $entity_data = smartling_entity_load_by_conditions(array('rid' => $node->nid, 'target_language' => $s_locale));
 

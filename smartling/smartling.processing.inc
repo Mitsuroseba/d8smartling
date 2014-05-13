@@ -64,7 +64,7 @@ function smartling_node_content_to_translate($nid) {
     if ($node->type === $type) {
       foreach ($field_names as $field_name) {
 
-        $language = (smartling_field_is_translatable_by_field_name($field_name)) ? $node->language : LANGUAGE_NONE;
+        $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('node', $node) : LANGUAGE_NONE;
 
         switch (smartling_get_field_content_processing_mode($field_name)) {
           case 'node-title':
