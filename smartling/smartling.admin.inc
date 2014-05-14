@@ -5,7 +5,8 @@
  * Admin forms and other for Smartling module administration section.
  */
 function smartling_admin_configuration_view() {
-  $output = array();
+  // add ajax library
+  drupal_add_library('system', 'drupal.ajax');
 
   $output['smartling'] = array(
     '#type' => 'vertical_tabs',
@@ -435,6 +436,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
   );
 
   $rows = array();
+  $fix_field_settings = array();
 
   foreach ($raw_types as $value) {
 
@@ -469,6 +471,14 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
 
           if ($is_enabled && $is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
+            // Error in field settings
+            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings)) {
+              $fix_field_settings[$field_machine_name] = l($field_label, 'smartling/translatable/' . $field_machine_name . '/nojs', array(
+                'attributes' => array(
+                  'class' => array('use-ajax', 'smartling-translatable-' . $field_machine_name),
+                  'title' => t('Fix field settings'),
+              )));
+            }
           }
         }
       }
@@ -556,6 +566,16 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
     '#markup' => theme('table', $variables),
     '#suffix' => '* Note: Title field is not used if the content type specified method of translating nodes.',
   );
+
+  if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
+    $suffix = '<div id="smartling-untranslatable-fix">' . t('Following field(s) should be set as untranslatable for node translation: !fields. Click on field name to fix.', array('!fields' => implode(', ', $fix_field_settings))) . '</div>';
+    $form['node_translation']['fix'] = array(
+      '#type' => 'markup',
+      '#title' => t('Fix field settings'),
+      '#title_display' => 'invisible',
+      '#suffix' => $suffix,
+    );
+  }
 
   foreach (array_keys($translate) as $content_type) {
     $form['node_translation']['types']['#default_value'][$content_type] = 1;

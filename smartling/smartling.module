@@ -61,6 +61,16 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
+  $items['smartling/translatable/%'] = array(
+    'title' => 'Smartling AJAX callback - set field settings',
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(2),
+    'page callback' => 'smartling_translatable_field_ajax_callback',
+    'access arguments' => array('administer smartling'),
+    'theme callback' => 'ajax_base_page_theme',
+    'delivery callback' => 'ajax_deliver',
+  );
+
   $items['smartling'] = array(
     'title' => 'Smartling settings',
     'type' => MENU_CALLBACK,
@@ -87,6 +97,51 @@ function smartling_menu() {
  */
 function smartling_download_translate_simple_callback() {
   return '';
+}
+
+function smartling_translatable_field_ajax_callback($field_name, $mode) {
+  // If no javascript
+  if ($mode != 'ajax') {
+    drupal_set_message('Turn Javascript');
+    drupal_goto(isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '<front>');
+  }
+
+  $field = field_info_field($field_name);
+  $field['translatable'] = 0;
+  field_update_field($field);
+  unset($field);
+  drupal_set_message(t('Field @field_name settings update', array('@field_name' => $field_name)));
+
+  $smartling_translate_fields = variable_get('smartling_translate_fields', FALSE);
+  $fix_field_settings = array();
+  $raw_types = node_type_get_types();
+
+  foreach ($raw_types as $value) {
+    $node_type = $value->type;
+
+    foreach (field_info_instances('node', $node_type) as $field) {
+      if (smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings)) {
+        $fix_field_settings[$field['field_name']] = l($field['label'], 'smartling/translatable/' . $field['field_name'] . '/nojs', array(
+          'attributes' => array(
+            'class' => array('use-ajax', 'smartling-translatable-' . $field['field_name']),
+            'title' => t('Fix field settings'),
+        )));
+      }
+    }
+  }
+
+  if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
+    $new_html_fix = '<div id="smartling-untranslatable-fix">' . t('Following field(s) should be set as untranslatable for node translation: !fields. Click on field name to fix.', array('!fields' => implode(', ', $fix_field_settings))) . '</div>';
+    $commands[] = ajax_command_replace('#smartling-untranslatable-fix', $new_html_fix);
+  }
+  else {
+    $commands[] = ajax_command_remove('#smartling-untranslatable-fix');
+  }
+
+  $commands[] = ajax_command_remove('div.messages');
+  $commands[] = ajax_command_before('.region-content', theme('status_messages'));
+  $page = array('#type' => 'ajax', '#commands' => $commands);
+  return $page;
 }
 
 function smartling_download_translate_form_submission_form($rid, $s_locale = '', $entity_data = NULL) {
@@ -969,3 +1024,4 @@ function smartling_push_callback() {
     }
   }
 }
+
