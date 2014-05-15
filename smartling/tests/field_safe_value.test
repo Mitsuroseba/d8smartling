@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingSafeValueTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'safe_value (for Pinterest)',
+      'description' => 'Checks safe_value of a field when node is created programmatically',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function testCorrectNodeUpload() {
+    global $user;
+
+    $path = drupal_get_path('module','media_youtube').'/includes/MediaInternetYouTubeHandler.inc';
+    if (!file_exists($path)) {
+      $this->assertText(t('media_youtube module is not installed'));
+      return;
+    }
+    require_once($path);
+    $media = new MediaInternetYouTubeHandler('');
+    $code = $media->parse('www.youtube.com/embed/rzKUd1B_Dks');
+    $youtube = file_uri_to_object($code, $use_existing = TRUE);
+    $youtube->display = 1;
+    $youtube = file_save($youtube);
+    //$node->field_video[$lang][0] = (array)$youtube;
+    //node_save($node);
+
+    $field_value = '<p>[[{"type":"media","view_mode":"media_original","fid":"' . $youtube->fid . '","attributes":{"alt":"","class":"media-image","typeof":"foaf:Image"}}]]</p>';
+    $expected_safe_value = '<p></p><div class="media-youtube-video media-image media-youtube-1"> <iframe class="media-youtube-player" width="640" height="390" title="rzKUd1B_Dks" src="//www.youtube.com/embed/rzKUd1B_Dks" frameborder="0" allowfullscreen="">Video of rzKUd1B_Dks</iframe> </div>';
+
+    $node = new stdClass();
+    $node->title = "Safe value test";
+    $node->type = "article";
+    node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+    $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+    $node->uid = $user->uid;
+    $node->status = 1; //(1 or 0): published or not
+    $node->promote = 0; //(1 or 0): promoted to front page
+    $node->comment = 1; // 0 = comments disabled, 1 = read only, 2 = read/write
+    // Term reference (taxonomy) field
+    $node->body[$node->language][] = array('value' => $field_value, 'format' => 'full_html');
+    // Other possible values are "user" and  "taxonomy_term"
+    $node = node_submit($node); // Prepare node for saving
+    node_save($node);
+
+    $saved_node = node_load($node->nid);
+
+    $this->assertEqual($saved_node->body[LANGUAGE_NONE][0]['safe_value'], $expected_safe_value, t('Body field safe value'));
+  }
+}
