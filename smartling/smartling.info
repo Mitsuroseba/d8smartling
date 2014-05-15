@@ -36,7 +36,6 @@ files[] = tests/smartling_bulk.test
 files[] = tests/smartling_bulk_fails.test
 files[] = tests/smartling_file_clean.test
 files[] = tests/node_upload.test
-files[] = tests/node_download.test
 files[] = tests/node_title_fields.test
 files[] = tests/smartling_translatable_fields.test
 files[] = tests/smartling_web_case.test
