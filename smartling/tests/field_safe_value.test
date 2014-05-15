@@ -48,7 +48,7 @@ class SmartlingSafeValueTest extends DrupalWebTestCase {
     $node->promote = 0; //(1 or 0): promoted to front page
     $node->comment = 1; // 0 = comments disabled, 1 = read only, 2 = read/write
     // Term reference (taxonomy) field
-    $node->body[$node->language][] = array('value' => $field_value, 'format' => 'filtered_html');
+    $node->body[$node->language][] = array('value' => $field_value, 'format' => 'full_html');
     // Other possible values are "user" and  "taxonomy_term"
     $node = node_submit($node); // Prepare node for saving
     node_save($node);
