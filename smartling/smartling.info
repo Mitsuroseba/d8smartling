@@ -39,3 +39,4 @@ files[] = tests/node_download.test
 files[] = tests/node_title_fields.test
 files[] = tests/smartling_translatable_fields.test
 files[] = tests/smartling_web_case.test
+files[] = tests/field_safe_value.test
