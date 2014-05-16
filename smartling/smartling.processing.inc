@@ -157,13 +157,13 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
 function smartling_node_title_processing($node_wrapper, $field_name, $xpath) {
   $node_title = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
   if ($node_title instanceof DomElement) {
-    $string = htmlspecialchars_decode((string) $node_title->nodeValue);
+    $string = (string) $node_title->nodeValue;
     $node_wrapper->title = $string;
   }
   else {
     $node_title = $xpath->query('//string[@id="' . $field_name . '"][1]')->item(0);
     if ($node_title instanceof DomElement) {
-      $string = htmlspecialchars_decode((string) $node_title->nodeValue);
+      $string = (string) $node_title->nodeValue;
       $node_wrapper->title = $string;
     }
     else {
@@ -182,7 +182,7 @@ function smartling_text_field_processing($node_wrapper, $field_name, $xpath, $la
 
   for ($i = 0; $i < $quantity; $i++) {
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')->item(0);
-    $string = htmlspecialchars_decode((string) $field->nodeValue);
+    $string = (string) $field->nodeValue;
     $format = smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i);
 
     $node_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
@@ -201,8 +201,8 @@ function smartling_body_with_summary_field_processing($node_wrapper, $field_name
   for ($i = 0; $i < $quantity; $i++) {
     $body_obj = $xpath->query('//string[@id="' . $field_name . '-body-' . $i . '"][1]')->item(0);
     $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')->item(0);
-    $body_string = htmlspecialchars_decode((string) $body_obj->nodeValue);
-    $summary_string = htmlspecialchars_decode((string) $summary_obj->nodeValue);
+    $body_string = (string) $body_obj->nodeValue;
+    $summary_string = (string) $summary_obj->nodeValue;
     $format = smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i);
 
     $node_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;
@@ -226,8 +226,8 @@ function smartling_image_field_processing($node_wrapper, $field_name, $xpath, $l
     $file_img = file_load($fid);
 
     if ($file_img) {
-      $alt_string = htmlspecialchars_decode((string) $alt_obj->nodeValue);
-      $title_string = htmlspecialchars_decode((string) $title_obj->nodeValue);
+      $alt_string = (string) $alt_obj->nodeValue;
+      $title_string = (string) $title_obj->nodeValue;
       $node_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string);
     }
   }
