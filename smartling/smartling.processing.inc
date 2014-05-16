@@ -101,7 +101,7 @@ function smartling_node_content_to_translate($nid) {
             break;
 
           default:
-            smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+            smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
             break;
         }
       }
@@ -310,7 +310,7 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           break;
 
         default:
-          smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+          smartling_watchdog("Smartling didn't process field - @field_name", TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
           break;
       }
     }
