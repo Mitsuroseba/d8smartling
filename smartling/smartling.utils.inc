@@ -604,7 +604,7 @@ function smartling_download_translate($rid, $s_locale = '', $entity_data = NULL)
           smartling_update_translated_fields($rid, $s_locale, $nodes_method);
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);
-          drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'success');
+          drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
         }
       }
       else {
