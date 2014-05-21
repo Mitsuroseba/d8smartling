@@ -75,6 +75,15 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     // Add default private path
     variable_set('file_private_path', 'sites/default/files/private');
 
+    $file_methods = array('file_public_path', 'file_private_path');
+    foreach ($file_methods as $file_method) {
+      $directory = variable_get($file_method);
+      if (!is_dir($directory) || !is_writable($directory)) {
+        drupal_mkdir($directory);
+        drupal_chmod($directory);
+      }
+    }
+
     $edit = array(
       "target_locales[ru]" => 'ru',
       "project_id" => '1295c174d',
@@ -151,6 +160,40 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     }
   }
 
+  public function smartlingEnableTitleAltForImageField($node_type, $field_machine_name) {
+    $edit = array(
+      "instance[settings][alt_field]" => 1,
+      "instance[settings][title_field]" => 1,
+    );
+    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields/' . $field_machine_name, $edit, t('Save settings'));
+    $this->assertText(t('Saved'));
+  }
+
+  public function smartlingAddImageToField($nid, $field_machine_name, $lang = LANGUAGE_NONE) {
+    $node = node_load($nid);
+    if ($node) {
+      // Get the test image that simpletest provides.
+      $image = current($this->drupalGetTestFiles('image'));
+      $file_path = drupal_realpath($image->uri);
+
+      $file = (object) array(
+            'uid' => 1,
+            'uri' => $file_path,
+            'filename' => basename($file_path),
+            'filemime' => file_get_mimetype($file_path),
+      );
+
+      $file = file_copy($file, 'public://images');
+
+      if ($file) {
+        $file->title = 'Title of image';
+        $file->alt = 'Alternate text of image';
+        $node->{$field_machine_name}[$lang][] = (array) $file;
+        node_save($node);
+      }
+    }
+  }
+
   public function smartlingAddSiteLanguage($lang = 'ru') {
     // Add predefined languages.
     $edit = array(
@@ -172,17 +215,35 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->smartlingAddTextFieldToNode('page', 'not_translatable_data');
 
     // Set nodes method for CT
-    $edit = array();
-    $edit['page_TT_page'] = 2;
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
-    $this->assertText(t('Your content types have been updated.'));
+    $this->smartlingSetNodesMethodSettings('page');
 
     // Set fields for page CT
+    $this->smartlingSetFieldSettings('page', 'field_translatable_data');
+    // End Set Up
+  }
+
+  /**
+   * Set translate method in smartling settings
+   * @param string $node_type
+   * Node type machine name
+   * @param type $method_key
+   * 1 - Field method
+   * 2 - Nodes method (by default)
+   */
+  public function smartlingSetNodesMethodSettings($node_type, $method_key = 2) {
+    // Set method for CT
     $edit = array();
-    $edit['page_SEPARATOR_field_translatable_data'] = 1;
+    $edit[$node_type . '_TT_' . $node_type] = $method_key;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
-    // End Set Up
+  }
+
+  public function smartlingSetFieldSettings($node_type, $field_name) {
+    // Set fields for page CT
+    $edit = array();
+    $edit[$node_type . '_SEPARATOR_' . $field_name] = 1;
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
   }
 
   /**
@@ -207,6 +268,11 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $cron = FALSE;
       while (!$cron) {
         $cron = drupal_cron_run();
+        if (!$cron) {
+          db_delete('semaphore')
+              ->condition('name', 'cron')
+              ->execute();
+        }
       }
 
       // Go to report-in-progress and download

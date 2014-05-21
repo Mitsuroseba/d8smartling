@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Save translation for Image field',
+      'description' => 'Test saving translation for Image field (Alt, Title)',
+      'group' => 'Smartling'
+    );
+  }
+
+  public function testCorrectImageFiledNotTranslatableField() {
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling
+    $this->smartlingSetRetrievalType('pseudo');
+    // Check
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_image'), 0);
+    // Set field settings
+    $this->smartlingEnableTitleAltForImageField('article', 'field_image');
+    // Set nodes method for CT
+    $this->smartlingSetNodesMethodSettings('article');
+    // Set fields for article CT
+    $this->smartlingSetFieldSettings('article', 'field_image');
+
+    // Create new node
+    $this->smartlingCreateNode('article');
+    // Set node values
+    $this->smartlingAddImageToField(1, 'field_image');
+    // Send and download node
+    $this->smartlingTranslateNode(1, array('ru'));
+
+
+    // Asserts
+    $this->drupalGet('node/2/edit');
+    $node_translated = node_load(2);
+
+    $field_name = 'field_image';
+    $this->assertTrue((!empty($node_translated->{$field_name}[LANGUAGE_NONE][0]['title']) && ($node_translated->{$field_name}[LANGUAGE_NONE][0]['title'] != 'Title of image')), t('Field image contains translated content for sub-field title and language UND for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+    $this->assertTrue((!empty($node_translated->{$field_name}[LANGUAGE_NONE][0]['alt']) && ($node_translated->{$field_name}[LANGUAGE_NONE][0]['alt'] != 'Alternate text of image')), t('Field image contains translated content for sub-field alt and language UND for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+  }
+
+  public function testCorrectImageFiledTranslatableField() {
+    // Set correct account settings
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling
+    $this->smartlingSetRetrievalType('pseudo');
+    // Disable Drupal translations for fields
+    $this->smartlingSetTranslatableFieldSettings('field_image', 1);
+    // Check
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_image'), 1);
+    // Set field settings
+    $this->smartlingEnableTitleAltForImageField('article', 'field_image');
+    // Set nodes method for CT
+    $this->smartlingSetNodesMethodSettings('article');
+    // Set fields for article CT
+    $this->smartlingSetFieldSettings('article', 'field_image');
+
+    // Create new node
+    $this->smartlingCreateNode('article');
+    // Set node values
+    $this->smartlingAddImageToField(1, 'field_image', 'en');
+    // Send and download node
+    $this->smartlingTranslateNode(1, array('ru'));
+
+    // Asserts
+    $this->drupalGet('node/2/edit');
+    $node_translated = node_load(2);
+
+    $field_name = 'field_image';
+    $this->assertTrue((!empty($node_translated->{$field_name}['ru'][0]['title']) && ($node_translated->{$field_name}['ru'][0]['title'] != 'Title of image')), t('Field image contains translated content for sub-field title and language RU for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+    $this->assertTrue((!empty($node_translated->{$field_name}['ru'][0]['alt']) && ($node_translated->{$field_name}['ru'][0]['alt'] != 'Alternate text of image')), t('Field image contains translated content for sub-field alt and language RU for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+  }
+
+}
