@@ -65,6 +65,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $this->drupalCreateNode($base_settings);
     }
     else {
+      $settings['type'] = $type;
       $this->drupalCreateNode($settings);
     }
   }
@@ -169,6 +170,12 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText(t('Saved'));
   }
 
+  /**
+   *
+   * @param type $nid
+   * @param type $field_machine_name
+   * @param type $lang
+   */
   public function smartlingAddImageToField($nid, $field_machine_name, $lang = LANGUAGE_NONE) {
     $node = node_load($nid);
     if ($node) {
@@ -191,6 +198,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
         $node->{$field_machine_name}[$lang][] = (array) $file;
         node_save($node);
       }
+    }
+    else {
+      $message = t('Test failed');
+      $this->error($message);
     }
   }
 
@@ -215,7 +226,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->smartlingAddTextFieldToNode('page', 'not_translatable_data');
 
     // Set nodes method for CT
-    $this->smartlingSetNodesMethodSettings('page');
+    $this->smartlingSetMethodSettings('page');
 
     // Set fields for page CT
     $this->smartlingSetFieldSettings('page', 'field_translatable_data');
@@ -230,7 +241,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    * 1 - Field method
    * 2 - Nodes method (by default)
    */
-  public function smartlingSetNodesMethodSettings($node_type, $method_key = 2) {
+  public function smartlingSetMethodSettings($node_type, $method_key = 2) {
     // Set method for CT
     $edit = array();
     $edit[$node_type . '_TT_' . $node_type] = $method_key;
