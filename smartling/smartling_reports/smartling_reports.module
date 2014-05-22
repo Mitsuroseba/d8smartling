@@ -34,3 +34,19 @@ function smartling_reports_menu_alter(&$items) {
     $items['admin/content/smartling/report-completed']['type'] = MENU_DEFAULT_LOCAL_TASK;
   }
 }
+
+function smartling_reports_preprocess_views_view_table(&$vars) {
+  if ($vars['view']->name != 'smartlig_report') {
+    return;
+  }
+
+  $rows = $vars['view']->result;
+  if (!empty($rows) && is_array($rows)) {
+    foreach($rows as $k => $v) {
+      if ($v->smartling_entity_data_status == SMARTLING_STATUS_FAILED) {
+        $vars['row_classes'][$k][] = 'failed_status';
+      }
+    }
+    drupal_add_css(drupal_get_path('module', 'smartling') . '/css/smartling_admin.css');
+  }
+}

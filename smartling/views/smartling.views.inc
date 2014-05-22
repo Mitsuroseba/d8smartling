@@ -29,6 +29,9 @@ function smartling_views_data_alter(&$data) {
     'filter' => array(
       'handler' => 'smartling_handler_filter_entity_status',
     ),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+    ),
   );
 
   // Add views handler
