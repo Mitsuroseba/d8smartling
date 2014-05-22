@@ -749,6 +749,11 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
         smartling_entity_data_save($entity_data);
         break;
 
+      case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
+        $entity_data->status = SMARTLING_STATUS_FAILED_UPLOAD;
+        smartling_entity_data_save($entity_data);
+        break;
+
       default:
         break;
     }

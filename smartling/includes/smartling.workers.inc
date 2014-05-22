@@ -206,15 +206,14 @@ function smartling_queue_send_to_translate_process($args) {
       }
       elseif (is_object($upload_result)) {
         smartling_watchdog('Smartling failed to upload xml file: <br/>
-      Project Id: @project_id <br/>
-      Action: upload <br/>
-      URI: @file_uri <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
+          Project Id: @project_id <br/>
+          Action: upload <br/>
+          URI: @file_uri <br/>
+          Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
 
-        // Add new queue item if some error
-        $smartling_queue = DrupalQueue::get('smartling_upload');
-        $smartling_queue->createQueue();
-        $smartling_queue->createItem($args);
+        foreach ($entity_data_array as $entity) {
+          smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
+        }
       }
     }
   }
