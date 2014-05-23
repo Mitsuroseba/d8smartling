@@ -19,7 +19,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $file_name_unic = $entity_data->file_name;
     $file_path = smartling_get_dir($file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
-    $translated_filename = $file_name . '_' . $d_locale . '.xml';
+    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object
     $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
@@ -185,7 +185,7 @@ function smartling_queue_send_to_translate_process($args) {
       $smartling_settings = smartling_settings_get_handler();
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_get_dir($file_name);
+      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
       $file_type = 'xml';
 
       // Init api object
