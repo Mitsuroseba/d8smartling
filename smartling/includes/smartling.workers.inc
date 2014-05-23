@@ -226,15 +226,14 @@ function smartling_queue_send_to_translate_process($args) {
       elseif (is_object($upload_result)) {
         $link_to_entity = smartling_get_link_to_entity($args->rid, $entity_type);
         smartling_watchdog('smartling_queue_send_to_translate_process try upload xml to service: <br/>
-      Project Id: @project_id <br/>
-      Action: upload <br/>
-      URI: @file_uri <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+          Project Id: @project_id <br/>
+          Action: upload <br/>
+          URI: @file_uri <br/>
+          Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
 
-        // Add new queue item if some error
-        $smartling_queue = DrupalQueue::get('smartling_upload');
-        $smartling_queue->createQueue();
-        $smartling_queue->createItem($args);
+        foreach ($entity_data_array as $entity) {
+          smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
+        }
         smartling_watchdog('Smartling upload xml file to service for @entity_type id - @rid is FAIL!', FALSE, array('@entity_type' => $entity_type, '@rid' => $args->rid), WATCHDOG_ERROR, $link_to_entity);
       }
     }
