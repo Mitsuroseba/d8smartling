@@ -627,8 +627,6 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
   else {
     drupal_set_message(t('Smartling is not configured'), 'error');
   }
-
-  drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $d_locale)));
 }
 
 function smartling_download_file($entity_data) {
@@ -694,7 +692,7 @@ function smartling_get_progress_status($entity_data) {
       Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@d_locale' => $d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_uri, '@d_locale' => $d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
       drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
       return FALSE;
     }
