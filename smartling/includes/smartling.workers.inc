@@ -19,7 +19,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $file_name_unic = $entity_data->file_name;
     $file_path = smartling_get_dir($file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
-    $translated_filename = $file_name . '_' . $d_locale . '.xml';
+    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object
     $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
@@ -185,7 +185,7 @@ function smartling_queue_send_to_translate_process($args) {
       $smartling_settings = smartling_settings_get_handler();
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_get_dir($file_name);
+      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
       $file_type = 'xml';
 
       // Init api object
@@ -222,10 +222,10 @@ function smartling_queue_send_to_translate_process($args) {
       elseif (is_object($upload_result)) {
         $link_to_entity = smartling_get_link_to_entity($args->rid, $entity_type);
         smartling_watchdog('Smartling failed to upload xml file: <br/>
-      Project Id: @project_id <br/>
-      Action: upload <br/>
-      URI: @file_uri <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+          Project Id: @project_id <br/>
+          Action: upload <br/>
+          URI: @file_uri <br/>
+          Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
 
         foreach ($entity_data_array as $entity) {
           smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
