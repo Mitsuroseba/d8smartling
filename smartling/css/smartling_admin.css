@@ -29,3 +29,5 @@
   left: 150px;
   padding: 0;
 }
+
+.view-smartlig-report tr.failed_status {background-color: #eeb9b9}
