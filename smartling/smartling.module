@@ -22,7 +22,6 @@ define('SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE', 'smartling_upload_node_to_ser
 define('SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE', 'smartling_download_node_from_service');
 define('SMARTLING_STATUS_EVENT_UPDATE_FIELDS', 'smartling_update_node_fields');
 define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity_update');
-define('SMARTLING_STATUS_EVENT_FAILED_UPLOAD', 'smartling_send_node_failed_upload');
 
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_DEFAULT_API_URL', 'https://capi.smartling.com/v1');
