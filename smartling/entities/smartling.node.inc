@@ -55,7 +55,7 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
 function smartling_multilanguage_support_node_type_validate(&$form, &$form_state) {
   if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {
     if (!smartling_is_configured()) {
-      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
       form_set_error('workflow');
     }
   }
