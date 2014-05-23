@@ -1,7 +1,7 @@
 name = Smartling load test
 core = 7.x
 package = smartling
-version = "7.x-1.0-beta7"
+version = "7.x-1.0-beta8"
 dependencies[] = devel_generate
 dependencies[] = smartling
 dependencies[] = text
