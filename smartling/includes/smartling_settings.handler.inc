@@ -16,7 +16,7 @@ class SmartlingSettingsHandler {
   public $retrievalType;
   public $targetLocales;
   public $localesConvertArray;
-  public $callbackUrl;
+  public $callbackUrlUse;
   public $logMode;
   public $nodeFieldsSettings;
   public $commentFieldsSettings;
@@ -27,9 +27,9 @@ class SmartlingSettingsHandler {
    * Initialize.
    */
   public function __construct() {
-    $this->apiUrl = variable_get('smartling_api_url', 'https://capi.smartling.com/v1');
-    $this->callbackUrl = variable_get('smartling_callback_url', 'smartling-callback');
-    $this->logMode = variable_get('smartling_log', 1);
+    $this->apiUrl = variable_get('smartling_api_url', SMARTLING_DEFAULT_API_URL);
+    $this->callbackUrlUse = variable_get('smartling_callback_url_use', TRUE);
+    $this->logMode = variable_get('smartling_log', TRUE);
     $this->projectId = variable_get('smartling_project_id', '');
     $this->key = variable_get('smartling_key', '');
     $this->retrievalType = variable_get('smartling_retrieval_type', 'published');
@@ -201,24 +201,31 @@ class SmartlingSettingsHandler {
     return $this->apiUrl;
   }
 
+  /**
+   *
+   * @param string $apiUrl
+   * https://capi.smartling.com/v1 by default
+   */
   public function setApiUrl($apiUrl) {
     if (empty($apiUrl)) {
-      $apiUrl = 'https://capi.smartling.com/v1';
+      $apiUrl = SMARTLING_DEFAULT_API_URL;
     }
     $this->apiUrl = check_plain((string) $apiUrl);
     variable_set('smartling_api_url', $this->apiUrl);
   }
 
-  public function getCallbackUrl() {
-    return $this->callbackUrl;
+  public function getCallbackUrlUse() {
+    return $this->callbackUrlUse;
   }
 
-  public function setCallbackUrl($callbackUrl) {
-    if (empty($callbackUrl)) {
-      $callbackUrl = 'smartling-callback';
-    }
-    $this->callbackUrl = check_plain((string) $callbackUrl);
-    variable_set('smartling_callback_url', $this->callbackUrl);
+  /**
+   *
+   * @param bool $use
+   * TRUE or FALSE (TRUE by default)
+   */
+  public function setCallbackUrlUse($use = TRUE) {
+    $this->callbackUrlUse = (bool) $use;
+    variable_set('smartling_callback_url_use', $this->callbackUrlUse);
   }
 
   public function getLogMode() {

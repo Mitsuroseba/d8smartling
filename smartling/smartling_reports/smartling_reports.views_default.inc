@@ -485,10 +485,9 @@ function smartling_reports_views_default_views() {
     'type' => 'type',
     'name' => 'name',
     'status' => 'status',
-    'changed' => 'changed',
     'language' => 'language',
-    'delete_node' => 'delete_node',
-    'edit_node' => 'edit_node',
+    'locale_info' => 'locale_info',
+    'changed' => 'changed',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
@@ -525,13 +524,6 @@ function smartling_reports_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'changed' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
     'language' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
@@ -539,12 +531,16 @@ function smartling_reports_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'delete_node' => array(
+    'locale_info' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'edit_node' => array(
+    'changed' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,

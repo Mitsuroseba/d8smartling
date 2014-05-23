@@ -18,11 +18,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
     // Set pseudo for smartling
-    $edit = array(
-      "production_retrieval_type" => 'pseudo',
-    );
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Account settings saved.'));
+    $this->smartlingSetRetrievalType('pseudo');
 
     // Set file public path for tests
     variable_set('file_public_path', 'sites/default/files');
@@ -78,6 +74,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $edit['page_SEPARATOR_title_field'] = 1;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
+    // Translatable fields
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('body'), 0);
 
     $terms = array(
       'term1' => 'Test term',
@@ -100,20 +98,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->drupalPost('node/1/edit', $node_array, t('Save'));
 
-    // Send node to smartling
-    $edit = array(
-      "target[ru]" => 'ru',
-    );
-    $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
-    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => 'Title test', '@langs' => 'ru')));
-
-    // Run cron
-    drupal_cron_run();
-
-    // Go to report-in-progress and download
-    $this->drupalGet('admin/content/smartling/report-in-progress');
-    $this->clickLink('Download');
-    $this->assertText(t('Downloaded for language translation ru'));
+    // Send and download node
+    $this->smartlingTranslateNode(1, array('ru'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
@@ -127,8 +113,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $original_value = $original_node->title;
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Title conteins translated value'), t('Browser'));
 
-    $translated_value = $translated_node->body[$translated_node->language][0]['value'];
-    $original_value = $original_node->body[$original_node->language][0]['value'];
+    $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
+    $original_value = $original_node->body[LANGUAGE_NONE][0]['value'];
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body conteins translated value'), t('Browser'));
 
     // Equal client help url
@@ -154,11 +140,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
     // Set pseudo for smartling
-    $edit = array(
-      "production_retrieval_type" => 'pseudo',
-    );
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Account settings saved.'));
+    $this->smartlingSetRetrievalType('pseudo');
 
     // Set file public path for tests
     variable_set('file_public_path', 'sites/default/files');
@@ -215,6 +197,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
 
+    // Translatable fields
+    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('body'), 0);
+
     // Create original node content
     $terms = array(
       'term1' => 'Test term',
@@ -229,7 +214,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('node/add/page', $node_array, t('Save'));
 
     $node_array = array(
-      'body[en][0][value]' => 'Boby text',
+      'body[und][0][value]' => 'Boby text',
       'field_price[und][0][value]' => '123.00',
       'field_client_help_url[und][0][value]' => 'url',
     );
@@ -250,27 +235,15 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('ru/node/add/page', $node_tr_array, t('Save'), $options);
 
     $node_tr_array = array(
-      'body[ru][0][value]' => 'Translated boby text ru',
+      'body[und][0][value]' => 'Translated boby text ru',
       'field_price[und][0][value]' => '321.00',
       'field_client_help_url[und][0][value]' => 'taranslated url',
     );
 
     $this->drupalPost('ru/node/2/edit', $node_tr_array, t('Save'));
 
-    // Send node to smartling
-    $edit = array(
-      "target[ru]" => 'ru',
-    );
-    $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
-    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => 'Title test', '@langs' => 'ru')));
-
-    // Run cron
-    drupal_cron_run();
-
-    // Go to report-in-progress and download
-    $this->drupalGet('admin/content/smartling/report-in-progress');
-    $this->clickLink('Download');
-    $this->assertText(t('Downloaded for language translation ru'));
+    // Send and download node
+    $this->smartlingTranslateNode(1, array('ru'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
@@ -284,7 +257,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $translated_value = $translated_node->title;
     $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated title test')), t('Title conteins translated value'), t('Browser'));
 
-    $translated_value = $translated_node->body[$translated_node->language][0]['value'];
+    $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
+
     $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text ru')), t('Body conteins translated value'), t('Browser'));
 
     // Equal client help url

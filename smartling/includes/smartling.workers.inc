@@ -10,23 +10,21 @@
 function smartling_queue_download_update_translated_item_process($entity_data) {
 
   if (smartling_is_configured() && smartling_supported_type($entity_data->entity_type, $entity_data->bundle)) {
+    $smartling_settings = smartling_settings_get_handler();
     $entity_type = $entity_data->entity_type;
     $d_locale = $entity_data->target_language;
     $rid = $entity_data->rid;
     $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
     $file_name = $entity_data->file_name;
     $file_name_unic = $entity_data->file_name;
-    $file_path = smartling_get_dir() . '/' . $file_name;
+    $file_path = smartling_get_dir($file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
     $translated_filename = $file_name . '_' . $d_locale . '.xml';
 
-    $key = variable_get('smartling_key');
-    $project_id = variable_get('smartling_project_id');
-
     // Init api object
-    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
 
-    $retrieval_type = variable_get('smartling_retrieval_type');
+    $retrieval_type = variable_get('smartling_retrieval_type', 'published');
     $download_param = array(
       'retrievalType' => $retrieval_type,
     );
@@ -44,7 +42,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
       Action: download <br/>
       URI: @file_uri <br/>
       Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@s_locale' => $s_locale, '@code' => $download_result->response->code, '@message' => $download_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
     }
     else {
       // This is a $download_result
@@ -64,22 +62,18 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
  */
 function smartling_queue_check_status_process($args) {
   if (smartling_is_configured()) {
-
+    $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($args->rid, $args->entity_type);
-
     $entity_data = smartling_entity_load_by_conditions(array('eid' => $args->eid, 'rid' => $args->rid, 'target_language' => $args->d_locale));
+
     if ($entity_data !== FALSE) {
       if ($entity_data->progress != 100) {
         $file_name = $entity_data->file_name;
         $file_name_unic = $entity_data->file_name;
-
-        $file_uri = file_create_url('public://smartling/' . $file_name);
-
-        $key = variable_get('smartling_key');
-        $project_id = variable_get('smartling_project_id');
+        $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $file_name, TRUE);
 
         // Init api object
-        $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+        $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
 
         $s_locale = smartling_convert_locale_drupal_to_smartling($args->d_locale);
         // Try to retrieve file status
@@ -92,11 +86,11 @@ function smartling_queue_check_status_process($args) {
 
 
           // only for tests, remove in prod or stage
-          $status_result->response->data->completedStringCount = $status_result->response->data->approvedStringCount;
+          //$status_result->response->data->completedStringCount = $status_result->response->data->approvedStringCount;
 
 
 
-          smartling_watchdog('Smartling check status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs', TRUE, array(
+          smartling_watchdog('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs', TRUE, array(
             '@entity_type' => $args->entity_type,
             '@rid' => $args->rid,
             '@d_locale' => $args->d_locale,
@@ -134,12 +128,12 @@ function smartling_queue_check_status_process($args) {
           }
         }
         else {
-          smartling_watchdog('Smartling check status for @entity_type id - @rid: <br/>
+          smartling_watchdog('Smartling checks status for @entity_type id - @rid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
       URI: @file_uri <br/>
       Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@entity_type' => $args->entity_type, '@rid' => $args->rid, '@project_id' => $project_id, '@file_uri' => $file_name_unic, '@d_locale' => $args->d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message', FALSE, array('@entity_type' => $args->entity_type, '@rid' => $args->rid, '@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@d_locale' => $args->d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
         }
       }
       else {
@@ -147,7 +141,7 @@ function smartling_queue_check_status_process($args) {
       }
     }
     else {
-      smartling_watchdog('Smartling check status for node id - @rid is FAIL! Smartling entity not exist.', FALSE, array('@rid' => $args->rid), WATCHDOG_ERROR, $link_to_entity);
+      smartling_watchdog('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.', FALSE, array('@rid' => $args->rid), WATCHDOG_ERROR, $link_to_entity);
     }
   }
 }
@@ -187,22 +181,19 @@ function smartling_queue_send_to_translate_process($args) {
     $saves[] = smartling_build_xml($args->rid, $args->d_locales, $args->title, $entity_type);
 
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
+      global $base_url;
+      $smartling_settings = smartling_settings_get_handler();
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_get_dir() . '/' . $file_name;
-      $file_uri = file_create_url('public://smartling/' . $file_name);
+      $file_path = smartling_get_dir($file_name);
       $file_type = 'xml';
 
-      $key = variable_get('smartling_key');
-      $project_id = variable_get('smartling_project_id');
-
       // Init api object
-      $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+      $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
 
       foreach ($args->d_locales as $d_locale) {
         $locales_to_approve[] = smartling_convert_locale_drupal_to_smartling($d_locale);
       }
-      global $base_url;
 
       $upload_params = new FileUploadParameterBuilder();
       $upload_params->setFileUri($file_name_unic)
@@ -214,7 +205,7 @@ function smartling_queue_send_to_translate_process($args) {
           // is java.lang.IllegalArgumentException: Invalid boolean value []
           ->setOverwriteApprovedLocales(0) // Must be set 0 (not FALSE).
           ->setApproved(0)
-          ->setCallbackUrl($base_url . '/' . SMARTLING_CALLBACK_URL);
+          ->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
       $upload_params = $upload_params->buildParameters();
 
       // Try to upload file
@@ -238,7 +229,7 @@ function smartling_queue_send_to_translate_process($args) {
       Project Id: @project_id <br/>
       Action: upload <br/>
       URI: @file_uri <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
 
         // Add new queue item if some error
         $smartling_queue = DrupalQueue::get('smartling_upload');

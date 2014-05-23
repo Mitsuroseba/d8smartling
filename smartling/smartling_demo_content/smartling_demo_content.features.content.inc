@@ -22,7 +22,7 @@ function smartling_demo_content_content_defaults() {
     'translate' => 0,
     'machine_name' => 'apple_iphone',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'Pegatron Corporation, the Taiwanese company that assembles Apple\'s iPhone 5C, has reported lower-than-expected profits.
 Analysts have said that Pegatron is experiencing slower orders for the 5C, which is Apple\'s cheaper smartphone.
@@ -83,7 +83,7 @@ Apple is known to be diversifying its list of suppliers and looking increasingly
     'translate' => 0,
     'machine_name' => 'baseball_museums',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'Each fall, the final out is recorded, a new World Series winner is crowned, and baseball fans around the country come to grips with the fact that they won\'t watch a professional game again for many months. Some can manage this dearth of baseball-related activity, but if you can\'t, don\'t fret. The 10 must-see baseball museums on this list can help fans of all ages get through the baseball-less winter months.
 
@@ -127,13 +127,6 @@ This winter, don\'t feel like you have to fly to Venezuela to get your baseball 
       ),
     ),
     'field_image_description' => array(
-      'en' => array(
-        0 => array(
-          'value' => 'Also in Cooperstown is the Baseball Wax Museum, which houses more than 30 life-like wax figures of baseball\'s most recognizable players',
-          'format' => NULL,
-          'safe_value' => 'Also in Cooperstown is the Baseball Wax Museum, which houses more than 30 life-like wax figures of baseball&#039;s most recognizable players',
-        ),
-      ),
       'und' => array(
         0 => array(
           'value' => 'Also in Cooperstown is the Baseball Wax Museum, which houses more than 30 life-like wax figures of baseball\'s most recognizable players',
@@ -156,7 +149,7 @@ This winter, don\'t feel like you have to fly to Venezuela to get your baseball 
     'translate' => 0,
     'machine_name' => 'caribbean_port',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'A cruise to the Caribbean gives you the chance to partake in many fun and diverse shore excursions. Whether you want something action-packed or laidback, you can find your ideal activities ashore. Consider these:
 
@@ -248,7 +241,7 @@ Can\'t decide which activity you most want to do? Don\'t worry — most Caribbea
       ),
     ),
     'field_image_description' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'Swimming with stingrays is a magical experience. Your knowledgeable guide will teach you the safe way to interact with the gentle creatures and then you’ll be able to swim beside them and touch them.',
           'format' => NULL,
@@ -270,7 +263,7 @@ Can\'t decide which activity you most want to do? Don\'t worry — most Caribbea
     'translate' => 0,
     'machine_name' => 'london_airpor',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'Designs and details of how a Thames estuary airport would work are being unveiled in London.
 
@@ -357,7 +350,7 @@ It said £47bn would be recouped from the real estate value and closure of Heath
     'translate' => 0,
     'machine_name' => 'resume_trade',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'The EU and US are to begin a second round of negotiations towards creating the world\'s biggest free-trade deal.
 
@@ -421,7 +414,7 @@ EU negotiator Ignacio Garcia Bercero and US counterpart Dan Mullaney will give a
     'translate' => 0,
     'machine_name' => 'uninstall_windows',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'A: I think Windows 8.1 is a pretty good operating-system update. But it\'s also an operating-system update — meaning that it can get tripped up by hidden software conflicts that don\'t arise when upgrading individual apps.
 
@@ -511,7 +504,7 @@ Follow the prompts there; if you choose the option to copy the computer\'s recov
     'translate' => 0,
     'machine_name' => 'us_job',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'The US economy added a better-than-expected 204,000 jobs in October, according to the latest figures from the Labor Department.
 
@@ -598,7 +591,7 @@ The latest figures add to a positive week for US economic data.</p>
     'translate' => 0,
     'machine_name' => 'veterans_day',
     'body' => array(
-      'en' => array(
+      'und' => array(
         0 => array(
           'value' => 'Military cemeteries offer a historic connection to the past, and Monday\'s Veterans Day holiday is a perfect time to visit, says Stephen W. Lehman, senior historian with the U.S. Army Center of Military History in Washington. "When you see the name and the date on a grave marker, you have to remember these are people just like you." He shares notable burial grounds with Larry Bleiberg for USA TODAY.
 
@@ -662,13 +655,6 @@ This somber cemetery pays homage to fallen soldiers and other national heroes, i
       ),
     ),
     'field_image_description' => array(
-      'en' => array(
-        0 => array(
-          'value' => 'The Oise-Aisne American Cemetery and Memorial in France was created for World War I victims who were not repatriated.',
-          'format' => NULL,
-          'safe_value' => 'The Oise-Aisne American Cemetery and Memorial in France was created for World War I victims who were not repatriated.',
-        ),
-      ),
       'und' => array(
         0 => array(
           'value' => 'The Oise-Aisne American Cemetery and Memorial in France was created for World War I victims who were not repatriated.',

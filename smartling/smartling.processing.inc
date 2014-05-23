@@ -54,9 +54,8 @@ function smartling_node_content_to_translate($nid) {
     $node = $nid;
   }
 
-  $language = (!empty($node->language)) ? $node->language : language_default()->language;
-
   foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($node->type) as $field_name) {
+    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('node', $node) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'node-title':
         if (!empty($node->title)) {
@@ -92,7 +91,7 @@ function smartling_node_content_to_translate($nid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -115,9 +114,8 @@ function smartling_term_content_to_translate($tid) {
     $term = $tid;
   }
 
-  $language = (!empty($term->language)) ? $term->language : language_default()->language;
-
   foreach (smartling_settings_get_handler()->taxonomy_termGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
+    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('taxonomy_term', $term) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'taxonomy-term-title':
         if (!empty($term->name)) {
@@ -159,7 +157,7 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -183,9 +181,8 @@ function smartling_comment_content_to_translate($cid) {
     $comment = $cid;
   }
 
-  $language = (!empty($comment->language)) ? $comment->language : language_default()->language;
-
   foreach (smartling_settings_get_handler()->commentGetFieldsSettingsByBundle($comment->node_type) as $field_name) {
+    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('comment', $comment) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($comment->{$field_name}[$language])) {
@@ -215,7 +212,7 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -239,9 +236,8 @@ function smartling_user_content_to_translate($uid) {
     $user = $uid;
   }
 
-  $language = (!empty($user->language)) ? $user->language : language_default()->language;
-
   foreach (smartling_settings_get_handler()->userGetFieldsSettingsByBundle('user') as $field_name) {
+    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('user', $user) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($user->{$field_name}[$language])) {
@@ -271,7 +267,7 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       default:
-        smartling_watchdog('Smartling didn\'t process content of field - @field_name', FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
         break;
     }
   }
@@ -318,16 +314,17 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
 /**
  * Processing for text field
  */
-function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $d_locale, $original_language) {
+function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
   $quantity_value = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
   $quantity = $quantity_value->getAttribute('quantity');
 
   for ($i = 0; $i < $quantity; $i++) {
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')->item(0);
     $string = (string) $field->nodeValue;
-    $format = smartling_get_field_format($entity_wrapper, $field_name, $original_language, $d_locale, $i);
-    $entity_wrapper->{$field_name}[$d_locale][$i]['value'] = $string;
-    $entity_wrapper->{$field_name}[$d_locale][$i]['format'] = $format;
+    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
+
+    $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
+    $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
   }
   return $entity_wrapper;
 }
@@ -335,7 +332,7 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
 /**
  * Processing for body/summary field
  */
-function smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $d_locale, $original_language) {
+function smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
   $quantity_value = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
   $quantity = $quantity_value->getAttribute('quantity');
 
@@ -344,11 +341,11 @@ function smartling_body_with_summary_field_processing($entity_wrapper, $field_na
     $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')->item(0);
     $body_string = (string) $body_obj->nodeValue;
     $summary_string = (string) $summary_obj->nodeValue;
-    $format = smartling_get_field_format($entity_wrapper, $field_name, $original_language, $d_locale, $i);
+    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
 
-    $entity_wrapper->{$field_name}[$d_locale][$i]['value'] = $body_string;
-    $entity_wrapper->{$field_name}[$d_locale][$i]['format'] = $format;
-    $entity_wrapper->{$field_name}[$d_locale][$i]['summary'] = $summary_string;
+    $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;
+    $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
+    $entity_wrapper->{$field_name}[$language_key][$i]['summary'] = $summary_string;
   }
   return $entity_wrapper;
 }
@@ -356,7 +353,7 @@ function smartling_body_with_summary_field_processing($entity_wrapper, $field_na
 /**
  * Processing for image field
  */
-function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, $d_locale) {
+function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, $language_key) {
   $image_multiple = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
   $quantity = $image_multiple->getAttribute('quantity');
 
@@ -369,7 +366,7 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
     if ($file_img) {
       $alt_string = (string) $alt_obj->nodeValue;
       $title_string = (string) $title_obj->nodeValue;
-      $entity_wrapper->{$field_name}[$d_locale][$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string);
+      $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string);
     }
   }
   return $entity_wrapper;
@@ -385,14 +382,12 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
  */
 function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
 
-  smartling_watchdog('Smartling starts update fields for entity type @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO);
+  smartling_watchdog('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale), WATCHDOG_INFO);
 
   if (smartling_supported_type($entity_type, $bundle)) {
     $smartling_settings = smartling_settings_get_handler();
     $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type, 'target_language' => $d_locale));
-    $file_name = $entity_data->translated_file_name;
-    $original_language = $entity_data->original_language;
-    $file_path = smartling_get_dir() . '/' . $file_name;
+    $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
 
     // Get field names for entity
     switch ($entity_type) {
@@ -546,38 +541,12 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     }
 
     $xml = new DOMDocument();
-
     $xml->load($file_path);
-    $xpath = new DomXpath($xml);
 
-    $entity_wrapper = entity_load_single($entity_type, $rid);
-    if ($entity_wrapper) {
-      foreach ($fields as $field_name) {
-        switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
-          case 'text-field':
-            $entity_wrapper = smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $d_locale, $original_language);
-            break;
-
-          case 'body-with-summary-field':
-            $entity_wrapper = smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $d_locale, $original_language);
-            break;
-
-          case 'image-field':
-            $entity_wrapper = smartling_image_field_processing($entity_wrapper, $field_name, $xpath, $d_locale);
-            break;
-
-          default:
-            smartling_watchdog('Smartling didn\'t process field - @field_name', TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
-            break;
-        }
-      }
-
-      entity_save($entity_type, $entity_wrapper);
+    if (smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $entity_data->original_language, $fields)) {
 
       $entity_data->download = 1;
-
       smartling_entity_data_save($entity_data);
-
       smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
       $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
@@ -643,5 +612,57 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     else {
       smartling_watchdog('Translatable @entity_type with id - @rid not found in database', TRUE, array('@entity_type' => $entity_type, '@rid' => $rid), WATCHDOG_INFO);
     }
+  }
+}
+
+/**
+ *
+ * @param type $entity_type
+ * @param type $xml
+ * @param type $rid
+ * @param type $d_locale
+ * @param type $original_locale
+ * @param type $fields
+ * @return boolean
+ */
+function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $original_locale, $fields) {
+  $xpath = new DomXpath($xml);
+  $entity_wrapper = entity_load_single($entity_type, $rid);
+  if ($entity_wrapper) {
+    foreach ($fields as $field_name) {
+      // Get language key for field translatable type
+      if (smartling_field_is_translatable_by_field_name($field_name)) {
+        $language_key = $d_locale;
+        $language_key_format = $original_locale;
+      }
+      else {
+        $language_key = LANGUAGE_NONE;
+        $language_key_format = LANGUAGE_NONE;
+      }
+
+      switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
+        case 'text-field':
+          $entity_wrapper = smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format);
+          break;
+
+        case 'body-with-summary-field':
+          $entity_wrapper = smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format);
+          break;
+
+        case 'image-field':
+          $entity_wrapper = smartling_image_field_processing($entity_wrapper, $field_name, $xpath, $language_key);
+          break;
+
+        default:
+          smartling_watchdog("Smartling didn't process field - @field_name", TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+          break;
+      }
+    }
+
+    entity_save($entity_type, $entity_wrapper);
+    return TRUE;
+  }
+  else {
+    return FALSE;
   }
 }

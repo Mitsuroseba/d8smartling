@@ -9,10 +9,10 @@
  * Implements hook_install().
  */
 function smartling_install() {
-  variable_set('smartling_log', 1);
+  variable_set('smartling_log', TRUE);
   variable_set('smartling_retrieval_type', 'published');
-  variable_set('smartling_callback_url', 'smartling-callback');
-  variable_set('smartling_api_url', 'https://capi.smartling.com/v1');
+  variable_set('smartling_callback_url_use', TRUE);
+  variable_set('smartling_api_url', SMARTLING_DEFAULT_API_URL);
 
   $language_negotiation_language = array(
     'locale-url' => array(
@@ -492,6 +492,14 @@ function smartling_update_7100(&$sandbox) {
       variable_set('locale_field_language_fallback', 1);
       // Set user settings
       variable_set('entity_translation_settings_user__user', $entity_translation_settings);
+    }
+
+    $queue_array[] = 'smartling_check_status';
+    $queue_array[] = 'smartling_upload';
+    $queue_array[] = 'smartling_download';
+    foreach ($queue_array as $queue_name) {
+      $queue = DrupalQueue::get($queue_name);
+      $queue->deleteQueue();
     }
 
     $sandbox['user_from'] = 0;

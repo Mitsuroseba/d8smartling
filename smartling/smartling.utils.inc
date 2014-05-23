@@ -121,19 +121,9 @@ function smartling_is_configured() {
   );
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
-    if (empty($val)) {
-      if ($required_variable == 'smartling_api_url') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_key') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_project_id') {
-        return FALSE;
-      }
-      elseif ($required_variable == 'smartling_target_locales') {
-        return FALSE;
-      }
+    if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
+      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
+      return FALSE;
     }
   }
   // All required configuration variables are set
@@ -153,7 +143,7 @@ function smartling_translate_fields_is_set($type = FALSE) {
     $result = TRUE;
   }
   if (!$result) {
-    drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
   }
 
   return $result;
@@ -224,6 +214,11 @@ function smartling_translatable_node_field_details() {
   }
 
   return $translatable_fields;
+}
+
+function smartling_field_is_translatable_by_field_name($field_name) {
+  $field = field_info_field($field_name);
+  return (bool) $field['translatable'];
 }
 
 /**
@@ -308,9 +303,35 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  * Return path for smartling dir
  * @return string
  */
-function smartling_get_dir() {
+function smartling_get_dir($file_name = '') {
   $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
   return (string) $smartling_dir;
+}
+
+/**
+ * Return clean filename, sanitized for path traversal vulnerability (https://code.google.com/p/teenage-mutant-ninja-turtles/wiki/AdvancedObfuscationPathtraversal)
+ * @return string
+ */
+function smartling_clean_filename($filename, $allow_dirs = FALSE) {
+  // Prior to PHP 5.5, empty() only supports variables (http://www.php.net/manual/en/function.empty.php)
+  $trim_filename = trim($filename);
+  if (empty($trim_filename)) {
+    return '';
+  }
+
+  $pattern = '/[^a-zA-Z0-9_\-]/i';
+  $info = pathinfo(trim($filename));
+  $filename = preg_replace($pattern, '_', $info['filename']);
+  if (isset($info['extension']) && !empty($info['extension'])) {
+    $filename .= '.' . preg_replace($pattern, '_', $info['extension']);
+  }
+
+  if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
+    $filename = preg_replace('/[^a-zA-Z0-9_\/\-]/i', '_', $info['dirname']) . '/' . $filename;
+  }
+
+  return (string) $filename;
 }
 
 /**
@@ -318,13 +339,13 @@ function smartling_get_dir() {
  * @param type $xml_doc
  */
 function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
-  $directory = smartling_get_dir();
   if (is_null($file_name)) {
     $file_name = 'smartling_translate_' . $entity_type . '_' . $rid . '.xml';
   }
-  $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
 
-  $path = $directory . '/' . $file_name;
+  $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
+  $directory = smartling_get_dir();
+  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
 
   if (is_dir($directory) && is_writable($directory)) {
     $xml_doc->save($path);
@@ -592,19 +613,19 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
           smartling_update_translated_fields($rid, $d_locale, $entity_data->entity_type, $entity_data->bundle);
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);
-          $result = t('Downloaded');
+          drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
         }
       }
       else {
-        $result = t('Progress status Failed');
+        drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $s_locale)), 'error');
       }
     }
     else {
-      $result = t('Progress status Failed');
+      drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $s_locale)), 'error');
     }
   }
   else {
-    $result = t('Smartling not configured');
+    drupal_set_message(t('Smartling is not configured'), 'error');
   }
 
   drupal_set_message(t('@result for language translation @language', array('@result' => $result, '@language' => $d_locale)));
@@ -613,15 +634,13 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
 function smartling_download_file($entity_data) {
   $file_name_unic = $entity_data->file_name;
   $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
+  $smartling_settings = smartling_settings_get_handler();
 
-  $key = variable_get('smartling_key');
-  $project_id = variable_get('smartling_project_id');
   // Init api object
-  $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+  $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
 
-  $retrieval_type = variable_get('smartling_retrieval_type');
   $download_param = array(
-    'retrievalType' => $retrieval_type,
+    'retrievalType' => $smartling_settings->getRetrievalType(),
   );
 
   // Try to download file
@@ -635,18 +654,16 @@ function smartling_download_file($entity_data) {
 
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0 )) {
-
+    $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
 
     $d_locale = $entity_data->target_language;
     $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
     $file_name_unic = $entity_data->file_name;
-    $file_uri = file_create_url('public://smartling/' . $entity_data->file_name);
+    $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $entity_data->file_name, TRUE);
 
-    $key = variable_get('smartling_key');
-    $project_id = variable_get('smartling_project_id');
     // Init api object
-    $api = new SmartlingAPI(SMARTLING_API_URL, $key, $project_id, SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
 
     // Try to retrieve file status
     $status_result = $api->getStatus($file_name_unic, $s_locale);
@@ -726,7 +743,7 @@ function smartling_language_list() {
  */
 function smartling_watchdog($message, $consider_log = TRUE, $variables = array(), $severity = WATCHDOG_INFO, $link = NULL) {
   if ($consider_log) {
-    if (SMARTLING_LOG) {
+    if (smartling_settings_get_handler()->getLogMode()) {
       watchdog('smartling', $message, $variables, $severity, $link);
     }
   }
@@ -840,12 +857,9 @@ function smartling_get_original_entity($rid, $entity_type) {
   return $entity;
 }
 
-function smartling_get_field_format($entity_wrapper, $field_name, $original_language, $target_locale, $i = 0) {
-  if (isset($entity_wrapper->{$field_name}[$original_language][$i]['format'])) {
-    $format = $entity_wrapper->{$field_name}[$original_language][$i]['format'];
-  }
-  elseif (isset($entity_wrapper->{$field_name}[$target_locale][$i]['format'])) {
-    $format = $entity_wrapper->{$field_name}[$target_locale][$i]['format'];
+function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0) {
+  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $entity_wrapper->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;

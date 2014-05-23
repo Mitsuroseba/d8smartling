@@ -31,9 +31,10 @@ function smartling_form_node_form_alter(&$form, $form_state) {
  */
 function smartling_node_presave($node) {
   // Make sure the title isn't overwritten with the translation when using the title module.
-  if (module_exists('title') && array_key_exists('title_field', $node)) {
-    if (isset($node->title_field[$node->language][0]['value'])) {
-      $node->title = $node->title_field[$node->language][0]['value'];
+  if (module_exists('title') && property_exists($node, 'title_field')) {
+    $titles = field_get_items('node', $node, 'title_field');
+    if (isset($titles[0]['value'])) {
+      $node->title = $titles[0]['value'];
     }
   }
 }

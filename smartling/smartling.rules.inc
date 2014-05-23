@@ -235,13 +235,13 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
               $node->tnid = $node->nid;
               node_save($node);
             }
-            if ($d_locale != $node->language) {
+            if ($d_locale != entity_language('node', $node)) {
               $d_locales[] = $d_locale;
             }
           }
         }
         elseif (smartling_fields_method($node->type)) {
-          if ($d_locale != $node->language) {
+          if ($d_locale != entity_language('node', $node)) {
             $d_locales[] = $d_locale;
           }
         }
@@ -251,7 +251,7 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
     $obj->rid = $node->nid;
     $obj->type = $node->type;
     $obj->title = $node->title;
-    $obj->original_language = $node->language;
+    $obj->original_language = entity_language('node', $node);
     $obj->d_locales = $d_locales;
     $obj->submitter = $user->uid;
     smartling_watchdog('Smartling start send to translate action for node id - @nid (@d_locales).', TRUE, array('@nid' => $obj->rid, '@d_locales' => implode('; ', $d_locales)), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
@@ -272,13 +272,13 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
                 $node->tnid = $node->nid;
                 node_save($node);
               }
-              if ($d_locale != $node->language) {
+              if ($d_locale != entity_language('node', $node)) {
                 $d_locales[] = $d_locale;
               }
             }
           }
           elseif (smartling_fields_method($node->type)) {
-            if ($d_locale != $node->language) {
+            if ($d_locale != entity_language('node', $node)) {
               $d_locales[] = $d_locale;
             }
           }
@@ -288,7 +288,7 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
       $obj->rid = $node->nid;
       $obj->type = $node->type;
       $obj->title = $node->title;
-      $obj->original_language = $node->language;
+      $obj->original_language = entity_language('node', $node);
       $obj->d_locales = $d_locales;
       $obj->submitter = $user->uid;
       smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locales).', TRUE, array('@nid' => $obj->rid, '@s_locales' => implode('; ', $d_locales)), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
