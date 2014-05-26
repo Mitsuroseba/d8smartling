@@ -118,7 +118,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     }
     else {
       $this->error(t('Field @field_name do not have translatable parameter.', array('@field_name' => $field_name)));
-      return 'error';
+      return 'field error';
     }
   }
 
@@ -251,10 +251,21 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText(t('Your content types have been updated.'));
   }
 
-  public function smartlingSetFieldSettings($node_type, $field_name) {
+  /**
+   *
+   * @param string $node_type
+   * @param string $field_name
+   * @param bool $swap
+   */
+  public function smartlingSetFieldSettings($node_type, $field_name, $swap = FALSE) {
     // Set fields for page CT
     $edit = array();
-    $edit[$node_type . '_SEPARATOR_' . $field_name] = 1;
+    if (!$swap) {
+      $edit[$node_type . '_SEPARATOR_' . $field_name] = 1;
+    }
+    else {
+      $edit[$field_name . '_swap_' . $node_type] = 1;
+    }
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
   }

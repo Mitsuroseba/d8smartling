@@ -122,7 +122,7 @@ function smartling_is_configured() {
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
-      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
       return FALSE;
     }
   }
@@ -143,7 +143,7 @@ function smartling_translate_fields_is_set($type = FALSE) {
     $result = TRUE;
   }
   if (!$result) {
-    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
   }
 
   return $result;
@@ -692,7 +692,7 @@ function smartling_get_progress_status($entity_data) {
       Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_uri, '@d_locale' => $d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $project_id, '@file_uri' => $file_uri, '@d_locale' => $d_locale, '@code' => $status_result->response->code, '@message' => $status_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
       drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array('@code' => $status_result->response->code, '@message' => $status_result->response->messages[0])), 'error');
       return FALSE;
     }
@@ -780,11 +780,6 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 
       case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
         $entity_data->status = SMARTLING_STATUS_CHANGE;
-        smartling_entity_data_save($entity_data);
-        break;
-
-      case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
-        $entity_data->status = SMARTLING_STATUS_FAILED;
         smartling_entity_data_save($entity_data);
         break;
 

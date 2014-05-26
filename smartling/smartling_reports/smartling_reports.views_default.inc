@@ -205,14 +205,6 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
   $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Smartling status */
-  $handler->display->display_options['fields']['status']['id'] = 'status';
-  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['status']['field'] = 'status';
-  $handler->display->display_options['fields']['status']['label'] = '';
-  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['status']['separator'] = '';
   /* Sort criterion: Smartling Entity Data: Date */
   $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
   $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
@@ -294,13 +286,6 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
   $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
   $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Smartling status */
-  $handler->display->display_options['fields']['status']['id'] = 'status';
-  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['status']['field'] = 'status';
-  $handler->display->display_options['fields']['status']['label'] = '';
-  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
   $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Completed Submissions';
@@ -375,7 +360,6 @@ function smartling_reports_views_default_views() {
     t('Download'),
     t('OPERATIONS'),
     t('Entity_type'),
-    t(','),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
@@ -757,8 +741,6 @@ function smartling_reports_views_default_views() {
     t('Status'),
     t('Page'),
     t('Smartling translate'),
-    t('- Choose an operation -'),
-    t('Translate'),
     t('Title'),
     t('Author'),
     t('Language'),

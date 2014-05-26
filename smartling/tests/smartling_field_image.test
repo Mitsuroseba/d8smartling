@@ -51,8 +51,8 @@ EOT;
     $xml = new DOMDocument();
     $xml->loadXML($xml_string);
 
-    $smartling_translate_fields = variable_get('smartling_translate_fields', array());
-    $fields = $smartling_translate_fields['article'];
+    $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
+    $fields = $node_translate_fields['article'];
 
     $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields);
 
@@ -108,8 +108,8 @@ EOT;
     $xml = new DOMDocument();
     $xml->loadXML($xml_string);
 
-    $smartling_translate_fields = variable_get('smartling_translate_fields', array());
-    $fields = $smartling_translate_fields['article'];
+    $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
+    $fields = $node_translate_fields['article'];
 
     $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields);
 

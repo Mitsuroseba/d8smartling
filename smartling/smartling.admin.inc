@@ -275,7 +275,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   if (isset($form_state['values']['project_id'])) {
     $smartling_settings->setProjectId(check_plain($form_state['values']['project_id']));
   }
-  if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
+  if (isset($form_state['values']['smartling_key'])) {
     $smartling_settings->setKey(check_plain(trim($form_state['values']['smartling_key'])));
   }
   // Retrieval type
@@ -289,7 +289,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Callback
   if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
-    $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
+    $smartling_settings->setCallbackUrlUse((int) $form_state['values']['callback_url_use']);
   }
 
   menu_rebuild();
@@ -387,12 +387,10 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
 
   foreach ($raw_types as $value) {
     if (smartling_supported_type('node', $value->type)) {
-
       $fr_tt['from'] = array(
         '#type' => 'item',
         '#title' => t('Fields method'),
       );
-
       if (smartling_nodes_method($value->type)) {
         $fr_tt['from']['#title'] = t('Nodes method');
       }
@@ -431,7 +429,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
         }
       }
 
-      if (!isset($fr_fields['title_field']) && smartling_fields_method($value->type)) {
+      if (!isset($fr_fields['title_field'])) {
         $fr_fields['title_field'] = array(
           '#type' => 'checkbox',
           '#title' => t('Title (Note: field will be created.)'),
@@ -445,31 +443,6 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
         $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$value->type]['title_field'])) ? TRUE : FALSE;
         if ($is_in_conf) {
           $fr_fields['title_field']['#attributes']['checked'] = 'checked';
-        }
-      }
-
-      if (smartling_nodes_method($value->type)) {
-        $fr_tt['from']['#title'] = t('Nodes method');
-        // If !isset(title_field)
-        if (!isset($fr_fields['title_field'])) {
-          $field_label = t('Title');
-          $node_title_name = 'node_title';
-          $fr_fields[$node_title_name] = array(
-            '#type' => 'checkbox',
-            '#title' => check_plain($field_label),
-            '#attributes' => array(
-              'id' => array('edit-form-item-' . $value->type . '-separator-' . $node_title_name),
-              'name' => $value->type . '_SEPARATOR_' . $node_title_name,
-              'class' => array('field'),
-            ),
-            '#id' => 'edit-form-item-' . $value->type . '-separator-' . $node_title_name,
-          );
-
-          $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$value->type][$node_title_name])) ? TRUE : FALSE;
-
-          if ($is_in_conf) {
-            $fr_fields[$node_title_name]['#attributes']['checked'] = 'checked';
-          }
         }
       }
     }
@@ -512,7 +485,6 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
   $form['node_translation']['types'] = array(
     '#type' => 'markup',
     '#markup' => theme('table', $variables),
-    '#suffix' => '* Note: Title field is not used if the content type specified method of translating nodes.',
   );
 
   if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
@@ -599,9 +571,8 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
           $operations[] = array('title_field_replacement_batch', array($entity_type, $bundle, $legacy_field));
           // Add in config
           $translate[$content_type]['title_field'] = 'title_field';
-
           $field = field_info_field('title_field');
-          $field['translatable'] = 1;
+          (smartling_fields_method($content_type)) ? $field['translatable'] = 1 : $field['translatable'] = 0;
           $operations[] = array('field_update_field', array($field));
         }
       }
@@ -827,17 +798,16 @@ function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form
 
           // Do the actual replacement
           $entity_type = 'taxonomy_term';
-          $bundle = $machine_name;
           $legacy_field = $term_field_name;
 
           // Use the Title module to migrate the content.
-          if (title_field_replacement_toggle($entity_type, $bundle, $legacy_field)) {
-            $operations[] = array('title_field_replacement_batch', array($entity_type, $bundle, $legacy_field));
+          if (title_field_replacement_toggle($entity_type, $machine_name, $legacy_field)) {
+            $operations[] = array('title_field_replacement_batch', array($entity_type, $machine_name, $legacy_field));
             // Add in config
             $translate[$machine_name][$term_field_name . '_field'] = $term_field_name . '_field';
-
+            $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
             $field = field_info_field($term_field_name . '_field');
-            $field['translatable'] = 1;
+            ($vocabulary->i18n_mode == I18N_MODE_LOCALIZE) ? $field['translatable'] = 1 : $field['translatable'] = 0;
             $operations[] = array('field_update_field', array($field));
           }
         }

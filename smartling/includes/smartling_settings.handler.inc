@@ -261,11 +261,7 @@ class SmartlingSettingsHandler {
   }
 
   public function setKey($key) {
-    if (empty($key)) {
-      $this->key = NULL;
-      variable_del('smartling_key');
-    }
-    else {
+    if (!empty($key)) {
       $this->key = check_plain((string) $key);
       variable_set('smartling_key', $this->key);
     }
