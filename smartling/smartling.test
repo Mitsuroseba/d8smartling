@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . '/../credentials.php');
+require_once(dirname(__FILE__) . '/credentials.php');
 
 /**
  * @file
