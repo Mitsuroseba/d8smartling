@@ -19,7 +19,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $file_name_unic = $entity_data->file_name;
     $file_path = smartling_get_dir($file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
-    $translated_filename = $file_name . '_' . $d_locale . '.xml';
+    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object
     $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
@@ -185,7 +185,7 @@ function smartling_queue_send_to_translate_process($args) {
       $smartling_settings = smartling_settings_get_handler();
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_get_dir($file_name);
+      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
       $file_type = 'xml';
 
       // Init api object
@@ -199,11 +199,7 @@ function smartling_queue_send_to_translate_process($args) {
       $upload_params->setFileUri($file_name_unic)
           ->setFileType($file_type)
           ->setLocalesToApprove($locales_to_approve)
-          // Error: response code -> VALIDATION_ERROR and message ->
-          // Failed to convert property value of type java.lang.String to required type boolean
-          // for property overwriteApprovedLocales; nested exception
-          // is java.lang.IllegalArgumentException: Invalid boolean value []
-          ->setOverwriteApprovedLocales(0) // Must be set 0 (not FALSE).
+          ->setOverwriteApprovedLocales(0) // Must be set 0 or false (not FALSE).
           ->setApproved(0)
           ->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
       $upload_params = $upload_params->buildParameters();
@@ -216,7 +212,7 @@ function smartling_queue_send_to_translate_process($args) {
         foreach ($entity_data_array as $entity) {
           smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
         }
-        smartling_watchdog('Uploading @entity_type @nid for locales: @locales', TRUE, array('@entity_type' => $entity_type, '@nid' => $args->rid, '@locales' => implode('; ', $locales_to_approve)), WATCHDOG_INFO, l(t('View file'), $file_path));
+        smartling_watchdog('Smartling uploaded @entity_type @nid for locales: @locales', TRUE, array('@entity_type' => $entity_type, '@nid' => $args->rid, '@locales' => implode('; ', $locales_to_approve)), WATCHDOG_INFO, l(t('View file'), $file_path));
 
         if (module_exists('rules') && ($entity_type == 'node')) {
           $node_event = node_load($args->rid);
@@ -225,17 +221,15 @@ function smartling_queue_send_to_translate_process($args) {
       }
       elseif (is_object($upload_result)) {
         $link_to_entity = smartling_get_link_to_entity($args->rid, $entity_type);
-        smartling_watchdog('smartling_queue_send_to_translate_process try upload xml to service: <br/>
-      Project Id: @project_id <br/>
-      Action: upload <br/>
-      URI: @file_uri <br/>
-      Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
+        smartling_watchdog('Smartling failed to upload xml file: <br/>
+          Project Id: @project_id <br/>
+          Action: upload <br/>
+          URI: @file_uri <br/>
+          Error: response code -> @code and message -> @message', FALSE, array('@project_id' => $smartling_settings->getProjectId(), '@file_uri' => $file_name_unic, '@code' => $upload_result->response->code, '@message' => $upload_result->response->messages[0]), WATCHDOG_ERROR, $link_to_entity);
 
-        // Add new queue item if some error
-        $smartling_queue = DrupalQueue::get('smartling_upload');
-        $smartling_queue->createQueue();
-        $smartling_queue->createItem($args);
-        smartling_watchdog('Smartling upload xml file to service for @entity_type id - @rid is FAIL!', FALSE, array('@entity_type' => $entity_type, '@rid' => $args->rid), WATCHDOG_ERROR, $link_to_entity);
+        foreach ($entity_data_array as $entity) {
+          smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
+        }
       }
     }
   }

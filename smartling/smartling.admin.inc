@@ -275,7 +275,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   if (isset($form_state['values']['project_id'])) {
     $smartling_settings->setProjectId(check_plain($form_state['values']['project_id']));
   }
-  if (isset($form_state['values']['smartling_key'])) {
+  if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
     $smartling_settings->setKey(check_plain(trim($form_state['values']['smartling_key'])));
   }
   // Retrieval type
@@ -289,7 +289,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
 
   // Callback
   if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
-    $smartling_settings->setCallbackUrlUse((int) $form_state['values']['callback_url_use']);
+    $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
   }
 
   menu_rebuild();

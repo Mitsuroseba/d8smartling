@@ -19,7 +19,8 @@ class smartling_handler_filter_entity_status extends views_handler_filter_in_ope
         0 => 'In queue',
         1 => 'In translate',
         2 => 'Translated',
-        3 => 'Chaged',
+        3 => 'Changed',
+        4 => 'Failed',
       );
       $this->value_options = $options;
     }
