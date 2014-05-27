@@ -3,4 +3,4 @@
 .idea/*
 
 # Ignore Smartling credentials
-smartling/credentials.php
+/smartling/credentials.php
