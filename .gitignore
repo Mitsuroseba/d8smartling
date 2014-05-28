@@ -4,3 +4,4 @@
 
 # Ignore Smartling credentials
 /smartling/credentials.php
+/smartling/api
