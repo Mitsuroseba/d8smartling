@@ -14,8 +14,8 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     );
   }
   public function generateRandomSmartlingKey() {
-        return strtolower($this->randomName(8) . '-'.$this->randomName(4).'-'.$this->randomName(4).'-'.$this->randomName(4).'-'.$this->randomName(12));
-    }
+    return strtolower($this->randomName(8) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(12));
+  }
 
   public function testIncorrectSmartlingAccountInfoSettingsApiUrl() {
     // Set correct account settings
