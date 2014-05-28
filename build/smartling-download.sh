@@ -65,10 +65,15 @@ logit info "Download API SDK source from repo"
 $GIT clone https://github.com/Smartling/api-sdk-php.git smartling/smartling/api
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+
+cd smartling/smartling/api
+$GIT checkout tags/v1.1
+RESULT=$?
+[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
 logit info "Switch to Tag"
-cd smartling
+cd ../..
 $GIT checkout $TAG
 #RESULT=$?
 #[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
