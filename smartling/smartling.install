@@ -591,7 +591,7 @@ function smartling_update_7100(&$sandbox) {
         smartling_entity_translation_save($handler, $entity_load);
       }
     }
-    $sandbox['#finished'] = $sandbox['user_from'] / $sandbox['user_count'];
+    $sandbox['#finished'] = (empty($sandbox['user_count']))? 1: $sandbox['user_from'] / $sandbox['user_count'];
     $sandbox['user_from'] += 1;
     if ($sandbox['user_from'] == $sandbox['user_count']) {
       $sandbox['#finished'] = 1;
