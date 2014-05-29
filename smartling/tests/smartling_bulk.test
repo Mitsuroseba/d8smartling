@@ -21,17 +21,10 @@ class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
 
-    // Set method for CT
-    $edit = array();
-    $edit['page_TT_page'] = 1;
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
-    $this->assertText(t('Your content types have been updated.'));
-
-    // Set body field for page CT
-    $edit = array();
-    $edit['page_SEPARATOR_body'] = 1;
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
-    $this->assertText(t('Your content types have been updated.'));
+    // Set nodes method for page CT
+    $this->smartlingSetMethodSettings('page', 1);
+    // Set fields for page CT
+    $this->smartlingSetFieldSettings('page', 'body');
 
     $this->drupalGet('admin/content/smartling-content');
     $edit = array(

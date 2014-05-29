@@ -17,26 +17,17 @@ class SmartlingNodeTitleFieldsTest extends SmartlingWebTestCase {
   public function testCorrectCopyNodeTitle() {
     // Add one random node page type
     $this->smartlingCreateNode();
-
     // Set correct account settings
     $this->smartlingSetCorrectSettings();
-
 
     // Go to content page and check title.
     $this->drupalGet('admin/content/smartling-content');
     $this->assertText($this->random_node_title);
 
     // Set fields method for page CT
-    $edit = array();
-    $edit['page_TT_page'] = 1;
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
-    $this->assertText(t('Your content types have been updated.'));
-
-    // Set title field for page CT
-    $edit = array();
-    $edit['title_swap_page'] = 1;
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
-    $this->assertText(t('Your content types have been updated.'));
+    $this->smartlingSetMethodSettings('page', 1);
+    // Set fields for page CT
+    $this->smartlingSetFieldSettings('page', 'title', TRUE);
 
     // Check title after set setings.
     $this->drupalGet('admin/content/smartling-content');

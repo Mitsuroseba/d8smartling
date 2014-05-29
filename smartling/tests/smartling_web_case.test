@@ -276,7 +276,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    * @param array $langs
    * Example: array('ru', 'nl')
    */
-  public function smartlingTranslateNode($nid, $langs) {
+  public function smartlingTranslateNode($nid, $langs, $download = TRUE) {
     $node = node_load($nid);
     if ($node) {
       // Send node to smartling
@@ -299,11 +299,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
         }
       }
 
-      // Go to report-in-progress and download
-      $this->drupalGet('admin/content/smartling/report-in-progress');
-      $this->clickLink('Download');
-      foreach ($convert_array as $d_locale) {
-        $this->assertText(t('Downloaded for language translation @locale', array('@locale' => $d_locale)));
+      if ($download) {
+        // Go to report-in-progress and download
+        $this->drupalGet('admin/content/smartling/report-in-progress');
+        $this->clickLink('Download');
+        foreach ($convert_array as $d_locale) {
+          $this->assertText(t('Downloaded for language translation @locale', array('@locale' => $d_locale)));
+        }
       }
     }
   }

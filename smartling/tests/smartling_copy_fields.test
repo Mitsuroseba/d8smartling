@@ -20,9 +20,6 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set pseudo for smartling
     $this->smartlingSetRetrievalType('pseudo');
 
-    // Set file public path for tests
-    variable_set('file_public_path', 'sites/default/files');
-
     // Add Price field
     $edit = array(
       "fields[_add_new_field][label]" => 'Price',
@@ -95,9 +92,6 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
-    // Translatable fields
-    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('title_field'), 0);
-    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('body'), 0);
 
     // Check
     $original_node = node_load(1);
@@ -136,9 +130,6 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->smartlingSetCorrectSettings();
     // Set pseudo for smartling
     $this->smartlingSetRetrievalType('pseudo');
-
-    // Set file public path for tests
-    variable_set('file_public_path', 'sites/default/files');
 
     // Add Price field
     $edit = array(
@@ -219,7 +210,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     );
 
     $options = array('query' => array('translation' => '1', 'target' => 'ru'));
-    $this->drupalPost('ru/node/add/page', $node_tr_array, t('Save'), $options);
+    $this->drupalPost('node/add/page', $node_tr_array, t('Save'), $options);
 
     $node_tr_array = array(
       'body[und][0][value]' => 'Translated boby text ru',
@@ -227,16 +218,13 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
       'field_client_help_url[und][0][value]' => 'taranslated url',
     );
 
-    $this->drupalPost('ru/node/2/edit', $node_tr_array, t('Save'));
+    $this->drupalPost('node/2/edit', $node_tr_array, t('Save'));
 
     // Send and download node
     $this->smartlingTranslateNode(1, array('ru'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
-    // Translatable fields
-    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('title_field'), 0);
-    $this->assertEqual($this->smartlingGetTranslatableFieldSettings('body'), 0);
 
     // Check
     $original_node = node_load(1);
