@@ -804,6 +804,7 @@ function _smartling_update_7000_locales_convert_array() {
       ->execute()
       ->fetchAll();
 
+  variable_set('smartling_update_7000_locales_convert_array', TRUE);
   if (!empty($results)) {
     foreach ($results as $res) {
       $operations[] = array('_update_sed_original_language', array($res->eid));
@@ -814,7 +815,6 @@ function _smartling_update_7000_locales_convert_array() {
       'operations' => $operations
     );
 
-    variable_set('smartling_update_7000_locales_convert_array', TRUE);
     batch_set($batch);
     batch_process();
   }

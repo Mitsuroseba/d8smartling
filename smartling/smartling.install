@@ -272,7 +272,7 @@ function smartling_update_7000(&$sandbox) {
         db_query("UPDATE {smartling_entity_data} SET content_hash = :content_hash WHERE eid = :eid", array(':content_hash' => $content_hash, ':eid' => $res->eid));
       }
     }
-    $sandbox['#finished'] = $sandbox['user_from'] / $sandbox['user_count'];
+    $sandbox['#finished'] = (empty($sandbox['user_count']))?1:$sandbox['user_from'] / $sandbox['user_count'];
     $sandbox['user_from'] += 1;
     if ($sandbox['user_from'] == $sandbox['user_count']) {
       $sandbox['#finished'] = 1;
