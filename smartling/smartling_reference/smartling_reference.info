@@ -1,0 +1,6 @@
+name = Smartling Entity Reference
+core = 7.x
+package = smartling
+version = 7.x-1.0-beta8
+dependencies[] = smartling
+dependencies[] = entityreference

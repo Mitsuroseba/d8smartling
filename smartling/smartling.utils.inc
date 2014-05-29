@@ -103,7 +103,7 @@ function smartling_is_configured() {
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val) && in_array($required_variable, array('smartling_api_url', 'smartling_key', 'smartling_project_id', 'smartling_target_locales'))) {
-      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
       return FALSE;
     }
   }
@@ -134,7 +134,7 @@ function smartling_translate_fields_is_set($type = FALSE) {
     }
   }
   if (!$result) {
-    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('/admin/config/regional/smartling'))), 'warning');
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
   }
 
   return $result;
@@ -298,7 +298,7 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  */
 function smartling_get_dir($file_name = '') {
   $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
-  $smartling_dir .= (empty($file_name))?'':'/' . $file_name;
+  $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
   return (string) $smartling_dir;
 }
 
@@ -795,6 +795,16 @@ function smartling_get_field_format($node_wrapper, $field_name, $language_key_fo
   }
 
   return $format;
+}
+
+/**
+ *
+ * @param string $type
+ * Like entityreference field type or other
+ * @return array
+ */
+function smartling_get_fields_by_type($type) {
+  return field_read_fields(array('type' => $type));
 }
 
 function _smartling_update_7000_locales_convert_array() {
