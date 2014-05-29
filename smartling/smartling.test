@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/credentials.php');
 
 /**
  * @file
@@ -30,8 +31,8 @@ class SmartlingSettingsSaveTest extends DrupalWebTestCase {
 
   public function testCorrectSmartlingAccountSettings() {
     $edit = array();
-    $edit['project_id'] = '1295c174d';
-    $edit['smartling_key'] = '5d75ab84-f189-43e0-be79-153d6c220dde';
+    $edit['project_id'] = SMARTLING_TEST_PROJECT_ID;
+    $edit['smartling_key'] = SMARTLING_TEST_KEY;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
   }

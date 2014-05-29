@@ -1,4 +1,5 @@
 <?php
+require_once(dirname(__FILE__) . '/../credentials.php');
 
 /**
  * @file
@@ -23,8 +24,8 @@ class SmartlingSettingsAccountInfoSaveTest extends SmartlingWebTestCase {
     $edit = array(
       "target_locales[ru]" => 'ru',
       "target_locales[zh-hans]" => 'zh-hans',
-      "project_id" => '1295c174d',
-      "smartling_key" => '5d75ab84-f189-43e0-be79-153d6c220dde',
+      "project_id" => SMARTLING_TEST_PROJECT_ID,
+      "smartling_key" => SMARTLING_TEST_KEY,
       "target_locales_text_key_ru" => 'ru-RU',
       "target_locales_text_key_zh-hans" => 'zh-CN',
     );

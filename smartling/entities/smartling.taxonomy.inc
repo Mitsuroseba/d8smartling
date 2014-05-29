@@ -18,7 +18,7 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
 function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
-      drupal_set_message(t('Please follow the page <a href="/admin/config/regional/smartling">"Smartling settings"</a> to setup Smartling configuration.'), 'warning');
+      drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
       form_set_error('i18n_translation');
     }
   }
