@@ -113,7 +113,11 @@ function smartling_get_term_settings_form($form, &$form_state) {
       foreach ($languages as $d_locale => $language) {
         if ($language->enabled != '0') {
 
-          $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
+          $entity_data = smartling_entity_load_by_conditions(array(
+            'rid' => $tid,
+            'entity_type' => $form['#entity_type'],
+            'target_language' => $d_locale
+          ));
           $language_name = check_plain($language->name);
 
           if ($entity_data !== FALSE) {
@@ -221,7 +225,11 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
     foreach ($form_state['values']['target'] as $d_locale) {
       if ($d_locale !== 0 && ($language_default !== $d_locale)) {
 
-        $entity_data = smartling_entity_load_by_conditions(array('rid' => $tid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
+        $entity_data = smartling_entity_load_by_conditions(array(
+          'rid' => $tid,
+          'entity_type' => $form['#entity_type'],
+          'target_language' => $d_locale
+        ));
 
         if ($entity_data == FALSE) {
           $entity_data = smartling_entity_data_create();
@@ -253,10 +261,16 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for term tid - @tid, locale - @locale', TRUE, array('@tid' => $tid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, $link);
+    smartling_watchdog('Add smartling queue task for term tid - @tid, locale - @locale', TRUE, array(
+      '@tid' => $tid,
+      '@locale' => implode('; ', $langs)
+    ), WATCHDOG_INFO, $link);
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $term->name, '@langs' => $langs)));
+    drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
+      '@title' => $term->name,
+      '@langs' => $langs
+    )));
   }
 
   if (isset($_GET['destination'])) {

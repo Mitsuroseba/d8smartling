@@ -665,5 +665,5 @@ This somber cemetery pays homage to fallen soldiers and other national heroes, i
     ),
   );
 
-return $content;
+  return $content;
 }

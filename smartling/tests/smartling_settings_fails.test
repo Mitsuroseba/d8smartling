@@ -13,6 +13,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
       'group' => 'Smartling'
     );
   }
+
   public function generateRandomSmartlingKey() {
     return strtolower($this->randomName(8) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(12));
   }

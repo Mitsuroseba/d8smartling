@@ -187,10 +187,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $file_path = drupal_realpath($image->uri);
 
       $file = (object) array(
-            'uid' => 1,
-            'uri' => $file_path,
-            'filename' => basename($file_path),
-            'filemime' => file_get_mimetype($file_path),
+        'uid' => 1,
+        'uri' => $file_path,
+        'filename' => basename($file_path),
+        'filemime' => file_get_mimetype($file_path),
       );
 
       $file = file_copy($file, 'public://images');
@@ -287,7 +287,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $node->title, '@langs' => implode(', ', $convert_array))));
+      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+        '@title' => $node->title,
+        '@langs' => implode(', ', $convert_array)
+      )));
 
       // Run cron
       $cron = FALSE;
@@ -295,8 +298,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
         $cron = drupal_cron_run();
         if (!$cron) {
           db_delete('semaphore')
-              ->condition('name', 'cron')
-              ->execute();
+            ->condition('name', 'cron')
+            ->execute();
         }
       }
 

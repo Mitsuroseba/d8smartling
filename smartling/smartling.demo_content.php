@@ -59,24 +59,24 @@ function _create_comments_to_nodes() {
     $load_node = node_load($node->vid);
     if ($load_node->comment_count < 1) {
       $comment = (object) array(
-            'nid' => $load_node->vid,
-            'cid' => 0,
-            'pid' => 0,
-            'uid' => 1,
-            'mail' => '',
-            'is_anonymous' => 0,
-            'homepage' => '',
-            'status' => COMMENT_PUBLISHED,
-            'subject' => devel_create_greeking(mt_rand(1, 3), TRUE),
-            'language' => DEMO_LANGUAGE_DEFAULT,
-            'comment_body' => array(
-              DEMO_LANGUAGE_DEFAULT => array(
-                0 => array(
-                  'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
-                  'format' => 'filtered_html'
-                )
-              )
-            ),
+        'nid' => $load_node->vid,
+        'cid' => 0,
+        'pid' => 0,
+        'uid' => 1,
+        'mail' => '',
+        'is_anonymous' => 0,
+        'homepage' => '',
+        'status' => COMMENT_PUBLISHED,
+        'subject' => devel_create_greeking(mt_rand(1, 3), TRUE),
+        'language' => DEMO_LANGUAGE_DEFAULT,
+        'comment_body' => array(
+          DEMO_LANGUAGE_DEFAULT => array(
+            0 => array(
+              'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
+              'format' => 'filtered_html'
+            )
+          )
+        ),
       );
       comment_submit($comment);
       comment_save($comment);
@@ -89,8 +89,8 @@ function _create_comments_to_nodes() {
 function _delete_comments_to_nodes() {
   $nodes = node_load_multiple(array(), array('type' => array('article', 'travel')));
   $results = db_select('comment', 'c')
-          ->fields('c', array('cid', 'uid'))
-          ->execute()->fetchAll();
+    ->fields('c', array('cid', 'uid'))
+    ->execute()->fetchAll();
   $comment_id = array();
   foreach ($results as $result) {
     if (array_key_exists($result->uid, $nodes)) {
@@ -224,18 +224,18 @@ function _create_additional_fields_for_account() {
       $account = user_save('', $value['fields']);
       foreach ($data_demo as $key => $val) {
         db_insert($val['table'])
-            ->fields(
-                array(
-                  'entity_type' => 'user',
-                  'bundle' => 'user',
-                  'deleted' => 0,
-                  'entity_id' => $account->uid,
-                  'language' => 'und',
-                  'delta' => 0,
-                  $val['field'] => $value['demo_data'][$key],
-                )
+          ->fields(
+            array(
+              'entity_type' => 'user',
+              'bundle' => 'user',
+              'deleted' => 0,
+              'entity_id' => $account->uid,
+              'language' => 'und',
+              'delta' => 0,
+              $val['field'] => $value['demo_data'][$key],
             )
-            ->execute();
+          )
+          ->execute();
       }
     }
     else {
@@ -291,8 +291,8 @@ function _create_taxonomy() {
 
   if (!is_object($get_taxonomy_vocabulary)) {
     taxonomy_vocabulary_save((object) array(
-          'name' => 'Travel',
-          'machine_name' => TAXONOMY_TRAVEL,
+      'name' => 'Travel',
+      'machine_name' => TAXONOMY_TRAVEL,
     ));
 
     $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
@@ -305,9 +305,9 @@ function _create_taxonomy() {
 
   foreach ($terms_data as $term_data) {
     taxonomy_term_save((object) array(
-          'name' => $term_data,
-          'vid' => $get_taxonomy_vocabulary->vid,
-          'language' => DEMO_LANGUAGE_DEFAULT,
+      'name' => $term_data,
+      'vid' => $get_taxonomy_vocabulary->vid,
+      'language' => DEMO_LANGUAGE_DEFAULT,
     ));
   }
 

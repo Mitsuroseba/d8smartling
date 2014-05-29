@@ -56,7 +56,11 @@ function smartling_get_user_settings_form($form, &$form_state) {
       foreach ($languages as $d_locale => $language) {
         if ($language->enabled != '0') {
 
-          $entity_data = smartling_entity_load_by_conditions(array('rid' => $user->uid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
+          $entity_data = smartling_entity_load_by_conditions(array(
+            'rid' => $user->uid,
+            'entity_type' => $form['#entity_type'],
+            'target_language' => $d_locale
+          ));
           $language_name = check_plain($language->name);
 
           if ($entity_data !== FALSE) {
@@ -167,7 +171,11 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     foreach ($form_state['values']['target'] as $d_locale) {
       if ($d_locale !== 0 && ($d_locale_origin !== $d_locale)) {
 
-        $entity_data = smartling_entity_load_by_conditions(array('rid' => $account->uid, 'entity_type' => $form['#entity_type'], 'target_language' => $d_locale));
+        $entity_data = smartling_entity_load_by_conditions(array(
+          'rid' => $account->uid,
+          'entity_type' => $form['#entity_type'],
+          'target_language' => $d_locale
+        ));
 
         if ($entity_data == FALSE) {
           $entity_data = smartling_entity_data_create();
@@ -199,10 +207,16 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for user uid - @uid, locale - @locale', TRUE, array('@uid' => $account->uid, '@locale' => implode('; ', $langs)), WATCHDOG_INFO, $link);
+    smartling_watchdog('Add smartling queue task for user uid - @uid, locale - @locale', TRUE, array(
+      '@uid' => $account->uid,
+      '@locale' => implode('; ', $langs)
+    ), WATCHDOG_INFO, $link);
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The user "@title" has been sent to Smartling for translation to "@langs".', array('@title' => $account->name, '@langs' => $langs)));
+    drupal_set_message(t('The user "@title" has been sent to Smartling for translation to "@langs".', array(
+      '@title' => $account->name,
+      '@langs' => $langs
+    )));
   }
 
   if (isset($_GET['destination'])) {

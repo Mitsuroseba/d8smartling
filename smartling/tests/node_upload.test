@@ -35,13 +35,16 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
       "target[ru]" => 'ru',
     );
     $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
-    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array('@title' => 'Title test', '@langs' => 'ru')));
+    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+      '@title' => 'Title test',
+      '@langs' => 'ru'
+    )));
 
     $queue = db_select('queue', 'q')
-        ->fields('q', array('data'))
-        ->condition('q.name', 'smartling_upload', '=')
-        ->execute()
-        ->fetchObject();
+      ->fields('q', array('data'))
+      ->condition('q.name', 'smartling_upload', '=')
+      ->execute()
+      ->fetchObject();
     if (empty($queue)) {
       $this->error('Queue smartling_upload is empty.');
     }

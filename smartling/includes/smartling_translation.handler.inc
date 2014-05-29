@@ -29,7 +29,13 @@ class SmartlingEntityTranslationDefaultHandler extends EntityTranslationDefaultH
     if (!isset($translations->data[$langcode])) {
       // If we have a new translation the language is the original entity
       // language.
-      $translation = $is_translation ? array('language' => $langcode, 'source' => $this->getSourceLanguage()) : array('language' => $langcode, 'source' => '');
+      $translation = $is_translation ? array(
+        'language' => $langcode,
+        'source' => $this->getSourceLanguage()
+      ) : array(
+        'language' => $langcode,
+        'source' => ''
+      );
     }
     else {
       $translation = $translations->data[$langcode];
