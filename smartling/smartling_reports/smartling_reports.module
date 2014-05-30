@@ -42,7 +42,7 @@ function smartling_reports_preprocess_views_view_table(&$vars) {
 
   $rows = $vars['view']->result;
   if (!empty($rows) && is_array($rows)) {
-    foreach($rows as $k => $v) {
+    foreach ($rows as $k => $v) {
       if ($v->smartling_entity_data_status == SMARTLING_STATUS_FAILED) {
         $vars['row_classes'][$k][] = 'failed_status';
       }

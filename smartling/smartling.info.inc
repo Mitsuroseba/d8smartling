@@ -13,7 +13,7 @@
 function entity_metadata_smartling_entity_property_info() {
   $info = array();
   // Add meta-data about the basic smartling_entity_data properties.
-  $properties = &$info['smartling_entity_data']['properties'];
+  $properties = & $info['smartling_entity_data']['properties'];
 
   $properties['rid'] = array(
     'label' => t("Related ID"),
