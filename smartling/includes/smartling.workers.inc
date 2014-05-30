@@ -202,8 +202,12 @@ function smartling_queue_send_to_translate_process($args) {
         ->setFileType($file_type)
         ->setLocalesToApprove($locales_to_approve)
         ->setOverwriteApprovedLocales(0) // Must be set 0 or false (not FALSE).
-        ->setApproved(0)
-        ->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
+        ->setApproved(0);
+
+      if (variable_get('smartling_callback_url_use', TRUE)) {
+        $upload_params->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
+      }
+
       $upload_params = $upload_params->buildParameters();
 
       // Try to upload file
@@ -228,11 +232,13 @@ function smartling_queue_send_to_translate_process($args) {
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
-          Error: response code -> @code and message -> @message', FALSE, array(
+          Error: response code -> @code and message -> @message
+          Upload aparms: @upload_params', FALSE, array(
           '@project_id' => $project_id,
           '@file_uri' => $file_name_unic,
           '@code' => $upload_result->response->code,
-          '@message' => $upload_result->response->messages[0]
+          '@message' => $upload_result->response->messages[0],
+          '@upload_params' => print_r($upload_params, TRUE)
         ), WATCHDOG_ERROR, l(t('Related entity'), 'node/' . $args->rid));
 
         foreach ($entity_data_array as $entity) {
