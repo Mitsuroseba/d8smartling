@@ -288,7 +288,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   $smartling_settings->makeLocalesConvertArray($form_state['values']);
 
   // Callback
-  if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
+  if (isset($form_state['values']['callback_url_use'])) {
     $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
   }
 

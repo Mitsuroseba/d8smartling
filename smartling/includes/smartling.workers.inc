@@ -171,6 +171,7 @@ function smartling_queue_check_status_process($args) {
  */
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
+    $smartling_settings = smartling_settings_get_handler();
     $entity_type = $args->entity_type;
     // Check filename length
     if (!smartling_check_filename_length($args->title, $entity_type, $args->rid)) {
@@ -224,8 +225,11 @@ function smartling_queue_send_to_translate_process($args) {
         ->setFileType($file_type)
         ->setLocalesToApprove($locales_to_approve)
         ->setOverwriteApprovedLocales(0) // Must be set 0 or false (not FALSE).
-        ->setApproved(0)
-        ->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
+        ->setApproved(0);
+      if ($smartling_settings->getCallbackUrlUse()) {
+        $upload_params->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
+      }
+
       $upload_params = $upload_params->buildParameters();
 
       // Try to upload file
@@ -253,11 +257,13 @@ function smartling_queue_send_to_translate_process($args) {
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
-          Error: response code -> @code and message -> @message', FALSE, array(
+          Error: response code -> @code and message -> @message
+          Upload params: @upload_params', FALSE, array(
           '@project_id' => $smartling_settings->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@code' => $upload_result->response->code,
-          '@message' => $upload_result->response->messages[0]
+          '@message' => $upload_result->response->messages[0],
+          '@upload_params' => $upload_params,
         ), WATCHDOG_ERROR, $link_to_entity);
 
         foreach ($entity_data_array as $entity) {
