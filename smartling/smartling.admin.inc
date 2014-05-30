@@ -335,7 +335,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
   }
 
   // Callback
-  if (isset($form_state['values']['callback_url_use']) && !empty($form_state['values']['callback_url_use'])) {
+  if (isset($form_state['values']['callback_url_use'])) {
     variable_set('smartling_callback_url_use', (int) $form_state['values']['callback_url_use']);
   }
 
