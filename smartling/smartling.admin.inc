@@ -478,10 +478,11 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
             // Error in field settings
             if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings)) {
               $fix_field_settings[$field_machine_name] = l($field_label, 'smartling/translatable/' . $field_machine_name . '/nojs', array(
-                'attributes' => array(
-                  'class' => array('use-ajax', 'smartling-translatable-' . $field_machine_name),
-                  'title' => t('Fix field settings'),
-              )));
+                  'attributes' => array(
+                    'class' => array('use-ajax', 'smartling-translatable-' . $field_machine_name),
+                    'title' => t('Fix field settings'),
+                  )
+                ));
             }
           }
         }
@@ -675,7 +676,10 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
   smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
 
-  $redirect = url('admin/config/regional/smartling', array('absolute' => true, 'fragment' => 'smartling-content-types-and-fields'));
+  $redirect = url('admin/config/regional/smartling', array(
+    'absolute' => TRUE,
+    'fragment' => 'smartling-content-types-and-fields'
+  ));
 
   if (count($operations) >= 1) {
     $batch = array(
@@ -696,7 +700,10 @@ function smartling_wrap_in_fieldset($form, $title) {
     '#type' => 'fieldset',
     '#group' => 'smartling',
     '#title' => t($title),
-    '#attributes' => array('class' => array('smartling-' . strtolower(str_replace(' ', '-', $title))), 'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))),
+    '#attributes' => array(
+      'class' => array('smartling-' . strtolower(str_replace(' ', '-', $title))),
+      'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))
+    ),
     'children' => $form,
   );
 }

@@ -46,21 +46,21 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
   if (!empty($condition_active_bundles) && !empty($field_names)) {
     // Get entity types whith references field
     $condition_bundles = db_select('field_config_instance', 'fci')
-        ->fields('fci', array('bundle'))
-        ->condition('fci.entity_type', 'node', '=')
-        ->condition('fci.bundle', $condition_active_bundles, 'IN')
-        ->condition('fci.field_name', $field_names, 'IN')
-        ->execute()
-        ->fetchCol();
+      ->fields('fci', array('bundle'))
+      ->condition('fci.entity_type', 'node', '=')
+      ->condition('fci.bundle', $condition_active_bundles, 'IN')
+      ->condition('fci.field_name', $field_names, 'IN')
+      ->execute()
+      ->fetchCol();
 
     if (!empty($condition_bundles)) {
       $condition_bundles = array_unique($condition_bundles);
       // Get ids for original node whith smartling translate
       $original_node_ids = db_select('smartling_entity_data', 'sed')
-          ->fields('sed', array('rid'))
-          ->condition('sed.bundle', $condition_bundles, 'IN')
-          ->execute()
-          ->fetchCol();
+        ->fields('sed', array('rid'))
+        ->condition('sed.bundle', $condition_bundles, 'IN')
+        ->execute()
+        ->fetchCol();
       $original_node_ids = array_unique($original_node_ids);
     }
 
@@ -75,7 +75,10 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
         'title' => t('Fix references'),
         'operations' => $operations
       );
-      $redirect = url('admin/config/regional/smartling', array('absolute' => true, 'fragment' => 'smartling-references-settings'));
+      $redirect = url('admin/config/regional/smartling', array(
+        'absolute' => TRUE,
+        'fragment' => 'smartling-references-settings'
+      ));
       drupal_set_message(t('References are fixed'));
       batch_set($batch);
       batch_process($redirect);
@@ -176,10 +179,10 @@ function smartling_entityreference_get_parent_entities_info($entity_id) {
     $col_name = $field['storage']['details']['sql']['FIELD_LOAD_CURRENT'][$tablename]['target_id'];
     $query = db_select($tablename, 'tb');
     $results = $query->fields('tb')
-        ->condition($col_name, $entity_id, '=')
-        ->condition('entity_type', 'node', '=')
-        ->execute()
-        ->fetchAll();
+      ->condition($col_name, $entity_id, '=')
+      ->condition('entity_type', 'node', '=')
+      ->execute()
+      ->fetchAll();
 
     $res_array = array();
 
