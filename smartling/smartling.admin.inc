@@ -33,6 +33,10 @@ function smartling_admin_configuration_view() {
     $dev_settings = drupal_get_form('smartling_admin_dev_settings_form');
     $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, 'Dev settings');
   }
+  if (module_exists('smartling_reference')) {
+    $reference_settings = drupal_get_form('smartling_admin_reference_settings_form');
+    $output['smartling'][] = smartling_wrap_in_fieldset($reference_settings, 'References settings');
+  }
   return $output;
 }
 

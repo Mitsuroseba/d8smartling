@@ -945,6 +945,15 @@ function smartling_get_field_format($entity_wrapper, $field_name, $language_key_
 }
 
 /**
+ *
+ * @param string $type
+ * Like entityreference field type or other
+ * @return array
+ */
+function smartling_get_fields_by_type($type) {
+  return field_read_fields(array('type' => $type));
+}
+
  * Translation handler factory.
  *
  * @param type $entity_type

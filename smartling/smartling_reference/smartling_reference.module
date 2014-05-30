@@ -1,0 +1,198 @@
+<?php
+
+/**
+ * @file
+ * Code for the smartling_reference.
+ */
+
+/**
+ * Smartling reference settings form
+ */
+function smartling_admin_reference_settings_form($form, &$form_state) {
+  $form['smartling_reference']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Submit for rebuild references'),
+  );
+  $form['smartling_reference']['rebuild_references'] = array(
+    '#type' => 'submit',
+    '#value' => t('Rebuild references'),
+    '#submit' => array('smartling_rebuild_references_form_submit'),
+  );
+
+  return $form;
+}
+
+/**
+ * smartling_rebuild_references_form_submit
+ */
+function smartling_rebuild_references_form_submit($form, &$form_state) {
+  $smartling_active_types = variable_get('smartling_translate_fields', array());
+  $condition_active_bundles = array();
+  $condition_bundles = array();
+  $original_node_ids = array();
+  $field_names = array();
+  $operations = array();
+
+  foreach ($smartling_active_types as $bundle => $value) {
+    if (smartling_nodes_method($bundle)) {
+      $condition_active_bundles[] = $bundle;
+    }
+  }
+  $entityreference_fields = smartling_get_fields_by_type('entityreference');
+  foreach ($entityreference_fields as $field) {
+    $field_names[] = $field['field_name'];
+  }
+
+  if (!empty($condition_active_bundles) && !empty($field_names)) {
+    // Get entity types whith references field
+    $condition_bundles = db_select('field_config_instance', 'fci')
+      ->fields('fci', array('bundle'))
+      ->condition('fci.entity_type', 'node', '=')
+      ->condition('fci.bundle', $condition_active_bundles, 'IN')
+      ->condition('fci.field_name', $field_names, 'IN')
+      ->execute()
+      ->fetchCol();
+
+    if (!empty($condition_bundles)) {
+      $condition_bundles = array_unique($condition_bundles);
+      // Get ids for original node whith smartling translate
+      $original_node_ids = db_select('smartling_entity_data', 'sed')
+        ->fields('sed', array('rid'))
+        ->condition('sed.bundle', $condition_bundles, 'IN')
+        ->execute()
+        ->fetchCol();
+      $original_node_ids = array_unique($original_node_ids);
+    }
+
+    if (!empty($original_node_ids) && is_array($original_node_ids)) {
+      foreach ($original_node_ids as $id) {
+        $operations[] = array('smartling_fix_references_by_original', array($id));
+      }
+    }
+
+    if (count($operations) >= 1) {
+      $batch = array(
+        'title' => t('Fix references'),
+        'operations' => $operations
+      );
+      $redirect = url('admin/config/regional/smartling', array(
+        'absolute' => TRUE,
+        'fragment' => 'smartling-references-settings'
+      ));
+      drupal_set_message(t('References are fixed'));
+      batch_set($batch);
+      batch_process($redirect);
+    }
+  }
+  else {
+    drupal_set_message(t('Nodes not found'));
+  }
+}
+
+/**
+ *
+ * @param type $id
+ * Id of original node
+ */
+function smartling_fix_references_by_original($id) {
+  // Get translation
+  $node = node_load($id);
+  $translations = translation_node_get_translations($node->tnid);
+
+  foreach ($translations as $translation) {
+    if ($translation->nid != $id) {
+      smartling_fix_references_for_translated_node('node', $translation->nid);
+    }
+  }
+}
+
+/**
+ *
+ * @param type $entity_type
+ * @param type $entity
+ */
+function smartling_fix_references_for_translated_node($entity_type, $entity) {
+  if (is_numeric($entity)) {
+    $entity = entity_load_single($entity_type, $entity);
+  }
+  $original_entity = entity_load_single($entity_type, $entity->tnid);
+  $entity_language = entity_language($entity_type, $entity);
+  // Fix for child references
+  $entityreference_fields = smartling_get_fields_by_type('entityreference');
+  foreach ($entityreference_fields as $field) {
+    $field_name = $field['field_name'];
+
+    if (isset($original_entity->{$field_name})) {
+      $original_wrapper = entity_metadata_wrapper($entity_type, $original_entity);
+      $wrapper = entity_metadata_wrapper($entity_type, $entity);
+      //$target_type = $field['settings']['target_type'];
+      $save = FALSE;
+
+      foreach ($original_wrapper->{$field_name} as $delta => $item_wrapper) {
+        $child_entity = $item_wrapper->value();
+        $swap_id = smartling_get_child_fixed_id_reference($child_entity->tnid, $entity_language);
+
+        if (is_numeric($swap_id)) {
+          $wrapper->{$field_name}[$delta]->set($swap_id);
+          $save = TRUE;
+        }
+      }
+
+      if ($save) {
+        $wrapper->save();
+      }
+    }
+  }
+  // Fix for parent references
+  $parent_entities_info = smartling_entityreference_get_parent_entities_info($entity->tnid);
+  foreach ($parent_entities_info as $parent_entity_info) {
+    // If parent has translate
+    $translate_id = smartling_get_child_fixed_id_reference($parent_entity_info->entity_id, $entity_language);
+    if (is_numeric($translate_id)) {
+      $translate_wrapper = entity_metadata_wrapper($entity_type, $translate_id);
+      $translate_wrapper->{$parent_entity_info->field_name}[$parent_entity_info->delta]->set($entity->nid);
+      $translate_wrapper->save();
+    }
+  }
+}
+
+function smartling_get_child_fixed_id_reference($tnid, $lang) {
+  $translations = translation_node_get_translations($tnid);
+  if (isset($translations[$lang])) {
+    return $translations[$lang]->nid;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ *
+ * @param type $entity_id
+ * @return type
+ */
+function smartling_entityreference_get_parent_entities_info($entity_id) {
+  $entityreference_fields = smartling_get_fields_by_type('entityreference');
+  $parents_info = array();
+  foreach ($entityreference_fields as $field) {
+    $tablename = _field_sql_storage_tablename($field);
+    $col_name = $field['storage']['details']['sql']['FIELD_LOAD_CURRENT'][$tablename]['target_id'];
+    $query = db_select($tablename, 'tb');
+    $results = $query->fields('tb')
+      ->condition($col_name, $entity_id, '=')
+      ->condition('entity_type', 'node', '=')
+      ->execute()
+      ->fetchAll();
+
+    $res_array = array();
+
+    if (!empty($results)) {
+      foreach ($results as $result) {
+        $result->field_name = $field['field_name'];
+        $res_array[] = $result;
+      }
+    }
+    $parents_info = array_merge($parents_info, $res_array);
+  }
+  return $parents_info;
+}
