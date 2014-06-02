@@ -2,7 +2,7 @@ name = Smartling
 description = Smartling automatical translation.
 core = 7.x
 package = smartling
-version = 7.x-1.1-beta1
+version = 7.x-2.0-beta1
 
 configure = admin/config/regional/smartling
 

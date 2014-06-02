@@ -344,7 +344,7 @@ function smartling_requirements($phase) {
 }
 
 /**
- * Update 7.x-1.0-beta1 => 7.x-1.1-beta1
+ * Update 7.x-1.0-beta1 => 7.x-2.0-beta1
  */
 function smartling_update_7100(&$sandbox) {
   $sandbox['#finished'] = 0;
