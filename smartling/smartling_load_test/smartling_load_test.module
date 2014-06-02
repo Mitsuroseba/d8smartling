@@ -13,8 +13,8 @@ function smartling_admin_dev_settings_form($form, &$form_state) {
   $query = db_select('node', 'n');
   $query->addExpression('COUNT(n.nid)');
   $count = $query->condition('n.type', 'smartling_load_test')
-      ->execute()
-      ->fetchCol();
+    ->execute()
+    ->fetchCol();
   $count = $count[0];
 
   $form['dev_info']['load_tests'] = array(
@@ -64,9 +64,9 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
   if ($form_state['clicked_button']['#name'] == 'cleanup_load_tests_submit') {
     $query = db_select('node', 'n');
     $result = $query->condition('n.type', 'smartling_load_test')
-        ->fields('n', array('nid'))
-        ->execute()
-        ->fetchCol();
+      ->fields('n', array('nid'))
+      ->execute()
+      ->fetchCol();
     if (!empty($result)) {
       foreach ($result as $nid) {
         $operations[] = array('_delete_load_test_node_batch', array($nid));
@@ -84,8 +84,8 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
   if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
     $query = db_select('smartling_entity_data', 'sed');
     $result = $query->fields('sed', array('eid'))
-        ->execute()
-        ->fetchCol();
+      ->execute()
+      ->fetchCol();
 
     $queue_upload = DrupalQueue::get('smartling_upload');
     $queue_upload->deleteQueue();

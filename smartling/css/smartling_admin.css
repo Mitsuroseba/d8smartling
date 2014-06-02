@@ -8,26 +8,29 @@
 #edit-accaunt-info .form-item-callback-url label,
 #edit-accaunt-info .form-item-callback-url input,
 #edit-accaunt-info .form-item-default-language-format input {
-  display: inline;
-  width: auto;
+    display: inline;
+    width: auto;
 }
 
 #edit-target-locales .form-type-checkbox {
-  width: 100%;
-  position: relative;
-  margin-bottom: 7px;
+    width: 100%;
+    position: relative;
+    margin-bottom: 7px;
 }
+
 #edit-target-locales .form-type-checkbox input,
 #edit-target-locales .form-type-checkbox label {
-  clear: both;
+    clear: both;
 }
 
-#edit-target-locales .form-type-textfield{
-  width: 60px;
-  display: inline-block;
-  position: absolute;
-  left: 150px;
-  padding: 0;
+#edit-target-locales .form-type-textfield {
+    width: 60px;
+    display: inline-block;
+    position: absolute;
+    left: 150px;
+    padding: 0;
 }
 
-.view-smartlig-report tr.failed_status {background-color: #eeb9b9}
+.view-smartlig-report tr.failed_status {
+    background-color: #eeb9b9
+}

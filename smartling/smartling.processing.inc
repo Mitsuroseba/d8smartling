@@ -228,7 +228,10 @@ function smartling_image_field_processing($node_wrapper, $field_name, $xpath, $l
     if ($file_img) {
       $alt_string = (string) $alt_obj->nodeValue;
       $title_string = (string) $title_obj->nodeValue;
-      $node_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array('alt' => $alt_string, 'title' => $title_string);
+      $node_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array(
+          'alt' => $alt_string,
+          'title' => $title_string
+        );
     }
   }
   return $node_wrapper;
@@ -244,7 +247,10 @@ function smartling_image_field_processing($node_wrapper, $field_name, $xpath, $l
  */
 function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FALSE) {
   $d_locale = smartling_convert_locale_drupal_to_smartling($s_locale, TRUE);
-  smartling_watchdog('Smartling starts to update fields of node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_DEBUG);
+  smartling_watchdog('Smartling starts to update fields of node id - @nid. Locale: @locale', TRUE, array(
+    '@nid' => $rid,
+    '@locale' => $s_locale
+  ), WATCHDOG_DEBUG);
 
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
   $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
@@ -323,7 +329,10 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
 
     smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
-    smartling_watchdog('Smartling updates all translated fields for node id - @nid. Locale: @locale', TRUE, array('@nid' => $rid, '@locale' => $s_locale), WATCHDOG_DEBUG, l(t('View translated node'), $d_locale . '/node/' . $rid));
+    smartling_watchdog('Smartling updates all translated fields for node id - @nid. Locale: @locale', TRUE, array(
+      '@nid' => $rid,
+      '@locale' => $s_locale
+    ), WATCHDOG_DEBUG, l(t('View translated node'), $d_locale . '/node/' . $rid));
     if (module_exists('rules')) {
       $node_event = smartling_node_load_default($rid);
       rules_invoke_event('smartling_translation_download_event', $node_event);
