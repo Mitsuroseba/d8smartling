@@ -805,9 +805,9 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   }
 }
 
-function smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i = 0) {
-  if (isset($node_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
-    $format = $node_wrapper->{$field_name}[$language_key_format][$i]['format'];
+function smartling_get_field_format($original_node, $field_name, $language_key_format, $i = 0) {
+  if (isset($original_node->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $original_node->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;

@@ -176,14 +176,14 @@ function smartling_node_title_processing($node_wrapper, $field_name, $xpath) {
 /**
  * Processing for text field
  */
-function smartling_text_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
+function smartling_text_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node) {
   $simple_field_multiple = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
   $quantity = $simple_field_multiple->getAttribute('quantity');
 
   for ($i = 0; $i < $quantity; $i++) {
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')->item(0);
     $string = (string) $field->nodeValue;
-    $format = smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i);
+    $format = smartling_get_field_format($original_node, $field_name, $language_key_format, $i);
 
     $node_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
     $node_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
@@ -194,7 +194,7 @@ function smartling_text_field_processing($node_wrapper, $field_name, $xpath, $la
 /**
  * Processing for body/summary field
  */
-function smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
+function smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node) {
   $body_with_summary_multiple = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
   $quantity = $body_with_summary_multiple->getAttribute('quantity');
 
@@ -203,7 +203,7 @@ function smartling_body_with_summary_field_processing($node_wrapper, $field_name
     $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')->item(0);
     $body_string = (string) $body_obj->nodeValue;
     $summary_string = (string) $summary_obj->nodeValue;
-    $format = smartling_get_field_format($node_wrapper, $field_name, $language_key_format, $i);
+    $format = smartling_get_field_format($original_node, $field_name, $language_key_format, $i);
 
     $node_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;
     $node_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
@@ -255,9 +255,9 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
   $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'target_language' => $s_locale));
   $file_name = $entity_data->translated_file_name;
   $file_path = smartling_get_dir() . '/' . $file_name;
+  $original_node = smartling_node_load_default($rid);
 
   if ($nodes_method) {
-    $original_node = smartling_node_load_default($rid);
     $translations = translation_node_get_translations($original_node->tnid);
     if (isset($translations[$d_locale])) {
       $rid = $translations[$d_locale]->nid;
@@ -305,11 +305,11 @@ function smartling_update_translated_fields($rid, $s_locale, $nodes_method = FAL
           break;
 
         case 'text-field':
-          $node_wrapper = smartling_text_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format);
+          $node_wrapper = smartling_text_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node);
           break;
 
         case 'body-with-summary-field':
-          $node_wrapper = smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format);
+          $node_wrapper = smartling_body_with_summary_field_processing($node_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node);
           break;
 
         case 'image-field':
