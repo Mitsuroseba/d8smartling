@@ -57,13 +57,13 @@ rm -f ../smartling-$TAG.zip
 
 # search for git executable
 logit info "Download Connector source from repo"
-$GIT clone git://git.drupal.org/sandbox/Smartling/2274905.git smartling
+$GIT clone git://git.drupal.org/sandbox/Smartling/2274905.git smartling/smartling
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
 logit info "Switch to Tag"
-cd smartling
+cd smartling/smartling
 $GIT checkout $TAG
 #RESULT=$?
 #[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
@@ -74,7 +74,7 @@ $GIT clone https://github.com/Smartling/api-sdk-php.git api
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 
-cd api
+cd api/
 $GIT checkout tags/v1.1
 RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
@@ -87,9 +87,11 @@ rm -rf .git/
 rm -f ".gitignore"
 rm -rf build/
 
-$ZIP -r -q -9 ../smartling-$TAG.zip .
 cd ../
-rm -Rf smartling/
+$ZIP -y -r -q -9 ../smartling-$TAG.zip smartling/
+
+cd ../
+rm -rf smartling/
 
 logit info "Module archiving is done"
 exit 0 
