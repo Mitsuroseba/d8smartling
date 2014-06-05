@@ -28,8 +28,7 @@ function smartling_admin_reference_settings_form($form, &$form_state) {
 function smartling_rebuild_references_form_submit($form, &$form_state) {
   $smartling_active_types = variable_get('smartling_translate_fields', array());
   $condition_active_bundles = array();
-  $condition_bundles = array();
-  $original_node_ids = array();
+  $original_node_ids = FALSE;
   $field_names = array();
   $operations = array();
 
@@ -45,26 +44,14 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
 
   if (!empty($condition_active_bundles) && !empty($field_names)) {
     // Get entity types whith references field
-    $condition_bundles = db_select('field_config_instance', 'fci')
-      ->fields('fci', array('bundle'))
-      ->condition('fci.entity_type', 'node', '=')
-      ->condition('fci.bundle', $condition_active_bundles, 'IN')
-      ->condition('fci.field_name', $field_names, 'IN')
-      ->execute()
-      ->fetchCol();
+    $condition_bundles = smartling_get_entity_types_whith_references($condition_active_bundles, $field_names);
 
-    if (!empty($condition_bundles)) {
-      $condition_bundles = array_unique($condition_bundles);
+    if ($condition_bundles) {
       // Get ids for original node whith smartling translate
-      $original_node_ids = db_select('smartling_entity_data', 'sed')
-        ->fields('sed', array('rid'))
-        ->condition('sed.bundle', $condition_bundles, 'IN')
-        ->execute()
-        ->fetchCol();
-      $original_node_ids = array_unique($original_node_ids);
+      $original_node_ids = smartling_get_original_node_ids($condition_bundles);
     }
 
-    if (!empty($original_node_ids) && is_array($original_node_ids)) {
+    if ($original_node_ids) {
       foreach ($original_node_ids as $id) {
         smartling_watchdog('Smartling fixes references for original node with nid @nid', TRUE, array('@nid' => $id));
         $operations[] = array('smartling_fix_references_by_original', array($id));
@@ -144,17 +131,6 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
       }
     }
   }
-  // Fix for parent references
-  $parent_entities_info = smartling_entityreference_get_parent_entities_info($entity->tnid);
-  foreach ($parent_entities_info as $parent_entity_info) {
-    // If parent has translate
-    $translate_id = smartling_get_child_fixed_id_reference($parent_entity_info->entity_id, $entity_language);
-    if (is_numeric($translate_id)) {
-      $translate_wrapper = entity_metadata_wrapper($entity_type, $translate_id);
-      $translate_wrapper->{$parent_entity_info->field_name}[$parent_entity_info->delta]->set($entity->nid);
-      $translate_wrapper->save();
-    }
-  }
 }
 
 function smartling_get_child_fixed_id_reference($tnid, $lang) {
@@ -167,33 +143,36 @@ function smartling_get_child_fixed_id_reference($tnid, $lang) {
   }
 }
 
-/**
- *
- * @param type $entity_id
- * @return type
- */
-function smartling_entityreference_get_parent_entities_info($entity_id) {
-  $entityreference_fields = smartling_get_fields_by_type('entityreference');
-  $parents_info = array();
-  foreach ($entityreference_fields as $field) {
-    $tablename = _field_sql_storage_tablename($field);
-    $col_name = $field['storage']['details']['sql']['FIELD_LOAD_CURRENT'][$tablename]['target_id'];
-    $query = db_select($tablename, 'tb');
-    $results = $query->fields('tb')
-      ->condition($col_name, $entity_id, '=')
-      ->condition('entity_type', 'node', '=')
+function smartling_get_entity_types_whith_references($bundles, $field_names) {
+  $condition_bundles = db_select('field_config_instance', 'fci')
+      ->fields('fci', array('bundle'))
+      ->condition('fci.entity_type', 'node', '=')
+      ->condition('fci.bundle', $bundles, 'IN')
+      ->condition('fci.field_name', $field_names, 'IN')
       ->execute()
-      ->fetchAll();
+      ->fetchCol();
 
-    $res_array = array();
-
-    if (!empty($results)) {
-      foreach ($results as $result) {
-        $result->field_name = $field['field_name'];
-        $res_array[] = $result;
-      }
-    }
-    $parents_info = array_merge($parents_info, $res_array);
+  if (!empty($condition_bundles)) {
+    $condition_bundles = array_unique($condition_bundles);
+    return $condition_bundles;
   }
-  return $parents_info;
+  else {
+    return FALSE;
+  }
+}
+
+function smartling_get_original_node_ids($bundles) {
+  $original_node_ids = db_select('smartling_entity_data', 'sed')
+      ->fields('sed', array('rid'))
+      ->condition('sed.bundle', $bundles, 'IN')
+      ->execute()
+      ->fetchCol();
+
+  if (!empty($original_node_ids)) {
+    $original_node_ids = array_unique($original_node_ids);
+    return $original_node_ids;
+  }
+  else {
+    return FALSE;
+  }
 }
