@@ -66,6 +66,7 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
 
     if (!empty($original_node_ids) && is_array($original_node_ids)) {
       foreach ($original_node_ids as $id) {
+        smartling_watchdog('Smartling fixes references for original node with nid @nid', TRUE, array('@nid' => $id));
         $operations[] = array('smartling_fix_references_by_original', array($id));
       }
     }
