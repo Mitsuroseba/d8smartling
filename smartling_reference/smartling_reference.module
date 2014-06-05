@@ -55,8 +55,8 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
     if ($original_node_ids) {
       foreach ($original_node_ids as $id) {
         $log->setMessage('Smartling fixes references for original node with nid @nid')
-            ->set(array('@nid' => $id))
-            ->execute();
+          ->set(array('@nid' => $id))
+          ->execute();
         $operations[] = array('smartling_fix_references_by_original', array($id));
       }
     }
@@ -148,12 +148,12 @@ function smartling_get_child_fixed_id_reference($tnid, $lang) {
 
 function smartling_get_entity_types_whith_references($bundles, $field_names) {
   $condition_bundles = db_select('field_config_instance', 'fci')
-      ->fields('fci', array('bundle'))
-      ->condition('fci.entity_type', 'node', '=')
-      ->condition('fci.bundle', $bundles, 'IN')
-      ->condition('fci.field_name', $field_names, 'IN')
-      ->execute()
-      ->fetchCol();
+    ->fields('fci', array('bundle'))
+    ->condition('fci.entity_type', 'node', '=')
+    ->condition('fci.bundle', $bundles, 'IN')
+    ->condition('fci.field_name', $field_names, 'IN')
+    ->execute()
+    ->fetchCol();
 
   if (!empty($condition_bundles)) {
     $condition_bundles = array_unique($condition_bundles);
@@ -166,10 +166,10 @@ function smartling_get_entity_types_whith_references($bundles, $field_names) {
 
 function smartling_get_original_node_ids($bundles) {
   $original_node_ids = db_select('smartling_entity_data', 'sed')
-      ->fields('sed', array('rid'))
-      ->condition('sed.bundle', $bundles, 'IN')
-      ->execute()
-      ->fetchCol();
+    ->fields('sed', array('rid'))
+    ->condition('sed.bundle', $bundles, 'IN')
+    ->execute()
+    ->fetchCol();
 
   if (!empty($original_node_ids)) {
     $original_node_ids = array_unique($original_node_ids);
