@@ -353,11 +353,16 @@ function smartling_admin_log_info_settings_form($form, &$form_state) {
 
 function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
+    $log = new SmartlingLog();
     if ($form_state['values']['log_mode'] == FALSE) {
-      smartling_watchdog('Smartling log OFF', FALSE);
+      $log->setMessage('Smartling log OFF')
+          ->setConsiderLog(FALSE)
+          ->execute();
     }
     elseif ($form_state['values']['log_mode'] == TRUE) {
-      smartling_watchdog('Smartling log ON', FALSE);
+      $log->setMessage('Smartling log ON')
+          ->setConsiderLog(FALSE)
+          ->execute();
     }
     smartling_settings_get_handler()->setLogMode($form_state['values']['log_mode']);
   }
@@ -519,6 +524,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
  */
 function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
+  $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -586,8 +592,9 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
 
   $smartling_settings->nodeSetFieldsSettings($translate);
   drupal_set_message(t('Your content types have been updated.'));
-
-  smartling_watchdog('Smartling content types and fields have been updated.', FALSE);
+  $log->setMessage('Smartling content types and fields have been updated.')
+      ->setConsiderLog(FALSE)
+      ->execute();
 
   $redirect = url('admin/config/regional/smartling', array(
     'absolute' => TRUE,
@@ -755,6 +762,7 @@ function smartling_admin_taxonomy_translation_settings_form($form, &$form_state)
  * Taxonomy Translation Settings - Form Submit
  */
 function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -826,7 +834,9 @@ function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form
   smartling_settings_get_handler()->taxonomy_termSetFieldsSettings($translate);
   drupal_set_message(t('Your taxonomy vocabularies have been updated.'));
 
-  smartling_watchdog('Smartling taxonomy vocabularies and fields have been updated.', FALSE);
+  $log->setMessage('Smartling taxonomy vocabularies and fields have been updated.')
+      ->setConsiderLog(FALSE)
+      ->execute();
 
   $redirect = url('admin/config/regional/smartling', array(
     'absolute' => TRUE,
@@ -964,6 +974,7 @@ function smartling_admin_comments_translation_settings_form($form, &$form_state)
  * Comments Translation Settings - Form Submit
  */
 function smartling_admin_comments_translation_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1016,7 +1027,9 @@ function smartling_admin_comments_translation_settings_form_submit($form, &$form
   smartling_settings_get_handler()->commentSetFieldsSettings($translate);
   drupal_set_message(t('Your comments have been updated.'));
 
-  smartling_watchdog('Smartling comments and fields have been updated.', FALSE);
+  $log->setMessage('Smartling comments and fields have been updated.')
+      ->setConsiderLog(FALSE)
+      ->execute();
 
   $redirect = url('admin/config/regional/smartling', array(
     'absolute' => TRUE,
@@ -1124,6 +1137,7 @@ function smartling_admin_users_translation_settings_form($form, &$form_state) {
  * Users Translation Settings - Form Submit
  */
 function smartling_admin_users_translation_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1152,7 +1166,9 @@ function smartling_admin_users_translation_settings_form_submit($form, &$form_st
   smartling_settings_get_handler()->userSetFieldsSettings($translate);
   drupal_set_message(t('Your users have been updated.'));
 
-  smartling_watchdog('Smartling users and fields have been updated.', FALSE);
+  $log->setMessage('Smartling users and fields have been updated.')
+      ->setConsiderLog(FALSE)
+      ->execute();
 
   $redirect = url('admin/config/regional/smartling', array('absolute' => TRUE, 'fragment' => 'smartling-user-fields'));
   $form_state['redirect'] = $redirect;

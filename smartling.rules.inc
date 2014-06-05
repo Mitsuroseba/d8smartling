@@ -166,6 +166,7 @@ function smartling_locale_condition($data, $op, $value) {
  * @param type $node
  */
 function smartling_get_translation_status_action($node, $translate_to_langs) {
+  $log = new SmartlingLog();
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
       $entity_data = smartling_entity_load_by_conditions(array(
@@ -178,10 +179,10 @@ function smartling_get_translation_status_action($node, $translate_to_langs) {
           $args = new stdClass;
           $args->rid = $entity_data->rid;
           $args->d_locale = $entity_data->target_language;
-          smartling_watchdog('Smartling start check status action for node id - @nid (@d_locale).', TRUE, array(
-            '@nid' => $args->rid,
-            '@d_locale' => $args->d_locale
-          ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+          $log->setMessage('Smartling start check status action for node id - @nid (@d_locale).')
+            ->setVariables(array('@nid' => $args->rid, '@d_locale' => $args->d_locale))
+            ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+            ->execute();
           smartling_queue_check_status_process($args);
           unset($args);
         }
@@ -197,10 +198,10 @@ function smartling_get_translation_status_action($node, $translate_to_langs) {
           $args = new stdClass;
           $args->rid = $entity_data->rid;
           $args->d_locale = $entity_data->target_language;
-          smartling_watchdog('Smartling start check status action for node id - @nid (@d_locale).', TRUE, array(
-            '@nid' => $args->rid,
-            '@d_locale' => $args->d_locale
-          ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+          $log->setMessage('Smartling start check status action for node id - @nid (@d_locale).')
+            ->setVariables(array('@nid' => $args->rid, '@d_locale' => $args->d_locale))
+            ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+            ->execute();
           smartling_queue_check_status_process($args);
           unset($args);
         }
@@ -210,6 +211,7 @@ function smartling_get_translation_status_action($node, $translate_to_langs) {
 }
 
 function smartling_download_translation_action($node, $translate_to_langs) {
+  $log = new SmartlingLog();
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
       $entity_data = smartling_entity_load_by_conditions(array(
@@ -218,10 +220,13 @@ function smartling_download_translation_action($node, $translate_to_langs) {
         'target_language' => $d_locale
       ));
       if ($entity_data) {
-        smartling_watchdog('Smartling start download translation action for node id - @nid (@d_locale).', TRUE, array(
-          '@nid' => $entity_data->rid,
-          '@d_locale' => $entity_data->target_language
-        ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+        $log->setMessage('Smartling start download translation action for node id - @nid (@d_locale).')
+          ->setVariables(array(
+            '@nid' => $entity_data->rid,
+            '@d_locale' => $entity_data->target_language
+          ))
+          ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+          ->execute();
         smartling_queue_download_update_translated_item_process($entity_data);
       }
     }
@@ -231,10 +236,10 @@ function smartling_download_translation_action($node, $translate_to_langs) {
     $result = smartling_entity_load_all_by_conditions(array('rid' => $node->nid, 'bundle' => $node->type));
     if ($result) {
       foreach ($result as $entity_data) {
-        smartling_watchdog('Smartling start download translation action for node id - @nid (@d_locale).', TRUE, array(
-          '@nid' => $entity_data->rid,
-          '@d_locale' => $entity_data->target_language
-        ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+        $log->setMessage('Smartling start download translation action for node id - @nid (@d_locale).')
+          ->setVariables(array('@nid' => $entity_data->rid, '@d_locale' => $entity_data->target_language))
+          ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+          ->execute();
         smartling_queue_download_update_translated_item_process($entity_data);
       }
     }
@@ -243,6 +248,8 @@ function smartling_download_translation_action($node, $translate_to_langs) {
 
 function smartling_send_to_translate_action($node, $translate_to_langs) {
   global $user;
+  $log = new SmartlingLog();
+
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
 
@@ -274,10 +281,10 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
     $obj->original_language = entity_language('node', $node);
     $obj->d_locales = $d_locales;
     $obj->submitter = $user->uid;
-    smartling_watchdog('Smartling start send to translate action for node id - @nid (@d_locales).', TRUE, array(
-      '@nid' => $obj->rid,
-      '@d_locales' => implode('; ', $d_locales)
-    ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+    $log->setMessage('Smartling start send to translate action for node id - @nid (@d_locales).')
+      ->setVariables(array('@nid' => $obj->rid, '@s_locales' => implode('; ', $d_locales)))
+      ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+      ->execute();
     smartling_queue_send_to_translate_process($obj);
     unset($obj);
   }
@@ -314,10 +321,10 @@ function smartling_send_to_translate_action($node, $translate_to_langs) {
       $obj->original_language = entity_language('node', $node);
       $obj->d_locales = $d_locales;
       $obj->submitter = $user->uid;
-      smartling_watchdog('Smartling start send to translate action for node id - @nid (@s_locales).', TRUE, array(
-        '@nid' => $obj->rid,
-        '@s_locales' => implode('; ', $d_locales)
-      ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $node->nid . '/edit'));
+      $log->setMessage('Smartling start send to translate action for node id - @nid (@s_locales).')
+        ->setVariables(array('@nid' => $obj->rid, '@s_locales' => implode('; ', $d_locales)))
+        ->setLink(l(t('Edit node'), 'node/' . $node->nid . '/edit'))
+        ->execute();
       smartling_queue_send_to_translate_process($obj);
       unset($obj);
     }

@@ -289,6 +289,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
  * smartling_get_node_settings_form_submit
  */
 function smartling_get_node_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   $node = node_form_submit_build_node($form, $form_state);
   $nid = $node->nid;
 
@@ -369,10 +370,10 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $smartling_queue->createItem($obj);
       $title = $original_title;
       unset($obj);
-      smartling_watchdog('Add smartling queue task for node id - @nid, locale - @locale', TRUE, array(
-        '@nid' => $original_nid,
-        '@locale' => implode('; ', $langs)
-      ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $original_nid . '/edit'));
+      $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
+        ->setVariables(array('@nid' => $original_nid, '@locale' => implode('; ', $langs)))
+        ->setLink(l(t('Edit node'), 'node/' . $original_nid . '/edit'))
+        ->execute();
     }
     else {
       // For fields method
@@ -421,10 +422,10 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $smartling_queue->createItem($obj);
       $title = $form_state['values']['title'];
       unset($obj);
-      smartling_watchdog('Add smartling queue task for node id - @nid, locale - @locale', TRUE, array(
-        '@nid' => $nid,
-        '@locale' => implode('; ', $langs)
-      ), WATCHDOG_INFO, l(t('Edit node'), 'node/' . $nid . '/edit'));
+      $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
+        ->setVariables(array('@nid' => $nid, '@locale' => implode('; ', $langs)))
+        ->setLink(l(t('Edit node'), 'node/' . $nid . '/edit'))
+        ->execute();
     }
 
     if (isset($_GET['destination'])) {

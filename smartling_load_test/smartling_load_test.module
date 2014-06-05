@@ -49,6 +49,7 @@ function smartling_admin_dev_settings_form($form, &$form_state) {
 }
 
 function smartling_admin_dev_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   if ($form_state['clicked_button']['#name'] == 'load_tests_submit') {
     for ($i = 0; $i < 10000; $i++) {
       $operations[] = array('_create_load_test_node_batch', array());
@@ -58,7 +59,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       'operations' => $operations
     );
     batch_set($batch);
-    smartling_watchdog('Create 10000 load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
+    $log->setMessage('Create 10000 load-tests nodes submit')->execute();
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_load_tests_submit') {
@@ -78,7 +79,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       );
       batch_set($batch);
     }
-    smartling_watchdog('Delete all load-tests nodes submit', TRUE, array(), WATCHDOG_INFO);
+    $log->setMessage('Delete all load-tests nodes submit')->execute();
   }
 
   if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
@@ -105,7 +106,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       );
       batch_set($batch);
     }
-    smartling_watchdog('Cleanup all submit', TRUE, array(), WATCHDOG_INFO);
+    $log->setMessage('Cleanup all submit')->execute();
   }
 }
 

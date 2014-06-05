@@ -141,6 +141,7 @@ function smartling_get_user_settings_form($form, &$form_state) {
  * smartling_get_user_settings_form_submit
  */
 function smartling_get_user_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   $account = $form_state['user'];
   $category = $form['#user_category'];
   // Remove unneeded values.
@@ -207,10 +208,11 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for user uid - @uid, locale - @locale', TRUE, array(
-      '@uid' => $account->uid,
-      '@locale' => implode('; ', $langs)
-    ), WATCHDOG_INFO, $link);
+
+    $log->setMessage('Add smartling queue task for user uid - @uid, locale - @locale')
+      ->setVariables(array('@uid' => $account->uid, '@locale' => implode('; ', $langs)))
+      ->setLink($link)
+      ->execute();
 
     $langs = implode(', ', $langs);
     drupal_set_message(t('The user "@title" has been sent to Smartling for translation to "@langs".', array(
@@ -234,5 +236,8 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
   // Clear the page cache because pages can contain usernames and/or profile information:
   cache_clear_all();
 
-  smartling_watchdog('Updated user %user.', TRUE, array('%user' => $account->name), WATCHDOG_INFO, $link);
+  $log->setMessage('Updated user %user.')
+    ->setVariables(array('%user' => $account->name))
+    ->setLink($link)
+    ->execute();
 }

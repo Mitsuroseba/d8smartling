@@ -91,7 +91,11 @@ function smartling_node_content_to_translate($nid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        $log = new SmartlingLog();
+        $log->setMessage("Smartling didn't process content of field - @field_name")
+            ->setVariables(array('@field_name' => $field_name))
+            ->setConsiderLog(FALSE)
+            ->execute();
         break;
     }
   }
@@ -157,7 +161,11 @@ function smartling_term_content_to_translate($tid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        $log = new SmartlingLog();
+        $log->setMessage("Smartling didn't process content of field - @field_name")
+            ->setVariables(array('@field_name' => $field_name))
+            ->setConsiderLog(FALSE)
+            ->execute();
         break;
     }
   }
@@ -212,7 +220,11 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        $log = new SmartlingLog();
+        $log->setMessage("Smartling didn't process content of field - @field_name")
+            ->setVariables(array('@field_name' => $field_name))
+            ->setConsiderLog(FALSE)
+            ->execute();
         break;
     }
   }
@@ -267,7 +279,11 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       default:
-        smartling_watchdog("Smartling didn't process content of field - @field_name", FALSE, array('@field_name' => $field_name), WATCHDOG_INFO);
+        $log = new SmartlingLog();
+        $log->setMessage("Smartling didn't process content of field - @field_name")
+            ->setVariables(array('@field_name' => $field_name))
+            ->setConsiderLog(FALSE)
+            ->execute();
         break;
     }
   }
@@ -369,7 +385,7 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
       $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array(
           'alt' => $alt_string,
           'title' => $title_string
-        );
+      );
     }
   }
   return $entity_wrapper;
@@ -384,12 +400,11 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
  * @return boolean
  */
 function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
-
-  smartling_watchdog('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale', TRUE, array(
-    '@entity_type' => $entity_type,
-    '@rid' => $rid,
-    '@locale' => $d_locale
-  ), WATCHDOG_INFO);
+  $log = new SmartlingLog();
+  $log->setMessage('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale')
+      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
+      ->setSeverity(WATCHDOG_DEBUG)
+      ->execute();
 
   if (smartling_supported_type($entity_type, $bundle)) {
     $smartling_settings = smartling_settings_get_handler();
@@ -508,7 +523,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
               else {
                 // No translation set yet, build a new one with the source term.
                 $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name)
-                  ->add_item($source_term);
+                    ->add_item($source_term);
                 taxonomy_term_save($source_term);
               }
               $term->i18n_tsid = $translation_set->tsid;
@@ -518,18 +533,15 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             case I18N_MODE_LANGUAGE:
             case I18N_MODE_LOCALIZE:
             case I18N_MODE_NONE:
-              smartling_watchdog('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode', TRUE, array(
-                '@entity_type' => $entity_type,
-                '@rid' => $rid,
-                '@vocabulary_mode' => $vocabulary_mode
-              ), WATCHDOG_INFO);
+              $log->setMessage('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode')
+                  ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@vocabulary_mode' => $vocabulary_mode))
+                  ->execute();
               return FALSE;
               break;
             default:
-              smartling_watchdog('Translatable @entity_type with id - @rid FAIL', TRUE, array(
-                '@entity_type' => $entity_type,
-                '@rid' => $rid
-              ), WATCHDOG_INFO);
+              $log->setMessage('Translatable @entity_type with id - @rid FAIL')
+                  ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+                  ->execute();
               return FALSE;
               break;
           }
@@ -567,11 +579,10 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
 
       $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
-      smartling_watchdog('Smartling updates all translated fields for @entity_type id - @rid. Locale: @locale', TRUE, array(
-        '@entity_type' => $entity_type,
-        '@rid' => $rid,
-        '@locale' => $d_locale
-      ), WATCHDOG_INFO, $link_to_entity);
+      $log->setMessage('Smartling updates all translated fields for @entity_type id - @rid. Locale: @locale')
+          ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
+          ->setLink($link_to_entity)
+          ->execute();
 
       // Update Translations info
       switch ($entity_type) {
@@ -631,10 +642,9 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       }
     }
     else {
-      smartling_watchdog('Translatable @entity_type with id - @rid not found in database', TRUE, array(
-        '@entity_type' => $entity_type,
-        '@rid' => $rid
-      ), WATCHDOG_INFO);
+      $log->setMessage('Translatable @entity_type with id - @rid not found in database')
+          ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+          ->execute();
     }
   }
 }
@@ -678,7 +688,10 @@ function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid
           break;
 
         default:
-          smartling_watchdog("Smartling didn't process field - @field_name", TRUE, array('@field_name' => $field_name), WATCHDOG_INFO);
+          $log = new SmartlingLog();
+          $log->setMessage("Smartling didn't process field - @field_name")
+              ->setVariables(array('@field_name' => $field_name))
+              ->execute();
           break;
       }
     }

@@ -70,7 +70,7 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
           array(
             '@current_path' => current_path(),
             '@url' => url('admin/config/regional/entity_translation/translatable/comment_body')
-          )), 'info');
+        )), 'info');
       }
     }
   }
@@ -194,6 +194,7 @@ function smartling_get_comment_settings_form($form, &$form_state) {
  * smartling_get_comment_settings_form_submit
  */
 function smartling_get_comment_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   $comment = comment_form_submit_build_comment($form, $form_state);
   $d_locale_original = $comment->translations->original;
   $langs = array();
@@ -243,10 +244,10 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for comment cid - @cid, locale - @locale', TRUE, array(
-      '@cid' => $comment->cid,
-      '@locale' => implode('; ', $langs)
-    ), WATCHDOG_INFO, $link);
+    $log->setMessage('Add smartling queue task for comment cid - @cid, locale - @locale')
+      ->setVariables(array('@cid' => $comment->cid, '@locale' => implode('; ', $langs)))
+      ->setLink($link)
+      ->execute();
 
     $langs = implode(', ', $langs);
     drupal_set_message(t('The comment "@title" has been sent to Smartling for translation to "@langs".', array(
@@ -261,5 +262,8 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
   // For not change comment status to red when send comment and change content
   $comment->send_to_smartling = TRUE;
   comment_save($comment);
-  smartling_watchdog('Updated comment %comment.', TRUE, array('%comment' => $comment->subject), WATCHDOG_INFO, $link);
+  $log->setMessage('Updated comment %comment.')
+    ->setVariables(array('%comment' => $comment->subject))
+    ->setLink($link)
+    ->execute();
 }

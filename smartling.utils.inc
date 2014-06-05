@@ -361,6 +361,8 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  * @param type $xml_doc
  */
 function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
+  $log = new SmartlingLog();
+
   if (is_null($file_name)) {
     $file_name = 'smartling_translate_' . $entity_type . '_' . $rid . '.xml';
   }
@@ -368,41 +370,26 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
   $directory = smartling_get_dir();
   $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
+  $file_type = 'original';
 
   if (is_dir($directory) && is_writable($directory)) {
     $xml_doc->save($path);
 
-    if ($translated_file == FALSE) {
-      if (is_array($d_locale)) {
-        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale)
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-      else {
-        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-    }
     if ($translated_file == TRUE) {
-      if (is_array($d_locale)) {
-        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale)
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-      else {
-        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
+      $file_type = 'translated';
+    }
+
+    if (is_array($d_locale)) {
+      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+        ->setVariables(array('@file_type' => $file_type, '@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
+    }
+    else {
+      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+        ->setVariables(array('@file_type' => $file_type, '@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
 
     if (!is_null($rid)) {
@@ -413,37 +400,21 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
     $xml_doc->save($path);
 
-    if ($translated_file == FALSE) {
-      if (is_array($d_locale)) {
-        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale)
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-      else {
-        smartling_watchdog('Smartling saves original xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-    }
     if ($translated_file == TRUE) {
-      if (is_array($d_locale)) {
-        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale)
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
-      else {
-        smartling_watchdog('Smartling saves translated xml file for entity_type - @entity_type, id - @rid. Locale: @locale', TRUE, array(
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale
-        ), WATCHDOG_INFO, l(t('View file'), $path));
-      }
+      $file_type = 'translated';
+    }
+
+    if (is_array($d_locale)) {
+      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+        ->setVariables(array('@file_type' => $file_type, '@entity_type' => $entity_type, '@rid' => $rid, '@locale' => implode('; ', $d_locale)))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
+    }
+    else {
+      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+        ->setVariables(array('@file_type' => $file_type, '@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
 
     if (!is_null($rid)) {
@@ -452,10 +423,11 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
     return $xml_doc;
   }
   else {
-    smartling_watchdog('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid', FALSE, array(
-      '@file_name' => $file_name,
-      '@rid' => $rid
-    ), WATCHDOG_ERROR);
+    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid')
+      ->setVariables(array('@file_name' => $file_name, '@rid' => $rid))
+      ->setConsiderLog(FALSE)
+      ->setSeverity(WATCHDOG_ERROR)
+      ->execute();
     drupal_set_message(t('File was not saved because of some errors.'), 'error');
     return NULL;
   }
@@ -470,6 +442,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
  * @return boolean|string
  */
 function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) {
+  $log = new SmartlingLog();
   switch ($entity_type) {
     case 'node':
       $content_to_translate = smartling_node_content_to_translate($rid);
@@ -515,10 +488,10 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
   }
   else {
     smartling_entity_delete_all_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type));
-    smartling_watchdog('Entity has no strings to translate for entity_type - @entity_type, id - @rid.', TRUE, array(
-      '@entity_type' => $entity_type,
-      '@rid' => $rid
-    ), WATCHDOG_WARNING);
+    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
+      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+      ->setSeverity(WATCHDOG_WARNING)
+      ->execute();
     return FALSE;
   }
 }
@@ -712,6 +685,7 @@ function smartling_download_file($entity_data) {
 
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
+    $log = new SmartlingLog();
     $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
 
@@ -737,32 +711,41 @@ function smartling_get_progress_status($entity_data) {
         $progress = 100;
       }
 
-      smartling_watchdog('Smartling progress status for entity id - @rid (@d_locale). approvedString = @as, completedString = @cs, progress = @progress', TRUE, array(
-        '@rid' => $entity_data->rid,
-        '@d_locale' => $d_locale,
-        '@as' => $status_result->response->data->approvedStringCount,
-        '@cs' => $status_result->response->data->completedStringCount,
-        '@progress' => $progress,
-      ), WATCHDOG_INFO, l(t('View original file'), $file_uri));
+      $log->setMessage('Smartling progress status for entity id - @rid (@d_locale). approvedString = @as, completedString = @cs, progress = @progress')
+        ->setVariables(array(
+          '@rid' => $entity_data->rid,
+          '@d_locale' => $d_locale,
+          '@as' => $status_result->response->data->approvedStringCount,
+          '@cs' => $status_result->response->data->completedStringCount,
+          '@progress' => $progress,
+        ))
+        ->setLink(l(t('View original file'), $file_uri))
+        ->execute();
       return $progress;
     }
     else {
-      smartling_watchdog('Smartling tried to check file progress: <br/>
+      $log->setMessage('Smartling tried to check file progress: <br/>
       Project Id: @project_id <br/>
       Action: get progress <br/>
       URI: @file_uri <br/>
       Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message', FALSE, array(
-        '@project_id' => $smartling_settings->getProjectId(),
-        '@file_uri' => $file_uri,
-        '@d_locale' => $d_locale,
-        '@code' => $status_result->response->code,
-        '@message' => $status_result->response->messages[0]
-      ), WATCHDOG_ERROR, $link_to_entity);
+      Error: response code -> @code and message -> @message')
+        ->setVariables(array(
+          '@project_id' => $smartling_settings->getProjectId(),
+          '@file_uri' => $file_uri,
+          '@d_locale' => $d_locale,
+          '@code' => $status_result->response->code,
+          '@message' => $status_result->response->messages[0]
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->setLink($link_to_entity)
+        ->execute();
+
       drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array(
         '@code' => $status_result->response->code,
         '@message' => $status_result->response->messages[0]
-      )), 'error');
+        )), 'error');
       return FALSE;
     }
   }
@@ -795,28 +778,6 @@ function smartling_language_list() {
     }
   }
   return $languages_list;
-}
-
-/**
- * Smartling watchdog function.
- *
- * @param string $message
- * @param bool $consider_log
- * If FALSE, smartling not take into account the setting of logging. TRUE by default.
- * @param array $variables
- * @param int $severity
- * WATCHDOG_INFO by default.
- * @param string $link
- */
-function smartling_watchdog($message, $consider_log = TRUE, $variables = array(), $severity = WATCHDOG_INFO, $link = NULL) {
-  if ($consider_log) {
-    if (smartling_settings_get_handler()->getLogMode()) {
-      watchdog('smartling', $message, $variables, $severity, $link);
-    }
-  }
-  else {
-    watchdog('smartling', $message, $variables, $severity, $link);
-  }
 }
 
 function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
@@ -988,19 +949,18 @@ function smartling_entity_translation_save($handler, $entity) {
 }
 
 function smartling_check_filename_length($title, $entity_type, $rid) {
-
+  $log = new SmartlingLog();
   $file_name = strtolower(trim(preg_replace('#\W+#', '_', $title), '_')) . '_' . $entity_type . '_' . $rid . '.xml';
 
   if (strlen($file_name) > 255) {
     $count = (strlen($file_name) - 240);
     $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
-
-    smartling_watchdog('Generated file name is too long. Remove approximately @count characters. Filename: @file_name, related entity - @rid, entity type - @entity_type', FALSE, array(
-      '@count' => $count,
-      '@file_name' => $file_name,
-      '@rid' => $rid,
-      '@entity_type' => $entity_type
-    ), WATCHDOG_ERROR, $link_to_entity);
+    $log->setMessage('Generated file name is too long. Remove approximately @count characters. Filename: @file_name, related entity - @rid, entity type - @entity_type')
+      ->setVariables(array('@count' => $count, '@file_name' => $file_name, '@rid' => $rid, '@entity_type' => $entity_type))
+      ->setConsiderLog(FALSE)
+      ->setSeverity(WATCHDOG_ERROR)
+      ->setLink($link_to_entity)
+      ->execute();
     return FALSE;
   }
   return TRUE;

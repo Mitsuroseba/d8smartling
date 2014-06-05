@@ -20,6 +20,7 @@ dependencies[] = views
 dependencies[] = ultimate_cron
 dependencies[] = ultimate_cron_queue_scaler
 
+files[] = smartling.log.inc
 files[] = includes/smartling.entity.inc
 files[] = includes/smartling_translation.handler.inc
 files[] = includes/smartling_settings.handler.inc

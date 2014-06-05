@@ -198,6 +198,7 @@ function smartling_get_term_settings_form($form, &$form_state) {
  * smartling_get_term_settings_form_submit
  */
 function smartling_get_term_settings_form_submit($form, &$form_state) {
+  $log = new SmartlingLog();
   $term = taxonomy_form_term_submit_build_taxonomy_term($form, $form_state);
   $language_default = language_default()->language;
   if ($term->language == $language_default) {
@@ -261,10 +262,10 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
     // Create queue item
     $smartling_queue->createItem($obj);
     unset($obj);
-    smartling_watchdog('Add smartling queue task for term tid - @tid, locale - @locale', TRUE, array(
-      '@tid' => $tid,
-      '@locale' => implode('; ', $langs)
-    ), WATCHDOG_INFO, $link);
+    $log->setMessage('Add smartling queue task for term tid - @tid, locale - @locale')
+      ->setVariables(array('@tid' => $tid, '@locale' => implode('; ', $langs)))
+      ->setLink($link)
+      ->execute();
 
     $langs = implode(', ', $langs);
     drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
@@ -281,7 +282,10 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
   $status = taxonomy_term_save($term);
   switch ($status) {
     case SAVED_UPDATED:
-      smartling_watchdog('Updated term %term.', TRUE, array('%term' => $term->name), WATCHDOG_INFO, $link);
+      $log->setMessage('Updated term %term.')
+        ->setVariables(array('%term' => $term->name))
+        ->setLink($link)
+        ->execute();
       // Clear the page and block caches to avoid stale data.
       cache_clear_all();
       break;
