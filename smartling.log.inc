@@ -56,7 +56,7 @@ class SmartlingLog {
     $result = FALSE;
 
     if ($this->consider_log) {
-      if (smartling_get_log_mode()) {
+      if (smartling_settings_get_handler()->getLogMode()) {
         watchdog('smartling', $this->message, $this->variables, $this->severity, $this->link);
         self::__construct();
         $result = TRUE;
