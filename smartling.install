@@ -350,6 +350,9 @@ function smartling_update_7100(&$sandbox) {
   $sandbox['#finished'] = 0;
   // Multi-part update.
   if (!isset($sandbox['user_from'])) {
+    // Move smartling node settings
+    smartling_settings_get_handler()->nodeSetFieldsSettings(variable_get('smartling_translate_fields', array()));
+    variable_del('smartling_translate_fields');
 
     // Add new fields
     $field_settings = array(
@@ -360,7 +363,6 @@ function smartling_update_7100(&$sandbox) {
       'default' => '',
     );
 
-    db_add_field('smartling_entity_data', 'content_hash', $field_settings);
     db_add_field('smartling_entity_data', 'entity_type', $field_settings);
 
     // Delete queue of smartling check and download
