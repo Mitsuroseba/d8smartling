@@ -19,7 +19,7 @@ function smartling_form_user_profile_form_alter(&$form, &$form_state) {
     }
   }
   else {
-    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'info');
+    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'status');
   }
 }
 

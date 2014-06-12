@@ -70,7 +70,7 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
           array(
             '@current_path' => current_path(),
             '@url' => url('admin/config/regional/entity_translation/translatable/comment_body')
-        )), 'info');
+        )), 'status');
       }
     }
   }
