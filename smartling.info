@@ -26,6 +26,10 @@ files[] = views/smartling_handler_filter_entity_status.inc
 files[] = smartling.utils.inc
 files[] = smartling.processing.inc
 files[] = smartling.module
+files[] = alters/smartling_content_image_url_processor.inc
+files[] = alters/smartling_content_image_url_parser.inc
+files[] = alters/smartling_content_media_parser.inc
+
 files[] = tests/smartling_settings_ct.test
 files[] = tests/smartling_copy_fields.test
 files[] = tests/smartling_settings_in_node_page.test

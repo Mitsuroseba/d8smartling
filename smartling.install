@@ -46,7 +46,7 @@ function smartling_install() {
 
   $cron_base_settings['smartling_cron'] = array(
     'enabled' => 1,
-    'rules' => array(0 => '0 * * * *'),
+    'rules' => array(0 => '* */3 * * *'),
     'catch_up' => '',
     'service_group' => '',
   );
@@ -57,7 +57,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '5',
+    'queue_threads' => '2',
     'queue_threshold' => '1',
   );
 
@@ -67,7 +67,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '5',
+    'queue_threads' => '2',
     'queue_threshold' => '1',
   );
 
@@ -77,7 +77,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '5',
+    'queue_threads' => '2',
     'queue_threshold' => '1',
   );
 
