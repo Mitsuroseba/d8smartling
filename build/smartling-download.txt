@@ -75,7 +75,6 @@ RESULT=$?
 [ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
-cd smartling
 logit info "Archiving"
 rm -Rf api/.git/
 rm -rf .git/
