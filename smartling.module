@@ -1101,15 +1101,15 @@ function smartling_push_callback() {
 function smartling_smartling_data_processor_info() {
   return array(
     'parsers' => array(
-      'SmartlingUrlParser' => 'SmartlingUrlParser',
+      'SmartlingImageUrlParser' => 'SmartlingImageUrlParser',
     ),
     'processors' => array(
-      'SmartlingUrlParser' => array('SmartlingUrlProcessor'),
+      'SmartlingImageUrlParser' => array('SmartlingUrlProcessor'),
     ),
   );
 }
 
-function smartling_process_content(&$content, $field_name, $entity) {
+function smartling_process_content(&$content, $lang, $field_name, $entity) {
   //fields + entity actions
   $data_new = array();
   foreach (module_implements('smartling_data_processor_info') as $module) {
@@ -1122,7 +1122,7 @@ function smartling_process_content(&$content, $field_name, $entity) {
       }
 
       $parser = new $parser($processors);
-      $content = $parser->parse($content, $field_name, $entity);
+      $content = $parser->parse($content, $lang, $field_name, $entity);
     }
   }
   return $content;

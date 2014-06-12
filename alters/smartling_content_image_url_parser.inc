@@ -1,8 +1,8 @@
 <?php
 require_once(dirname(__FILE__) . '/smartling_content_parser_interface.inc');
 
-class SmartlingUrlParser implements ISmartlingContentParser {
-  protected $regexp = '~ (href|src|action|longdesc)="([^"]+)~i';
+class SmartlingImageUrlParser implements ISmartlingContentParser {
+  protected $regexp = '~\s+(href|src|action|longdesc)="([^"]+)~i';
   protected $processors;
   protected $field_name;
   protected $entity;
@@ -11,12 +11,23 @@ class SmartlingUrlParser implements ISmartlingContentParser {
     $this->processors = $processors;
   }
 
+  /*
+   * Wrapper method for retrieving global params.
+   */
   protected function getGlobalSettings() {
     global $base_path;
     global $base_url;
 
     return array($base_path, $base_url);
   }
+
+  /*
+   * Determines whether we are dealing with an internal or external link.
+   *
+   * @param array $matches Array of strings that matched the regexp.
+   *
+   * @return array
+   */
   protected function getContext($matches) {
     // Get the base path.
     list($base_path, $base_url) = $this->getGlobalSettings();
@@ -129,19 +140,26 @@ class SmartlingUrlParser implements ISmartlingContentParser {
     return array('external' => !$found);
   }
 
+  /*
+   * Processes each item that was found by a regexp in a parse method.
+   *
+   * @return string
+   */
+
   protected function processorExecutor($match) {
     $context = $this->getContext($match);
 
     foreach($this->processors as $processor) {
-      $processor->process($match, $context, $this->field_name, $this->entity);
+      $processor->process($match, $context, $this->lang, $this->field_name, $this->entity);
     }
 
     return " {$match[1]}=\"{$match[2]}";
   }
 
-  public function parse($content, $field_name, $entity) {
+  public function parse($content, $lang, $field_name, $entity) {
     $this->field_name = $field_name;
     $this->entity = $entity;
+    $this->lang = $lang;
 
     $content = preg_replace_callback($this->regexp, array($this, 'processorExecutor'), $content);
 
