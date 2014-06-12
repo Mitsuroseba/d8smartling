@@ -894,9 +894,9 @@ function smartling_get_original_entity($rid, $entity_type) {
   return $entity;
 }
 
-function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0) {
-  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
-    $format = $entity_wrapper->{$field_name}[$language_key_format][$i]['format'];
+function smartling_get_field_format($original_node, $field_name, $language_key_format, $i = 0) {
+  if (isset($original_node->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $original_node->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;
