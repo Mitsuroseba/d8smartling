@@ -299,6 +299,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
                 $log->setMessage('Smartling FAIL force download translated file for node id - @nid, language - @language')
                     ->setVariables(array('@nid' => $original_nid, '@language' => $d_locale))
                     ->setLink(l(t('Edit node'), 'node/' . $original_nid . '/edit'))
+                    ->setSeverity(WATCHDOG_ERROR)
                     ->execute();
                 drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
               }
@@ -334,6 +335,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
                 $log->setMessage('Smartling FAIL force download translated file for node id - @nid, language - @language')
                     ->setVariables(array('@nid' => $nid, '@language' => $d_locale))
                     ->setLink(l(t('Edit node'), 'node/' . $nid . '/edit'))
+                    ->setSeverity(WATCHDOG_ERROR)
                     ->execute();
                 drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
               }
@@ -397,6 +399,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
               $log->setMessage('Smartling FAIL force download translated file for term id - @rid, language - @language')
                   ->setVariables(array('@rid' => $tid, '@language' => $d_locale))
                   ->setLink(l(t('Edit term'), 'taxonomy/term/' . $term->tid . '/edit'))
+                  ->setSeverity(WATCHDOG_ERROR)
                   ->execute();
               drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }
@@ -445,6 +448,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
               $log->setMessage('Smartling FAIL force download translated file for comment id - @rid, language - @language')
                   ->setVariables(array('@rid' => $comment->cid, '@language' => $d_locale))
                   ->setLink($link)
+                  ->setSeverity(WATCHDOG_ERROR)
                   ->execute();
               drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }
@@ -493,6 +497,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
               $log->setMessage('Smartling FAIL force download translated file for user id - @rid, language - @language')
                   ->setVariables(array('@rid' => $account->uid, '@language' => $d_locale))
                   ->setLink($link)
+                  ->setSeverity(WATCHDOG_ERROR)
                   ->execute();
               drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
             }

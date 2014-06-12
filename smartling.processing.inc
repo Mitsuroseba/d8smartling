@@ -535,12 +535,14 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             case I18N_MODE_NONE:
               $log->setMessage('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode')
                   ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@vocabulary_mode' => $vocabulary_mode))
+                  ->setSeverity(WATCHDOG_ERROR)
                   ->execute();
               return FALSE;
               break;
             default:
               $log->setMessage('Translatable @entity_type with id - @rid FAIL')
                   ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+                  ->setSeverity(WATCHDOG_ERROR)
                   ->execute();
               return FALSE;
               break;
