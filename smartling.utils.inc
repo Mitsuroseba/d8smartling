@@ -12,6 +12,7 @@
  *  Entity type.
  * @param string $bundle
  *   Entity bundle.
+ *
  * @return bool
  *   Return TRUE if smartling support this bundle.
  */
@@ -74,6 +75,7 @@ function smartling_supported_type($entity_type, $bundle) {
  *  Entity type.
  * @param string $bundle
  *   Entity bundle.
+ *
  * @return bool
  *   Return TRUE if entity has translatable fields.
  */
@@ -95,6 +97,7 @@ function smartling_entity_has_translatable_field($entity_type, $bundle) {
  *
  * @param string $type
  *   Node content type.
+ *
  * @return bool
  *   Return TRUE if this node type set in nodes method translate.
  */
@@ -108,6 +111,7 @@ function smartling_nodes_method($type) {
  *
  * @param string $type
  *   Node content type.
+ *
  * @return bool
  *   Return TRUE if this node type set in fields method translate.
  */
@@ -121,6 +125,7 @@ function smartling_fields_method($type) {
  *
  * @param int $nid
  *   Node id.
+ *
  * @return string
  *   Return unical node status for nodes method translate.
  */
@@ -179,6 +184,7 @@ function smartling_is_configured() {
  *
  * @param string $type
  *   Node content type.
+ *
  * @return bool
  *  Return TRUE if translate fields is set.
  */
@@ -292,6 +298,7 @@ function smartling_translatable_node_field_details() {
  *
  * @param string $field_name
  *   Field name.
+ *
  * @return bool
  *   Return TRUE if field is translatable.
  */
@@ -366,6 +373,7 @@ function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $tra
  *
  * @param string $d_locale
  *   Locale in drupal format (ru, en).
+ *
  * @return string|null
  *   Return full language name or NULL.
  */
@@ -387,6 +395,7 @@ function smartling_get_full_language_name($d_locale) {
  *   Locale string in some foormat: 'en' or 'en-US'.
  * @param bool $reverse
  *   If TRUE, convert format: 'en-US' => 'en'. FALSE by default.
+ *
  * @return string|null
  *   Return locale or NULL.
  */
@@ -414,6 +423,7 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  *
  * @param string $file_name
  *   File name.
+ *
  * @return string
  *   Return path for smartling dir.
  */
@@ -431,6 +441,7 @@ function smartling_get_dir($file_name = '') {
  *   File name.
  * @param bool $allow_dirs
  *   TRUE if allow dirs. FALSE by default.
+ *
  * @return string
  *   Return clean filename.
  */
@@ -471,6 +482,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  *   TRUE if save translated file. FALSE by default.
  * @param string $entity_type
  *   Entity type.
+ *
  * @return object|null
  *   Return xml document or NULL.
  */
@@ -578,6 +590,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
  *   Entity title.
  * @param string $entity_type
  *   Entity type.
+ *
  * @return string|bool
  *   Return filename or FALSE.
  */
@@ -652,6 +665,7 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
  * @param bool $no
  *   If TRUE tag -> nolocalize, if FALSE tag -> localize.
  *   Tag localize use by default.
+ *
  * @return object
  *   Return localize object.
  */
@@ -816,6 +830,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
  *
  * @param object $entity_data
  *   Smartling transaction entity.
+ *
  * @return \DOMDocument
  *   Return xml dom from downloaded file.
  */
@@ -845,6 +860,7 @@ function smartling_download_file($entity_data) {
  *
  * @param object $entity_data
  *   Smartling transaction entity.
+ *
  * @return int|bool
  *   Return number of progress or FALSE.
  */
@@ -1020,6 +1036,7 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
  *   Related id.
  * @param string $entity_type
  *   Entity type.
+ *
  * @return string
  *   Return link to entity.
  */
@@ -1056,6 +1073,7 @@ function smartling_get_link_to_entity($rid, $entity_type) {
  *   Related id.
  * @param string $entity_type
  *   Entity type.
+ *
  * @return object|bool
  *   Return entity object or FALSE.
  */
@@ -1102,7 +1120,7 @@ function smartling_get_original_entity($rid, $entity_type) {
 /**
  * Get field format.
  *
- * @param object $orinigal_node.
+ * @param object $original_node
  *   Entity.
  * @param string $field_name
  *   Field name.
@@ -1110,6 +1128,7 @@ function smartling_get_original_entity($rid, $entity_type) {
  *   Field language.
  * @param int $i
  *   Field delta.
+ *
  * @return string|null
  * Return field format like "full_html" or NULL.
  */
@@ -1128,7 +1147,8 @@ function smartling_get_field_format($original_node, $field_name, $language_key_f
  * Get fields by type.
  *
  * @param string $type
- *   Like entityreference field type or other
+ *   Like entityreference field type or other.
+ *
  * @return array
  *   Return array with fields by type.
  */
@@ -1143,6 +1163,7 @@ function smartling_get_fields_by_type($type) {
  *   Entity type.
  * @param type $entity
  *   Entity.
+ *
  * @return object
  *   Return translation handler object.
  */
@@ -1191,6 +1212,7 @@ function smartling_entity_translation_save($handler, $entity) {
  *   Entity type.
  * @param int $rid
  *   Related id.
+ * 
  * @return boolean
  *   Return TRUE if normal filename.
  */
