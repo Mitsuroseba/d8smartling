@@ -1181,20 +1181,44 @@ function smartling_wrap_in_fieldset($form, $title) {
     '#title' => t($title),
     '#attributes' => array(
       'class' => array('smartling-' . strtolower(str_replace(' ', '-', $title))),
-      'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title)))
+      'id' => array('smartling-' . strtolower(str_replace(' ', '-', $title))),
     ),
     'children' => $form,
   );
 }
 
+/**
+ * Hide last 10 characters in string.
+ *
+ * @param string $key
+ *   Smartling key.
+ * @return string
+ *   Return smartling key without 10 last characters.
+ */
 function smartling_hide_key($key = '') {
   return substr($key, 0, -10) . str_repeat("*", 10);
 }
 
+/**
+ * Check api key.
+ *
+ * @param string $key
+ *   Api key.
+ * @return string
+ *   Return checked api key.
+ */
 function smartling_api_key_check($key) {
   return preg_match("/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}/", $key);
 }
 
+/**
+ * Check project id.
+ *
+ * @param string $project_id
+ *   Project id.
+ * @return string
+ *   Return checked project id.
+ */
 function smartling_project_id_check($project_id) {
   return preg_match("/[a-z0-9]{9}/", $project_id);
 }
