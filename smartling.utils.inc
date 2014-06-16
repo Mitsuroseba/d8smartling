@@ -164,11 +164,11 @@ function smartling_is_configured() {
   foreach ($required_variables as $required_variable) {
     $val = variable_get($required_variable, NULL);
     if (empty($val) && in_array($required_variable, array(
-      'smartling_api_url',
-      'smartling_key',
-      'smartling_project_id',
-      'smartling_target_locales',
-    ))
+        'smartling_api_url',
+        'smartling_key',
+        'smartling_project_id',
+        'smartling_target_locales',
+      ))
     ) {
       drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
       return FALSE;
@@ -507,25 +507,25 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
     if (is_array($d_locale)) {
       $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-          ->setVariables(array(
-            '@file_type' => $file_type,
-            '@entity_type' => $entity_type,
-            '@rid' => $rid,
-            '@locale' => implode('; ', $d_locale),
-          ))
-          ->setLink(l(t('View file'), $path))
-          ->execute();
+        ->setVariables(array(
+          '@file_type' => $file_type,
+          '@entity_type' => $entity_type,
+          '@rid' => $rid,
+          '@locale' => implode('; ', $d_locale),
+        ))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
     else {
       $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-          ->setVariables(array(
-            '@file_type' => $file_type,
-            '@entity_type' => $entity_type,
-            '@rid' => $rid,
-            '@locale' => $d_locale,
-          ))
-          ->setLink(l(t('View file'), $path))
-          ->execute();
+        ->setVariables(array(
+          '@file_type' => $file_type,
+          '@entity_type' => $entity_type,
+          '@rid' => $rid,
+          '@locale' => $d_locale,
+        ))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
 
     if (!is_null($rid)) {
@@ -542,25 +542,25 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
     if (is_array($d_locale)) {
       $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-          ->setVariables(array(
-            '@file_type' => $file_type,
-            '@entity_type' => $entity_type,
-            '@rid' => $rid,
-            '@locale' => implode('; ', $d_locale),
-          ))
-          ->setLink(l(t('View file'), $path))
-          ->execute();
+        ->setVariables(array(
+          '@file_type' => $file_type,
+          '@entity_type' => $entity_type,
+          '@rid' => $rid,
+          '@locale' => implode('; ', $d_locale),
+        ))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
     else {
       $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-          ->setVariables(array(
-            '@file_type' => $file_type,
-            '@entity_type' => $entity_type,
-            '@rid' => $rid,
-            '@locale' => $d_locale,
-          ))
-          ->setLink(l(t('View file'), $path))
-          ->execute();
+        ->setVariables(array(
+          '@file_type' => $file_type,
+          '@entity_type' => $entity_type,
+          '@rid' => $rid,
+          '@locale' => $d_locale,
+        ))
+        ->setLink(l(t('View file'), $path))
+        ->execute();
     }
 
     if (!is_null($rid)) {
@@ -570,10 +570,10 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   }
   else {
     $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid')
-        ->setVariables(array('@file_name' => $file_name, '@rid' => $rid))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
+      ->setVariables(array('@file_name' => $file_name, '@rid' => $rid))
+      ->setConsiderLog(FALSE)
+      ->setSeverity(WATCHDOG_ERROR)
+      ->execute();
     drupal_set_message(t('File was not saved because of some errors.'), 'error');
     return NULL;
   }
@@ -638,11 +638,14 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
     }
   }
   else {
-    smartling_entity_delete_all_by_conditions(array('rid' => $rid, 'entity_type' => $entity_type));
+    smartling_entity_delete_all_by_conditions(array(
+      'rid' => $rid,
+      'entity_type' => $entity_type,
+    ));
     $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
-        ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-        ->setSeverity(WATCHDOG_WARNING)
-        ->execute();
+      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+      ->setSeverity(WATCHDOG_WARNING)
+      ->execute();
     $file_name = FALSE;
   }
 
@@ -786,7 +789,10 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
     // Load entity.
     if (is_null($entity_data) && is_numeric($d_locale)) {
       // Use in views report (Download).
-      $entity_data = smartling_entity_load_by_conditions(array('rid' => $rid, 'eid' => $d_locale));
+      $entity_data = smartling_entity_load_by_conditions(array(
+        'rid' => $rid,
+        'eid' => $d_locale,
+      ));
       $d_locale = $entity_data->target_language;
       $report_page = TRUE;
     }
@@ -893,15 +899,15 @@ function smartling_get_progress_status($entity_data) {
       }
 
       $log->setMessage('Smartling progress status for entity id - @rid (@d_locale). approvedString = @as, completedString = @cs, progress = @progress')
-          ->setVariables(array(
-            '@rid' => $entity_data->rid,
-            '@d_locale' => $d_locale,
-            '@as' => $status_result->response->data->approvedStringCount,
-            '@cs' => $status_result->response->data->completedStringCount,
-            '@progress' => $progress,
-          ))
-          ->setLink(l(t('View original file'), $file_uri))
-          ->execute();
+        ->setVariables(array(
+          '@rid' => $entity_data->rid,
+          '@d_locale' => $d_locale,
+          '@as' => $status_result->response->data->approvedStringCount,
+          '@cs' => $status_result->response->data->completedStringCount,
+          '@progress' => $progress,
+        ))
+        ->setLink(l(t('View original file'), $file_uri))
+        ->execute();
       return $progress;
     }
     else {
@@ -911,17 +917,17 @@ function smartling_get_progress_status($entity_data) {
       URI: @file_uri <br/>
       Locale: @d_locale <br/>
       Error: response code -> @code and message -> @message')
-          ->setVariables(array(
-            '@project_id' => $smartling_settings->getProjectId(),
-            '@file_uri' => $file_uri,
-            '@d_locale' => $d_locale,
-            '@code' => $status_result->response->code,
-            '@message' => $status_result->response->messages[0],
-          ))
-          ->setConsiderLog(FALSE)
-          ->setSeverity(WATCHDOG_ERROR)
-          ->setLink($link_to_entity)
-          ->execute();
+        ->setVariables(array(
+          '@project_id' => $smartling_settings->getProjectId(),
+          '@file_uri' => $file_uri,
+          '@d_locale' => $d_locale,
+          '@code' => $status_result->response->code,
+          '@message' => $status_result->response->messages[0],
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->setLink($link_to_entity)
+        ->execute();
 
       drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array(
         '@code' => $status_result->response->code,
@@ -1120,7 +1126,7 @@ function smartling_get_original_entity($rid, $entity_type) {
 /**
  * Get field format.
  *
- * @param object $original_node
+ * @param object $entity_wrapper
  *   Entity.
  * @param string $field_name
  *   Field name.
@@ -1132,9 +1138,9 @@ function smartling_get_original_entity($rid, $entity_type) {
  * @return string|null
  * Return field format like "full_html" or NULL.
  */
-function smartling_get_field_format($original_node, $field_name, $language_key_format, $i = 0) {
-  if (isset($original_node->{$field_name}[$language_key_format][$i]['format'])) {
-    $format = $original_node->{$field_name}[$language_key_format][$i]['format'];
+function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0) {
+  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $entity_wrapper->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;
@@ -1212,7 +1218,7 @@ function smartling_entity_translation_save($handler, $entity) {
  *   Entity type.
  * @param int $rid
  *   Related id.
- * 
+ *
  * @return boolean
  *   Return TRUE if normal filename.
  */
@@ -1224,16 +1230,16 @@ function smartling_check_filename_length($title, $entity_type, $rid) {
     $count = (strlen($file_name) - 240);
     $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
     $log->setMessage('Generated file name is too long. Remove approximately @count characters. Filename: @file_name, related entity - @rid, entity type - @entity_type')
-        ->setVariables(array(
-          '@count' => $count,
-          '@file_name' => $file_name,
-          '@rid' => $rid,
-          '@entity_type' => $entity_type,
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
-        ->execute();
+      ->setVariables(array(
+        '@count' => $count,
+        '@file_name' => $file_name,
+        '@rid' => $rid,
+        '@entity_type' => $entity_type,
+      ))
+      ->setConsiderLog(FALSE)
+      ->setSeverity(WATCHDOG_ERROR)
+      ->setLink($link_to_entity)
+      ->execute();
     return FALSE;
   }
   return TRUE;

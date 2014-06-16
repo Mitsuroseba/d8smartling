@@ -2,25 +2,38 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingCopyFieldsTest.
  */
 class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Content - Copy all fields to translated node',
       'description' => 'Test copying content of all fields from the original node to translated node',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test correct copy fields when translated node not exist.
+   */
   public function testCorrectCopyFieldsTranslatedNodeNotExist() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling
+    // Set pseudo for smartling.
     $this->smartlingSetRetrievalType('pseudo');
 
-    // Add Price field
+    // Add Price field.
     $edit = array(
       "fields[_add_new_field][label]" => 'Price',
       "fields[_add_new_field][weight]" => '-3',
@@ -31,10 +44,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
-    //$this->drupalPost(NULL, array('field[translatable]' => 1), t('Save settings'));
     $this->assertText(t('Saved Price configuration.'));
 
-    // Add Client help url field
+    // Add Client help url field.
     $edit = array(
       "fields[_add_new_field][label]" => 'Client help url',
       "fields[_add_new_field][weight]" => '-2',
@@ -45,10 +57,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
-    //$this->drupalPost(NULL, array('field[translatable]' => 1), t('Save settings'));
     $this->assertText(t('Saved Client help url configuration.'));
 
-    // Add Tags field
+    // Add Tags field.
     $edit = array(
       "fields[_add_existing_field][label]" => 'Tags',
       "fields[_add_existing_field][weight]" => '0',
@@ -59,9 +70,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost(NULL, array(), t('Save settings'));
     $this->assertText(t('Saved Tags configuration.'));
 
-    // Set nodes method for page CT
+    // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page');
-    // Set fields for page CT
+    // Set fields for page CT.
     $this->smartlingSetFieldSettings('page', 'title', TRUE);
     $this->smartlingSetFieldSettings('page', 'body');
 
@@ -69,9 +80,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
       'term1' => 'Test term',
     );
 
-    // Create node content
+    // Create node content.
     $node_array = array(
-      //'title' => 'Title test',
       'title_field[und][0][value]' => 'Title test',
       'language' => 'en',
       'field_tags[und]' => drupal_implode_tags($terms),
@@ -87,13 +97,13 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->drupalPost('node/1/edit', $node_array, t('Save'));
 
-    // Send and download node
+    // Send and download node.
     $this->smartlingTranslateNode(1, array('ru'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
 
-    // Check
+    // Check.
     $original_node = node_load(1);
     $translated_node = node_load(2);
     $this->assertTrue(($translated_node->tnid == 1), t('Translated node linked to original'), t('Browser'));
@@ -106,32 +116,35 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $original_value = $original_node->body[LANGUAGE_NONE][0]['value'];
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body conteins translated value'), t('Browser'));
 
-    // Equal client help url
+    // Equal client help url.
     $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
     $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_client_help_url conteins original value'), t('Browser'));
 
-    // Equal tags
+    // Equal tags.
     $translated_value = $translated_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $original_value = $original_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $this->assertEqual($original_value, $translated_value);
     $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_tags conteins original value'), t('Browser'));
 
-    // Equal price
+    // Equal price.
     $translated_value = $translated_node->field_price[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_price[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
     $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_price conteins original value'), t('Browser'));
   }
 
+  /**
+   * Test correct copy fields when translated node exist.
+   */
   public function testCorrectCopyFieldsTranslatedNodeExist() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling
+    // Set pseudo for smartling.
     $this->smartlingSetRetrievalType('pseudo');
 
-    // Add Price field
+    // Add Price field.
     $edit = array(
       "fields[_add_new_field][label]" => 'Price',
       "fields[_add_new_field][weight]" => '-3',
@@ -142,10 +155,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
-    //$this->drupalPost(NULL, array('field[translatable]' => 1), t('Save settings'));
     $this->assertText(t('Saved Price configuration.'));
 
-    // Add Client help url field
+    // Add Client help url field.
     $edit = array(
       "fields[_add_new_field][label]" => 'Client help url',
       "fields[_add_new_field][weight]" => '-2',
@@ -156,10 +168,9 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
-    //$this->drupalPost(NULL, array('field[translatable]' => 1), t('Save settings'));
     $this->assertText(t('Saved Client help url configuration.'));
 
-    // Add Tags field
+    // Add Tags field.
     $edit = array(
       "fields[_add_existing_field][label]" => 'Tags',
       "fields[_add_existing_field][weight]" => '0',
@@ -170,19 +181,18 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost(NULL, array(), t('Save settings'));
     $this->assertText(t('Saved Tags configuration.'));
 
-    // Set nodes method for page CT
+    // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page');
-    // Set fields for page CT
+    // Set fields for page CT.
     $this->smartlingSetFieldSettings('page', 'title', TRUE);
     $this->smartlingSetFieldSettings('page', 'body');
 
-    // Create original node content
+    // Create original node content.
     $terms = array(
       'term1' => 'Test term',
     );
 
     $node_array = array(
-      //'title' => 'Title test',
       'title_field[und][0][value]' => 'Title test',
       'language' => 'en',
       'field_tags[und]' => drupal_implode_tags($terms),
@@ -198,13 +208,12 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->drupalPost('node/1/edit', $node_array, t('Save'));
 
-    // Create translated node content
+    // Create translated node content.
     $terms = array(
       'term2' => 'Translated test term',
     );
 
     $node_tr_array = array(
-      //'title' => 'Translated title test',
       'title_field[und][0][value]' => 'Translated title test',
       'field_tags[und]' => drupal_implode_tags($terms),
     );
@@ -220,13 +229,13 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->drupalPost('node/2/edit', $node_tr_array, t('Save'));
 
-    // Send and download node
+    // Send and download node.
     $this->smartlingTranslateNode(1, array('ru'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
 
-    // Check
+    // Check.
     $original_node = node_load(1);
     $translated_node = node_load(2, NULL, TRUE);
     $this->assertTrue(($translated_node->tnid == 1), t('Translated node linked to original'), t('Browser'));
@@ -239,17 +248,17 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text ru')), t('Body conteins translated value'), t('Browser'));
 
-    // Equal client help url
+    // Equal client help url.
     $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value) && ($translated_value == 'taranslated url')), t('field_client_help_url check success'), t('Browser'));
 
-    // Equal tags
+    // Equal tags.
     $translated_value = $translated_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $original_value = $original_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value) && ($translated_value == '2')), t('field_tags check success'), t('Browser'));
 
-    // Equal price
+    // Equal price.
     $translated_value = $translated_node->field_price[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_price[LANGUAGE_NONE][0]['value'];
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value) && ($translated_value == '321.00')), t('field_price check success'), t('Browser'));

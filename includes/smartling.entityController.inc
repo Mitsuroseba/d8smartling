@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Smartling entity controller.
  */
 
 /**
@@ -9,10 +10,22 @@
  */
 class SmartlingEntityData extends Entity {
 
+  /**
+   * Get default label.
+   *
+   * @return string
+   *   Return label.
+   */
   protected function defaultLabel() {
     return $this->title;
   }
 
+  /**
+   * Get default uri string for smartling entity.
+   *
+   * @return string
+   *   Return default uri string.
+   */
   protected function defaultUri() {
     return array('path' => 'admin/config/regional/smartling/entity-data/' . $this->identifier());
   }
@@ -24,6 +37,15 @@ class SmartlingEntityData extends Entity {
  */
 class SmartlingEntityDataController extends EntityAPIController {
 
+  /**
+   * Create smartling entity object.
+   *
+   * @param array $values
+   *   Entity values.
+   *
+   * @return ongect
+   *   Return smartling entity object.
+   */
   public function create(array $values = array()) {
     $values += array(
       'rid' => '',

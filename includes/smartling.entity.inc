@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Smartling entity.
  */
 
 /**
@@ -19,7 +20,8 @@ function smartling_entity_info() {
     // If fieldable == FALSE, we can't attach fields.
     'fieldable' => FALSE,
     'entity keys' => array(
-      'id' => 'eid', // The 'id' (basic_id here) is the unique id.
+      // The 'id' (basic_id here) is the unique id.
+      'id' => 'eid',
     ),
     'static cache' => FALSE,
     'view modes' => array(
@@ -27,7 +29,7 @@ function smartling_entity_info() {
         'label' => t('Default'),
         'custom settings' => FALSE,
       ),
-    )
+    ),
   );
 
   return $info;

@@ -2,18 +2,31 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingFileCleanTest.
  */
 class SmartlingFileCleanTest extends DrupalWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling clean file',
       'description' => 'Test Smartling file cleaning to avoid path traversal',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test clean file.
+   */
   public function testCleanFile() {
     $filename = smartling_clean_filename("");
     $this->assertEqual($filename, "", 'Path traversal test for empty filenames.');

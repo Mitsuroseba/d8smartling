@@ -1,17 +1,25 @@
 <?php
-require_once(dirname(__FILE__) . '/../credentials.php');
 
 /**
  * @file
  * Tests for smartling
  */
+
+require_once dirname(__FILE__) . '/../credentials.php';
+
+/**
+ * SmartlingWebTestCase.
+ */
 class SmartlingWebTestCase extends DrupalWebTestCase {
 
+  /**
+   * SetUp.
+   */
   public function setUp() {
-    // Enable Smartling modules
+    // Enable Smartling modules.
     parent::setUp('smartling', 'smartling_reports', 'smartling_reference');
 
-    // Create a user with access
+    // Create a user with access.
     $this->privileged_user = $this->drupalCreateUser(array(
       'administer smartling',
       'administer taxonomy',
@@ -34,7 +42,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       'delete revisions',
     ));
 
-    // Authorizing user
+    // Authorizing user.
     $this->drupalLogin($this->privileged_user);
 
     // Add predefined language.
@@ -45,6 +53,14 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText('ru', 'Language added successfully.');
   }
 
+  /**
+   * Create node.
+   *
+   * @param string $type
+   *   Node type.
+   * @param array $settings
+   *   Node settings.
+   */
   public function smartlingCreateNode($type = 'page', $settings = array()) {
     // Create initial node.
     $this->random_node_title = $this->randomName(8);
@@ -74,10 +90,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     }
   }
 
+  /**
+   * Smartling set correct settings.
+   */
   public function smartlingSetCorrectSettings() {
-    // Set file public path for tests
+    // Set file public path for tests.
     variable_set('file_public_path', 'sites/default/files');
-    // Add default private path
+    // Add default private path.
     variable_set('file_private_path', 'sites/default/files/private');
 
     $file_methods = array('file_public_path', 'file_private_path');
@@ -101,10 +120,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
 
   /**
    * These values are supported for value:
-   *   - 0
-   *   - 1
+   * - 0.
+   * - 1.
+   *
    * @param string $field_name
+   *   Field name.
    * @param int $value
+   *   Translatable parameter.
    */
   public function smartlingSetTranslatableFieldSettings($field_name, $value) {
     $field = field_info_field($field_name);
@@ -112,6 +134,15 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     field_update_field($field);
   }
 
+  /**
+   * Get translatable field settings.
+   *
+   * @param string $field_name
+   *   Field name.
+   *
+   * @return string
+   *   Return translatable parameter.
+   */
   public function smartlingGetTranslatableFieldSettings($field_name) {
     $field = field_info_field($field_name);
     if (isset($field['translatable'])) {
@@ -125,10 +156,12 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
 
   /**
    * Defaults to 'published'. These values are supported:
-   *   - 'pseudo'
-   *   - 'published'
-   *   - 'pending'
+   * - 'pseudo'.
+   * - 'published'.
+   * - 'pending'.
+   *
    * @param string $type
+   *   Smartling retrieval type settings.
    */
   public function smartlingSetRetrievalType($type = 'published') {
     if (!empty($type)) {
@@ -141,39 +174,43 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Add text field to node.
    *
    * @param string $node_type
-   * 'page' by default
+   *   Node type. "page" type by default.
    * @param string $field_machine_name
-   * '' by default
+   *   Field machine name.
    */
   public function smartlingAddTextFieldToNode($node_type = 'page', $field_machine_name = '') {
-    if (!empty($field_machine_name)) {
-      // Add field to CT
-      $edit = array(
-        "fields[_add_new_field][label]" => (string) $field_machine_name,
-        "fields[_add_new_field][weight]" => '-2',
-        "fields[_add_new_field][field_name]" => (string) $field_machine_name,
-        "fields[_add_new_field][type]" => 'text',
-        "fields[_add_new_field][widget_type]" => 'text_textfield',
-      );
-      $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
-      $this->drupalPost(NULL, array(), t('Save field settings'));
-      $this->drupalPost(NULL, array(), t('Save settings'));
-      $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
-    }
+    // Add field to CT.
+    $edit = array(
+      "fields[_add_new_field][label]" => (string) $field_machine_name,
+      "fields[_add_new_field][weight]" => '-2',
+      "fields[_add_new_field][field_name]" => (string) $field_machine_name,
+      "fields[_add_new_field][type]" => 'text',
+      "fields[_add_new_field][widget_type]" => 'text_textfield',
+    );
+    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
   }
 
   /**
+   * Add entity reference field to node.
    *
    * @param type $node_type
+   *   Node type.
    * @param string $field_machine_name
-   * field_fieldname
+   *   Field machine name.
    * @param string $target_type
+   *   Target type like node, taxonomy_term, ect.
    * @param array $target_bundles
+   *   Bundles array.
    * @param string $cardinality
+   *   Cardinality of field.
    */
-  public function smartlingAddEntityReferenceFieldToNode($node_type, $field_machine_name, $target_type, $target_bundles, $cardinality = '1') {
+  public function smartlingAddEntityReferenceFieldToNode($node_type, $field_machine_name, $target_type, array $target_bundles, $cardinality = '1') {
 
     // Create an entity reference field.
     $field = array(
@@ -200,6 +237,14 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     field_create_instance($instance);
   }
 
+  /**
+   * Enable title and alt parameter for image field.
+   *
+   * @param string $node_type
+   *   Node type/bundle.
+   * @param string $field_machine_name
+   *   Field machine name.
+   */
   public function smartlingEnableTitleAltForImageField($node_type, $field_machine_name) {
     $edit = array(
       "instance[settings][alt_field]" => 1,
@@ -210,10 +255,14 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Add image to field.
    *
-   * @param type $nid
-   * @param type $field_machine_name
-   * @param type $lang
+   * @param int $nid
+   *   Node id.
+   * @param string $field_machine_name
+   *   Field machine name.
+   * @param string $lang
+   *   Locale in drupal format (ru, en). LANGUAGE_NONE (und) by default.
    */
   public function smartlingAddImageToField($nid, $field_machine_name, $lang = LANGUAGE_NONE) {
     $node = node_load($nid);
@@ -244,6 +293,12 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     }
   }
 
+  /**
+   * Add language to site.
+   *
+   * @param string $lang
+   *   Locale in drupal format (ru, en).
+   */
   public function smartlingAddSiteLanguage($lang = 'ru') {
     // Add predefined languages.
     $edit = array(
@@ -253,35 +308,36 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText($lang, 'Language added successfully.');
   }
 
+  /**
+   * Smartling different fields test.
+   */
   public function smartlingDifferentFieldsSetUpTest() {
-    // Start Set Up
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling
+    // Set pseudo for smartling.
     $this->smartlingSetRetrievalType('pseudo');
-    // Add field
+    // Add field.
     $this->smartlingAddTextFieldToNode('page', 'translatable_data');
-    // Add field
+    // Add field.
     $this->smartlingAddTextFieldToNode('page', 'not_translatable_data');
-
-    // Set nodes method for CT
+    // Set nodes method for CT.
     $this->smartlingSetMethodSettings('page');
-
-    // Set fields for page CT
+    // Set fields for page CT.
     $this->smartlingSetFieldSettings('page', 'field_translatable_data');
-    // End Set Up
+    // End Set Up.
   }
 
   /**
-   * Set translate method in smartling settings
+   * Set translate method in smartling settings.
+   *
    * @param string $node_type
-   * Node type machine name
+   *   Node type machine name.
    * @param type $method_key
-   * 1 - Field method
-   * 2 - Nodes method (by default)
+   *   1 - Field method.
+   *   2 - Nodes method (by default).
    */
   public function smartlingSetMethodSettings($node_type, $method_key = 2) {
-    // Set method for CT
+    // Set method for CT.
     $edit = array();
     $edit[$node_type . '_TT_' . $node_type] = $method_key;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
@@ -289,13 +345,17 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Set node field smartling settings.
    *
    * @param string $node_type
+   *   Node type.
    * @param string $field_name
+   *   Field name.
    * @param bool $swap
+   *   TRUE if this swap field. (title module) (FALSE by default).
    */
   public function smartlingSetFieldSettings($node_type, $field_name, $swap = FALSE) {
-    // Set fields for page CT
+    // Set fields for page CT.
     $edit = array();
     if (!$swap) {
       $edit[$node_type . '_SEPARATOR_' . $field_name] = 1;
@@ -308,12 +368,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Set translate method for terms in smartling settings
+   * Set translate method for terms in smartling settings.
+   *
    * @param string $vocabulary_machine_name
-   * Vocabulary machine name
+   *   Vocabulary machine name.
    * @param type $method_key
-   * 1 - I18N_MODE_LOCALIZE
-   * 2 - I18N_MODE_TRANSLATE (by default)
+   *   1 - I18N_MODE_LOCALIZE.
+   *   2 - I18N_MODE_TRANSLATE (by default).
    */
   public function smartlingSetTermMethodSettings($vocabulary_machine_name, $method_key = 2) {
     $edit = array();
@@ -322,6 +383,16 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->assertText(t('Your taxonomy vocabularies have been updated.'));
   }
 
+  /**
+   * Set term field smartling settings.
+   *
+   * @param string $vocabulary_machine_name
+   *   Vocabulary machine name.
+   * @param string $field_name
+   *   Field name.
+   * @param bool $swap
+   *   TRUE if this swap field. (title module) (FALSE by default).
+   */
   public function smartlingSetTermFieldSettings($vocabulary_machine_name, $field_name, $swap = FALSE) {
     $edit = array();
     if (!$swap) {
@@ -335,15 +406,18 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Send node to Smartling service and download them. Works for a single node on the site.
-   * @param type $nid
+   * Send node to Smartling service and download them.
+   * Works for a single node on the site.
+   *
+   * @param int $nid
+   *   Node id.
    * @param array $langs
-   * Example: array('ru', 'nl')
+   *   Example: array('ru', 'nl')
    */
-  public function smartlingTranslateNode($nid, $langs, $download = TRUE) {
+  public function smartlingTranslateNode($nid, array $langs, $download = TRUE) {
     $node = node_load($nid);
     if ($node) {
-      // Send node to smartling
+      // Send node to smartling.
       foreach ($langs as $lang) {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
@@ -352,10 +426,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
       $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
-        '@langs' => implode(', ', $convert_array)
+        '@langs' => implode(', ', $convert_array),
       )));
 
-      // Run cron
+      // Run cron.
       $cron = FALSE;
       while (!$cron) {
         $cron = drupal_cron_run();
@@ -367,7 +441,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       if ($download) {
-        // Go to report-in-progress and download
+        // Go to report-in-progress and download.
         $this->drupalGet('admin/content/smartling/report-in-progress');
         $this->clickLink('Download');
         foreach ($convert_array as $d_locale) {
@@ -378,21 +452,23 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Upload or/and download node.
    *
    * @param int $nid
+   *   Node id.
    * @param array $langs
-   * Example: array('ru', 'nl')
+   *   Example: array('ru', 'nl').
    * @param bool $upload
-   * Upload node if TRUE (TRUE by default)
+   *   Upload node if TRUE (TRUE by default).
    * @param bool $download
-   * Download translate nodes if TRUE (TRUE by default)
+   *   Download translate nodes if TRUE (TRUE by default).
    */
-  public function smartlingUploadDownloadNode($nid, $langs, $upload = TRUE, $download = TRUE) {
+  public function smartlingUploadDownloadNode($nid, array $langs, $upload = TRUE, $download = TRUE) {
     if ($upload) {
       $node = node_load($nid);
       $edit = array();
       $convert_array = array();
-      // Send node to smartling
+      // Send node to smartling.
       foreach ($langs as $lang) {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
@@ -401,10 +477,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
       $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
-        '@langs' => implode(', ', $convert_array)
+        '@langs' => implode(', ', $convert_array),
       )));
 
-      // Run cron
+      // Run cron.
       $cron = FALSE;
       while (!$cron) {
         $cron = drupal_cron_run();
@@ -431,21 +507,23 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Upload or/and download taxonomy term.
    *
    * @param int $tid
+   *   Taxonomy term id.
    * @param array $langs
-   * Example: array('ru', 'nl')
+   *   Example: array('ru', 'nl').
    * @param bool $upload
-   * Upload node if TRUE (TRUE by default)
+   *   Upload node if TRUE (TRUE by default).
    * @param bool $download
-   * Download translate nodes if TRUE (TRUE by default)
+   *   Download translate nodes if TRUE (TRUE by default).
    */
-  public function smartlingUploadDownloadTerm($tid, $langs, $upload = TRUE, $download = TRUE) {
+  public function smartlingUploadDownloadTerm($tid, array $langs, $upload = TRUE, $download = TRUE) {
     if ($upload) {
       $term = taxonomy_term_load($tid);
       $edit = array();
       $convert_array = array();
-      // Send term to smartling
+      // Send term to smartling.
       foreach ($langs as $lang) {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
@@ -454,10 +532,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $this->drupalPost('taxonomy/term/' . $tid . '/edit', $edit, t('Send to Smartling'));
       $this->assertText(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $term->name,
-        '@langs' => implode(', ', $convert_array)
+        '@langs' => implode(', ', $convert_array),
       )));
 
-      // Run cron
+      // Run cron.
       $cron = FALSE;
       while (!$cron) {
         $cron = drupal_cron_run();
@@ -484,11 +562,17 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Get fix references id.
    *
-   * @param type $entity_type
-   * @param type $id
-   * @param type $lang
-   * @return type
+   * @param string $entity_type
+   *   Entity type.
+   * @param int $id
+   *   Entity id.
+   * @param string $lang
+   *   Locale in drupal format (ru, en).
+   *
+   * @return int
+   *   Return fix entity id.
    */
   public function smartlingGetFixReferencesId($entity_type, $id, $lang) {
     $entity = entity_load($entity_type, array($id), array(), TRUE);

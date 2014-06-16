@@ -4,6 +4,7 @@
  * @file
  * Code for the Smartling reports feature.
  */
+
 include_once 'smartling_reports.features.inc';
 
 /**
@@ -53,16 +54,16 @@ function smartling_reports_menu_alter(&$items) {
  * Implements hook_views_data_alter().
  */
 function smartling_reports_views_query_alter(&$view, &$query) {
-  // Add relationships info for node
+  // Add relationships info for node.
   if ($view->name == 'smartling_bulk_submit') {
     $query->table_queue['smartling_entity_data_node']['join']->extra = array(
       array(
         'field' => 'entity_type',
         'value' => 'node',
-      )
+      ),
     );
   }
-  // Exclude und language and add relationships info for term
+  // Exclude und language and add relationships info for term.
   if ($view->name == 'smartling_bulk_submit_taxonomy_terms') {
     $query->where[] = array(
       'conditions' => array(
@@ -70,7 +71,7 @@ function smartling_reports_views_query_alter(&$view, &$query) {
           'field' => 'taxonomy_term_data.language',
           'value' => array('und'),
           'operator' => '<>',
-        )
+        ),
       ),
       'args' => array(),
       'type' => 'AND',
@@ -81,7 +82,7 @@ function smartling_reports_views_query_alter(&$view, &$query) {
           'field' => 'taxonomy_term_data.language',
           'value' => array(language_default()->language),
           'operator' => '=',
-        )
+        ),
       ),
       'args' => array(),
       'type' => 'AND',
@@ -90,29 +91,36 @@ function smartling_reports_views_query_alter(&$view, &$query) {
       array(
         'field' => 'entity_type',
         'value' => 'taxonomy_term',
-      )
+      ),
     );
   }
-  // Add relationships info for comment
+  // Add relationships info for comment.
   if ($view->name == 'smartling_bulk_submit_comments') {
     $query->table_queue['smartling_entity_data_comment']['join']->extra = array(
       array(
         'field' => 'entity_type',
         'value' => 'comment',
-      )
+      ),
     );
   }
-  // Add relationships info for user
+  // Add relationships info for user.
   if ($view->name == 'smartling_bulk_submit_users') {
     $query->table_queue['smartling_entity_data_users']['join']->extra = array(
       array(
         'field' => 'entity_type',
         'value' => 'user',
-      )
+      ),
     );
   }
 }
 
+/**
+ * Add smartling css file in report.
+ *
+ * @param array $vars
+ * @return null
+ *   Return if view name != smartlig_report.
+ */
 function smartling_reports_preprocess_views_view_table(&$vars) {
   if ($vars['view']->name != 'smartlig_report') {
     return;

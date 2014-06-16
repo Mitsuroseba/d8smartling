@@ -2,28 +2,41 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingTranslatableFieldsTest.
  */
 class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Content - Save translation for Image field',
       'description' => 'Test saving translation for Image field (Alt, Title)',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test correct image filed not translatable field.
+   */
   public function testCorrectImageFiledNotTranslatableField() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
-    // Set field settings
+    // Set field settings.
     $this->smartlingEnableTitleAltForImageField('article', 'field_image');
-    // Set nodes method for CT
+    // Set nodes method for CT.
     $this->smartlingSetMethodSettings('article');
-    // Set fields for article CT
+    // Set fields for article CT.
     $this->smartlingSetFieldSettings('article', 'field_image');
-    // Create pseudo node
+    // Create pseudo node.
     $settings = array(
       'title' => 'Node test title',
       'comment' => 0,
@@ -39,7 +52,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     );
     $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
     $this->smartlingCreateNode('article', $settings);
-    // Set node values
+    // Set node values.
     $this->smartlingAddImageToField(1, 'field_image');
 
     $xml_string = <<<EOT
@@ -57,7 +70,7 @@ EOT;
     $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields);
 
     if ($result) {
-      // Asserts
+      // Asserts.
       $this->drupalGet('node/1/edit');
       $node_translated = node_load(1);
 
@@ -71,16 +84,19 @@ EOT;
     }
   }
 
+  /**
+   * Test correct image filed translatable field.
+   */
   public function testCorrectImageFiledTranslatableField() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
-    // Set field settings
+    // Set field settings.
     $this->smartlingEnableTitleAltForImageField('article', 'field_image');
-    // Set nodes method for CT
+    // Set nodes method for CT.
     $this->smartlingSetMethodSettings('article', 1);
-    // Set fields for article CT
+    // Set fields for article CT.
     $this->smartlingSetFieldSettings('article', 'field_image');
-    // Create pseudo node
+    // Create pseudo node.
     $settings = array(
       'title' => 'Node test title',
       'comment' => 0,
@@ -96,7 +112,7 @@ EOT;
     );
     $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
     $this->smartlingCreateNode('article', $settings);
-    // Set node values
+    // Set node values.
     $this->smartlingAddImageToField(1, 'field_image', 'ru');
 
     $xml_string = <<<EOT
@@ -114,7 +130,7 @@ EOT;
     $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields);
 
     if ($result) {
-      // Asserts
+      // Asserts.
       $this->drupalGet('node/1/edit');
       $this->drupalGet('node/1');
       $node_translated = node_load(1);

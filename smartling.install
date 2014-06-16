@@ -21,7 +21,7 @@ function smartling_install() {
         'switcher' => 'locale_language_switcher_url',
         'url_rewrite' => 'locale_language_url_rewrite_url',
       ),
-      'file' => 'includes/locale.inc'
+      'file' => 'includes/locale.inc',
     ),
     'language-default-url' => array(
       'callbacks' => array(
@@ -37,7 +37,7 @@ function smartling_install() {
         'switcher' => 'locale_language_switcher_url',
         'url_rewrite' => 'locale_language_url_rewrite_url',
       ),
-      'file' => 'includes/locale.inc'
+      'file' => 'includes/locale.inc',
     ),
     'language-default-url' => array(
       'callbacks' => array(
@@ -68,12 +68,12 @@ function smartling_install() {
   variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
   variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
 
-  // Install default cron settings for smartling proccess
+  // Install default cron settings for smartling proccess.
   $cron_base_settings = array();
 
   $cron_base_settings['smartling_cron'] = array(
     'enabled' => 1,
-    'rules' => array(0 => '* */3 * * *'),
+    'rules' => array(0 => '0 * * * *'),
     'catch_up' => '',
     'service_group' => '',
   );
@@ -84,7 +84,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '2',
+    'queue_threads' => '5',
     'queue_threshold' => '1',
   );
 
@@ -94,7 +94,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '2',
+    'queue_threads' => '5',
     'queue_threshold' => '1',
   );
 
@@ -104,7 +104,7 @@ function smartling_install() {
     'catch_up' => '',
     'queue_lease_time' => '',
     'service_group' => '',
-    'queue_threads' => '2',
+    'queue_threads' => '5',
     'queue_threshold' => '1',
   );
 
@@ -112,9 +112,9 @@ function smartling_install() {
     ultimate_cron_set_settings($name, $settings);
   }
 
-  // i18 string settings
+  // i18 string settings.
   $i18n_string_allowed_formats = array();
-  // As the user has administer filters permissions we get a full list here
+  // As the user has administer filters permissions we get a full list here.
   foreach (filter_formats() as $fid => $format) {
     $i18n_string_allowed_formats[$fid] = $fid;
   }
@@ -125,12 +125,12 @@ function smartling_install() {
  * Implements hook_enable().
  */
 function smartling_enable() {
-  // Add default private path
+  // Add default private path.
   if (variable_get('file_private_path', '') == '') {
     variable_set('file_private_path', 'sites/default/files/private');
   }
 
-  // Set Multilingual support for content types
+  // Set Multilingual support for content types.
   $node_types = node_type_get_types();
   $taxonomy_vocabularies = taxonomy_get_vocabularies();
 
@@ -143,28 +143,29 @@ function smartling_enable() {
       'shared_fields_original_only' => 0,
     );
 
-    // Set node and comments settings
+    // Set node and comments settings.
     foreach ($node_types as $type) {
       $mode = variable_get('language_content_type_' . $type->type, NULL);
       if (is_null($mode)) {
-        variable_set('language_content_type_' . $type->type, '0'); // Must be string '0'
+        // Must be string '0'.
+        variable_set('language_content_type_' . $type->type, '0');
       }
-      // Entity translate settings
+      // Entity translate settings.
       if (smartling_fields_method($type->type)) {
         variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
         variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
       }
     }
 
-    // Set taxonomy settings
+    // Set taxonomy settings.
     foreach ($taxonomy_vocabularies as $vocabulary) {
       variable_set('entity_translation_settings_taxonomy_term__' . $vocabulary->machine_name, $entity_translation_settings);
     }
 
-    // Set user settings
+    // Set user settings.
     variable_set('entity_translation_settings_user__user', $entity_translation_settings);
 
-    // Entity translation types and other settings
+    // Entity translation types and other settings.
     $entity_translation_entity_types = array(
       'node' => 'node',
       'taxonomy_term' => 'taxonomy_term',
@@ -177,8 +178,9 @@ function smartling_enable() {
     variable_set('entity_translation_workflow_enabled', 0);
     variable_set('locale_field_language_fallback', 1);
   }
-  // Ensure Smartling module is running after native translation modules
-  db_update('system')->fields(array('weight' => 20))->condition('name', 'smartling')->execute();
+  // Ensure Smartling module is running after native translation modules.
+  db_update('system')->fields(array('weight' => 20))
+    ->condition('name', 'smartling')->execute();
 }
 
 /**
@@ -332,29 +334,29 @@ function smartling_requirements($phase) {
     }
 
     if (!empty($module_list)) {
-      $requirements['smartling']['title'] = t('Dependencies error');
-      $requirements['smartling']['value'] = t('Enable modules @modules', array('@modules' => implode(', ', $module_list)));
+      $requirements['smartling']['title'] = get_t('Dependencies error');
+      $requirements['smartling']['value'] = get_t('Enable modules @modules', array('@modules' => implode(', ', $module_list)));
       $requirements['smartling']['severity'] = REQUIREMENT_WARNING;
-      $requirements['smartling']['description'] = t('Please enable modules');
+      $requirements['smartling']['description'] = get_t('Please enable modules');
       return $requirements;
     }
   }
-  // We must always return array, the installer doesn't use module_invoke_all()
+  // We must always return array, the installer doesn't use module_invoke_all().
   return $requirements;
 }
 
 /**
- * Update 7.x-1.0-beta1 => 7.x-2.0-beta1
+ * Update 7.x-1.0-beta1 => 7.x-2.0-beta1.
  */
 function smartling_update_7100(&$sandbox) {
   $sandbox['#finished'] = 0;
   // Multi-part update.
   if (!isset($sandbox['user_from'])) {
-    // Move smartling node settings
+    // Move smartling node settings.
     smartling_settings_get_handler()->nodeSetFieldsSettings(variable_get('smartling_translate_fields', array()));
     variable_del('smartling_translate_fields');
 
-    // Add new fields
+    // Add new fields.
     $field_settings = array(
       'description' => '',
       'type' => 'varchar',
@@ -365,11 +367,11 @@ function smartling_update_7100(&$sandbox) {
 
     db_add_field('smartling_entity_data', 'entity_type', $field_settings);
 
-    // Delete queue of smartling check and download
+    // Delete queue of smartling check and download.
     db_delete('queue')->condition('name', 'smartling_check_status')->execute();
     db_delete('queue')->condition('name', 'smartling_download')->execute();
 
-    // Update data in smartling_upload queue
+    // Update data in smartling_upload queue.
     $smartling_uploads = db_query("SELECT item_id, data FROM {queue} WHERE name = 'smartling_upload' ORDER BY item_id");
     foreach ($smartling_uploads as $smartling_upload_item) {
       $item = unserialize($smartling_upload_item->data);
@@ -392,7 +394,7 @@ function smartling_update_7100(&$sandbox) {
       ));
     }
 
-    // Check status
+    // Check status.
     $smartling_entities_data = db_query("SELECT eid, status FROM {smartling_entity_data} ORDER BY eid");
     foreach ($smartling_entities_data as $smartling_entity_data) {
       if ($smartling_entity_data->status != '0') {
@@ -403,7 +405,7 @@ function smartling_update_7100(&$sandbox) {
       }
     }
 
-    // New dependencies
+    // New dependencies.
     $module_names = array('i18n_taxonomy', 'i18n_field', 'entity_translation');
     foreach ($module_names as $module_name) {
       if (!module_exists($module_name)) {
@@ -427,7 +429,7 @@ function smartling_update_7100(&$sandbox) {
           'switcher' => 'locale_language_switcher_url',
           'url_rewrite' => 'locale_language_url_rewrite_url',
         ),
-        'file' => 'includes/locale.inc'
+        'file' => 'includes/locale.inc',
       ),
       'language-default-url' => array(
         'callbacks' => array(
@@ -448,15 +450,15 @@ function smartling_update_7100(&$sandbox) {
     variable_set('language_negotiation_language_content', $language_negotiation_language_content);
     variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
 
-    // i18 string settings
+    // i18 string settings.
     $i18n_string_allowed_formats = array();
-    // As the user has administer filters permissions we get a full list here
+    // As the user has administer filters permissions we get a full list here.
     foreach (filter_formats() as $fid => $format) {
       $i18n_string_allowed_formats[$fid] = $fid;
     }
     variable_set('i18n_string_allowed_formats', $i18n_string_allowed_formats);
 
-    // Set Multilingual support for content types
+    // Set Multilingual support for content types.
     $node_types = node_type_get_types();
 
     if (is_array($node_types)) {
@@ -471,19 +473,20 @@ function smartling_update_7100(&$sandbox) {
       $field_method_types = array();
 
       foreach ($node_types as $type) {
-        // Update mode key for new smartling version
+        // Update mode key for new smartling version.
         $mode = variable_get('language_content_type_' . $type->type, NULL);
         if (!is_null($mode) && ($mode == 'smartling')) {
           $field_method_types[] = $type->type;
-          variable_set('language_content_type_' . $type->type, '4'); // Set define SMARTLING_FIELDS_METHOD_KEY
+          // Set define SMARTLING_FIELDS_METHOD_KEY.
+          variable_set('language_content_type_' . $type->type, '4');
         }
-        // Entity translate settings
+        // Entity translate settings.
         if (smartling_fields_method($type->type)) {
           variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
           variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
         }
       }
-      // Entity translation types and other settings
+      // Entity translation types and other settings.
       $entity_translation_entity_types = array(
         'node' => 'node',
         'taxonomy_term' => 0,
@@ -495,7 +498,7 @@ function smartling_update_7100(&$sandbox) {
       variable_set('entity_translation_shared_labels', 1);
       variable_set('entity_translation_workflow_enabled', 0);
       variable_set('locale_field_language_fallback', 1);
-      // Set user settings
+      // Set user settings.
       variable_set('entity_translation_settings_user__user', $entity_translation_settings);
     }
 
@@ -517,13 +520,13 @@ function smartling_update_7100(&$sandbox) {
     foreach ($result as $res) {
       $status = $res->status;
       $node = node_load($res->rid);
-      // Add content hash and convert locale format
+      // Add content hash and convert locale format.
       $content_array = smartling_node_content_to_translate($node);
       $content_hash = md5(serialize($content_array));
       $original_language = $node->language;
       $target_language = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
 
-      // Update file_name and translated_file_name for new version
+      // Update file_name and translated_file_name for new version.
       if (!empty($res->file_name)) {
         $file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '.xml';
         $file_path_old = smartling_get_dir() . '/' . $res->file_name;
@@ -559,7 +562,7 @@ function smartling_update_7100(&$sandbox) {
         ':eid' => $res->eid,
       ));
 
-      // Update entity translation info for fields method
+      // Update entity translation info for fields method.
       if (in_array($res->bundle, $field_method_types)) {
         $entity_load = entity_load_single('node', $res->rid);
         $handler = smartling_entity_translation_get_handler('node', $entity_load);

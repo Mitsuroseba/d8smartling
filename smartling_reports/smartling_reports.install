@@ -9,6 +9,7 @@
  * Implements hook_enable().
  */
 function smartling_reports_enable() {
-  // Ensure smartling_reports module is running after native translation modules
+  // Ensure smartling_reports module is running
+  // after native translation modules.
   db_update('system')->fields(array('weight' => 21))->condition('name', 'smartling_reports')->execute();
 }

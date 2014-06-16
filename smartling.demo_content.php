@@ -1,25 +1,34 @@
 <?php
 
 /**
+ * Smartling demo content.
+ *
  * @author Maxim Bogdanov <sin666m4a1fox@gmail.com>
  * @copyright maxim 4/3/14 | 3:54 PM
  */
+
 define('SMARTLING_DEMO_MODULE', 'smartling_demo_content');
 
-define('TRAVEL_TAXONOMY_ADDED', 'Travel taxonomy has been added to DB.');
-define('DEMO_USERS_ADDED', 'Demo users has been added to DB.');
-define('DEMO_USERS_EXIST', 'Demo users already exist. has been added to DB.');
-define('NODES_COMMENTS_ADDED', 'Comments has been added to travel nodes.');
-define('NODES_COMMENT_DELETE', 'The comments has been deleted.');
-define('NO_NODES_DEMO_COMMENTS', 'No demo comments in DB.');
-define('DELETE_ADDITIONAL_ACCOUNT_FIELDS', 'The additional account fields has been delete from DB');
-define('DELETE_DEMO_USERS', 'Demo Users has been deleted');
-define('TRAVEL_VOCABULARY_DELETED', 'The travel taxonomy has been removed from DB.');
-define('TRAVEL_VOCABULARY_NOT_FOUND', 'The travel taxonomy not found in taxonomy vocabularies.');
-define('TRAVEL_TAXONOMY_ADDED_TO_NODE', 'The travel taxonomy added to travel nodes randomly.');
+define('TRAVEL_TAXONOMY_ADDED', t('Travel taxonomy has been added to DB.'));
+define('DEMO_USERS_ADDED', t('Demo users has been added to DB.'));
+define('DEMO_USERS_EXIST', t('Demo users already exist. has been added to DB.'));
+define('NODES_COMMENTS_ADDED', t('Comments has been added to travel nodes.'));
+define('NODES_COMMENT_DELETE', t('The comments has been deleted.'));
+define('NO_NODES_DEMO_COMMENTS', t('No demo comments in DB.'));
+define('DELETE_ADDITIONAL_ACCOUNT_FIELDS', t('The additional account fields has been delete from DB'));
+define('DELETE_DEMO_USERS', t('Demo Users has been deleted'));
+define('TRAVEL_VOCABULARY_DELETED', t('The travel taxonomy has been removed from DB.'));
+define('TRAVEL_VOCABULARY_NOT_FOUND', t('The travel taxonomy not found in taxonomy vocabularies.'));
+define('TRAVEL_TAXONOMY_ADDED_TO_NODE', t('The travel taxonomy added to travel nodes randomly.'));
 define('TAXONOMY_TRAVEL', 'travel');
 define('DEMO_LANGUAGE_DEFAULT', language_default()->language);
 
+/**
+ * Smartling modules enabled.
+ *
+ * @param array $modules
+ *   Module names array.
+ */
 function smartling_modules_enabled($modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
     drupal_cron_run();
@@ -38,6 +47,12 @@ function smartling_modules_enabled($modules) {
   }
 }
 
+/**
+ * Smartling modules disabled.
+ *
+ * @param array $modules
+ *   Module names array.
+ */
 function smartling_modules_disabled($modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
     _delete_comments_to_nodes();
@@ -46,9 +61,11 @@ function smartling_modules_disabled($modules) {
   }
 }
 
+/**
+ * Create comments to nodes.
+ */
 function _create_comments_to_nodes() {
-
-  // Make comment_body translatable
+  // Make comment_body translatable.
   $field = field_info_field('comment_body');
   $field['translatable'] = 1;
   field_update_field($field);
@@ -74,8 +91,8 @@ function _create_comments_to_nodes() {
             0 => array(
               'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
               'format' => 'filtered_html'
-            )
-          )
+            ),
+          ),
         ),
       );
       comment_submit($comment);
@@ -86,6 +103,9 @@ function _create_comments_to_nodes() {
   set_message_watchdog(NODES_COMMENTS_ADDED);
 }
 
+/**
+ * Delete comments.
+ */
 function _delete_comments_to_nodes() {
   $nodes = node_load_multiple(array(), array('type' => array('article', 'travel')));
   $results = db_select('comment', 'c')
@@ -107,6 +127,12 @@ function _delete_comments_to_nodes() {
   }
 }
 
+/**
+ * Create additional fields for account.
+ *
+ * @return null
+ *   Return null.
+ */
 function _create_additional_fields_for_account() {
   $data_fields = array(
     array(
@@ -247,6 +273,9 @@ function _create_additional_fields_for_account() {
   set_message_watchdog(DEMO_USERS_ADDED);
 }
 
+/**
+ * Delete additional fields for account.
+ */
 function _delete_additional_fields_for_account() {
 
   $data_fields = array(
@@ -266,7 +295,7 @@ function _delete_additional_fields_for_account() {
       'name' => 'john_doe',
     ),
     array(
-      'name' => 'jane_roe'
+      'name' => 'jane_roe',
     ),
   );
 
@@ -285,6 +314,9 @@ function _delete_additional_fields_for_account() {
   set_message_watchdog(DELETE_DEMO_USERS);
 }
 
+/**
+ * Create taxonomy terms.
+ */
 function _create_taxonomy() {
   $terms_data = array('Turkey', 'Egypt', 'Dubai', 'Thailand', 'Spain');
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
@@ -314,6 +346,9 @@ function _create_taxonomy() {
   set_message_watchdog(TRAVEL_TAXONOMY_ADDED);
 }
 
+/**
+ * Delete taxonomy terms.
+ */
 function _delete_taxonomy() {
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
   if (is_object($get_taxonomy_vocabulary)) {
@@ -325,6 +360,9 @@ function _delete_taxonomy() {
   }
 }
 
+/**
+ * Add taxonomy term to travel node.
+ */
 function _add_taxonomy_to_travel_node() {
   $data_fields = array(
     array(
@@ -401,6 +439,12 @@ function _add_taxonomy_to_travel_node() {
   set_message_watchdog(TRAVEL_TAXONOMY_ADDED_TO_NODE);
 }
 
+/**
+ * Get random taxonomy array.
+ *
+ * @return array
+ *   Return random taxonomy array.
+ */
 function get_random_taxonomy_array() {
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
   if (is_object($get_taxonomy_vocabulary)) {
@@ -416,9 +460,13 @@ function get_random_taxonomy_array() {
   }
 }
 
+/**
+ * Set drupal message and smartling log message.
+ *
+ * @param string $msg
+ */
 function set_message_watchdog($msg) {
-  drupal_set_message(t($msg));
+  drupal_set_message($msg);
   $log = new SmartlingLog();
   $log->setMessage($msg)->execute();
 }
-

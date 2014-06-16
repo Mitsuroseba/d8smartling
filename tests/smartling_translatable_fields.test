@@ -2,37 +2,50 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingTranslatableFieldsTest.
  */
 class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Translations - Save translations in different fields',
       'description' => 'Test saving translations to fields if they are translatable or not',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test correct not translatable fields.
+   */
   public function testCorrectNotTranslatableFields() {
-    // Set Up Test
+    // Set Up Test.
     $this->smartlingDifferentFieldsSetUpTest();
-    // Disable Drupal translations for fields
+    // Disable Drupal translations for fields.
     $this->smartlingSetTranslatableFieldSettings('field_translatable_data', 0);
     $this->smartlingSetTranslatableFieldSettings('field_not_translatable_data', 0);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 0);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 0);
-    // Create new node
+    // Create new node.
     $this->smartlingCreateNode();
-    // Set node values
+    // Set node values.
     $node = node_load(1);
     $node->field_translatable_data[LANGUAGE_NONE][0]['value'] = 'Translatable data field text';
     $node->field_not_translatable_data[LANGUAGE_NONE][0]['value'] = 'Not translatable data field text';
     node_save($node);
-    // Send and download node
+    // Send and download node.
     $this->smartlingTranslateNode($node->nid, array('ru'));
 
-    // Asserts
+    // Asserts.
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
     $node_original = node_load(1);
@@ -48,25 +61,28 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $this->assertTrue(($node_translated->field_not_translatable_data[LANGUAGE_NONE][0]['value'] == 'Not translatable data field text'), t('Translated node has original content for field_not_translatable_data'), t('Browser'));
   }
 
+  /**
+   * Test correct one translatable fields.
+   */
   public function testCorrectOneTranslatableField() {
-    // Set Up Test
+    // Set Up Test.
     $this->smartlingDifferentFieldsSetUpTest();
-    // Disable Drupal translations for fields
+    // Disable Drupal translations for fields.
     $this->smartlingSetTranslatableFieldSettings('field_translatable_data', 1);
     $this->smartlingSetTranslatableFieldSettings('field_not_translatable_data', 0);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 1);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 0);
-    // Create new node
+    // Create new node.
     $this->smartlingCreateNode();
-    // Set node values
+    // Set node values.
     $node = node_load(1);
     $node->field_translatable_data['en'][0]['value'] = 'Translatable data field text';
     $node->field_not_translatable_data[LANGUAGE_NONE][0]['value'] = 'Not translatable data field text';
     node_save($node);
-    // Send and download node
+    // Send and download node.
     $this->smartlingTranslateNode($node->nid, array('ru'));
 
-    // Asserts
+    // Asserts.
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
     $node_original = node_load(1);
@@ -80,25 +96,28 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $this->assertTrue(($node_translated->field_not_translatable_data[LANGUAGE_NONE][0]['value'] == 'Not translatable data field text'), t('Translated node has original content for field_not_translatable_data'), t('Browser'));
   }
 
+  /**
+   * Test correct translatable fields.
+   */
   public function testCorrectTranslatableFields() {
-    // Set Up Test
+    // Set Up Test.
     $this->smartlingDifferentFieldsSetUpTest();
-    // Disable Drupal translations for fields
+    // Disable Drupal translations for fields.
     $this->smartlingSetTranslatableFieldSettings('field_translatable_data', 1);
     $this->smartlingSetTranslatableFieldSettings('field_not_translatable_data', 1);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 1);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 1);
-    // Create new node
+    // Create new node.
     $this->smartlingCreateNode();
-    // Set node values
+    // Set node values.
     $node = node_load(1);
     $node->field_translatable_data['en'][0]['value'] = 'Translatable data field text';
     $node->field_not_translatable_data['en'][0]['value'] = 'Not translatable data field text';
     node_save($node);
-    // Send and download node
+    // Send and download node.
     $this->smartlingTranslateNode($node->nid, array('ru'));
 
-    // Asserts
+    // Asserts.
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
     $node_original = node_load(1);

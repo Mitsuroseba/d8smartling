@@ -6,7 +6,15 @@
  */
 
 /**
- * Smartling reference settings form
+ * References smartling form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for references smartling form.
  */
 function smartling_admin_reference_settings_form($form, &$form_state) {
   $form['smartling_reference']['title'] = array(
@@ -23,7 +31,12 @@ function smartling_admin_reference_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_rebuild_references_form_submit
+ * Smartling rebuild references form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
  */
 function smartling_rebuild_references_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
@@ -44,40 +57,43 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
   }
 
   if (!empty($condition_active_bundles) && !empty($field_names)) {
-    //Log fields
+    // Log fields.
     $log->setMessage('Smartling fixes references for fields: @fields')
-        ->setVariables(array('@fields' => implode(', ', $field_names)))
-        ->execute();
-    // Get entity types whith references field
+      ->setVariables(array('@fields' => implode(', ', $field_names)))
+      ->execute();
+    // Get entity types whith references field.
     $condition_bundles = smartling_get_entity_types_whith_references($condition_active_bundles, $field_names);
 
     if ($condition_bundles) {
       // Log bundles
       $log->setMessage('Smartling fixes references for bundles: @bundles')
-          ->setVariables(array('@bundles' => implode(', ', $condition_bundles)))
-          ->execute();
-      // Get ids for original node whith smartling translate
+        ->setVariables(array('@bundles' => implode(', ', $condition_bundles)))
+        ->execute();
+      // Get ids for original node whith smartling translate.
       $original_node_ids = smartling_get_original_node_ids($condition_bundles);
     }
 
     if ($original_node_ids) {
-      // Log node ids
+      // Log node ids.
       $log->setMessage('Smartling fixes references for nodes: @nids')
-          ->setVariables(array('@nids' => implode(', ', $original_node_ids)))
-          ->execute();
+        ->setVariables(array('@nids' => implode(', ', $original_node_ids)))
+        ->execute();
       foreach ($original_node_ids as $id) {
-        $operations[] = array('smartling_fix_references_by_original', array($id));
+        $operations[] = array(
+          'smartling_fix_references_by_original',
+          array($id),
+        );
       }
     }
 
     if (count($operations) >= 1) {
       $batch = array(
         'title' => t('Fix references'),
-        'operations' => $operations
+        'operations' => $operations,
       );
       $redirect = url('admin/config/regional/smartling', array(
         'absolute' => TRUE,
-        'fragment' => 'smartling-references-settings'
+        'fragment' => 'smartling-references-settings',
       ));
       drupal_set_message(t('References are fixed'));
       batch_set($batch);
@@ -90,12 +106,13 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
 }
 
 /**
+ * Fix references for translated node by id original node.
  *
- * @param type $id
- * Id of original node
+ * @param int $id
+ *   Id of original node.
  */
 function smartling_fix_references_by_original($id) {
-  // Get translation
+  // Get translation.
   $node = node_load($id);
   $translations = translation_node_get_translations($node->tnid);
 
@@ -107,9 +124,12 @@ function smartling_fix_references_by_original($id) {
 }
 
 /**
+ * Fix references for translated node.
  *
- * @param type $entity_type
- * @param type $entity
+ * @param ctring $entity_type
+ *   Entity type.
+ * @param object $entity
+ *   Entity object.
  */
 function smartling_fix_references_for_translated_node($entity_type, $entity) {
   if (is_numeric($entity)) {
@@ -117,7 +137,7 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
   }
   $original_entity = entity_load_single($entity_type, $entity->tnid);
   $entity_language = entity_language($entity_type, $entity);
-  // Fix for child references
+  // Fix for child references.
   $entityreference_fields = smartling_get_fields_by_type('entityreference');
 
   foreach ($entityreference_fields as $field) {
@@ -131,7 +151,7 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
       $save = FALSE;
 
       if ($is_multiple) {
-        // For multiple value fields
+        // For multiple value fields.
         foreach ($original_wrapper->{$field_name} as $delta => $item_wrapper) {
           $child_entity = $item_wrapper->value();
           $swap_id = smartling_get_child_fixed_id_reference($target_type, $child_entity, $entity_language);
@@ -143,7 +163,7 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
         }
       }
       else {
-        // For single value fields
+        // For single value fields.
         $child_entity = $original_wrapper->{$field_name}->value();
         $swap_id = smartling_get_child_fixed_id_reference($target_type, $child_entity, $entity_language);
 
@@ -160,6 +180,20 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
   }
 }
 
+/**
+ * Get child fixed id reference.
+ *
+ * @param string $entity_type
+ *   Entity type.
+ * @param object $entity
+ *   Entity object.
+ * @param string $lang
+ *   Locale in drupal format (ru, en).
+ *
+ *
+ * @return int|bool
+ *   Return child fixed reference id or FALSE.
+ */
 function smartling_get_child_fixed_id_reference($entity_type, $entity, $lang) {
   switch ($entity_type) {
     case 'node':
@@ -185,6 +219,7 @@ function smartling_get_child_fixed_id_reference($entity_type, $entity, $lang) {
             $fix_id = FALSE;
           }
           break;
+
         case I18N_MODE_LOCALIZE:
           $fix_id = FALSE;
           break;
@@ -210,14 +245,25 @@ function smartling_get_child_fixed_id_reference($entity_type, $entity, $lang) {
   return $fix_id;
 }
 
+/**
+ * Get entity types whith references.
+ *
+ * @param array $bundles
+ *   Bundles.
+ * @param array $field_names
+ *   Field names.
+ *
+ * @return array|bool
+ *   Return entity types whith references array or FALSE.
+ */
 function smartling_get_entity_types_whith_references($bundles, $field_names) {
   $condition_bundles = db_select('field_config_instance', 'fci')
-      ->fields('fci', array('bundle'))
-      ->condition('fci.entity_type', 'node', '=')
-      ->condition('fci.bundle', $bundles, 'IN')
-      ->condition('fci.field_name', $field_names, 'IN')
-      ->execute()
-      ->fetchCol();
+    ->fields('fci', array('bundle'))
+    ->condition('fci.entity_type', 'node', '=')
+    ->condition('fci.bundle', $bundles, 'IN')
+    ->condition('fci.field_name', $field_names, 'IN')
+    ->execute()
+    ->fetchCol();
 
   if (!empty($condition_bundles)) {
     $condition_bundles = array_unique($condition_bundles);
@@ -228,13 +274,21 @@ function smartling_get_entity_types_whith_references($bundles, $field_names) {
   }
 }
 
+/**
+ * Get original nodes by bundles.
+ *
+ * @param array $bundles
+ *   Bundles.
+ * @return array|bool
+ *   Return original node ids array by bundles or FALSE.
+ */
 function smartling_get_original_node_ids($bundles) {
   $original_node_ids = db_select('smartling_entity_data', 'sed')
-      ->fields('sed', array('rid'))
-      ->condition('sed.entity_type', 'node', '=')
-      ->condition('sed.bundle', $bundles, 'IN')
-      ->execute()
-      ->fetchCol();
+    ->fields('sed', array('rid'))
+    ->condition('sed.entity_type', 'node', '=')
+    ->condition('sed.bundle', $bundles, 'IN')
+    ->execute()
+    ->fetchCol();
 
   if (!empty($original_node_ids)) {
     $original_node_ids = array_unique($original_node_ids);

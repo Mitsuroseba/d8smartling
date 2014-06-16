@@ -4,10 +4,19 @@
  * @file
  * Code for the Smartling load test feature.
  */
+
 include_once 'smartling_load_test.features.inc';
 
 /**
- * Smartling dev settings form
+ * Smartling dev settings form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for user smartling form.
  */
 function smartling_admin_dev_settings_form($form, &$form_state) {
   $query = db_select('node', 'n');
@@ -48,6 +57,14 @@ function smartling_admin_dev_settings_form($form, &$form_state) {
   return $form;
 }
 
+/**
+ * Smartling dev settings form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
 function smartling_admin_dev_settings_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
   if ($form_state['clicked_button']['#name'] == 'load_tests_submit') {
@@ -56,7 +73,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
     }
     $batch = array(
       'title' => t('Create Smartling load-tests content'),
-      'operations' => $operations
+      'operations' => $operations,
     );
     batch_set($batch);
     $log->setMessage('Create 10000 load-tests nodes submit')->execute();
@@ -75,7 +92,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
 
       $batch = array(
         'title' => t('Delete Smartling load-tests content'),
-        'operations' => $operations
+        'operations' => $operations,
       );
       batch_set($batch);
     }
@@ -102,7 +119,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
 
       $batch = array(
         'title' => t('Delete Smartling translated content'),
-        'operations' => $operations
+        'operations' => $operations,
       );
       batch_set($batch);
     }
@@ -110,6 +127,12 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
   }
 }
 
+/**
+ * Create load test node batch.
+ *
+ * @global object $user
+ *   Drupal user object.
+ */
 function _create_load_test_node_batch() {
   module_load_include('inc', 'devel_generate', 'devel_generate');
   global $user;
@@ -132,16 +155,28 @@ function _create_load_test_node_batch() {
   node_save($node);
 }
 
+/**
+ * Delete node by id.
+ *
+ * @param int $nid
+ *   Node id.
+ */
 function _delete_load_test_node_batch($nid) {
   node_delete($nid);
 }
 
+/**
+ * Delete smartling transaction by id.
+ *
+ * @param int $eid
+ *   Smartling transaction id.
+ */
 function _delete_smartling_content_batch($eid) {
   $entity_data = smartling_entity_data_load($eid);
 
   if (!empty($entity_data->bundle)) {
     if (smartling_nodes_method($entity_data->bundle)) {
-      // If nodes method
+      // If nodes method.
       $translations = translation_node_get_translations($entity_data->rid);
 
       if (is_array($translations)) {
@@ -154,7 +189,7 @@ function _delete_smartling_content_batch($eid) {
       }
     }
     elseif (smartling_fields_method($entity_data->bundle)) {
-      // If fields method
+      // If fields method.
       $d_locale_target_language = $entity_data->target_language;
       $entity = entity_load_single('node', $entity_data->rid);
 
@@ -163,22 +198,22 @@ function _delete_smartling_content_batch($eid) {
 
         if (isset($entity->{$field_machine_name}[$d_locale_target_language])) {
           $count = count($entity->{$field_machine_name}[$d_locale_target_language]);
-          // Remove the field value
+          // Remove the field value.
           if ($count == 1) {
-            // Single value
+            // Single value.
             unset($entity->{$field_machine_name}[$d_locale_target_language][0]);
           }
           elseif ($count > 1) {
-            // Multiple value
+            // Multiple value.
             for ($i = 0; $i < $count; $i++) {
               unset($entity->{$field_machine_name}[$d_locale_target_language][$i]);
             }
           }
 
-          // Reset the array to zero-based sequential keys
+          // Reset the array to zero-based sequential keys.
           $entity->{$field_machine_name}[$d_locale_target_language] = array_values($entity->{$field_machine_name}[$d_locale_target_language]);
         }
-        // Save the entity
+        // Save the entity.
         entity_save('node', $entity);
       }
       smartling_entity_data_delete_multiple(array($entity_data->eid));

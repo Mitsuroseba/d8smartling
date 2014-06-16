@@ -2,14 +2,15 @@
 
 /**
  * @file
- * Functions for taxonomy_term entity.
+ * Functions for comment entity.
  */
 
 /**
  * Implements hook_comment_presave().
  */
 function smartling_comment_presave($comment) {
-  // Make sure the title isn't overwritten with the translation when using the title module.
+  // Make sure the title isn't overwritten
+  // with the translation when using the title module.
   if (module_exists('title') && array_key_exists('subject_field', $comment)) {
     if (isset($comment->subject_field[$comment->language][0]['value'])) {
       $comment->subject = $comment->subject_field[$comment->language][0]['value'];
@@ -69,13 +70,24 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
         drupal_set_message(t('Add translatable field to comment or <a href="@url?destination=@current_path">Enable translation</a> for comment_body field to use Smartling translate.',
           array(
             '@current_path' => current_path(),
-            '@url' => url('admin/config/regional/entity_translation/translatable/comment_body')
-        )), 'status');
+            '@url' => url('admin/config/regional/entity_translation/translatable/comment_body'),
+          )), 'info');
       }
     }
   }
 }
 
+/**
+ * Comment smartling form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for Comment smartling form.
+ */
 function smartling_get_comment_settings_form($form, &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
@@ -112,7 +124,7 @@ function smartling_get_comment_settings_form($form, &$form_state) {
           $entity_data = smartling_entity_load_by_conditions(array(
             'rid' => $comment->cid,
             'entity_type' => $form['#entity_type'],
-            'target_language' => $d_locale
+            'target_language' => $d_locale,
           ));
           $language_name = check_plain($language->name);
 
@@ -121,12 +133,15 @@ function smartling_get_comment_settings_form($form, &$form_state) {
               case SMARTLING_STATUS_IN_QUEUE:
                 $options[$d_locale] = '<span title="' . t('Comment is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_IN_TRANSLATE:
                 $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_TRANSLATED:
                 $options[$d_locale] = '<span title="' . t('Comment is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_CHANGE:
                 $options[$d_locale] = '<span title="' . t('Comment was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                 break;
@@ -191,7 +206,12 @@ function smartling_get_comment_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_get_comment_settings_form_submit
+ * Comment smartling form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
  */
 function smartling_get_comment_settings_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
@@ -211,7 +231,7 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
         $entity_data = smartling_entity_load_by_conditions(array(
           'rid' => $comment->cid,
           'entity_type' => $form['#entity_type'],
-          'target_language' => $d_locale
+          'target_language' => $d_locale,
         ));
 
         if ($entity_data == FALSE) {
@@ -233,7 +253,7 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass;
+    $obj = new stdClass();
     $obj->rid = $comment->cid;
     $obj->entity_type = $form['#entity_type'];
     $obj->bundle = $form['#bundle'];
@@ -241,25 +261,28 @@ function smartling_get_comment_settings_form_submit($form, &$form_state) {
     $obj->original_language = $d_locale_original;
     $obj->d_locales = $langs;
     $obj->submitter = $user->uid;
-    // Create queue item
+    // Create queue item.
     $smartling_queue->createItem($obj);
     unset($obj);
     $log->setMessage('Add smartling queue task for comment cid - @cid, locale - @locale')
-      ->setVariables(array('@cid' => $comment->cid, '@locale' => implode('; ', $langs)))
+      ->setVariables(array(
+        '@cid' => $comment->cid,
+        '@locale' => implode('; ', $langs),
+      ))
       ->setLink($link)
       ->execute();
 
     $langs = implode(', ', $langs);
     drupal_set_message(t('The comment "@title" has been sent to Smartling for translation to "@langs".', array(
       '@title' => $comment->subject,
-      '@langs' => $langs
+      '@langs' => $langs,
     )));
   }
 
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-  // For not change comment status to red when send comment and change content
+  // For not change comment status to red when send comment and change content.
   $comment->send_to_smartling = TRUE;
   comment_save($comment);
   $log->setMessage('Updated comment %comment.')

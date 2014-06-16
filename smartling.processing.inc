@@ -6,44 +6,60 @@
  */
 
 /**
+ * Get field processing mode.
  *
- * @param type $field_name
- * @return string|boolean
+ * @param string $field_name
+ *   Field name.
+ *
+ * @return string|bool
+ *   Return processing mode or FALSE.
  */
 function smartling_get_field_content_processing_mode($field_name) {
+  $processing_mode = FALSE;
   $info = field_info_field($field_name);
-  $swap_array = array('title_field', 'name_field', 'description_field', 'subject_field');
+  $swap_array = array(
+    'title_field',
+    'name_field',
+    'description_field',
+    'subject_field',
+  );
   if (in_array($field_name, $swap_array)) {
-    return 'text-field';
+    $processing_mode = 'text-field';
   }
   else {
     switch ($info['type']) {
       case 'text':
-        return 'text-field';
+        $processing_mode = 'text-field';
         break;
+
       case 'text_with_summary':
-        return 'body-with-summary-field';
+        $processing_mode = 'body-with-summary-field';
         break;
+
       case 'text_long':
-        return 'text-field';
+        $processing_mode = 'text-field';
         break;
+
       case 'image':
-        return 'image-field';
+        $processing_mode = 'image-field';
         break;
 
       default:
+        $processing_mode = FALSE;
         break;
     }
   }
-  return FALSE;
+  return $processing_mode;
 }
 
 /**
+ * Get content to translate for node entity.
  *
- * @param type $nid
- * Node id
+ * @param int $nid
+ *   Node id.
+ *
  * @return array
- * Structured array of content that will be sent for translation
+ *   Structured array of content that will be sent for translation.
  */
 function smartling_node_content_to_translate($nid) {
   $node_current_translatable_content = array();
@@ -93,9 +109,9 @@ function smartling_node_content_to_translate($nid) {
       default:
         $log = new SmartlingLog();
         $log->setMessage("Smartling didn't process content of field - @field_name")
-            ->setVariables(array('@field_name' => $field_name))
-            ->setConsiderLog(FALSE)
-            ->execute();
+          ->setVariables(array('@field_name' => $field_name))
+          ->setConsiderLog(FALSE)
+          ->execute();
         break;
     }
   }
@@ -103,11 +119,13 @@ function smartling_node_content_to_translate($nid) {
 }
 
 /**
+ * Get content to translate for taxonomy_term entity.
  *
- * @param type $tid
- * Term id
+ * @param int $tid
+ *   Term id.
+ *
  * @return array
- * Structured array of content that will be sent for translation
+ *   Structured array of content that will be sent for translation.
  */
 function smartling_term_content_to_translate($tid) {
   $term_current_translatable_content = array();
@@ -118,7 +136,7 @@ function smartling_term_content_to_translate($tid) {
     $term = $tid;
   }
 
-  foreach (smartling_settings_get_handler()->taxonomy_termGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
+  foreach (smartling_settings_get_handler()->taxonomyTermGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
     $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('taxonomy_term', $term) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'taxonomy-term-title':
@@ -163,9 +181,9 @@ function smartling_term_content_to_translate($tid) {
       default:
         $log = new SmartlingLog();
         $log->setMessage("Smartling didn't process content of field - @field_name")
-            ->setVariables(array('@field_name' => $field_name))
-            ->setConsiderLog(FALSE)
-            ->execute();
+          ->setVariables(array('@field_name' => $field_name))
+          ->setConsiderLog(FALSE)
+          ->execute();
         break;
     }
   }
@@ -174,11 +192,13 @@ function smartling_term_content_to_translate($tid) {
 }
 
 /**
+ * Get content to translate for comment entity.
  *
- * @param type $cid
- * Comment id
+ * @param int $cid
+ *   Comment id.
+ *
  * @return array
- * Structured array of content that will be sent for translation
+ *   Structured array of content that will be sent for translation.
  */
 function smartling_comment_content_to_translate($cid) {
   $comment_current_translatable_content = array();
@@ -222,9 +242,9 @@ function smartling_comment_content_to_translate($cid) {
       default:
         $log = new SmartlingLog();
         $log->setMessage("Smartling didn't process content of field - @field_name")
-            ->setVariables(array('@field_name' => $field_name))
-            ->setConsiderLog(FALSE)
-            ->execute();
+          ->setVariables(array('@field_name' => $field_name))
+          ->setConsiderLog(FALSE)
+          ->execute();
         break;
     }
   }
@@ -233,11 +253,13 @@ function smartling_comment_content_to_translate($cid) {
 }
 
 /**
+ * Get content to translate for user entity.
  *
- * @param type $uid
- * User id
+ * @param int $uid
+ *   User id.
+ *
  * @return array
- * Structured array of content that will be sent for translation
+ *   Structured array of content that will be sent for translation.
  */
 function smartling_user_content_to_translate($uid) {
   $user_current_translatable_content = array();
@@ -281,9 +303,9 @@ function smartling_user_content_to_translate($uid) {
       default:
         $log = new SmartlingLog();
         $log->setMessage("Smartling didn't process content of field - @field_name")
-            ->setVariables(array('@field_name' => $field_name))
-            ->setConsiderLog(FALSE)
-            ->execute();
+          ->setVariables(array('@field_name' => $field_name))
+          ->setConsiderLog(FALSE)
+          ->execute();
         break;
     }
   }
@@ -294,32 +316,41 @@ function smartling_user_content_to_translate($uid) {
 /**
  * This function return processing mode for field
  *
- * @param type $field_name
- * @param type $xpath
- * @return string
+ * @param string $field_name
+ *   Field name.
+ * @param object $xpath
+ *   Xpath object.
+ *
+ * @return string|bool
+ *   Return processing mode or FALSE.
  */
 function smartling_get_update_field_processing_mode($field_name, $xpath) {
-  // check field variant
-  $text_field = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
-  $body = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
-  $summary = $xpath->query('//string[@id="' . $field_name . '-summary-0' . '"][1]')->item(0);
-  $image_alt = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
-  $image_title = $xpath->query('//string[@id="' . $field_name . '-title-img-0' . '"][1]')->item(0);
+  // Check field variant.
+  $text_field = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')
+    ->item(0);
+  $body = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')
+    ->item(0);
+  $summary = $xpath->query('//string[@id="' . $field_name . '-summary-0' . '"][1]')
+    ->item(0);
+  $image_alt = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')
+    ->item(0);
+  $image_title = $xpath->query('//string[@id="' . $field_name . '-title-img-0' . '"][1]')
+    ->item(0);
 
   if (is_object($text_field)) {
-    // If this field is a text field
+    // If this field is a text field.
     if ($text_field instanceof DomElement) {
       return 'text-field';
     }
   }
   elseif (is_object($body) || is_object($summary)) {
-    // If this field is a body/summary
+    // If this field is a body/summary.
     if (($body instanceof DomElement) || ($summary instanceof DomElement)) {
       return 'body-with-summary-field';
     }
   }
   elseif (is_object($image_alt) || is_object($image_title)) {
-    // If this field is a image
+    // If this field is a image.
     if (($image_alt instanceof DomElement) || ($image_title instanceof DomElement)) {
       return 'image-field';
     }
@@ -328,16 +359,18 @@ function smartling_get_update_field_processing_mode($field_name, $xpath) {
 }
 
 /**
- * Processing for text field
+ * Processing for text field.
  */
-function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node) {
-  $quantity_value = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')->item(0);
+function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
+  $quantity_value = $xpath->query('//string[@id="' . $field_name . '-0' . '"][1]')
+    ->item(0);
   $quantity = $quantity_value->getAttribute('quantity');
 
   for ($i = 0; $i < $quantity; $i++) {
-    $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')->item(0);
+    $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')
+      ->item(0);
     $string = (string) $field->nodeValue;
-    $format = smartling_get_field_format($original_node, $field_name, $language_key_format, $i);
+    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
 
     $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
     $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
@@ -346,18 +379,21 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
 }
 
 /**
- * Processing for body/summary field
+ * Processing for body/summary field.
  */
-function smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node) {
-  $quantity_value = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')->item(0);
+function smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format) {
+  $quantity_value = $xpath->query('//string[@id="' . $field_name . '-body-0' . '"][1]')
+    ->item(0);
   $quantity = $quantity_value->getAttribute('quantity');
 
   for ($i = 0; $i < $quantity; $i++) {
-    $body_obj = $xpath->query('//string[@id="' . $field_name . '-body-' . $i . '"][1]')->item(0);
-    $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')->item(0);
+    $body_obj = $xpath->query('//string[@id="' . $field_name . '-body-' . $i . '"][1]')
+      ->item(0);
+    $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')
+      ->item(0);
     $body_string = (string) $body_obj->nodeValue;
     $summary_string = (string) $summary_obj->nodeValue;
-    $format = smartling_get_field_format($original_node, $field_name, $language_key_format, $i);
+    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
 
     $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;
     $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
@@ -367,15 +403,18 @@ function smartling_body_with_summary_field_processing($entity_wrapper, $field_na
 }
 
 /**
- * Processing for image field
+ * Processing for image field.
  */
 function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, $language_key) {
-  $image_multiple = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')->item(0);
+  $image_multiple = $xpath->query('//string[@id="' . $field_name . '-alt-img-0' . '"][1]')
+    ->item(0);
   $quantity = $image_multiple->getAttribute('quantity');
 
   for ($i = 0; $i < $quantity; $i++) {
-    $alt_obj = $xpath->query('//string[@id="' . $field_name . '-alt-img-' . $i . '"][1]')->item(0);
-    $title_obj = $xpath->query('//string[@id="' . $field_name . '-title-img-' . $i . '"][1]')->item(0);
+    $alt_obj = $xpath->query('//string[@id="' . $field_name . '-alt-img-' . $i . '"][1]')
+      ->item(0);
+    $title_obj = $xpath->query('//string[@id="' . $field_name . '-title-img-' . $i . '"][1]')
+      ->item(0);
     $fid = $alt_obj->getAttribute('fid');
     $file_img = file_load($fid);
 
@@ -384,8 +423,8 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
       $title_string = (string) $title_obj->nodeValue;
       $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array(
           'alt' => $alt_string,
-          'title' => $title_string
-      );
+          'title' => $title_string,
+        );
     }
   }
   return $entity_wrapper;
@@ -393,37 +432,44 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
 
 /**
  * Parsing the translated file and record the results in the field.
- * @param type $rid
- * @param type $d_locale
- * @param type $entity_type
- * @param type $bundle
- * @return boolean
+ *
+ * @param int $rid
+ *   Related id.
+ * @param string $d_locale
+ *   Locale in drupal format (ru, en).
+ * @param string $entity_type
+ *   Entity type.
+ * @param string $bundle
+ *   Entity bundle.
  */
 function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
   $log = new SmartlingLog();
   $log->setMessage('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale')
-      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
-      ->setSeverity(WATCHDOG_DEBUG)
-      ->execute();
+    ->setVariables(array(
+      '@entity_type' => $entity_type,
+      '@rid' => $rid,
+      '@locale' => $d_locale,
+    ))
+    ->setSeverity(WATCHDOG_DEBUG)
+    ->execute();
 
   if (smartling_supported_type($entity_type, $bundle)) {
     $smartling_settings = smartling_settings_get_handler();
-    $original_node = node_load($rid);
     $entity_data = smartling_entity_load_by_conditions(array(
       'rid' => $rid,
       'entity_type' => $entity_type,
-      'target_language' => $d_locale
+      'target_language' => $d_locale,
     ));
     $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
 
-    // Get field names for entity
+    // Get field names for entity.
     switch ($entity_type) {
       case 'node':
         $fields = $smartling_settings->nodeGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       case 'taxonomy_term':
-        $fields = $smartling_settings->taxonomy_termGetFieldsSettingsByBundle($entity_data->bundle);
+        $fields = $smartling_settings->taxonomyTermGetFieldsSettingsByBundle($entity_data->bundle);
         break;
 
       case 'comment':
@@ -439,16 +485,17 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
         break;
     }
 
-    // Preproccess for entity type
+    // Preproccess for entity type.
     switch ($entity_type) {
       case 'node':
         if (smartling_nodes_method($bundle)) {
+          $original_node = node_load($rid);
           $translations = translation_node_get_translations($original_node->tnid);
           if (isset($translations[$d_locale])) {
             $rid = $translations[$d_locale]->nid;
           }
           else {
-            // If node not exist, need clone
+            // If node not exist, need clone.
             $node = clone $original_node;
             unset($node->nid);
             unset($node->vid);
@@ -467,7 +514,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
                     if ($translation = i18n_taxonomy_term_get_translation($term, $d_locale)) {
                       $node->{$field['field_name']}[$d_locale][$index] = array(
                         'taxonomy_term' => $translation,
-                        'tid' => $translation->tid
+                        'tid' => $translation->tid,
                       );
                     }
                     $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
@@ -494,7 +541,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
           $rid = $term->tid;
         }
         else {
-          // If term not exist, need create new term
+          // If term not exist, need create new term.
           $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
 
           // Add language field or not depending on taxonomy mode.
@@ -503,8 +550,10 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             case I18N_MODE_TRANSLATE:
 
               // If the term to be added will be a translation of a source term,
-              // set the default value of the option list to the target language and
-              // create a form element for storing the translation set of the source term.
+              // set the default value of the option list
+              // to the target language and
+              // create a form element for storing
+              // the translation set of the source term.
               $source_term = taxonomy_term_load($rid);
               $term = clone $source_term;
               unset($term->tid);
@@ -523,31 +572,36 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
               else {
                 // No translation set yet, build a new one with the source term.
                 $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name)
-                    ->add_item($source_term);
+                  ->add_item($source_term);
                 taxonomy_term_save($source_term);
               }
               $term->i18n_tsid = $translation_set->tsid;
+              break;
 
+            case I18N_MODE_LOCALIZE:
               break;
 
             case I18N_MODE_LANGUAGE:
-            case I18N_MODE_LOCALIZE:
             case I18N_MODE_NONE:
               $log->setMessage('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode')
-                  ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@vocabulary_mode' => $vocabulary_mode))
-                  ->setSeverity(WATCHDOG_ERROR)
-                  ->execute();
-              return FALSE;
+                ->setVariables(array(
+                  '@entity_type' => $entity_type,
+                  '@rid' => $rid,
+                  '@vocabulary_mode' => $vocabulary_mode,
+                ))
+                ->execute();
               break;
+
             default:
               $log->setMessage('Translatable @entity_type with id - @rid FAIL')
-                  ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-                  ->setSeverity(WATCHDOG_ERROR)
-                  ->execute();
-              return FALSE;
+                ->setVariables(array(
+                  '@entity_type' => $entity_type,
+                  '@rid' => $rid,
+                ))
+                ->execute();
               break;
           }
-          // Update field
+          // Update field.
           foreach ($fields as $field_name) {
             if (!empty($term->{$field_name}[$original_term->language])) {
               $term->{$field_name}[$term->language] = $term->{$field_name}[$original_term->language];
@@ -557,8 +611,6 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
           taxonomy_term_save($term);
           $rid = $term->tid;
         }
-
-
         break;
 
       case 'comment':
@@ -574,7 +626,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     $xml = new DOMDocument();
     $xml->load($file_path);
 
-    if (smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $entity_data->original_language, $fields, $original_node)) {
+    if (smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $entity_data->original_language, $fields)) {
 
       $entity_data->download = 1;
       smartling_entity_data_save($entity_data);
@@ -582,11 +634,15 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
 
       $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
       $log->setMessage('Smartling updates all translated fields for @entity_type id - @rid. Locale: @locale')
-          ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid, '@locale' => $d_locale))
-          ->setLink($link_to_entity)
-          ->execute();
+        ->setVariables(array(
+          '@entity_type' => $entity_type,
+          '@rid' => $rid,
+          '@locale' => $d_locale,
+        ))
+        ->setLink($link_to_entity)
+        ->execute();
 
-      // Update Translations info
+      // Update Translations info.
       switch ($entity_type) {
         case 'taxonomy_term':
 
@@ -645,28 +701,37 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     }
     else {
       $log->setMessage('Translatable @entity_type with id - @rid not found in database')
-          ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-          ->execute();
+        ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+        ->execute();
     }
   }
 }
 
 /**
+ * Copy translations from xml to fields.
  *
- * @param type $entity_type
- * @param type $xml
- * @param type $rid
- * @param type $d_locale
- * @param type $original_locale
- * @param type $fields
- * @return boolean
+ * @param string $entity_type
+ *   Entity type.
+ * @param object $xml
+ *   Xml object.
+ * @param int $rid
+ *   Related id.
+ * @param string $d_locale
+ *   Locale in drupal format (ru, en).
+ * @param string $original_locale
+ *   Original locale in drupal format (ru, en).
+ * @param array $fields
+ *   Fields array.
+ *
+ * @return bool
+ *   Return TRUE if copy fields.
  */
-function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $original_locale, $fields, $original_node) {
+function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $original_locale, $fields) {
   $xpath = new DomXpath($xml);
   $entity_wrapper = entity_load_single($entity_type, $rid);
   if ($entity_wrapper) {
     foreach ($fields as $field_name) {
-      // Get language key for field translatable type
+      // Get language key for field translatable type.
       if (smartling_field_is_translatable_by_field_name($field_name)) {
         $language_key = $d_locale;
         $language_key_format = $original_locale;
@@ -678,11 +743,11 @@ function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid
 
       switch (smartling_get_update_field_processing_mode($field_name, $xpath)) {
         case 'text-field':
-          $entity_wrapper = smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node);
+          $entity_wrapper = smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format);
           break;
 
         case 'body-with-summary-field':
-          $entity_wrapper = smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format, $original_node);
+          $entity_wrapper = smartling_body_with_summary_field_processing($entity_wrapper, $field_name, $xpath, $language_key, $language_key_format);
           break;
 
         case 'image-field':
@@ -692,8 +757,8 @@ function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid
         default:
           $log = new SmartlingLog();
           $log->setMessage("Smartling didn't process field - @field_name")
-              ->setVariables(array('@field_name' => $field_name))
-              ->execute();
+            ->setVariables(array('@field_name' => $field_name))
+            ->execute();
           break;
       }
     }

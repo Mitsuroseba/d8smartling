@@ -8,13 +8,21 @@
 /**
  * Implements hook_form_FORM_ID_alter().
  *
- * Disabled method on taxonomy vocabulary form
+ * Add validate and submit
  */
 function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
   $form['#validate'][] = 'smartling_vocabulary_support_type_validate';
   $form['#submit'][] = 'smartling_vocabulary_support_type_submit';
 }
 
+/**
+ * Smartling multilingual support form for vocabulary - Form Validate.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
 function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
@@ -24,8 +32,16 @@ function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
   }
 }
 
+/**
+ * Smartling multilingual support form for vocabulary - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
 function smartling_vocabulary_support_type_submit(&$form, &$form_state) {
-  // Delete content type in smartling support types
+  // Delete content type in smartling support types.
   $bundle = $form_state['values']['machine_name'];
   if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
     smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
@@ -36,7 +52,8 @@ function smartling_vocabulary_support_type_submit(&$form, &$form_state) {
  * Implements hook_taxonomy_term_presave().
  */
 function smartling_taxonomy_term_presave($term) {
-  // Make sure the title isn't overwritten with the translation when using the title module.
+  // Make sure the title isn't overwritten
+  // with the translation when using the title module.
   if (module_exists('title')) {
     $term_field_names = array('name', 'description');
     foreach ($term_field_names as $term_property) {
@@ -70,6 +87,17 @@ function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
   }
 }
 
+/**
+ * Taxonomy term smartling form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for taxonomy term smartling form.
+ */
 function smartling_get_term_settings_form($form, &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
@@ -116,7 +144,7 @@ function smartling_get_term_settings_form($form, &$form_state) {
           $entity_data = smartling_entity_load_by_conditions(array(
             'rid' => $tid,
             'entity_type' => $form['#entity_type'],
-            'target_language' => $d_locale
+            'target_language' => $d_locale,
           ));
           $language_name = check_plain($language->name);
 
@@ -125,12 +153,15 @@ function smartling_get_term_settings_form($form, &$form_state) {
               case SMARTLING_STATUS_IN_QUEUE:
                 $options[$d_locale] = '<span title="' . t('Term is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_IN_TRANSLATE:
                 $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_TRANSLATED:
                 $options[$d_locale] = '<span title="' . t('Term is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_CHANGE:
                 $options[$d_locale] = '<span title="' . t('Term was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                 break;
@@ -195,7 +226,12 @@ function smartling_get_term_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_get_term_settings_form_submit
+ * Taxonomy term smartling form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
  */
 function smartling_get_term_settings_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
@@ -221,15 +257,14 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
 
     $d_locale_origin = $language_default;
 
-    // For fields method
-
+    // For fields method.
     foreach ($form_state['values']['target'] as $d_locale) {
       if ($d_locale !== 0 && ($language_default !== $d_locale)) {
 
         $entity_data = smartling_entity_load_by_conditions(array(
           'rid' => $tid,
           'entity_type' => $form['#entity_type'],
-          'target_language' => $d_locale
+          'target_language' => $d_locale,
         ));
 
         if ($entity_data == FALSE) {
@@ -251,7 +286,7 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass;
+    $obj = new stdClass();
     $obj->rid = $tid;
     $obj->entity_type = $form['#entity_type'];
     $obj->bundle = $term->vocabulary_machine_name;
@@ -259,7 +294,7 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
     $obj->original_language = $d_locale_origin;
     $obj->d_locales = $langs;
     $obj->submitter = $user->uid;
-    // Create queue item
+    // Create queue item.
     $smartling_queue->createItem($obj);
     unset($obj);
     $log->setMessage('Add smartling queue task for term tid - @tid, locale - @locale')
@@ -270,14 +305,14 @@ function smartling_get_term_settings_form_submit($form, &$form_state) {
     $langs = implode(', ', $langs);
     drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
       '@title' => $term->name,
-      '@langs' => $langs
+      '@langs' => $langs,
     )));
   }
 
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-  // For not change term status to red when send term and change content
+  // For not change term status to red when send term and change content.
   $term->send_to_smartling = TRUE;
   $status = taxonomy_term_save($term);
   switch ($status) {

@@ -30,7 +30,8 @@ function smartling_form_node_form_alter(&$form, $form_state) {
  * Implements hook_node_presave().
  */
 function smartling_node_presave($node) {
-  // Make sure the title isn't overwritten with the translation when using the title module.
+  // Make sure the title isn't overwritten with
+  // the translation when using the title module.
   if (module_exists('title') && property_exists($node, 'title_field')) {
     $titles = field_get_items('node', $node, 'title_field');
     if (isset($titles[0]['value'])) {
@@ -52,6 +53,17 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
   $form['#validate'][] = 'smartling_multilanguage_support_node_type_validate';
 }
 
+/**
+ * Smartling multilingual support form for node types.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for smartling multilingual support form in node types settings.
+ */
 function smartling_multilanguage_support_node_type_validate(&$form, &$form_state) {
   if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {
     if (!smartling_is_configured()) {
@@ -61,14 +73,33 @@ function smartling_multilanguage_support_node_type_validate(&$form, &$form_state
   }
 }
 
+/**
+ * Smartling multilingual support form for node types - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
 function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) {
-  // Delete content type in smartling support types
+  // Delete content type in smartling support types.
   $bundle = $form_state['values']['type'];
   if ($form_state['values']['language_content_type'] != SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] != SMARTLING_NODES_METHOD_KEY) {
     smartling_settings_get_handler()->deleteSingleBundleFromSettings('node', $bundle);
   }
 }
 
+/**
+ * Node smartling form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for node smartling form.
+ */
 function smartling_get_node_settings_form($form, &$form_state) {
   if (smartling_translate_fields_is_set($form['#node']->type)) {
     // Vertical Tab.
@@ -93,12 +124,12 @@ function smartling_get_node_settings_form($form, &$form_state) {
       '#type' => 'container',
     );
 
-    // This is node for fields method translate or original for nodes method
+    // This is node for fields method translate or original for nodes method.
     if (($form['#node']->tnid == '0') || ($form['#node']->tnid == $form['#node']->nid)) {
       $languages = smartling_language_list();
     }
     elseif ($form['#node']->tnid != $form['#node']->nid) {
-      // This is node for nodes method translate | not original
+      // This is node for nodes method translate | not original.
       $languages = smartling_language_list();
       $node_original = node_load($form['#node']->tnid);
       unset($languages[$node_original->language]);
@@ -110,10 +141,10 @@ function smartling_get_node_settings_form($form, &$form_state) {
       $check = array();
 
       if (($form['#node']->tnid != '0') && ($form['#node']->tnid != $form['#node']->nid)) {
-        // For not original node in nodes translate method
+        // For not original node in nodes translate method.
         $translations = translation_node_get_translations($form['#node']->tnid);
         $original_nid = FALSE;
-        // Get original
+        // Get original.
         foreach ($translations as $langcode => $value) {
           if ($translations[$langcode]->nid == $form['#node']->tnid) {
             $original_nid = $translations[$langcode]->nid;
@@ -127,7 +158,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $original_nid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
             $language_name = check_plain($language->name);
 
@@ -136,12 +167,15 @@ function smartling_get_node_settings_form($form, &$form_state) {
                 case SMARTLING_STATUS_IN_QUEUE:
                   $options[$d_locale] = '<span title="' . t('Node is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_IN_TRANSLATE:
                   $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_TRANSLATED:
                   $options[$d_locale] = '<span title="' . t('Node is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
@@ -156,10 +190,10 @@ function smartling_get_node_settings_form($form, &$form_state) {
         }
       }
       elseif (($form['#node']->tnid != '0') && ($form['#node']->tnid == $form['#node']->nid)) {
-        // For original node in nodes translate method
+        // For original node in nodes translate method.
         $translations = translation_node_get_translations($form['#node']->tnid);
         $original_nid = FALSE;
-        // Get original
+        // Get original.
         foreach ($translations as $langcode => $value) {
           if ($translations[$langcode]->nid == $form['#node']->tnid) {
             $original_nid = $translations[$langcode]->nid;
@@ -174,7 +208,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $original_nid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
             $language_name = check_plain($language->name);
 
@@ -183,12 +217,15 @@ function smartling_get_node_settings_form($form, &$form_state) {
                 case SMARTLING_STATUS_IN_QUEUE:
                   $options[$d_locale] = '<span title="' . t('Node is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_IN_TRANSLATE:
                   $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_TRANSLATED:
                   $options[$d_locale] = '<span title="' . t('Node is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
@@ -203,14 +240,14 @@ function smartling_get_node_settings_form($form, &$form_state) {
         }
       }
       else {
-        // For fieds method
+        // For fieds method.
         foreach ($languages as $d_locale => $language) {
           if ($form['language']['#default_value'] != $d_locale && $language->enabled != '0') {
 
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $form['nid']['#value'],
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
             $language_name = check_plain($language->name);
 
@@ -219,12 +256,15 @@ function smartling_get_node_settings_form($form, &$form_state) {
                 case SMARTLING_STATUS_IN_QUEUE:
                   $options[$d_locale] = '<span title="' . t('Node is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_IN_TRANSLATE:
                   $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_TRANSLATED:
                   $options[$d_locale] = '<span title="' . t('Node is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                   break;
+
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
@@ -286,7 +326,12 @@ function smartling_get_node_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_get_node_settings_form_submit
+ * Node smartling form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
  */
 function smartling_get_node_settings_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
@@ -304,7 +349,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
     if (smartling_nodes_method($node->type)) {
       $original_nid = $node->nid;
       $original_title = $node->title;
-      // For nodes method
+      // For nodes method.
       $status = smartling_nodes_method_node_status($node);
       if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
         $node->tnid = $node->nid;
@@ -313,7 +358,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
 
       if ($status == SMARTLING_TRANSLATE_NODE) {
         $translations = translation_node_get_translations($node->tnid);
-        // Get original language
+        // Get original language.
         foreach ($translations as $langcode => $value) {
           if ($translations[$langcode]->nid == $node->tnid) {
             $d_locale_origin = $langcode;
@@ -335,7 +380,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $original_nid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
 
             if ($entity_data == FALSE) {
@@ -358,7 +403,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
           }
         }
       }
-      $obj = new stdClass;
+      $obj = new stdClass();
       $obj->rid = $original_nid;
       $obj->entity_type = $form['#entity_type'];
       $obj->bundle = $node->type;
@@ -366,18 +411,20 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $obj->original_language = $d_locale_origin;
       $obj->d_locales = $langs;
       $obj->submitter = $user->uid;
-      // Create queue item
+      // Create queue item.
       $smartling_queue->createItem($obj);
       $title = $original_title;
       unset($obj);
       $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
-        ->setVariables(array('@nid' => $original_nid, '@locale' => implode('; ', $langs)))
+        ->setVariables(array(
+          '@nid' => $original_nid,
+          '@locale' => implode('; ', $langs),
+        ))
         ->setLink(l(t('Edit node'), 'node/' . $original_nid . '/edit'))
         ->execute();
     }
     else {
-      // For fields method
-
+      // For fields method.
       foreach ($form_state['values']['target'] as $d_locale) {
         if ($d_locale !== 0 && ($d_locale !== $node->language)) {
 
@@ -387,7 +434,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $nid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
 
             if ($entity_data == FALSE) {
@@ -410,7 +457,7 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
           }
         }
       }
-      $obj = new stdClass;
+      $obj = new stdClass();
       $obj->rid = $nid;
       $obj->entity_type = $form['#entity_type'];
       $obj->bundle = $form_state['values']['type'];
@@ -418,12 +465,15 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
       $obj->original_language = $d_locale_origin;
       $obj->d_locales = $langs;
       $obj->submitter = $user->uid;
-      // Create queue item
+      // Create queue item.
       $smartling_queue->createItem($obj);
       $title = $form_state['values']['title'];
       unset($obj);
       $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
-        ->setVariables(array('@nid' => $nid, '@locale' => implode('; ', $langs)))
+        ->setVariables(array(
+          '@nid' => $nid,
+          '@locale' => implode('; ', $langs),
+        ))
         ->setLink(l(t('Edit node'), 'node/' . $nid . '/edit'))
         ->execute();
     }
@@ -435,10 +485,10 @@ function smartling_get_node_settings_form_submit($form, &$form_state) {
     $langs = implode(', ', $langs);
     drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
       '@title' => $title,
-      '@langs' => $langs
+      '@langs' => $langs,
     )));
   }
-  // For not change node status to red when send node and change content
+  // For not change node status to red when send node and change content.
   $node->send_to_smartling = TRUE;
   node_save($node);
 }

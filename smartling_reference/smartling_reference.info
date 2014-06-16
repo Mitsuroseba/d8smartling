@@ -1,4 +1,5 @@
 name = Smartling Entity Reference
+description = Rebuild entity references in translated entites.
 core = 7.x
 package = smartling
 version = 7.x-1.0-beta8

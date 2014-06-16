@@ -2,31 +2,44 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingNodeTitleFieldsTest.
  */
 class SmartlingNodeTitleFieldsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling title fields',
       'description' => 'Test Smartling copy original title for fields method',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test correct copy node title.
+   */
   public function testCorrectCopyNodeTitle() {
-    // Add one random node page type
+    // Add one random node page type.
     $this->smartlingCreateNode();
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
     // Go to content page and check title.
     $this->drupalGet('admin/content/smartling-content');
     $this->assertText($this->random_node_title);
 
-    // Set fields method for page CT
+    // Set fields method for page CT.
     $this->smartlingSetMethodSettings('page', 1);
-    // Set fields for page CT
+    // Set fields for page CT.
     $this->smartlingSetFieldSettings('page', 'title', TRUE);
 
     // Check title after set setings.

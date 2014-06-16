@@ -2,28 +2,37 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
  */
 class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling bulk submit',
       'description' => 'Test Smartling Bulk Submit',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test bulk submit.
+   */
   public function testBulkSubmit() {
-    // Add one random node page type
+    // Add one random node page type.
     $this->smartlingCreateNode();
 
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
-    // Set nodes method for page CT
+    // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page', 1);
-    // Set fields for page CT
+    // Set fields for page CT.
     $this->smartlingSetFieldSettings('page', 'body');
 
     $this->drupalGet('admin/content/smartling-content');

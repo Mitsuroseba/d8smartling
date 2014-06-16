@@ -11,6 +11,8 @@
 class SmartlingEntityTranslationDefaultHandler extends EntityTranslationDefaultHandler {
 
   /**
+   * Smartling Entity Translation Field Attach.
+   *
    * @see EntityTranslationHandlerInterface::entityFormSubmit()
    */
   public function smartlingEntityTranslationFieldAttach($values = array()) {
@@ -31,10 +33,10 @@ class SmartlingEntityTranslationDefaultHandler extends EntityTranslationDefaultH
       // language.
       $translation = $is_translation ? array(
         'language' => $langcode,
-        'source' => $this->getSourceLanguage()
+        'source' => $this->getSourceLanguage(),
       ) : array(
         'language' => $langcode,
-        'source' => ''
+        'source' => '',
       );
     }
     else {

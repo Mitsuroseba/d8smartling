@@ -1,26 +1,39 @@
 <?php
-require_once(dirname(__FILE__) . '/../credentials.php');
+require_once dirname(__FILE__) . '/../credentials.php';
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingSettingsAccountInfoSaveTest.
  */
 class SmartlingSettingsAccountInfoSaveTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling settings - Account info. Save correct settings',
       'description' => 'Test success flow of saving Smartling settings - Account info',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test correct smartling account settings.
+   */
   public function testCorrectSmartlingAccountSettings() {
     // Add predefined languages.
     $this->smartlingAddSiteLanguage('zh-hans');
     $this->smartlingAddSiteLanguage('fr');
 
-    // Set correct settings for this test
+    // Set correct settings for this test.
     $edit = array(
       "target_locales[ru]" => 'ru',
       "target_locales[zh-hans]" => 'zh-hans',

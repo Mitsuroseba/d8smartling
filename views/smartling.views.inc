@@ -9,7 +9,7 @@
  * Implements hook_views_data_alter().
  */
 function smartling_views_data_alter(&$data) {
-  // Node relationship
+  // Node relationship.
   $data['node']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
@@ -20,10 +20,10 @@ function smartling_views_data_alter(&$data) {
       'relationship field' => 'nid',
       'handler' => 'views_handler_relationship',
       'label' => t('Smartling related ID'),
-    )
+    ),
   );
 
-  // Term relationship
+  // Term relationship.
   $data['taxonomy_term_data']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
@@ -34,10 +34,10 @@ function smartling_views_data_alter(&$data) {
       'relationship field' => 'tid',
       'handler' => 'views_handler_relationship',
       'label' => t('Smartling related ID'),
-    )
+    ),
   );
 
-  // Comment relationship
+  // Comment relationship.
   $data['comment']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
@@ -48,10 +48,10 @@ function smartling_views_data_alter(&$data) {
       'relationship field' => 'cid',
       'handler' => 'views_handler_relationship',
       'label' => t('Smartling related ID'),
-    )
+    ),
   );
 
-  // User relationship
+  // User relationship.
   $data['users']['smartling_entity_data'] = array(
     'group' => t('Smartling'),
     'title' => t('Smartling Entity'),
@@ -62,10 +62,10 @@ function smartling_views_data_alter(&$data) {
       'relationship field' => 'uid',
       'handler' => 'views_handler_relationship',
       'label' => t('Smartling related ID'),
-    )
+    ),
   );
 
-  // Add filter
+  // Add filter.
   $data['smartling_entity_data']['status'] = array(
     'title' => t('Smartling status'),
     'help' => t('The status type (for example, "in queue", "in translate", etc).'),
@@ -77,7 +77,7 @@ function smartling_views_data_alter(&$data) {
     ),
   );
 
-  // Add views handler
+  // Add views handler.
   $data['smartling_entity_data']['target_language'] = array(
     'title' => t('Target Language'),
     'help' => t('Smartling entity data "target_language" property.'),

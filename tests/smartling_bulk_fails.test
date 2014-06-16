@@ -2,20 +2,33 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingBulkSubmitNoSelectedNodeFailsTest.
  */
 class SmartlingBulkSubmitNoSelectedNodeFailsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling no selected node bulk submit',
       'description' => 'Smartling Bulk Submitting assuming no selected node',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test no selected node fails bulk submit.
+   */
   public function testNoSelectedNodeFailsBulkSubmit() {
-    // Add one random node page type
+    // Add one random node page type.
     $this->smartlingCreateNode();
 
     $edit = array();
@@ -25,18 +38,30 @@ class SmartlingBulkSubmitNoSelectedNodeFailsTest extends SmartlingWebTestCase {
 
 }
 
+/**
+ * SmartlingBulkSubmitNoSelectedLanguageFailsTest.
+ */
 class SmartlingBulkSubmitNoSelectedLanguageFailsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling no selected language bulk submit',
       'description' => 'Smartling Bulk Submitting assuming no selected language',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Test no selected language fails bulk submit.
+   */
   public function testNoSelectedLanguageFailsBulkSubmit() {
-    // Add one random node of page type
+    // Add one random node of page type.
     $this->smartlingCreateNode();
 
     $this->drupalGet('admin/content/smartling-content');

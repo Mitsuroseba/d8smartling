@@ -19,10 +19,21 @@ function smartling_form_user_profile_form_alter(&$form, &$form_state) {
     }
   }
   else {
-    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'status');
+    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'info');
   }
 }
 
+/**
+ * User smartling form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for user smartling form.
+ */
 function smartling_get_user_settings_form($form, &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
@@ -59,7 +70,7 @@ function smartling_get_user_settings_form($form, &$form_state) {
           $entity_data = smartling_entity_load_by_conditions(array(
             'rid' => $user->uid,
             'entity_type' => $form['#entity_type'],
-            'target_language' => $d_locale
+            'target_language' => $d_locale,
           ));
           $language_name = check_plain($language->name);
 
@@ -68,12 +79,15 @@ function smartling_get_user_settings_form($form, &$form_state) {
               case SMARTLING_STATUS_IN_QUEUE:
                 $options[$d_locale] = '<span title="' . t('User is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_IN_TRANSLATE:
                 $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_TRANSLATED:
                 $options[$d_locale] = '<span title="' . t('User is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
                 break;
+
               case SMARTLING_STATUS_CHANGE:
                 $options[$d_locale] = '<span title="' . t('User was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                 break;
@@ -138,7 +152,12 @@ function smartling_get_user_settings_form($form, &$form_state) {
 }
 
 /**
- * smartling_get_user_settings_form_submit
+ * User smartling form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
  */
 function smartling_get_user_settings_form_submit($form, &$form_state) {
   $log = new SmartlingLog();
@@ -175,7 +194,7 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
         $entity_data = smartling_entity_load_by_conditions(array(
           'rid' => $account->uid,
           'entity_type' => $form['#entity_type'],
-          'target_language' => $d_locale
+          'target_language' => $d_locale,
         ));
 
         if ($entity_data == FALSE) {
@@ -197,7 +216,7 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass;
+    $obj = new stdClass();
     $obj->rid = $account->uid;
     $obj->entity_type = $form['#entity_type'];
     $obj->bundle = $form['#bundle'];
@@ -205,26 +224,29 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     $obj->original_language = $d_locale_origin;
     $obj->d_locales = $langs;
     $obj->submitter = $user->uid;
-    // Create queue item
+    // Create queue item.
     $smartling_queue->createItem($obj);
     unset($obj);
 
     $log->setMessage('Add smartling queue task for user uid - @uid, locale - @locale')
-      ->setVariables(array('@uid' => $account->uid, '@locale' => implode('; ', $langs)))
+      ->setVariables(array(
+        '@uid' => $account->uid,
+        '@locale' => implode('; ', $langs),
+      ))
       ->setLink($link)
       ->execute();
 
     $langs = implode(', ', $langs);
     drupal_set_message(t('The user "@title" has been sent to Smartling for translation to "@langs".', array(
       '@title' => $account->name,
-      '@langs' => $langs
+      '@langs' => $langs,
     )));
   }
 
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
   }
-  // For not change account status to red when send account and change content
+  // For not change account status to red when send account and change content.
   $account_unchanged->send_to_smartling = TRUE;
   user_save($account_unchanged, $edit, $category);
   $form_state['values']['uid'] = $account->uid;
@@ -233,7 +255,8 @@ function smartling_get_user_settings_form_submit($form, &$form_state) {
     // Remove the password reset tag since a new password was saved.
     unset($_SESSION['pass_reset_' . $account->uid]);
   }
-  // Clear the page cache because pages can contain usernames and/or profile information:
+  // Clear the page cache because pages can contain
+  // usernames and/or profile information.
   cache_clear_all();
 
   $log->setMessage('Updated user %user.')

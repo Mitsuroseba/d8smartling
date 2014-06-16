@@ -2,24 +2,43 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingSettingsAccountInfoSaveFailsTest.
  */
 class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
 
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Smartling settings - Account info. Save incorrect settings',
       'description' => 'Test failed flow of saving Smartling settings - Account info',
-      'group' => 'Smartling'
+      'group' => 'Smartling',
     );
   }
 
+  /**
+   * Generate random smartling key.
+   *
+   * @return string
+   *   Return smartling key.
+   */
   public function generateRandomSmartlingKey() {
     return strtolower($this->randomName(8) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(4) . '-' . $this->randomName(12));
   }
 
+  /**
+   * Test incorrect smartling account info settings api url.
+   */
   public function testIncorrectSmartlingAccountInfoSettingsApiUrl() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
     $edit = array(
@@ -29,8 +48,11 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
+  /**
+   * Test incorrect smartling account info settings progect id.
+   */
   public function testIncorrectSmartlingAccountInfoSettingsProjectId() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
     $edit = array(
@@ -40,8 +62,11 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
+  /**
+   * Test incorrect smartling account info settings key.
+   */
   public function testIncorrectSmartlingAccountInfoSettingsKey() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
     $edit = array(
@@ -51,8 +76,11 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     $this->assertText(t('Please enter correct Smartling settings.'));
   }
 
+  /**
+   * Test incorrect smartling account info settings target locales.
+   */
   public function testIncorrectSmartlingAccountInfoSettingsTargetLocales() {
-    // Set correct account settings
+    // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 
     $edit = array(

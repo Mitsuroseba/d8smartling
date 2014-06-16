@@ -1,4 +1,5 @@
 name = Smartling reports
+description = Smartling reports.
 core = 7.x
 package = smartling
 version = 7.x-2.0-beta1
