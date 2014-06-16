@@ -90,7 +90,7 @@ function _create_comments_to_nodes() {
           DEMO_LANGUAGE_DEFAULT => array(
             0 => array(
               'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
-              'format' => 'filtered_html'
+              'format' => 'filtered_html',
             ),
           ),
         ),
@@ -130,7 +130,7 @@ function _delete_comments_to_nodes() {
 /**
  * Create additional fields for account.
  *
- * @return null
+ * @return
  *   Return null.
  */
 function _create_additional_fields_for_account() {
@@ -280,7 +280,7 @@ function _delete_additional_fields_for_account() {
 
   $data_fields = array(
     array(
-      'field' => 'field_nick_name_field'
+      'field' => 'field_nick_name_field',
     ),
     array(
       'field' => 'field_about_me_field',
@@ -464,6 +464,7 @@ function get_random_taxonomy_array() {
  * Set drupal message and smartling log message.
  *
  * @param string $msg
+ *   Message.
  */
 function set_message_watchdog($msg) {
   drupal_set_message($msg);

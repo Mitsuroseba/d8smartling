@@ -84,7 +84,7 @@ class SmartlingSettingsHandler {
   /**
    * Set smartling fields settings for node entity.
    *
-   * @param type $node_fields_settings
+   * @param array $node_fields_settings
    *   Smartling fields settings for node entity.
    */
   public function nodeSetFieldsSettings($node_fields_settings) {
@@ -125,7 +125,7 @@ class SmartlingSettingsHandler {
   /**
    * Set smartling fields settings for comment entity.
    *
-   * @param type $comment_fields_settings
+   * @param array $comment_fields_settings
    *   Smartling fields settings for comment entity.
    */
   public function commentSetFieldsSettings($comment_fields_settings) {
@@ -365,7 +365,7 @@ class SmartlingSettingsHandler {
   /**
    * Set smartling API URL.
    *
-   * @param string $apiUrl
+   * @param string $api_url
    *   API url - https://capi.smartling.com/v1 by default.
    */
   public function setApiUrl($api_url) {
@@ -422,7 +422,7 @@ class SmartlingSettingsHandler {
    * Get log mode options.
    *
    * @return array
-   *  Return log mode options.
+   *   Return log mode options.
    */
   public function getLogModeOptions() {
     return array(FALSE => 'OFF', TRUE => 'ON');
@@ -509,7 +509,7 @@ class SmartlingSettingsHandler {
     return array(
       'pseudo' => 'pseudo',
       'published' => 'published',
-      'pending' => 'pending'
+      'pending' => 'pending',
     );
   }
 
@@ -537,7 +537,7 @@ class SmartlingSettingsHandler {
    * Get target locales array.
    *
    * @return array
-   *  Return target locales array.
+   *   Return target locales array.
    */
   public function getTargetLocales() {
     return $this->targetLocales;
@@ -546,7 +546,7 @@ class SmartlingSettingsHandler {
   /**
    * Set target locales array.
    *
-   * @param type $target_locales
+   * @param array $target_locales
    *   Target locales array.
    */
   public function setTargetLocales($target_locales) {
@@ -555,7 +555,8 @@ class SmartlingSettingsHandler {
   }
 
   /**
-   * Make and set target locales array from $form_state['values']['target_locales'].
+   * Make and set target locales array
+   * from $form_state['values']['target_locales'].
    *
    * @param array $target_locales
    *   Target locales array.

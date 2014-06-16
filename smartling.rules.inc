@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements of hook_rules_event_info().
+ * Implements hook_rules_event_info().
  */
 function smartling_rules_event_info() {
   return array(
@@ -167,8 +167,8 @@ function smartling_locale_condition($data, $op, $value) {
       return $data < $value;
 
     case '>':
+      // Note: This is deprecated by the text comparison condition and IN below.
       return $data > $value;
-    // Note: This is deprecated by the text comparison condition and IN below.
 
     case 'contains':
       return is_string($data) && strpos($data, $value) !== FALSE || is_array($data) && in_array($value, $data);
@@ -295,6 +295,7 @@ function smartling_download_translation_action($node, $translate_to_langs) {
  *
  * @global object $user
  *   Drupal user object.
+ *
  * @param object $node
  *   Node object.
  * @param array $translate_to_langs

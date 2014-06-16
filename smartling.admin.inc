@@ -8,7 +8,8 @@
 /**
  * Smartling settings page callback.
  *
- * @return type
+ * @return array
+ *   Return render array.
  */
 function smartling_admin_configuration_view() {
   // Add ajax library.
@@ -659,7 +660,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
               $entity_type,
               $bundle,
               $legacy_field,
-            )
+            ),
           );
           // Add in config.
           $translate[$content_type]['title_field'] = 'title_field';
@@ -934,7 +935,7 @@ function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form
                 $entity_type,
                 $machine_name,
                 $legacy_field,
-              )
+              ),
             );
             // Add in config.
             $translate[$machine_name][$term_field_name . '_field'] = $term_field_name . '_field';
@@ -1340,7 +1341,7 @@ function smartling_admin_users_translation_settings_form_submit($form, &$form_st
 }
 
 /**
- * Wrap form in fieldset
+ * Wrap form in fieldset.
  *
  * @param array $form
  *   FAPI array.

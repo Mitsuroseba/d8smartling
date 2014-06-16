@@ -4,6 +4,10 @@
  * @file
  * Tests for smartling.
  */
+
+/**
+ * SmartlingBulkSubmitTest.
+ */
 class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
 
   /**

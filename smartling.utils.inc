@@ -9,7 +9,7 @@
  * Returns whether the given node type has support for Smartling translations.
  *
  * @param string $entity_type
- *  Entity type.
+ *   Entity type.
  * @param string $bundle
  *   Entity bundle.
  *
@@ -72,7 +72,7 @@ function smartling_supported_type($entity_type, $bundle) {
  * Checks entity. If entity have translatable field return TRUE.
  *
  * @param string $entity_type
- *  Entity type.
+ *   Entity type.
  * @param string $bundle
  *   Entity bundle.
  *
@@ -179,14 +179,13 @@ function smartling_is_configured() {
 }
 
 /**
- * Checks smartling_translate_fields variable and
- * check settings for node content type.
+ * Checks settings for node content type.
  *
  * @param string $type
  *   Node content type.
  *
  * @return bool
- *  Return TRUE if translate fields is set.
+ *   Return TRUE if translate fields is set.
  */
 function smartling_translate_fields_is_set($type) {
   $val = smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($type);
@@ -206,7 +205,6 @@ function smartling_translate_fields_is_set($type) {
 
 /**
  * Return translatable field types.
- * Example: array('text', 'text_long', 'text_textfield')
  *
  * @return array
  *   Return translatable field types.
@@ -265,8 +263,7 @@ function smartling_translatable_node_types() {
 }
 
 /**
- * Goes though ALL the fields in the system and gets the details about
- * the ones that are marked 'translatable'.
+ * Goes though ALL the fields in the system and gets the details.
  *
  * @return array
  *   Return translatable fields details.
@@ -312,7 +309,7 @@ function smartling_field_is_translatable_by_field_name($field_name) {
  *
  * @param string $file_name
  *   File name.
- * @param type $rid
+ * @param int $rid
  *   Related id.
  * @param string $d_locale
  *   Locale in drupal format (ru, en).
@@ -388,8 +385,7 @@ function smartling_get_full_language_name($d_locale) {
 }
 
 /**
- * This functions convert locale format.
- * Example: 'en' => 'en-US'.
+ * This functions convert locale format. Example: 'en' => 'en-US'.
  *
  * @param string $locale
  *   Locale string in some foormat: 'en' or 'en-US'.
@@ -435,7 +431,8 @@ function smartling_get_dir($file_name = '') {
 
 /**
  * Return clean filename, sanitized for path traversal vulnerability.
- * (https://code.google.com/p/teenage-mutant-ninja-turtles/wiki/AdvancedObfuscationPathtraversal)
+ * (https://code.google.com/p/teenage-mutant-ninja-turtles
+ * /wiki/AdvancedObfuscationPathtraversal).
  *
  * @param string $filename
  *   File name.
@@ -1136,7 +1133,7 @@ function smartling_get_original_entity($rid, $entity_type) {
  *   Field delta.
  *
  * @return string|null
- * Return field format like "full_html" or NULL.
+ *   Return field format like "full_html" or NULL.
  */
 function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0) {
   if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
@@ -1165,9 +1162,9 @@ function smartling_get_fields_by_type($type) {
 /**
  * Translation handler factory.
  *
- * @param type $entity_type
+ * @param string $entity_type
  *   Entity type.
- * @param type $entity
+ * @param object $entity
  *   Entity.
  *
  * @return object
@@ -1219,7 +1216,7 @@ function smartling_entity_translation_save($handler, $entity) {
  * @param int $rid
  *   Related id.
  *
- * @return boolean
+ * @return bool
  *   Return TRUE if normal filename.
  */
 function smartling_check_filename_length($title, $entity_type, $rid) {

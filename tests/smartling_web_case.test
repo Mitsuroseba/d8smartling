@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
  */
 
 require_once dirname(__FILE__) . '/../credentials.php';
@@ -120,7 +120,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
 
   /**
    * These values are supported for value:
-   * - 0.
+   * - 0
    * - 1.
    *
    * @param string $field_name
@@ -156,8 +156,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
 
   /**
    * Defaults to 'published'. These values are supported:
-   * - 'pseudo'.
-   * - 'published'.
+   * - 'pseudo'
+   * - 'published'
    * - 'pending'.
    *
    * @param string $type
@@ -199,7 +199,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   /**
    * Add entity reference field to node.
    *
-   * @param type $node_type
+   * @param string $node_type
    *   Node type.
    * @param string $field_machine_name
    *   Field machine name.
@@ -332,7 +332,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    *
    * @param string $node_type
    *   Node type machine name.
-   * @param type $method_key
+   * @param int $method_key
    *   1 - Field method.
    *   2 - Nodes method (by default).
    */
@@ -372,7 +372,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    *
    * @param string $vocabulary_machine_name
    *   Vocabulary machine name.
-   * @param type $method_key
+   * @param int $method_key
    *   1 - I18N_MODE_LOCALIZE.
    *   2 - I18N_MODE_TRANSLATE (by default).
    */
@@ -406,13 +406,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Send node to Smartling service and download them.
-   * Works for a single node on the site.
+   * Send node to Smartling service and download them. Works for
+   * a single node on the site.
    *
    * @param int $nid
    *   Node id.
    * @param array $langs
-   *   Example: array('ru', 'nl')
+   *   Example: array('ru', 'nl').
    */
   public function smartlingTranslateNode($nid, array $langs, $download = TRUE) {
     $node = node_load($nid);

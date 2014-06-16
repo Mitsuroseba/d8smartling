@@ -65,7 +65,7 @@ function smartling_rebuild_references_form_submit($form, &$form_state) {
     $condition_bundles = smartling_get_entity_types_whith_references($condition_active_bundles, $field_names);
 
     if ($condition_bundles) {
-      // Log bundles
+      // Log bundles.
       $log->setMessage('Smartling fixes references for bundles: @bundles')
         ->setVariables(array('@bundles' => implode(', ', $condition_bundles)))
         ->execute();
@@ -126,7 +126,7 @@ function smartling_fix_references_by_original($id) {
 /**
  * Fix references for translated node.
  *
- * @param ctring $entity_type
+ * @param string $entity_type
  *   Entity type.
  * @param object $entity
  *   Entity object.
@@ -189,7 +189,6 @@ function smartling_fix_references_for_translated_node($entity_type, $entity) {
  *   Entity object.
  * @param string $lang
  *   Locale in drupal format (ru, en).
- *
  *
  * @return int|bool
  *   Return child fixed reference id or FALSE.

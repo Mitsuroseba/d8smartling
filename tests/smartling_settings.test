@@ -1,10 +1,11 @@
 <?php
-require_once dirname(__FILE__) . '/../credentials.php';
 
 /**
  * @file
  * Tests for smartling.
  */
+
+require_once dirname(__FILE__) . '/../credentials.php';
 
 /**
  * SmartlingSettingsAccountInfoSaveTest.

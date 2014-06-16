@@ -54,15 +54,12 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Smartling multilingual support form for node types.
+ * Validate smartling multilingual support form for node types.
  *
  * @param array $form
  *   FAPI array.
  * @param array $form_state
  *   FAPI array.
- *
- * @return array
- *   Return FAPI array for smartling multilingual support form in node types settings.
  */
 function smartling_multilanguage_support_node_type_validate(&$form, &$form_state) {
   if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {

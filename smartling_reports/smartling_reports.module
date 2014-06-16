@@ -118,7 +118,9 @@ function smartling_reports_views_query_alter(&$view, &$query) {
  * Add smartling css file in report.
  *
  * @param array $vars
- * @return null
+ *   Vars.
+ *
+ * @return
  *   Return if view name != smartlig_report.
  */
 function smartling_reports_preprocess_views_view_table(&$vars) {

@@ -314,7 +314,7 @@ function smartling_user_content_to_translate($uid) {
 }
 
 /**
- * This function return processing mode for field
+ * This function return processing mode for field.
  *
  * @param string $field_name
  *   Field name.
@@ -422,9 +422,9 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
       $alt_string = (string) $alt_obj->nodeValue;
       $title_string = (string) $title_obj->nodeValue;
       $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array(
-          'alt' => $alt_string,
-          'title' => $title_string,
-        );
+        'alt' => $alt_string,
+        'title' => $title_string,
+      );
     }
   }
   return $entity_wrapper;

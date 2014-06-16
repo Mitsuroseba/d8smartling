@@ -44,29 +44,29 @@ class SmartlingRebuildReferencesTest extends SmartlingWebTestCase {
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_tonode_cardinality1', 'node', array(
       'article',
       'page',
-      'travel'
+      'travel',
     ), 1);
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_tonode_cardinality2', 'node', array(
       'article',
       'page',
-      'travel'
+      'travel',
     ), 2);
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_tonode_notranslate1', 'node', array(
       'article',
       'page',
-      'travel'
+      'travel',
     ), 1);
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_toterm_cardinality1', 'taxonomy_term', array(
       'tags',
-      'travel'
+      'travel',
     ), 1);
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_toterm_cardinality2', 'taxonomy_term', array(
       'tags',
-      'travel'
+      'travel',
     ), 2);
     $this->smartlingAddEntityReferenceFieldToNode('article', 'field_toterm_notranslate1', 'taxonomy_term', array(
       'tags',
-      'travel'
+      'travel',
     ), 1);
 
     // Set nodes method for CT.

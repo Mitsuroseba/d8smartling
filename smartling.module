@@ -105,8 +105,8 @@ function smartling_menu() {
 }
 
 /**
- * Simple menu callback to register smartling paths in menu router,
- * to avoid problems with fast_404 module.
+ * Simple menu callback to register smartling paths in
+ * menu router, to avoid problems with fast_404 module.
  *
  * @return string
  *   Return empty string.
@@ -122,6 +122,7 @@ function smartling_download_translate_simple_callback() {
  *   Field name.
  * @param string $mode
  *   Mode.
+ *
  * @return array
  *   Ajax commands array.
  */
@@ -241,8 +242,8 @@ function smartling_form_entity_translation_translatable_form_alter(&$form, &$for
 
 /**
  * Smartling field settings update form - Form Submit.
- * If a translation for the field was turned off,
- * remove the field from the configuration node smartling.
+ * If a translation for the field was turned off, remove
+ * the field from the configuration node smartling.
  *
  * @param array $form
  *   FAPI array.
@@ -297,9 +298,9 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           ->execute();
 
         if (smartling_nodes_method($form['#node']->type)) {
-          // For nodes method
+          // For nodes method.
           $translations = translation_node_get_translations($form['#node']->tnid);
-          // Get original
+          // Get original.
           if (!empty($translations)) {
             foreach ($translations as $langcode => $value) {
               if ($translations[$langcode]->nid == $form['#node']->tnid) {
@@ -319,7 +320,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
               $entity_data = smartling_entity_load_by_conditions(array(
                 'rid' => $original_nid,
                 'bundle' => $form['#bundle'],
-                'target_language' => $d_locale
+                'target_language' => $d_locale,
               ));
 
               if ($entity_data != FALSE) {
@@ -353,14 +354,14 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           }
         }
         else {
-          // For fields method
+          // For fields method.
           foreach ($form_state['values']['target'] as $d_locale) {
 
             if ($d_locale !== 0 && ($d_locale !== $form['#node']->language)) {
               $entity_data = smartling_entity_load_by_conditions(array(
                 'rid' => $nid,
                 'bundle' => $form['#bundle'],
-                'target_language' => $d_locale
+                'target_language' => $d_locale,
               ));
 
               if ($entity_data != FALSE) {
@@ -432,7 +433,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $tid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
 
             if ($entity_data != FALSE) {
@@ -483,7 +484,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $comment->cid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
 
             if ($entity_data != FALSE) {
@@ -540,7 +541,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $account->uid,
               'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale
+              'target_language' => $d_locale,
             ));
 
             if ($entity_data != FALSE) {
@@ -586,7 +587,7 @@ function smartling_download_translate_form_submit($form, &$form_state) {
 }
 
 /**
- * Implements of hook_views_api().
+ * Implements hook_views_api().
  */
 function smartling_views_api() {
   return array(
@@ -690,7 +691,7 @@ function smartling_entity_load($entities, $type) {
         foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($entity->type) as $field_name) {
 
           if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
-            // If field have und value and dont have need value
+            // If field have und value and dont have need value.
             $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
             field_attach_presave('node', $entity);
             field_attach_update('node', $entity);
@@ -718,7 +719,7 @@ function smartling_entity_update($entity, $type) {
       if (smartling_supported_type($type, $entity->type)) {
         $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
           'rid' => $entity->nid,
-          'bundle' => $entity->type
+          'bundle' => $entity->type,
         ));
       }
       else {
@@ -730,7 +731,7 @@ function smartling_entity_update($entity, $type) {
       if (smartling_supported_type($type, $entity->vocabulary_machine_name)) {
         $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
           'rid' => $entity->tid,
-          'bundle' => $entity->vocabulary_machine_name
+          'bundle' => $entity->vocabulary_machine_name,
         ));
       }
       else {
@@ -742,7 +743,7 @@ function smartling_entity_update($entity, $type) {
       if (smartling_supported_type($type, $entity->node_type)) {
         $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
           'rid' => $entity->cid,
-          'bundle' => $entity->node_type
+          'bundle' => $entity->node_type,
         ));
       }
       else {
@@ -754,7 +755,7 @@ function smartling_entity_update($entity, $type) {
       if (smartling_supported_type($type, 'user')) {
         $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
           'rid' => $entity->uid,
-          'bundle' => 'user'
+          'bundle' => 'user',
         ));
       }
       else {
@@ -835,7 +836,8 @@ function smartling_action_info() {
  * Smartling do translate action.
  *
  * @global object $user
- *   Drupal user object
+ *   Drupal user object.
+ * 
  * @param object $entity
  *   Action entity object.
  * @param array $context
@@ -1142,8 +1144,8 @@ function smartling_do_translate_action($entity, $context) {
 /**
  * Smartling do translate action form.
  *
- * @param array $form
- *   FAPI array.
+ * @param array $context
+ *   Context info array.
  * @param array $form_state
  *   FAPI array.
  *
@@ -1260,7 +1262,7 @@ function smartling_push_callback() {
         ->setVariables(array('@locale' => $s_locale, '@fileUri' => $file_uri))
         ->setSeverity(WATCHDOG_WARNING)
         ->execute();
-      // 404
+      // 404.
     }
   }
   else {
@@ -1271,7 +1273,7 @@ function smartling_push_callback() {
           ->setVariables(array('@param_name' => $param))
           ->setSeverity(WATCHDOG_WARNING)
           ->execute();
-        // 404
+        // 404.
       }
     }
   }
