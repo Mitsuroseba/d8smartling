@@ -555,8 +555,9 @@ class SmartlingSettingsHandler {
   }
 
   /**
-   * Make and set target locales array
-   * from $form_state['values']['target_locales'].
+   * Make and set target locales.
+   *
+   * Array from $form_state['values']['target_locales'].
    *
    * @param array $target_locales
    *   Target locales array.

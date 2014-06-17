@@ -199,7 +199,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
   );
 
   $form['accaunt_info']['default_language_markup'] = array(
-    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => check_plain(language_default()->name))) . '</p>',
+    '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => language_default()->name)) . '</p>',
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
 

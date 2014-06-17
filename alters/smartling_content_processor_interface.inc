@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Interface ISmartlingContentProcessorInterface.
+ * Interface IContentProcessorSmartlingInterface.
  */
 
 /*
@@ -11,7 +11,7 @@
  * rewrite paths and links to respect language translated nodes. Or to
  * substitute files from media module to translated ones.
  */
-interface ISmartlingContentProcessorInterface {
+interface IContentProcessorSmartlingInterface {
 
   /**
    * Changes string content according to the other params.

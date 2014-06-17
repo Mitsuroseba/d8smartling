@@ -119,6 +119,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Set translatable field settings.
+   *
    * These values are supported for value:
    * - 0
    * - 1.
@@ -155,6 +157,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Set retrieval type.
+   *
    * Defaults to 'published'. These values are supported:
    * - 'pseudo'
    * - 'published'
@@ -204,7 +208,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    * @param string $field_machine_name
    *   Field machine name.
    * @param string $target_type
-   *   Target type like node, taxonomy_term, ect.
+   *   Target type like node, taxonomy_term, etc.
    * @param array $target_bundles
    *   Bundles array.
    * @param string $cardinality
@@ -406,8 +410,9 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Send node to Smartling service and download them. Works for
-   * a single node on the site.
+   * Send node to Smartling service and download them.
+   *
+   * Works for a single node on the site.
    *
    * @param int $nid
    *   Node id.

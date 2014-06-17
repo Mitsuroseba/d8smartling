@@ -508,7 +508,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             foreach ($node_fields as $field) {
               $field_info = field_info_field($field['field_name']);
               if (($field_info['type'] == 'taxonomy_term_reference') && ($field_info['translatable'] == '1')) {
-                foreach ($original_node->{$field['field_name']} as $language => $items) {
+                foreach ($original_node->{$field['field_name']} as $items) {
                   foreach ($items as $index => $item) {
                     $term = taxonomy_term_load($original_node->{$field['field_name']}[$original_node->language][$index]['tid']);
                     if ($translation = i18n_taxonomy_term_get_translation($term, $d_locale)) {

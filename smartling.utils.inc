@@ -272,8 +272,8 @@ function smartling_translatable_node_field_details() {
   $fields = field_info_fields();
   $translatable_fields = array();
 
-  foreach ($fields as $field_id => $field) {
-    foreach ($field['bundles'] as $type => $instance) {
+  foreach ($fields as $field) {
+    foreach (array_keys($field['bundles']) as $type) {
       if (field_is_translatable($type, $field)) {
         $field_db_table = array_keys($field['storage']['details']['sql']['FIELD_LOAD_CURRENT']);
         $field_db_table = array_shift($field_db_table);
@@ -431,7 +431,8 @@ function smartling_get_dir($file_name = '') {
 
 /**
  * Return clean filename, sanitized for path traversal vulnerability.
- * (https://code.google.com/p/teenage-mutant-ninja-turtles
+ *
+ * Url (https://code.google.com/p/teenage-mutant-ninja-turtles
  * /wiki/AdvancedObfuscationPathtraversal).
  *
  * @param string $filename
@@ -781,8 +782,6 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
  */
 function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL) {
   if (smartling_is_configured()) {
-    $report_page = FALSE;
-
     // Load entity.
     if (is_null($entity_data) && is_numeric($d_locale)) {
       // Use in views report (Download).
@@ -791,7 +790,6 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
         'eid' => $d_locale,
       ));
       $d_locale = $entity_data->target_language;
-      $report_page = TRUE;
     }
 
     if (($entity_data !== FALSE) && (smartling_supported_type($entity_data->entity_type, $entity_data->bundle))) {

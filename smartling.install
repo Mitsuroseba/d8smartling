@@ -68,7 +68,7 @@ function smartling_install() {
   variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
   variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
 
-  // Install default cron settings for smartling proccess.
+  // Install default cron settings for smartling process.
   $cron_base_settings = array();
 
   $cron_base_settings['smartling_cron'] = array(

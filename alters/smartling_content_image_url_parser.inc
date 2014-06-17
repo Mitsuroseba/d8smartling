@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/smartling_content_parser_interface.inc';
 /**
  * SmartlingImageUrlParser.
  */
-class SmartlingImageUrlParser implements ISmartlingContentParserInterface {
+class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
 
   protected $regexp = '~\s+(href|src|action|longdesc)="([^"]+)~i';
   protected $processors;
@@ -82,7 +82,7 @@ class SmartlingImageUrlParser implements ISmartlingContentParserInterface {
     // Now parse the URL after reverting HTML character encoding.
     // @see http://drupal.org/node/1672932
     $original_url = htmlspecialchars_decode($matches[2]);
-    // …and parse the URL
+    // …and parse the URL.
     $parts = @parse_url($original_url);
     // Do some more early tests to see if we should just give up now.
     if ($parts === FALSE || (isset($parts['scheme']) && !in_array($parts['scheme'], array(

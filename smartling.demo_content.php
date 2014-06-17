@@ -430,7 +430,7 @@ function _add_taxonomy_to_travel_node() {
   foreach ($travel_nodes as $node) {
     $load_node = node_load($node->nid, NULL, TRUE);
     foreach (get_random_taxonomy_array() as $taxonomy) {
-      $load_node->field_taxonomy_field['und'][]['tid'] = $taxonomy->tid;
+      $load_node->field_taxonomy_field[LANGUAGE_NONE][]['tid'] = $taxonomy->tid;
     }
 
     node_save($load_node);

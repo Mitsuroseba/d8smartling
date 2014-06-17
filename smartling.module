@@ -105,7 +105,9 @@ function smartling_menu() {
 }
 
 /**
- * Simple menu callback to register smartling paths in
+ * Simple menu callback.
+ *
+ * Menu callback to register smartling paths in
  * menu router, to avoid problems with fast_404 module.
  *
  * @return string
@@ -242,6 +244,7 @@ function smartling_form_entity_translation_translatable_form_alter(&$form, &$for
 
 /**
  * Smartling field settings update form - Form Submit.
+ *
  * If a translation for the field was turned off, remove
  * the field from the configuration node smartling.
  *
@@ -304,7 +307,6 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           if (!empty($translations)) {
             foreach ($translations as $langcode => $value) {
               if ($translations[$langcode]->nid == $form['#node']->tnid) {
-                $d_locale_origin = $langcode;
                 $original_nid = $translations[$langcode]->nid;
                 break;
               }
@@ -312,7 +314,6 @@ function smartling_download_translate_form_submit($form, &$form_state) {
           }
           else {
             $original_nid = 'error';
-            $d_locale_origin = 'error';
           }
 
           foreach ($form_state['values']['target'] as $d_locale) {
@@ -837,7 +838,7 @@ function smartling_action_info() {
  *
  * @global object $user
  *   Drupal user object.
- * 
+ *
  * @param object $entity
  *   Action entity object.
  * @param array $context
@@ -1184,7 +1185,7 @@ function smartling_do_translate_action_validate($form, &$form_state) {
     $form_state['translate_to_langs'] = $select_languages;
   }
   else {
-    form_set_error('languages', 'Check language, please.');
+    form_set_error('languages', t('Check language, please.'));
   }
 }
 
@@ -1259,7 +1260,7 @@ function smartling_push_callback() {
     }
     elseif ($entity_data == FALSE) {
       $log->setMessage('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing')
-        ->setVariables(array('@locale' => $s_locale, '@fileUri' => $file_uri))
+        ->setVariables(array('@locale' => $d_locale, '@fileUri' => $file_uri))
         ->setSeverity(WATCHDOG_WARNING)
         ->execute();
       // 404.

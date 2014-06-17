@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/smartling_content_processor_interface.inc';
 /**
  * Demo url processor. No real value here for now.
  */
-class SmartlingUrlProcessor implements ISmartlingContentProcessorInterface {
+class SmartlingUrlProcessor implements IContentProcessorSmartlingInterface {
 
   protected $fieldName;
   protected $entity;

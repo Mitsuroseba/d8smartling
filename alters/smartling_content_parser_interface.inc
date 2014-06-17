@@ -2,17 +2,18 @@
 
 /**
  * @file
- * Interface ISmartlingContentParserInterface.
+ * Interface IContentParserSmartlingInterface.
  */
 
 /**
- * Parses the translated content for the needed parts (like link addresses etc)
+ * Parses the translated content for the needed parts (like link addresses etc).
+ *
  * And passes it to the relevant processors.
  */
-interface ISmartlingContentParserInterface {
+interface IContentParserSmartlingInterface {
 
   /**
-   * Array of objects that implement ISmartlingContentProcessorInterface.
+   * Array of objects that implement IContentProcessorSmartlingInterface.
    *
    * @param array $processors
    *   Processors.

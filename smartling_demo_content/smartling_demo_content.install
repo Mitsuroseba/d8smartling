@@ -2,6 +2,5 @@
 
 /**
  * @file
- * Install, update, and uninstall functions
- * for the smartling_demo_content module.
+ * Install, update, and uninstall functions for the demo content module.
  */

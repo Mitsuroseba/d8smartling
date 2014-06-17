@@ -83,7 +83,7 @@ function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
   elseif (empty($term->tid) && !isset($_GET['translation']) && !isset($_GET['target'])) {
     $langcode = language_default()->language;
     $form['language']['#default_value'] = $langcode;
-    unset($form['language']['#options']['und']);
+    unset($form['language']['#options'][LANGUAGE_NONE]);
   }
 }
 

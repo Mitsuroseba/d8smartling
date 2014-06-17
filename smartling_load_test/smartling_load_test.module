@@ -180,7 +180,7 @@ function _delete_smartling_content_batch($eid) {
       $translations = translation_node_get_translations($entity_data->rid);
 
       if (is_array($translations)) {
-        foreach ($translations as $lang => $value) {
+        foreach ($translations as $value) {
           if ($entity_data->rid != $value->nid) {
             node_delete($value->nid);
           }

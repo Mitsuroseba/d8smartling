@@ -5,15 +5,16 @@
  * Class SmartlingMediaParser.
  */
 
-require_once(dirname(__FILE__) . '/smartling_content_parser_interface.inc');
+require_once dirname(__FILE__) . '/smartling_content_parser_interface.inc';
 
 /**
  * A parser for the Drupal media module and its jsons inside text fields.
+ *
  * For example: <p>[[{"fid":"41","view_mode":"default",
  * "fields":{"format":"default"},"type":"media",
  * "attributes":{"class":"media-element file-default"}}]]</p>.
  */
-class SmartlingMediaParser implements ISmartlingContentParserInterface {
+class SmartlingMediaParser implements IContentParserSmartlingInterface {
 
   protected $regexp = array('~(\[\[\{"fid":.+\}\]\]~i', '~(\[\[\{&quot;fid&quot;:.+\}\]\]~i');
   protected $processors;
