@@ -684,25 +684,35 @@ function smartling_cron_queue_info() {
  * Implements hook_entity_load().
  */
 function smartling_entity_load($entities, $type) {
-  if ($type == 'node') {
+  $active_types = array('node', 'taxonomy_term', 'comment', 'user');
+  if (in_array($type, $active_types)) {
 
     foreach ($entities as $entity) {
+      $wrapper = entity_metadata_wrapper($type, $entity);
+      $bundle = $wrapper->getBundle();
+      $entity_language = entity_language($type, $entity);
 
-      if (smartling_supported_type($type, $entity->type)) {
-        foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($entity->type) as $field_name) {
+      if (smartling_supported_type($type, $bundle)) {
+        $sm_settings = smartling_settings_get_handler();
 
-          if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity->language])) {
-            // If field have und value and dont have need value.
-            $entity->{$field_name}[$entity->language] = $entity->{$field_name}[LANGUAGE_NONE];
-            field_attach_presave('node', $entity);
-            field_attach_update('node', $entity);
+        foreach ($sm_settings->{$sm_settings->getByBundleMethodName($type)}($bundle) as $field_name) {
+
+          if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
+            // If field have und value and don't have need value.
+            $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];
+            field_attach_presave($type, $entity);
+            field_attach_update($type, $entity);
+            $entity_ids = entity_extract_ids($type, $entity);
+            $entity_id = $entity_ids[0];
             $log = new SmartlingLog();
-            $log->setMessage('Smartling adds value for field @fieldname, langcode @lang')
+            $log->setMessage('Smartling adds value for field @fieldname, langcode @lang, entity - @entity, id - @id')
               ->setVariables(array(
                 '@fieldname' => $field_name,
-                '@lang' => $entity->language,
+                '@lang' => $entity_language,
+                '@entity' => $type,
+                '@id' => $entity_id,
               ))
-              ->setLink(l(t('Edit node'), 'node/' . $entity->nid))
+              ->setLink(smartling_get_link_to_entity($entity_id, $type))
               ->execute();
           }
         }
