@@ -23,6 +23,18 @@
                     });
                 });
             }
+            var is_title = $('.view-smartlig-report table.views-table').attr('class');
+            if (typeof is_title !== 'undefined') {
+                $('.views-field-smartling-title').each(function () {
+                    $(this).css({'width': '40%'});
+                });
+                $('.views-field-rid').each(function () {
+                    $(this).css({'width': '4%'});
+                });
+                $('.views-field-name').each(function () {
+                    $(this).css({'width': '4%'});
+                });
+            }
         }
     }
 
