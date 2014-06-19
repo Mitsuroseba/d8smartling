@@ -82,6 +82,25 @@ class SmartlingSettingsHandler {
   }
 
   /**
+   * Get ...by_bundle method name by entity type.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   *
+   * @return string
+   *   Return method name.
+   */
+  public static function getByBundleMethodName($entity_type) {
+    if ($entity_type == 'taxonomy_term') {
+      $method_name = 'taxonomyTermGetFieldsSettingsByBundle';
+    }
+    else {
+      $method_name = $entity_type . 'GetFieldsSettingsByBundle';
+    }
+    return $method_name;
+  }
+
+  /**
    * Set smartling fields settings for node entity.
    *
    * @param array $node_fields_settings

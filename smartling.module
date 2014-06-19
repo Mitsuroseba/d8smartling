@@ -141,15 +141,24 @@ function smartling_translatable_field_ajax_callback($field_name, $mode) {
   unset($field);
   drupal_set_message(t('Field @field_name settings update', array('@field_name' => $field_name)));
 
-  $smartling_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
+  $sm_settings = smartling_settings_get_handler();
+  $smartling_translate_fields = $sm_settings->nodeGetFieldsSettings();
   $fix_field_settings = array();
   $raw_types = node_type_get_types();
 
   foreach ($raw_types as $value) {
     $node_type = $value->type;
+    // Delete untranslatable field from settings in field method node types.
+    if (smartling_fields_method($node_type)) {
+      $sm_settings->deleteSingleFieldFromSettings('node', $node_type, $field_name);
+      $commands[] = ajax_command_invoke('input[name=' . $node_type . '_SEPARATOR_' . $field_name . ']', 'attr', array(
+        'checked',
+        FALSE,
+      ));
+    }
 
     foreach (field_info_instances('node', $node_type) as $field) {
-      if (smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings)) {
+      if (($field['field_name'] !== 'title_field') && smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings)) {
         $fix_field_settings[$field['field_name']] = l($field['label'], 'smartling/translatable/' . $field['field_name'] . '/nojs', array(
           'attributes' => array(
             'class' => array(

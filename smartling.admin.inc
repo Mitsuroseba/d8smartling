@@ -480,7 +480,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
           if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
-            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings)) {
+            if (($field['field_name'] !== 'title_field') && smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings)) {
               $fix_field_settings[$field_machine_name] = l($field_label, 'smartling/translatable/' . $field_machine_name . '/nojs', array(
                 'attributes' => array(
                   'class' => array(
@@ -665,7 +665,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
           // Add in config.
           $translate[$content_type]['title_field'] = 'title_field';
           $field = field_info_field('title_field');
-          (smartling_fields_method($content_type)) ? $field['translatable'] = 1 : $field['translatable'] = 0;
+          $field['translatable'] = 1;
           $operations[] = array('field_update_field', array($field));
         }
       }
@@ -941,7 +941,7 @@ function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form
             $translate[$machine_name][$term_field_name . '_field'] = $term_field_name . '_field';
             $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
             $field = field_info_field($term_field_name . '_field');
-            ($vocabulary->i18n_mode == I18N_MODE_LOCALIZE) ? $field['translatable'] = 1 : $field['translatable'] = 0;
+            $field['translatable'] = 1;
             $operations[] = array('field_update_field', array($field));
           }
         }
