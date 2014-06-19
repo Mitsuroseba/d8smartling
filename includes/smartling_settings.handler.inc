@@ -106,7 +106,7 @@ class SmartlingSettingsHandler {
    * @param array $node_fields_settings
    *   Smartling fields settings for node entity.
    */
-  public function nodeSetFieldsSettings($node_fields_settings) {
+  public function nodeSetFieldsSettings(array $node_fields_settings) {
     if (!empty($node_fields_settings)) {
       $this->nodeFieldsSettings = $node_fields_settings;
       variable_set('smartling_node_fields_settings', $node_fields_settings);
@@ -147,7 +147,7 @@ class SmartlingSettingsHandler {
    * @param array $comment_fields_settings
    *   Smartling fields settings for comment entity.
    */
-  public function commentSetFieldsSettings($comment_fields_settings) {
+  public function commentSetFieldsSettings(array $comment_fields_settings) {
     if (!empty($comment_fields_settings)) {
       $this->commentFieldsSettings = $comment_fields_settings;
       variable_set('smartling_comment_fields_settings', $comment_fields_settings);
@@ -187,7 +187,7 @@ class SmartlingSettingsHandler {
    * @param array $taxonomy_term_fields_settings
    *   Smartling fields settings for taxonomy_term entity.
    */
-  public function taxonomyTermSetFieldsSettings($taxonomy_term_fields_settings) {
+  public function taxonomyTermSetFieldsSettings(array $taxonomy_term_fields_settings) {
     if (!empty($taxonomy_term_fields_settings)) {
       $this->taxonomyTermFieldsSettings = $taxonomy_term_fields_settings;
       variable_set('smartling_taxonomy_term_fields_settings', $taxonomy_term_fields_settings);
@@ -227,7 +227,7 @@ class SmartlingSettingsHandler {
    * @param array $user_fields_settings
    *   Smartling fields settings for user entity.
    */
-  public function userSetFieldsSettings($user_fields_settings) {
+  public function userSetFieldsSettings(array $user_fields_settings) {
     if (!empty($user_fields_settings)) {
       $this->userFieldsSettings = $user_fields_settings;
       variable_set('smartling_user_fields_settings', $user_fields_settings);
@@ -271,7 +271,7 @@ class SmartlingSettingsHandler {
    * @param array $field_names
    *   Field names.
    */
-  public function addMultipleFieldsToSettings($entity_type, $bundle, $field_names = array()) {
+  public function addMultipleFieldsToSettings($entity_type, $bundle, array $field_names = array()) {
     $name_settings = $this->getPropertyName($entity_type);
     foreach ($field_names as $field_name) {
       $this->{$name_settings}[$bundle][$field_name] = $field_name;
@@ -303,7 +303,7 @@ class SmartlingSettingsHandler {
    * @param array $field_names
    *   Field names.
    */
-  public function deleteMultipleFieldsFromSettings($entity_type, $bundle, $field_names = array()) {
+  public function deleteMultipleFieldsFromSettings($entity_type, $bundle, array $field_names = array()) {
     $name_settings = $this->getPropertyName($entity_type);
     foreach ($field_names as $field_name) {
       if (isset($this->{$name_settings}[$bundle][$field_name])) {
@@ -344,7 +344,7 @@ class SmartlingSettingsHandler {
    * @param array $bundles
    *   Entity bundles.
    */
-  public function deleteMultipleBundleFromSettings($entity_type, $bundles = array()) {
+  public function deleteMultipleBundleFromSettings($entity_type, array $bundles = array()) {
     $name_settings = $this->getPropertyName($entity_type);
     foreach ($bundles as $bundle) {
       if (isset($this->{$name_settings}[$bundle])) {
@@ -568,7 +568,7 @@ class SmartlingSettingsHandler {
    * @param array $target_locales
    *   Target locales array.
    */
-  public function setTargetLocales($target_locales) {
+  public function setTargetLocales(array $target_locales) {
     $this->targetLocales = $target_locales;
     variable_set('smartling_target_locales', $target_locales);
   }
@@ -581,9 +581,9 @@ class SmartlingSettingsHandler {
    * @param array $target_locales
    *   Target locales array.
    */
-  public function makeTargetLocales($target_locales) {
+  public function makeTargetLocales(array $target_locales) {
     foreach ($target_locales as $key => $lang) {
-      // Must be === .
+      // Must be === 0.
       if ($lang === 0) {
         unset($target_locales[$key]);
       }
@@ -610,7 +610,7 @@ class SmartlingSettingsHandler {
    * @param array $locales_convert_array
    *   Locales convert array.
    */
-  public function setLocalesConvertArray($locales_convert_array) {
+  public function setLocalesConvertArray(array $locales_convert_array) {
     $this->localesConvertArray = $locales_convert_array;
     variable_set('smartling_locales_convert_array', $locales_convert_array);
   }
@@ -621,10 +621,10 @@ class SmartlingSettingsHandler {
    * @param array $values
    *   Drupal form values array.
    */
-  public function makeLocalesConvertArray($values) {
+  public function makeLocalesConvertArray(array $values) {
     $locales_convert_array = $values['target_locales'];
     foreach ($values['target_locales'] as $key => $lang) {
-      // Must be === .
+      // Must be === 0 .
       if ($lang === 0) {
         unset($locales_convert_array[$key]);
       }

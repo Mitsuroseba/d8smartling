@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * smartling_demo_content.features.field_instance.inc
+ * Smartling demo content features field instance.
  */
 
 /**

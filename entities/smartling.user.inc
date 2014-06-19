@@ -34,7 +34,7 @@ function smartling_form_user_profile_form_alter(&$form, &$form_state) {
  * @return array
  *   Return FAPI array for user smartling form.
  */
-function smartling_get_user_settings_form($form, &$form_state) {
+function smartling_get_user_settings_form(array $form, array &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
       '#title' => t('Smartling management'),
@@ -159,7 +159,7 @@ function smartling_get_user_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_get_user_settings_form_submit($form, &$form_state) {
+function smartling_get_user_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   $account = $form_state['user'];
   $category = $form['#user_category'];

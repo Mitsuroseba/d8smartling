@@ -88,7 +88,7 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
  * @return array
  *   Return FAPI array for Comment smartling form.
  */
-function smartling_get_comment_settings_form($form, &$form_state) {
+function smartling_get_comment_settings_form(array $form, array &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
       '#title' => t('Smartling management'),
@@ -213,7 +213,7 @@ function smartling_get_comment_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_get_comment_settings_form_submit($form, &$form_state) {
+function smartling_get_comment_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   $comment = comment_form_submit_build_comment($form, $form_state);
   $d_locale_original = $comment->translations->original;

@@ -10,7 +10,7 @@ require_once dirname(__FILE__) . '/smartling_content_parser_interface.inc';
 /**
  * SmartlingImageUrlParser.
  */
-class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
+class SmartlingImageUrlParser implements SmartlingIContentParserInterface {
 
   protected $regexp = '~\s+(href|src|action|longdesc)="([^"]+)~i';
   protected $processors;
@@ -54,7 +54,7 @@ class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
    * @return array
    *   Context array.
    */
-  protected function getContext($matches) {
+  protected function getContext(array $matches) {
     // Get the base path.
     list($base_path, $base_url) = $this->getGlobalSettings();
 
@@ -118,11 +118,6 @@ class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
       }
       $new_parts['path'] = rawurldecode($new_parts['path']);
       $parts = $new_parts;
-      // Don't do language handling for file paths.
-      $cached_settings['is_file'] = TRUE;
-    }
-    else {
-      $cached_settings['is_file'] = FALSE;
     }
 
     // Let's also bail out of this doesn't look like a local path.
@@ -186,7 +181,7 @@ class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
    * @return string
    *   Return match.
    */
-  protected function processorExecutor($match) {
+  protected function processorExecutor(array $match) {
     $context = $this->getContext($match);
 
     foreach ($this->processors as $processor) {
@@ -211,7 +206,7 @@ class SmartlingImageUrlParser implements IContentParserSmartlingInterface {
    * @return array
    *   Return content.
    */
-  public function parse($content, $lang, $field_name, $entity) {
+  public function parse(array $content, $lang, $field_name, $entity) {
     $this->fieldName = $field_name;
     $this->entity = $entity;
     $this->lang = $lang;

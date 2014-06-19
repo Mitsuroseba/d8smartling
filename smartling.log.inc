@@ -64,7 +64,7 @@ class SmartlingLog {
    * @return SmartlingLog
    *   Return object SmartlingLog.
    */
-  public function setVariables($variables = array()) {
+  public function setVariables(array $variables = array()) {
     $this->variables = (array) $variables;
     return $this;
   }

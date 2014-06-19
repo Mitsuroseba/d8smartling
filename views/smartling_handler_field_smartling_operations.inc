@@ -8,9 +8,18 @@
 /**
  * Handler for field locale_info.
  */
-class smartling_handler_field_smartling_operations extends views_handler_field {
+class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
 
-  function render($values) {
+  /**
+   * Render.
+   *
+   * @param object $values
+   *   Smartling entity.
+   *
+   * @return string
+   *   Return operations.
+   */
+  public function render($values) {
     $output = '';
 
     $entity_type = $values->smartling_entity_data_entity_type;

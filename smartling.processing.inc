@@ -726,7 +726,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
  * @return bool
  *   Return TRUE if copy fields.
  */
-function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $original_locale, $fields) {
+function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $original_locale, array $fields) {
   $xpath = new DomXpath($xml);
   $entity_wrapper = entity_load_single($entity_type, $rid);
   if ($entity_wrapper) {

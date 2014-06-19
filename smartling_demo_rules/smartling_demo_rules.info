@@ -1,7 +1,6 @@
 name = Smartling demo rules
 description = Smartling demo rules.
 core = 7.x
-version = 7.x-2.0-beta1
 package = smartling
 dependencies[] = entity
 dependencies[] = rules

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Worcers functions for Smartling module.
+ * Workers functions for Smartling module.
  */
 
 /**

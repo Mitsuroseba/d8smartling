@@ -14,7 +14,7 @@ require_once dirname(__FILE__) . '/smartling_content_parser_interface.inc';
  * "fields":{"format":"default"},"type":"media",
  * "attributes":{"class":"media-element file-default"}}]]</p>.
  */
-class SmartlingMediaParser implements IContentParserSmartlingInterface {
+class SmartlingMediaParser implements SmartlingIContentParserInterface {
 
   protected $regexp = array('~(\[\[\{"fid":.+\}\]\]~i', '~(\[\[\{&quot;fid&quot;:.+\}\]\]~i');
   protected $processors;
@@ -41,7 +41,7 @@ class SmartlingMediaParser implements IContentParserSmartlingInterface {
    * @return array
    *   Context array.
    */
-  protected function getContext($matches) {
+  protected function getContext(array $matches) {
     foreach ($matches as $k => $v) {
       $matches[$k] = json_decode(htmlspecialchars_decode($v));
     }
@@ -59,7 +59,7 @@ class SmartlingMediaParser implements IContentParserSmartlingInterface {
    * @return string
    *   Return match.
    */
-  protected function processorExecutor($match) {
+  protected function processorExecutor(array $match) {
     $context = $this->getContext($match);
 
     foreach ($this->processors as $processor) {
@@ -84,7 +84,7 @@ class SmartlingMediaParser implements IContentParserSmartlingInterface {
    * @return array
    *   Return content.
    */
-  public function parse($content, $lang, $field_name, $entity) {
+  public function parse(array $content, $lang, $field_name, $entity) {
     $this->fieldName = $field_name;
     $this->entity = $entity;
     $this->lang = $lang;

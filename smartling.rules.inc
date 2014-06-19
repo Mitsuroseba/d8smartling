@@ -186,7 +186,7 @@ function smartling_locale_condition($data, $op, $value) {
  * @param array $translate_to_langs
  *   Translate languages.
  */
-function smartling_get_translation_status_action($node, $translate_to_langs) {
+function smartling_get_translation_status_action($node, array $translate_to_langs) {
   $log = new SmartlingLog();
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
@@ -248,7 +248,7 @@ function smartling_get_translation_status_action($node, $translate_to_langs) {
  * @param array $translate_to_langs
  *   Translate languages.
  */
-function smartling_download_translation_action($node, $translate_to_langs) {
+function smartling_download_translation_action($node, array $translate_to_langs) {
   $log = new SmartlingLog();
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
@@ -301,7 +301,7 @@ function smartling_download_translation_action($node, $translate_to_langs) {
  * @param array $translate_to_langs
  *   Translate languages.
  */
-function smartling_send_to_translate_action($node, $translate_to_langs) {
+function smartling_send_to_translate_action($node, array $translate_to_langs) {
   global $user;
   $log = new SmartlingLog();
 

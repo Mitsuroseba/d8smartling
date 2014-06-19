@@ -8,9 +8,18 @@
 /**
  * Handler for field locale_info.
  */
-class smartling_handler_field_locale_info extends views_handler_field {
+class SmartlingHandlerFieldLocaleInfo extends views_handler_field {
 
-  function render($values) {
+  /**
+   * Render.
+   *
+   * @param object $values
+   *   Entity.
+   *
+   * @return string
+   *   Return locale value.
+   */
+  public function render($values) {
     if (isset($values->nid)) {
       $result = smartling_entity_load_all_by_conditions(array('rid' => $values->nid, 'entity_type' => 'node'));
     }

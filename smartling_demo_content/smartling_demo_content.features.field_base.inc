@@ -2,7 +2,7 @@
 
 /**
  * @file
- * smartling_demo_content.features.field_base.inc
+ * Smartling demo content features field base.
  */
 
 /**

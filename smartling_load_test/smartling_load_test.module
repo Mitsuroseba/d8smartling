@@ -18,7 +18,7 @@ include_once 'smartling_load_test.features.inc';
  * @return array
  *   Return FAPI array for user smartling form.
  */
-function smartling_admin_dev_settings_form($form, &$form_state) {
+function smartling_admin_dev_settings_form(array $form, array &$form_state) {
   $query = db_select('node', 'n');
   $query->addExpression('COUNT(n.nid)');
   $count = $query->condition('n.type', 'smartling_load_test')
@@ -65,11 +65,11 @@ function smartling_admin_dev_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_dev_settings_form_submit($form, &$form_state) {
+function smartling_admin_dev_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   if ($form_state['clicked_button']['#name'] == 'load_tests_submit') {
     for ($i = 0; $i < 10000; $i++) {
-      $operations[] = array('_create_load_test_node_batch', array());
+      $operations[] = array('smartling_create_load_test_node_batch', array());
     }
     $batch = array(
       'title' => t('Create Smartling load-tests content'),
@@ -87,7 +87,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
       ->fetchCol();
     if (!empty($result)) {
       foreach ($result as $nid) {
-        $operations[] = array('_delete_load_test_node_batch', array($nid));
+        $operations[] = array('smartling_delete_load_test_node_batch', array($nid));
       }
 
       $batch = array(
@@ -114,7 +114,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
 
     if (!empty($result)) {
       foreach ($result as $eid) {
-        $operations[] = array('_delete_smartling_content_batch', array($eid));
+        $operations[] = array('smartling_delete_smartling_content_batch', array($eid));
       }
 
       $batch = array(
@@ -133,7 +133,7 @@ function smartling_admin_dev_settings_form_submit($form, &$form_state) {
  * @global object $user
  *   Drupal user object.
  */
-function _create_load_test_node_batch() {
+function smartling_create_load_test_node_batch() {
   module_load_include('inc', 'devel_generate', 'devel_generate');
   global $user;
 
@@ -161,7 +161,7 @@ function _create_load_test_node_batch() {
  * @param int $nid
  *   Node id.
  */
-function _delete_load_test_node_batch($nid) {
+function smartling_delete_load_test_node_batch($nid) {
   node_delete($nid);
 }
 
@@ -171,7 +171,7 @@ function _delete_load_test_node_batch($nid) {
  * @param int $eid
  *   Smartling transaction id.
  */
-function _delete_smartling_content_batch($eid) {
+function smartling_delete_smartling_content_batch($eid) {
   $entity_data = smartling_entity_data_load($eid);
 
   if (!empty($entity_data->bundle)) {

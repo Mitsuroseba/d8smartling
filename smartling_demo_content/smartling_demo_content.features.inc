@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * smartling_demo_content.features.inc
+ * Smartling demo content features.
  */
 
 /**

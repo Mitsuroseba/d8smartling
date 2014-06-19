@@ -70,7 +70,7 @@ function smartling_views_data_alter(&$data) {
     'title' => t('Smartling status'),
     'help' => t('The status type (for example, "in queue", "in translate", etc).'),
     'filter' => array(
-      'handler' => 'smartling_handler_filter_entity_status',
+      'handler' => 'SmartlingHandlerFilterEntityStatus',
     ),
     'field' => array(
       'handler' => 'views_handler_field_numeric',
@@ -84,7 +84,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['smartling_entity_data']['target_language']['field'] = array(
     'real field' => 'target_language',
-    'handler' => 'smartling_handler_field_target_language',
+    'handler' => 'SmartlingHandlerFieldTargetLanguage',
     'click sortable' => TRUE,
   );
   $data['smartling_entity_data']['target_language']['filter'] = array(
@@ -97,7 +97,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['smartling_entity_data']['smartling_title']['field'] = array(
     'real field' => 'eid',
-    'handler' => 'smartling_handler_field_smartling_title',
+    'handler' => 'SmartlingHandlerFieldSmartlingTitle',
     'click sortable' => TRUE,
   );
   $data['smartling_entity_data']['smartling_title']['sort'] = array(
@@ -110,7 +110,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['smartling_entity_data']['smartling_operations']['field'] = array(
     'real field' => 'eid',
-    'handler' => 'smartling_handler_field_smartling_operations',
+    'handler' => 'SmartlingHandlerFieldSmartlingOperations',
     'click sortable' => TRUE,
   );
 
@@ -121,7 +121,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['node']['locale_info']['field'] = array(
     'real field' => 'nid',
-    'handler' => 'smartling_handler_field_locale_info',
+    'handler' => 'SmartlingHandlerFieldLocaleInfo',
     'click sortable' => TRUE,
   );
 
@@ -132,7 +132,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['taxonomy_term_data']['locale_info']['field'] = array(
     'real field' => 'tid',
-    'handler' => 'smartling_handler_field_locale_info',
+    'handler' => 'SmartlingHandlerFieldLocaleInfo',
     'click sortable' => TRUE,
   );
 
@@ -143,7 +143,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['comment']['locale_info']['field'] = array(
     'real field' => 'cid',
-    'handler' => 'smartling_handler_field_locale_info',
+    'handler' => 'SmartlingHandlerFieldLocaleInfo',
     'click sortable' => TRUE,
   );
 
@@ -154,7 +154,7 @@ function smartling_views_data_alter(&$data) {
   );
   $data['users']['locale_info']['field'] = array(
     'real field' => 'uid',
-    'handler' => 'smartling_handler_field_locale_info',
+    'handler' => 'SmartlingHandlerFieldLocaleInfo',
     'click sortable' => TRUE,
   );
 

@@ -23,7 +23,7 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
+function smartling_vocabulary_support_type_validate( array &$form, array &$form_state) {
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
       drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
@@ -40,7 +40,7 @@ function smartling_vocabulary_support_type_validate(&$form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_vocabulary_support_type_submit(&$form, &$form_state) {
+function smartling_vocabulary_support_type_submit( array &$form, array &$form_state) {
   // Delete content type in smartling support types.
   $bundle = $form_state['values']['machine_name'];
   if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
@@ -98,7 +98,7 @@ function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
  * @return array
  *   Return FAPI array for taxonomy term smartling form.
  */
-function smartling_get_term_settings_form($form, &$form_state) {
+function smartling_get_term_settings_form(array $form, array &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
     $form['smartling'] = array(
       '#title' => t('Smartling management'),
@@ -233,7 +233,7 @@ function smartling_get_term_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_get_term_settings_form_submit($form, &$form_state) {
+function smartling_get_term_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   $term = taxonomy_form_term_submit_build_taxonomy_term($form, $form_state);
   $language_default = language_default()->language;

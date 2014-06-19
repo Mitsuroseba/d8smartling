@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of smartling_handler_filter_entity_status.
+ * Definition of smartling handler filter entity status.
  */
 
 /**
@@ -10,9 +10,12 @@
  *
  * @ingroup views_filter_handlers
  */
-class smartling_handler_filter_entity_status extends views_handler_filter_in_operator {
+class SmartlingHandlerFilterEntityStatus extends views_handler_filter_in_operator {
 
-  function get_value_options() {
+  /**
+   * Get value options.
+   */
+  public function get_value_options() {
     if (!isset($this->value_options)) {
       $this->value_title = t('Smartling status');
       $options = array(

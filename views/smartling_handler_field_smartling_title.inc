@@ -8,9 +8,18 @@
 /**
  * Handler for field title.
  */
-class smartling_handler_field_smartling_title extends views_handler_field {
+class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
 
-  function render($values) {
+  /**
+   * Render.
+   *
+   * @param object $values
+   *   Smartling entity.
+   *
+   * @return string
+   *   Return title.
+   */
+  public function render($values) {
     $entity_type = $values->smartling_entity_data_entity_type;
     $rid = $values->smartling_entity_data_rid;
 

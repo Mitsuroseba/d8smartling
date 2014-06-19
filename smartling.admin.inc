@@ -58,7 +58,7 @@ function smartling_admin_configuration_view() {
  * @return array
  *   Return FAPI array for smartling account settings.
  */
-function smartling_admin_account_info_settings_form($form, &$form_state) {
+function smartling_admin_account_info_settings_form(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
 
   $form['accaunt_info'] = array(
@@ -237,7 +237,7 @@ function smartling_admin_account_info_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_account_info_settings_form_validate($form, &$form_state) {
+function smartling_admin_account_info_settings_form_validate(array $form, array &$form_state) {
   $project_id = '';
   $smartling_key = '';
   if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
@@ -299,7 +299,7 @@ function smartling_admin_account_info_settings_form_validate($form, &$form_state
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_account_info_settings_form_submit($form, &$form_state) {
+function smartling_admin_account_info_settings_form_submit(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
   // Account settings.
   if (isset($form_state['values']['api_url'])) {
@@ -366,7 +366,7 @@ function smartling_admin_account_info_settings_form_submit($form, &$form_state) 
  * @return array
  *   Return FAPI array for smartling log settings.
  */
-function smartling_admin_log_info_settings_form($form, &$form_state) {
+function smartling_admin_log_info_settings_form(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
   $form['log_info']['log_mode'] = array(
     '#type' => 'radios',
@@ -396,7 +396,7 @@ function smartling_admin_log_info_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
+function smartling_admin_log_info_settings_form_submit(array $form, array &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
     $log = new SmartlingLog();
     if ($form_state['values']['log_mode'] == FALSE) {
@@ -425,7 +425,7 @@ function smartling_admin_log_info_settings_form_submit($form, &$form_state) {
  * @return array
  *   Return FAPI array for smartling node fields settings.
  */
-function smartling_admin_node_translation_settings_form($form, &$form_state) {
+function smartling_admin_node_translation_settings_form(array $form, array &$form_state) {
   $raw_types = node_type_get_types();
   $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
 
@@ -597,7 +597,7 @@ function smartling_admin_node_translation_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_node_translation_settings_form_submit($form, &$form_state) {
+function smartling_admin_node_translation_settings_form_submit(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
   $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
@@ -708,7 +708,7 @@ function smartling_admin_node_translation_settings_form_submit($form, &$form_sta
  * @return array
  *   Return FAPI array for smartling taxonomy fields settings.
  */
-function smartling_admin_taxonomy_translation_settings_form($form, &$form_state) {
+function smartling_admin_taxonomy_translation_settings_form(array $form, array &$form_state) {
   $raw_types = taxonomy_get_vocabularies();
   $term_translate_fields = smartling_settings_get_handler()->taxonomyTermGetFieldsSettings();
 
@@ -872,7 +872,7 @@ function smartling_admin_taxonomy_translation_settings_form($form, &$form_state)
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form_state) {
+function smartling_admin_taxonomy_translation_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
@@ -986,7 +986,7 @@ function smartling_admin_taxonomy_translation_settings_form_submit($form, &$form
  * @return array
  *   Return FAPI array for smartling comments fields settings.
  */
-function smartling_admin_comments_translation_settings_form($form, &$form_state) {
+function smartling_admin_comments_translation_settings_form(array $form, array &$form_state) {
   $raw_types = node_type_get_types();
   $comment_translate_fields = smartling_settings_get_handler()->commentGetFieldsSettings();
 
@@ -1107,7 +1107,7 @@ function smartling_admin_comments_translation_settings_form($form, &$form_state)
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_comments_translation_settings_form_submit($form, &$form_state) {
+function smartling_admin_comments_translation_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
@@ -1202,7 +1202,7 @@ function smartling_admin_comments_translation_settings_form_submit($form, &$form
  * @return array
  *   Return FAPI array for smartling user fields settings.
  */
-function smartling_admin_users_translation_settings_form($form, &$form_state) {
+function smartling_admin_users_translation_settings_form(array $form, array &$form_state) {
   $user_translate_fields = smartling_settings_get_handler()->userGetFieldsSettings();
 
   // What types of fields DO we translate?
@@ -1299,7 +1299,7 @@ function smartling_admin_users_translation_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_users_translation_settings_form_submit($form, &$form_state) {
+function smartling_admin_users_translation_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
@@ -1351,7 +1351,7 @@ function smartling_admin_users_translation_settings_form_submit($form, &$form_st
  * @return array
  *   Return FAPI array.
  */
-function smartling_wrap_in_fieldset($form, $title) {
+function smartling_wrap_in_fieldset(array $form, $title) {
   return array(
     '#type' => 'fieldset',
     '#group' => 'smartling',

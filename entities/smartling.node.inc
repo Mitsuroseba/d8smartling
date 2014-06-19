@@ -61,7 +61,7 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_multilanguage_support_node_type_validate(&$form, &$form_state) {
+function smartling_multilanguage_support_node_type_validate( array &$form, array &$form_state) {
   if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {
     if (!smartling_is_configured()) {
       drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
@@ -78,7 +78,7 @@ function smartling_multilanguage_support_node_type_validate(&$form, &$form_state
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) {
+function smartling_multilanguage_support_node_type_submit( array &$form, array &$form_state) {
   // Delete content type in smartling support types.
   $bundle = $form_state['values']['type'];
   if ($form_state['values']['language_content_type'] != SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] != SMARTLING_NODES_METHOD_KEY) {
@@ -97,7 +97,7 @@ function smartling_multilanguage_support_node_type_submit(&$form, &$form_state) 
  * @return array
  *   Return FAPI array for node smartling form.
  */
-function smartling_get_node_settings_form($form, &$form_state) {
+function smartling_get_node_settings_form(array $form, array &$form_state) {
   if (smartling_translate_fields_is_set($form['#node']->type)) {
     // Vertical Tab.
     $form['smartling'] = array(
@@ -330,7 +330,7 @@ function smartling_get_node_settings_form($form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_get_node_settings_form_submit($form, &$form_state) {
+function smartling_get_node_settings_form_submit(array $form, array &$form_state) {
   $log = new SmartlingLog();
   $node = node_form_submit_build_node($form, $form_state);
   $nid = $node->nid;
