@@ -35,10 +35,10 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page');
     // Set title field for article CT.
-    $this->smartlingSetFieldSettings('page', 'title', TRUE);
+    $this->smartlingSetFieldSettings('page', 'title_property_field');
     // Create node.
     $node_array = array(
-      'title_field[und][0][value]' => 'Title test',
+      'title' => 'Title test',
       'language' => 'en',
     );
     $this->drupalPost('node/add/page', $node_array, t('Save'));

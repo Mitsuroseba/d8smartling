@@ -601,7 +601,7 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
       break;
 
     case 'taxonomy_term':
-      $content_to_translate = smartling_term_content_to_translate($rid);
+      $content_to_translate = smartling_taxonomy_term_content_to_translate($rid);
       break;
 
     case 'comment':
@@ -1238,4 +1238,33 @@ function smartling_check_filename_length($title, $entity_type, $rid) {
     return FALSE;
   }
   return TRUE;
+}
+
+/**
+ * Check field by name.
+ *
+ * Return TRUE if this is fake field for entites translate method.
+ *
+ * @param string $field_name
+ *   Field name for check.
+ *
+ * @return bool
+ *   Return fake parameter.
+ */
+function smartling_check_fake_field_for_entities_translate_method($field_name) {
+  $fake = FALSE;
+  $fake_field_array = array(
+    'title_property_field',
+    'name_property_field',
+    'description_property_field',
+  );
+
+  if (in_array($field_name, $fake_field_array)) {
+    $fake = TRUE;
+  }
+  else {
+    $fake = FALSE;
+  }
+
+  return $fake;
 }

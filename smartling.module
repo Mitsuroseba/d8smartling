@@ -158,7 +158,7 @@ function smartling_translatable_field_ajax_callback($field_name, $mode) {
     }
 
     foreach (field_info_instances('node', $node_type) as $field) {
-      if (($field['field_name'] !== 'title_field') && smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings)) {
+      if (smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings)) {
         $fix_field_settings[$field['field_name']] = l($field['label'], 'smartling/translatable/' . $field['field_name'] . '/nojs', array(
           'attributes' => array(
             'class' => array(
@@ -789,7 +789,8 @@ function smartling_entity_update($entity, $type) {
   }
 
   if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
-    $content_array = smartling_node_content_to_translate($entity);
+    $f_name = 'smartling_' . $type . '_content_to_translate';
+    $content_array = $f_name($entity);
     $content_hash = md5(serialize($content_array));
     foreach ($smartling_entity_data as $smartling_entity) {
       $old_content_hash = $smartling_entity->content_hash;

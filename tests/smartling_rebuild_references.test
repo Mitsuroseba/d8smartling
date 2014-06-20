@@ -23,7 +23,7 @@ class SmartlingRebuildReferencesTest extends SmartlingWebTestCase {
       'group' => 'Smartling',
     );
   }
-
+  
   /**
    * Test correct rebuild references.
    */
@@ -80,24 +80,7 @@ class SmartlingRebuildReferencesTest extends SmartlingWebTestCase {
     // Set method for vocabulary.
     $this->smartlingSetTermMethodSettings('travel');
     // Set fields for term.
-    $this->smartlingSetTermFieldSettings('travel', 'name', TRUE);
-    // Fix module title bug.
-    for ($tid = 1; $tid <= 4; $tid++) {
-      $term = taxonomy_term_load($tid);
-      if (!empty($term->name)) {
-        $name = $term->name;
-      }
-      elseif ($term->name_original) {
-        $name = $term->name_original;
-      }
-      else {
-        $name = 'Test term name';
-      }
-      $term->name = $name;
-      $term->name_original = $name;
-      $term->name_field[LANGUAGE_NONE][0]['value'] = $name;
-      taxonomy_term_save($term);
-    }
+    $this->smartlingSetTermFieldSettings('travel', 'name_property_field');
 
     // Set node values.
     $node = node_load(1);

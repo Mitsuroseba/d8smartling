@@ -73,7 +73,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page');
     // Set fields for page CT.
-    $this->smartlingSetFieldSettings('page', 'title', TRUE);
+    $this->smartlingSetFieldSettings('page', 'title_property_field');
     $this->smartlingSetFieldSettings('page', 'body');
 
     $terms = array(
@@ -82,7 +82,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     // Create node content.
     $node_array = array(
-      'title_field[und][0][value]' => 'Title test',
+      'title' => 'Title test',
       'language' => 'en',
       'field_tags[und]' => drupal_implode_tags($terms),
     );
@@ -108,8 +108,8 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $translated_node = node_load(2);
     $this->assertTrue(($translated_node->tnid == 1), t('Translated node linked to original'), t('Browser'));
 
-    $translated_value = $translated_node->title_field[LANGUAGE_NONE][0]['value'];
-    $original_value = $original_node->title_field[LANGUAGE_NONE][0]['value'];
+    $translated_value = $translated_node->title;
+    $original_value = $original_node->title;
     $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Title conteins translated value'), t('Browser'));
 
     $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
@@ -184,7 +184,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     // Set nodes method for page CT.
     $this->smartlingSetMethodSettings('page');
     // Set fields for page CT.
-    $this->smartlingSetFieldSettings('page', 'title', TRUE);
+    $this->smartlingSetFieldSettings('page', 'title_property_field');
     $this->smartlingSetFieldSettings('page', 'body');
 
     // Create original node content.
@@ -193,7 +193,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     );
 
     $node_array = array(
-      'title_field[und][0][value]' => 'Title test',
+      'title' => 'Title test',
       'language' => 'en',
       'field_tags[und]' => drupal_implode_tags($terms),
     );
@@ -214,7 +214,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     );
 
     $node_tr_array = array(
-      'title_field[und][0][value]' => 'Translated title test',
+      'title' => 'Translated title test',
       'field_tags[und]' => drupal_implode_tags($terms),
     );
 
@@ -241,7 +241,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->assertTrue(($translated_node->tnid == 1), t('Translated node linked to original'), t('Browser'));
     $this->drupalGet('node/2/translate');
 
-    $translated_value = $translated_node->title_field[LANGUAGE_NONE][0]['value'];
+    $translated_value = $translated_node->title;
     $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated title test')), t('Title conteins translated value'), t('Browser'));
 
     $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];

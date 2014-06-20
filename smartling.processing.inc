@@ -23,7 +23,11 @@ function smartling_get_field_content_processing_mode($field_name) {
     'description_field',
     'subject_field',
   );
-  if (in_array($field_name, $swap_array)) {
+
+  if (smartling_check_fake_field_for_entities_translate_method($field_name)) {
+    $processing_mode = $field_name;
+  }
+  elseif (in_array($field_name, $swap_array)) {
     $processing_mode = 'text-field';
   }
   else {
@@ -73,7 +77,7 @@ function smartling_node_content_to_translate($nid) {
   foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($node->type) as $field_name) {
     $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('node', $node) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
-      case 'node-title':
+      case 'title_property_field':
         if (!empty($node->title)) {
           $node_current_translatable_content[$field_name][0] = $node->title;
         }
@@ -127,7 +131,7 @@ function smartling_node_content_to_translate($nid) {
  * @return array
  *   Structured array of content that will be sent for translation.
  */
-function smartling_term_content_to_translate($tid) {
+function smartling_taxonomy_term_content_to_translate($tid) {
   $term_current_translatable_content = array();
   if (is_numeric($tid)) {
     $term = taxonomy_term_load($tid);
@@ -139,13 +143,13 @@ function smartling_term_content_to_translate($tid) {
   foreach (smartling_settings_get_handler()->taxonomyTermGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
     $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('taxonomy_term', $term) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
-      case 'taxonomy-term-title':
+      case 'name_property_field':
         if (!empty($term->name)) {
           $term_current_translatable_content[$field_name][0] = $term->name;
         }
         break;
 
-      case 'taxonomy-term-description':
+      case 'description_property_field':
         if (!empty($term->description)) {
           $term_current_translatable_content[$field_name][0] = $term->description;
         }
@@ -370,10 +374,17 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')
       ->item(0);
     $string = (string) $field->nodeValue;
-    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
 
-    $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
-    $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
+    if(!smartling_check_fake_field_for_entities_translate_method($field_name)){
+      $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i);
+
+      $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
+      $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
+    }
+    else {
+      $property_name = str_ireplace('_property_field', '', $field_name);
+      $entity_wrapper->{$property_name} = $string;
+    }
   }
   return $entity_wrapper;
 }
