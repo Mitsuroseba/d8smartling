@@ -27,20 +27,51 @@ class SmartlingSettingsHandler {
    * Initialize.
    */
   public function __construct() {
-    $this->apiUrl = variable_get('smartling_api_url', SMARTLING_DEFAULT_API_URL);
-    $this->callbackUrlUse = variable_get('smartling_callback_url_use', TRUE);
-    $this->logMode = variable_get('smartling_log', TRUE);
-    $this->projectId = variable_get('smartling_project_id', '');
-    $this->key = variable_get('smartling_key', '');
-    $this->retrievalType = variable_get('smartling_retrieval_type', 'published');
+    $this->apiUrl = $this->variable_get('smartling_api_url', SMARTLING_DEFAULT_API_URL);
+    $this->callbackUrlUse = $this->variable_get('smartling_callback_url_use', TRUE);
+    $this->logMode = $this->variable_get('smartling_log', TRUE);
+    $this->projectId = $this->variable_get('smartling_project_id', '');
+    $this->key = $this->variable_get('smartling_key', '');
+    $this->retrievalType = $this->variable_get('smartling_retrieval_type', 'published');
 
-    $this->targetLocales = variable_get('smartling_target_locales', array());
-    $this->localesConvertArray = variable_get('smartling_locales_convert_array', array());
+    $this->targetLocales = $this->variable_get('smartling_target_locales', array());
+    $this->localesConvertArray = $this->variable_get('smartling_locales_convert_array', array());
 
-    $this->nodeFieldsSettings = variable_get('smartling_node_fields_settings', array());
-    $this->commentFieldsSettings = variable_get('smartling_comment_fields_settings', array());
-    $this->taxonomyTermFieldsSettings = variable_get('smartling_taxonomy_term_fields_settings', array());
-    $this->userFieldsSettings = variable_get('smartling_user_fields_settings', array());
+    $this->nodeFieldsSettings = $this->variable_get('smartling_node_fields_settings', array());
+    $this->commentFieldsSettings = $this->variable_get('smartling_comment_fields_settings', array());
+    $this->taxonomyTermFieldsSettings = $this->variable_get('smartling_taxonomy_term_fields_settings', array());
+    $this->userFieldsSettings = $this->variable_get('smartling_user_fields_settings', array());
+  }
+
+  /*
+   * Wrapper for variable_get() function.
+   *
+   * @param string $variable_name
+   * @param mixed $default_value
+   *
+   * @return mixed
+   */
+  protected function variable_get($variable_name, $default_value = null) {
+    return variable_get($variable_name, $default_value);
+  }
+
+  /*
+   * Wrapper for variable_set() function.
+   *
+   * @param string $variable_name
+   * @param mixed $value
+   */
+  protected function variable_set($variable_name, $value) {
+    variable_set($variable_name, $value);
+  }
+
+  /*
+   * Wrapper for variable_del() function.
+   *
+   * @param string $variable_name
+   */
+  protected function variable_del($variable_name) {
+    variable_del($variable_name);
   }
 
   /**
@@ -109,11 +140,11 @@ class SmartlingSettingsHandler {
   public function nodeSetFieldsSettings(array $node_fields_settings) {
     if (!empty($node_fields_settings)) {
       $this->nodeFieldsSettings = $node_fields_settings;
-      variable_set('smartling_node_fields_settings', $node_fields_settings);
+      $this->variable_set('smartling_node_fields_settings', $node_fields_settings);
     }
     else {
       $this->nodeFieldsSettings = array();
-      variable_delete('smartling_node_fields_settings');
+      $this->variable_del('smartling_node_fields_settings');
     }
   }
 
@@ -150,11 +181,11 @@ class SmartlingSettingsHandler {
   public function commentSetFieldsSettings(array $comment_fields_settings) {
     if (!empty($comment_fields_settings)) {
       $this->commentFieldsSettings = $comment_fields_settings;
-      variable_set('smartling_comment_fields_settings', $comment_fields_settings);
+      $this->variable_set('smartling_comment_fields_settings', $comment_fields_settings);
     }
     else {
       $this->commentFieldsSettings = array();
-      variable_delete('smartling_comment_fields_settings');
+      $this->variable_del('smartling_comment_fields_settings');
     }
   }
 
@@ -190,11 +221,11 @@ class SmartlingSettingsHandler {
   public function taxonomyTermSetFieldsSettings(array $taxonomy_term_fields_settings) {
     if (!empty($taxonomy_term_fields_settings)) {
       $this->taxonomyTermFieldsSettings = $taxonomy_term_fields_settings;
-      variable_set('smartling_taxonomy_term_fields_settings', $taxonomy_term_fields_settings);
+      $this->variable_set('smartling_taxonomy_term_fields_settings', $taxonomy_term_fields_settings);
     }
     else {
       $this->taxonomyTermFieldsSettings = array();
-      variable_delete('smartling_taxonomy_term_fields_settings');
+      $this->variable_del('smartling_taxonomy_term_fields_settings');
     }
   }
 
@@ -230,11 +261,11 @@ class SmartlingSettingsHandler {
   public function userSetFieldsSettings(array $user_fields_settings) {
     if (!empty($user_fields_settings)) {
       $this->userFieldsSettings = $user_fields_settings;
-      variable_set('smartling_user_fields_settings', $user_fields_settings);
+      $this->variable_set('smartling_user_fields_settings', $user_fields_settings);
     }
     else {
       $this->userFieldsSettings = array();
-      variable_delete('smartling_user_fields_settings');
+      $this->variable_del('smartling_user_fields_settings');
     }
   }
 
@@ -276,7 +307,7 @@ class SmartlingSettingsHandler {
     foreach ($field_names as $field_name) {
       $this->{$name_settings}[$bundle][$field_name] = $field_name;
     }
-    variable_set('smartling_' . $entity_type . '_translate_fields', $this->{$name_settings});
+    $this->variable_set('smartling_' . $entity_type . '_translate_fields', $this->{$name_settings});
   }
 
   /**
@@ -315,10 +346,10 @@ class SmartlingSettingsHandler {
       }
     }
     if ($this->{$name_settings} == array()) {
-      variable_delete('smartling_' . $entity_type . '_fields_settings');
+      $this->variable_del('smartling_' . $entity_type . '_fields_settings');
     }
     else {
-      variable_set('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
+      $this->variable_set('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
     }
   }
 
@@ -352,10 +383,10 @@ class SmartlingSettingsHandler {
       }
     }
     if ($this->{$name_settings} == array()) {
-      variable_delete('smartling_' . $entity_type . '_fields_settings');
+      $this->variable_del('smartling_' . $entity_type . '_fields_settings');
     }
     else {
-      variable_set('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
+      $this->variable_set('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
     }
   }
 
@@ -392,7 +423,7 @@ class SmartlingSettingsHandler {
       $api_url = SMARTLING_DEFAULT_API_URL;
     }
     $this->apiUrl = check_plain((string) $api_url);
-    variable_set('smartling_api_url', $this->apiUrl);
+    $this->variable_set('smartling_api_url', $this->apiUrl);
   }
 
   /**
@@ -413,7 +444,7 @@ class SmartlingSettingsHandler {
    */
   public function setCallbackUrlUse($use = TRUE) {
     $this->callbackUrlUse = (bool) $use;
-    variable_set('smartling_callback_url_use', $this->callbackUrlUse);
+    $this->variable_set('smartling_callback_url_use', $this->callbackUrlUse);
   }
 
   /**
@@ -434,7 +465,7 @@ class SmartlingSettingsHandler {
    */
   public function setLogMode($log_mode = TRUE) {
     $this->logMode = (bool) $log_mode;
-    variable_set('smartling_log', $this->logMode);
+    $this->variable_set('smartling_log', $this->logMode);
   }
 
   /**
@@ -466,11 +497,11 @@ class SmartlingSettingsHandler {
   public function setProjectId($project_id) {
     if (empty($project_id)) {
       $this->projectId = NULL;
-      variable_del('smartling_project_id');
+      $this->variable_del('smartling_project_id');
     }
     else {
       $this->projectId = check_plain((string) $project_id);
-      variable_set('smartling_project_id', $this->projectId);
+      $this->variable_set('smartling_project_id', $this->projectId);
     }
   }
 
@@ -493,7 +524,7 @@ class SmartlingSettingsHandler {
   public function setKey($key) {
     if (!empty($key)) {
       $this->key = check_plain((string) $key);
-      variable_set('smartling_key', $this->key);
+      $this->variable_set('smartling_key', $this->key);
     }
   }
 
@@ -515,7 +546,7 @@ class SmartlingSettingsHandler {
    */
   public function setRetrievalType($retrieval_type) {
     $this->retrievalType = $retrieval_type;
-    variable_set('smartling_retrieval_type', $retrieval_type);
+    $this->variable_set('smartling_retrieval_type', $retrieval_type);
   }
 
   /**
@@ -570,7 +601,7 @@ class SmartlingSettingsHandler {
    */
   public function setTargetLocales(array $target_locales) {
     $this->targetLocales = $target_locales;
-    variable_set('smartling_target_locales', $target_locales);
+    $this->variable_set('smartling_target_locales', $target_locales);
   }
 
   /**
@@ -590,7 +621,7 @@ class SmartlingSettingsHandler {
     }
     if (!empty($target_locales)) {
       $this->targetLocales = $target_locales;
-      variable_set('smartling_target_locales', $target_locales);
+      $this->variable_set('smartling_target_locales', $target_locales);
     }
   }
 
@@ -612,7 +643,7 @@ class SmartlingSettingsHandler {
    */
   public function setLocalesConvertArray(array $locales_convert_array) {
     $this->localesConvertArray = $locales_convert_array;
-    variable_set('smartling_locales_convert_array', $locales_convert_array);
+    $this->variable_set('smartling_locales_convert_array', $locales_convert_array);
   }
 
   /**
@@ -635,7 +666,7 @@ class SmartlingSettingsHandler {
       }
     }
     $this->localesConvertArray = $locales_convert_array;
-    variable_set('smartling_locales_convert_array', $locales_convert_array);
+    $this->variable_set('smartling_locales_convert_array', $locales_convert_array);
   }
 
 }
