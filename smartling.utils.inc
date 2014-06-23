@@ -1129,13 +1129,15 @@ function smartling_get_original_entity($rid, $entity_type) {
  *   Field language.
  * @param int $i
  *   Field delta.
+ * @param object $original_entity
+ *   Original entity. NULL by default.
  *
  * @return string|null
  *   Return field format like "full_html" or NULL.
  */
-function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0) {
-  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format'])) {
-    $format = $entity_wrapper->{$field_name}[$language_key_format][$i]['format'];
+function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0, $original_entity = NULL) {
+  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format']) && isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
+    $format = $original_entity->{$field_name}[$language_key_format][$i]['format'];
   }
   else {
     $format = NULL;
