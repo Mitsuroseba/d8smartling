@@ -264,7 +264,7 @@ function smartling_admin_account_info_settings_form_validate(array $form, array 
     if (smartling_project_id_check($project_id)) {
       // Init api object.
       $api = new SmartlingAPI($api_url, $smartling_key, $project_id, SMARTLING_PRODUCTION_MODE);
-      $api->getList('en', array('limit' => 1));
+      $api->getList();
 
       if ($api->getCodeStatus() !== 'SUCCESS') {
         drupal_set_message(t('Please enter correct Smartling settings.'), 'error');
@@ -340,7 +340,7 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
         // Init api object.
         $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
-        $api->getList($s_locale);
+        $api->getList();
 
         if ($api->getCodeStatus() == 'SUCCESS') {
           drupal_set_message(t('Test connection for locale @d_locale is success.', array('@d_locale' => $d_locale)));

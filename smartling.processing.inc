@@ -376,7 +376,7 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
     $string = (string) $field->nodeValue;
 
     if(!smartling_check_fake_field_for_entities_translate_method($field_name)){
-      $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i, $original_entity);
+      $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
 
       $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $string;
       $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;
@@ -404,7 +404,7 @@ function smartling_body_with_summary_field_processing($entity_wrapper, $field_na
       ->item(0);
     $body_string = (string) $body_obj->nodeValue;
     $summary_string = (string) $summary_obj->nodeValue;
-    $format = smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i, $original_entity);
+    $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
 
     $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;
     $entity_wrapper->{$field_name}[$language_key][$i]['format'] = $format;

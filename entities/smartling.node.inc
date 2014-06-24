@@ -21,7 +21,7 @@ function smartling_form_node_form_alter(&$form, $form_state) {
     return;
   }
 
-  if (smartling_translate_fields_is_set($form['#node']->type)) {
+  if (smartling_translate_fields_is_set($form['#node']->type, 'node')) {
     $form = array_merge($form, smartling_get_node_settings_form($form, $form_state));
   }
 }
@@ -98,7 +98,7 @@ function smartling_multilanguage_support_node_type_submit( array &$form, array &
  *   Return FAPI array for node smartling form.
  */
 function smartling_get_node_settings_form(array $form, array &$form_state) {
-  if (smartling_translate_fields_is_set($form['#node']->type)) {
+  if (smartling_translate_fields_is_set($form['#node']->type, 'node')) {
     // Vertical Tab.
     $form['smartling'] = array(
       '#title' => t('Smartling management'),

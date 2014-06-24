@@ -22,8 +22,7 @@ function smartling_supported_type($entity_type, $bundle) {
   switch ($entity_type) {
     case 'node':
       $smartling_supported_explicitly = variable_get('language_content_type_' . $bundle, NULL);
-
-      if ($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY) {
+      if (($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY)) {
         $smartling_supported_explicitly = TRUE;
       }
       else {
@@ -181,14 +180,18 @@ function smartling_is_configured() {
 /**
  * Checks settings for node content type.
  *
- * @param string $type
- *   Node content type.
+ * @param string $bundle
+ *   Bundle.
+ * @param string $entity_type
+ *   Entity type.
  *
  * @return bool
  *   Return TRUE if translate fields is set.
  */
-function smartling_translate_fields_is_set($type) {
-  $val = smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($type);
+function smartling_translate_fields_is_set($bundle, $entity_type) {
+  $sm_settings = smartling_settings_get_handler();
+  $method_name = $sm_settings->getByBundleMethodName($entity_type);
+  $val = $sm_settings->{$method_name}($bundle);
 
   if (empty($val)) {
     $result = FALSE;
@@ -1121,22 +1124,20 @@ function smartling_get_original_entity($rid, $entity_type) {
 /**
  * Get field format.
  *
- * @param object $entity_wrapper
- *   Entity.
+ * @param object $original_entity
+ *   Original entity.
  * @param string $field_name
  *   Field name.
  * @param string $language_key_format
  *   Field language.
  * @param int $i
  *   Field delta.
- * @param object $original_entity
- *   Original entity. NULL by default.
  *
  * @return string|null
  *   Return field format like "full_html" or NULL.
  */
-function smartling_get_field_format($entity_wrapper, $field_name, $language_key_format, $i = 0, $original_entity = NULL) {
-  if (isset($entity_wrapper->{$field_name}[$language_key_format][$i]['format']) && isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
+function smartling_get_field_format($original_entity, $field_name, $language_key_format, $i = 0) {
+  if (isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
     $format = $original_entity->{$field_name}[$language_key_format][$i]['format'];
   }
   else {

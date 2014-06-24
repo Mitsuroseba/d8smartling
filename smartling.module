@@ -874,9 +874,8 @@ function smartling_do_translate_action($entity, array $context) {
 
   switch ($entity_type) {
     case 'node':
-
       $link = smartling_get_link_to_entity($entity->nid, $entity_type);
-      if (smartling_supported_type($entity_type, $entity->type) && smartling_translate_fields_is_set($entity->type)) {
+      if (smartling_supported_type($entity_type, $entity->type) && smartling_translate_fields_is_set($entity->type, $entity_type)) {
         foreach ($context['translate_to_langs'] as $d_locale) {
           $d_locale_original = entity_language($entity_type, $entity);
 
@@ -973,10 +972,9 @@ function smartling_do_translate_action($entity, array $context) {
       break;
 
     case 'taxonomy_term':
-
       $link = smartling_get_link_to_entity($entity->tid, $entity_type);
 
-      if (smartling_supported_type($entity_type, $entity->vocabulary_machine_name)) {
+      if (smartling_supported_type($entity_type, $entity->vocabulary_machine_name) && smartling_translate_fields_is_set($entity->vocabulary_machine_name, $entity_type)) {
         $language_default = language_default()->language;
 
         if (entity_language($entity_type, $entity) == $language_default) {
@@ -1043,10 +1041,9 @@ function smartling_do_translate_action($entity, array $context) {
       break;
 
     case 'comment':
-
       $link = smartling_get_link_to_entity($entity->cid, $entity_type);
 
-      if (smartling_supported_type($entity_type, $entity->node_type)) {
+      if (smartling_supported_type($entity_type, $entity->node_type) && smartling_translate_fields_is_set($entity->node_type, $entity_type)) {
         $d_locale_original = $entity->translations->original;
         foreach ($context['translate_to_langs'] as $d_locale) {
           if ($d_locale_original !== $d_locale) {
@@ -1101,11 +1098,10 @@ function smartling_do_translate_action($entity, array $context) {
       break;
 
     case 'user':
-
       $link = smartling_get_link_to_entity($entity->uid, $entity_type);
       $d_locale_original = $entity->translations->original;
 
-      if (smartling_supported_type($entity_type, 'user')) {
+      if (smartling_supported_type($entity_type, 'user') && smartling_translate_fields_is_set('user', $entity_type)) {
         foreach ($context['translate_to_langs'] as $d_locale) {
 
           if ($d_locale_original !== $d_locale) {
@@ -1160,6 +1156,8 @@ function smartling_do_translate_action($entity, array $context) {
     default:
       break;
   }
+  // Create content hash (Fake entity update).
+  smartling_entity_update($entity, $entity_type);
 }
 
 /**
