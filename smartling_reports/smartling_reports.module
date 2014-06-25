@@ -120,12 +120,12 @@ function smartling_reports_views_query_alter(&$view, &$query) {
  * @param array $vars
  *   Vars.
  *
- * @return
+ * @return null
  *   Return if view name != smartlig_report.
  */
 function smartling_reports_preprocess_views_view_table(array &$vars) {
   if ($vars['view']->name != 'smartlig_report') {
-    return;
+    return NULL;
   }
 
   $rows = $vars['view']->result;

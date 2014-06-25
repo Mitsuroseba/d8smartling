@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * smartling_load_test.features.inc
+ * Smartling load test features inc.
  */
 
 /**

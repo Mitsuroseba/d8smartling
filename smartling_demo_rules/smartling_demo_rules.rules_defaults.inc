@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * smartling_demo_rules.rules_defaults.inc
+ * Smartling demo rules defaults inc.
  */
 
 /**

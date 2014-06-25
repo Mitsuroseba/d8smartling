@@ -856,13 +856,13 @@ function smartling_action_info() {
 /**
  * Smartling do translate action.
  *
- * @global object $user
- *   Drupal user object.
- *
  * @param object $entity
  *   Action entity object.
  * @param array $context
  *   Context info.
+ *
+ * @global object $user
+ *   Drupal user object.
  */
 function smartling_do_translate_action($entity, array $context) {
   $entity_type = $context['entity_type'];

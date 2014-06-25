@@ -23,7 +23,7 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_vocabulary_support_type_validate( array &$form, array &$form_state) {
+function smartling_vocabulary_support_type_validate(array &$form, array &$form_state) {
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
       drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
@@ -40,7 +40,7 @@ function smartling_vocabulary_support_type_validate( array &$form, array &$form_
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_vocabulary_support_type_submit( array &$form, array &$form_state) {
+function smartling_vocabulary_support_type_submit(array &$form, array &$form_state) {
   // Delete content type in smartling support types.
   $bundle = $form_state['values']['machine_name'];
   if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {

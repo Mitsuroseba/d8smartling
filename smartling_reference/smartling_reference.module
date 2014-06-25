@@ -282,7 +282,7 @@ function smartling_get_entity_types_whith_references(array $bundles, array $fiel
  * @return array|bool
  *   Return original node ids array by bundles or FALSE.
  */
-function smartling_get_original_node_ids($bundles) {
+function smartling_get_original_node_ids(array $bundles) {
   $original_node_ids = db_select('smartling_entity_data', 'sed')
     ->fields('sed', array('rid'))
     ->condition('sed.entity_type', 'node', '=')

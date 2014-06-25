@@ -61,7 +61,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    * @param array $settings
    *   Node settings.
    */
-  public function smartlingCreateNode($type = 'page', $settings = array()) {
+  public function smartlingCreateNode($type = 'page', array $settings = array()) {
     // Create initial node.
     $this->random_node_title = $this->randomName(8);
     $base_settings = array(

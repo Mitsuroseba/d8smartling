@@ -23,7 +23,7 @@ class SmartlingRebuildReferencesTest extends SmartlingWebTestCase {
       'group' => 'Smartling',
     );
   }
-  
+
   /**
    * Test correct rebuild references.
    */

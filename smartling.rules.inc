@@ -293,13 +293,13 @@ function smartling_download_translation_action($node, array $translate_to_langs)
 /**
  * Smartling send to translate action.
  *
- * @global object $user
- *   Drupal user object.
- *
  * @param object $node
  *   Node object.
  * @param array $translate_to_langs
  *   Translate languages.
+ *
+ * @global object $user
+ *   Drupal user object.
  */
 function smartling_send_to_translate_action($node, array $translate_to_langs) {
   global $user;

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * smartling_reports.views_default.inc
+ * Smartling reports views default inc.
  */
 
 /**
@@ -371,7 +371,7 @@ function smartling_reports_views_default_views() {
     t('Submitter name'),
     t('Submission date'),
     t('Progress'),
-    t(' %'),
+    t('%'),
     t('Download'),
     t('OPERATIONS'),
     t('Entity_type'),

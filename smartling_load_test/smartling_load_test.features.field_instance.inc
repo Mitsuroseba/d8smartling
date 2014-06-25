@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * smartling_load_test.features.field_instance.inc
+ * Smartling load test features field instance inc.
  */
 
 /**
