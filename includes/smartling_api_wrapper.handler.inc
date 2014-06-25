@@ -54,7 +54,7 @@ class SmartlingApiWrapper {
     $file_name_unic = $entity_data->file_name;
     $file_path = $this->settingsHandler->get_dir($entity_data->file_name);
 
-    $retrieval_type = $this->settingsHandler->variable_get('smartling_retrieval_type', 'published');
+    $retrieval_type = $this->settingsHandler->variableGet('smartling_retrieval_type', 'published');
     $download_param = array(
       'retrievalType' => $retrieval_type,
     );

@@ -54,7 +54,7 @@ class SmartlingSettingsHandler {
    * @return mixed
    *   Return variable value.
    */
-  protected function variableGet($variable_name, $default_value = NULL) {
+  public function variableGet($variable_name, $default_value = NULL) {
     return variable_get($variable_name, $default_value);
   }
 
