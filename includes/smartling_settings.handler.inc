@@ -675,4 +675,9 @@ class SmartlingSettingsHandler {
     $this->variableSet('smartling_locales_convert_array', $locales_convert_array);
   }
 
+  public function get_dir($file_name = '') {
+    $smartling_dir = ($this->variable_get('file_private_path', FALSE)) ? ($this->variable_get('file_private_path') . '/smartling') : ($this->variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+    $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
+    return (string) $smartling_dir;
+  }
 }

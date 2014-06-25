@@ -13,59 +13,20 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
   if (smartling_is_configured() && smartling_supported_type($entity_data->entity_type, $entity_data->bundle)) {
     $log = new SmartlingLog();
     $smartling_settings = smartling_settings_get_handler();
+
     $entity_type = $entity_data->entity_type;
     $d_locale = $entity_data->target_language;
     $rid = $entity_data->rid;
     $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
     $file_name = $entity_data->file_name;
-    $file_name_unic = $entity_data->file_name;
-    $file_path = smartling_get_dir($file_name);
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
     $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object.
-    $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
+    $api = new SmartlingApiWrapper($smartling_settings, $log);
 
-    $retrieval_type = variable_get('smartling_retrieval_type', 'published');
-    $download_param = array(
-      'retrievalType' => $retrieval_type,
-    );
-
-    $log->setMessage('Smartling queue start download xml file and update fields for @entity_type id - @rid, locale - @locale.')
-      ->setVariables(array(
-        '@entity_type' => $entity_type,
-        '@rid' => $rid,
-        '@locale' => $d_locale,
-      ))
-      ->setLink(l(t('View file'), $file_path))
-      ->execute();
-
-    $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-    // Try to download file.
-    $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-
-    if (isset($download_result->response->code)) {
-      $download_result = json_decode($download_result);
-
-      $log->setMessage('smartling_queue_download_update_translated_item_process try to download file:<br/>
-      Project Id: @project_id <br/>
-      Action: download <br/>
-      URI: @file_uri <br/>
-      Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message')
-        ->setVariables(array(
-          '@project_id' => $smartling_settings->getProjectId(),
-          '@file_uri' => $file_name_unic,
-          '@s_locale' => $s_locale,
-          '@code' => $download_result->response->code,
-          '@message' => $download_result->response->messages[0],
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
-        ->execute();
-    }
-    else {
+    $download_result = $api->downloadFile($entity_data, $link_to_entity);
+    if ($download_result !== FALSE) {
       // This is a $download_result
       $xml = new DOMDocument();
       $xml->loadXML($download_result);
@@ -92,95 +53,18 @@ function smartling_queue_check_status_process($args) {
       'target_language' => $args->d_locale,
     ));
 
-    if ($entity_data !== FALSE) {
-      if ($entity_data->progress != 100) {
-        $file_name = $entity_data->file_name;
-        $file_name_unic = $entity_data->file_name;
-        $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $file_name, TRUE);
+    $api = new SmartlingApiWrapper($smartling_settings, $log);
+    $result = $api->getStatus($args, $entity_data, $link_to_entity);
 
-        // Init api object.
-        $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
+    if (!empty($result)) {
+      if ($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) {
 
-        $s_locale = smartling_convert_locale_drupal_to_smartling($args->d_locale);
-        // Try to retrieve file status.
-        $status_result = $api->getStatus($file_name_unic, $s_locale);
-        $status_result = json_decode($status_result);
-
-        // This is a get status.
-        if ($api->getCodeStatus() == 'SUCCESS') {
-          $log->setMessage('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs')
-            ->setVariables(array(
-              '@entity_type' => $args->entity_type,
-              '@rid' => $args->rid,
-              '@d_locale' => $args->d_locale,
-              '@as' => $status_result->response->data->approvedStringCount,
-              '@cs' => $status_result->response->data->completedStringCount,
-            ))
-            ->setLink(l(t('View file'), $file_uri))
-            ->execute();
-
-          // If true, file translated.
-          if ($status_result->response->data->approvedStringCount == $status_result->response->data->completedStringCount) {
-            $entity_data->progress = 100;
-            $entity_data->download = 0;
-            $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
-
-            $smartling_queue = DrupalQueue::get('smartling_download');
-            $smartling_queue->createQueue();
-            $smartling_queue->createItem($entity_data);
-
-            smartling_entity_data_save($entity_data);
-          }
-          else {
-            if ($status_result->response->data->approvedStringCount !== 0) {
-              $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
-
-              $entity_data->progress = $progress;
-              $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
-              smartling_entity_data_save($entity_data);
-            }
-            else {
-              $progress = 100;
-
-              $entity_data->progress = $progress;
-              $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
-              smartling_entity_data_save($entity_data);
-            }
-          }
-        }
-        else {
-          $log->setMessage('Smartling checks status for @entity_type id - @rid: <br/>
-      Project Id: @project_id <br/>
-      Action: status <br/>
-      URI: @file_uri <br/>
-      Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message')
-            ->setVariables(array(
-              '@entity_type' => $args->entity_type,
-              '@rid' => $args->rid,
-              '@project_id' => $smartling_settings->getProjectId(),
-              '@file_uri' => $file_name_unic,
-              '@d_locale' => $args->d_locale,
-              '@code' => $status_result->response->code,
-              '@message' => $status_result->response->messages[0],
-            ))
-            ->setConsiderLog(FALSE)
-            ->setSeverity(WATCHDOG_ERROR)
-            ->setLink($link_to_entity)
-            ->execute();
-        }
+        $smartling_queue = DrupalQueue::get('smartling_download');
+        $smartling_queue->createQueue();
+        $smartling_queue->createItem($result['entity_data']);
       }
-      else {
-        return;
-      }
-    }
-    else {
-      $log->setMessage('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.')
-        ->setVariables(array('@rid' => $args->rid))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
-        ->execute();
+
+      smartling_entity_data_save($result['entity_data']);
     }
   }
 }
