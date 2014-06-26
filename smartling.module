@@ -233,7 +233,10 @@ function smartling_permission() {
  */
 function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state) {
 
-  $form['enabled']['entity_translation_entity_types']['#disabled'] = TRUE;
+  $form['enabled']['entity_translation_entity_types']['node']['#disabled'] = TRUE;
+  $form['enabled']['entity_translation_entity_types']['taxonomy_term']['#disabled'] = TRUE;
+  $form['enabled']['entity_translation_entity_types']['comment']['#disabled'] = TRUE;
+  $form['enabled']['entity_translation_entity_types']['user']['#disabled'] = TRUE;
 
   $form['smartling'] = array(
     '#type' => 'item',

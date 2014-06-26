@@ -189,7 +189,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
       '#options' => array(),
       '#title' => t('Target Locales'),
       '#default_value' => array(),
-      '#description' => l(t('At least two languages must be enabled. Please change language settings.'), url('admin/config/regional/language')),
+      '#description' => l(t('At least two languages must be enabled. Please change language settings.'), 'admin/config/regional/language'),
     );
   }
 

@@ -627,9 +627,13 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
         break;
 
       case 'comment':
+        $original_comment = comment_load($rid);
+        $original_entity = $original_comment;
         break;
 
       case 'user':
+        $original_user = user_load($rid);
+        $original_entity = $original_user;
         break;
 
       default:
