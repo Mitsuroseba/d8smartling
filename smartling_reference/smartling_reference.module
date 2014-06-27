@@ -46,7 +46,7 @@ function smartling_rebuild_references_form_submit(array $form, array &$form_stat
   $field_names = array();
   $operations = array();
 
-  foreach ($smartling_active_types as $bundle => $value) {
+  foreach (array_keys($smartling_active_types) as $bundle) {
     if (smartling_nodes_method($bundle)) {
       $condition_active_bundles[] = $bundle;
     }

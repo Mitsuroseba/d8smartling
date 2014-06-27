@@ -499,9 +499,10 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     // Preproccess for entity type.
     switch ($entity_type) {
       case 'node':
+        $original_node = node_load($rid);
+        $original_entity = $original_node;
+
         if (smartling_nodes_method($bundle)) {
-          $original_node = node_load($rid);
-          $original_entity = $original_node;
           $translations = translation_node_get_translations($original_node->tnid);
           if (isset($translations[$d_locale])) {
             $rid = $translations[$d_locale]->nid;

@@ -391,7 +391,7 @@ function smartling_get_full_language_name($d_locale) {
  * This functions convert locale format. Example: 'en' => 'en-US'.
  *
  * @param string $locale
- *   Locale string in some foormat: 'en' or 'en-US'.
+ *   Locale string in some format: 'en' or 'en-US'.
  * @param bool $reverse
  *   If TRUE, convert format: 'en-US' => 'en'. FALSE by default.
  *

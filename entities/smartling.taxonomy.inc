@@ -24,6 +24,9 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
  *   FAPI array.
  */
 function smartling_vocabulary_support_type_validate(array &$form, array &$form_state) {
+  // Set old i18n_mode.
+  $vocabulary = taxonomy_vocabulary_machine_name_load($form_state['values']['machine_name']);
+  $form_state['old_i18n_mode'] = i18n_taxonomy_vocabulary_mode($vocabulary);
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
       drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
@@ -44,6 +47,9 @@ function smartling_vocabulary_support_type_submit(array &$form, array &$form_sta
   // Delete content type in smartling support types.
   $bundle = $form_state['values']['machine_name'];
   if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
+    smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
+  }
+  elseif ($form_state['values']['i18n_mode'] != $form_state['old_i18n_mode']) {
     smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
   }
 }
@@ -72,9 +78,12 @@ function smartling_taxonomy_term_presave($term) {
  */
 function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
   $term = $form_state['term'];
+
   if (!empty($term->tid)) {
     if (smartling_supported_type('taxonomy_term', $form['#vocabulary']->machine_name)) {
-      $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
+      if (smartling_translate_fields_is_set($form['#vocabulary']->machine_name, 'taxonomy_term')) {
+        $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
+      }
     }
     else {
       drupal_set_message(t('Please follow the page <a href="/admin/structure/taxonomy/@machine_name/edit">"edit vocabulary"</a> to set Translation mode for Smartling.', array('@machine_name' => $form['#vocabulary']->machine_name)));

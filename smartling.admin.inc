@@ -459,6 +459,10 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
       $fr_fields = array();
 
       foreach (field_info_instances('node', $value->type) as $field) {
+        // Fix bouble title after change translate method.
+        if (($field['field_name'] == 'title_field') && smartling_nodes_method($value->type)) {
+          continue;
+        }
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
@@ -773,6 +777,10 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
       );
 
       foreach (field_info_instances('taxonomy_term', $vocabulary->machine_name) as $field) {
+        // Fix bouble field after change translate method.
+        if ((($field['field_name'] == 'name_field') || ($field['field_name'] == 'description_field')) && ($vocabulary_mode == I18N_MODE_TRANSLATE)) {
+          continue;
+        }
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
