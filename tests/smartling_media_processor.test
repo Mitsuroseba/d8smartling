@@ -1,0 +1,100 @@
+<?php
+
+require_once(dirname(__FILE__) . '/../alters/smartling_content_media_processor.inc');
+
+class MockedSmartlingMediaProcessor extends SmartlingContentMediaProcessor {
+  private $func1;
+  private $func2;
+
+  function __construct($callable1, $callable2) {
+    $this->func1 = $callable1;
+    $this->func2 = $callable2;
+  }
+
+  protected function getFileById($fid) {
+    return call_user_func($this->func1, $fid);
+  }
+
+  protected function getFileByName($fname) {
+    return call_user_func($this->func2, $fname);
+  }
+}
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
+  private $item;
+  private $context;
+  private $entity;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Smartling Content Media Processor',
+      'description' => 'Checks behaviour of the processor for Media items (json)',
+      'group' => 'Smartling UnitTests'
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp();
+
+    // Enable Smartling modules
+    $media_json = '[[{"fid":"41","view_mode":"default","fields":{"format":"default"},"type":"media","attributes":{"class":"media-element file-default"}}]]';
+    $this->item = array($media_json, $media_json);
+    $this->context = array(json_decode($media_json));
+    $this->entity = new stdClass();
+
+  }
+
+  public function testShoudNotFailIfBothFilesAreNotFound() {
+    $func1 = function() {return null;};
+    $func2 = function() {return null;};
+    $item = $this->item;
+    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+
+    $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
+
+    $this->assertEqual($this->item, $item);
+  }
+
+  public function testShouldReturnOrigFileIfTranslatedIsNotFound() {
+    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
+    $func2 = function() {return null;};
+    $item = $this->item;
+    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+
+    $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
+
+    $this->assertEqual($this->item, $item);
+  }
+
+  public function testShouldReturnSingleFoundTranslatedFile() {
+    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
+    $func2 = function() {$tmp = new stdClass(); $tmp->filename = 'en_hi'; $tmp->fid = 1; return array($tmp);};
+    $item = $this->item;
+    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+
+    $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
+
+    $item_res = $this->item;
+    $item_res[1] = '[[{"fid":1,"view_mode":"default","fields":{"format":"default"},"type":"media","attributes":{"class":"media-element file-default"}}]]';
+
+    $this->assertEqual($item_res, $item);
+  }
+
+  public function testShouldReturnFirstFoundTranslatedFile() {
+    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
+    $func2 = function() {$tmp = new stdClass(); $tmp->filename = 'en_hi'; $tmp->fid = 1; return array($tmp, $tmp, $tmp);};
+    $item = $this->item;
+    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+
+    $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
+
+    $item_res = $this->item;
+    $item_res[1] = '[[{"fid":1,"view_mode":"default","fields":{"format":"default"},"type":"media","attributes":{"class":"media-element file-default"}}]]';
+
+    $this->assertEqual($item_res, $item);
+  }
+}

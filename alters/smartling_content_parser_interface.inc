@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Interface SmartlingIContentParserInterface.
+ * Interface IContentParserSmartlingInterface.
  */
 
 /**
@@ -10,10 +10,10 @@
  *
  * And passes it to the relevant processors.
  */
-interface SmartlingIContentParserInterface {
+interface ISmartlingContentParser {
 
   /**
-   * Array of objects that implement SmartlingIContentProcessorInterface.
+   * Array of objects that implement IContentProcessorSmartlingInterface.
    *
    * @param array $processors
    *   Processors.
@@ -32,5 +32,5 @@ interface SmartlingIContentParserInterface {
    * @param object $entity
    *   Entity object.
    */
-  public function parse(array $content, $lang, $field_name, $entity);
+  public function parse($content, $lang, $field_name, $entity);
 }

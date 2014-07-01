@@ -7,13 +7,14 @@
 
 require_once dirname(__FILE__) . '/smartling_content_processor_interface.inc';
 
+if (!function_exists('http_build_url')) {
+  require_once dirname(__FILE__) . '/http_build_url_function.inc';
+}
+
 /**
  * Demo url processor. No real value here for now.
  */
-class SmartlingUrlProcessor implements SmartlingIContentProcessorInterface {
-
-  protected $fieldName;
-  protected $entity;
+class SmartlingContentImageUrlProcessor implements ISmartlingContentProcessor {
 
   /**
    * Process.
@@ -29,8 +30,25 @@ class SmartlingUrlProcessor implements SmartlingIContentProcessorInterface {
    * @param object $entity
    *   Entity object.
    */
-  public function process(array &$item, array $context, $lang, $field_name, $entity) {
-    $item[2] = str_replace('a', 'b', $item[2]);
+  public function process(&$item, $context, $lang, $field_name, $entity) {
+    if (!$context['external'] || $item[1] != 'href') {
+      return;
+    }
+
+    $url = $item[2];
+    $url = parse_url($url);
+
+    if ( $url['host'] == 'www.site.com') {
+      $url['host'] = 'site.com';
+    }
+
+    if ( $url['host'] != 'site.com') {
+      return;
+    }
+
+    $url['host'] = $lang . '.' . $url['host'];
+    $url = http_build_url('', $url);
+    $item[2] = $url;
   }
 
 }

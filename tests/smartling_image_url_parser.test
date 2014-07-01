@@ -1,0 +1,56 @@
+<?php
+
+require_once(dirname(__FILE__) . '/../alters/smartling_content_image_url_parser.inc');
+require_once(dirname(__FILE__) . '/../alters/smartling_content_processor_interface.inc');
+
+class MockedSmartlingContentImageUrlProcessor implements ISmartlingContentProcessor {
+  protected $process_func;
+
+  function __construct($callable) {
+    $this->process_func = $callable;
+  }
+
+  public function process(&$item, $context, $lang, $field_name, $entity) {
+    //a hack that allows to pass a parameter by reference to call_user_func.
+    //http://stackoverflow.com/questions/295016/is-it-possible-to-pass-parameters-by-reference-using-call-user-func-array
+    $tmp = array(&$item);
+    call_user_func($this->process_func, $tmp, $context, $lang, $field_name, $entity);
+    $item = $tmp[0];
+  }
+}
+
+/**
+ * @file
+ * Tests for smartling
+ */
+class SmartlingContentImageUrlParserTest extends DrupalUnitTestCase {
+  private $context;
+  private $entity;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Smartling Content Urls/image Parser',
+      'description' => 'Unit tests for url parser',
+      'group' => 'Smartling UnitTests'
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp();
+
+    $this->entity = new stdClass();
+  }
+
+  public function testShouldConvertLinks() {
+    $content = 'cool <a href="http://google.com.ua">Home page</a> wow';
+    $content_res = 'cool <a href="http://hello.wrld/">Home page</a> wow';
+    $proc = new MockedSmartlingContentImageUrlProcessor(function($item, $context, $lang, $field_name, $entity){
+      //Please see the process method above for explanation of first index: [0].
+      $item[0][2] = 'http://hello.wrld/';
+    });
+    $parse = new SmartlingContentImageUrlParser(array($proc));
+    $content = $parse->parse($content, 'en', 'field_body', $this->entity);
+
+    $this->assertEqual($content, $content_res);
+  }
+}

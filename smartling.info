@@ -27,6 +27,14 @@ files[] = includes/smartling_api_wrapper.handler.inc
 files[] = views/smartling_handler_field_target_language.inc
 files[] = views/smartling_handler_field_locale_info.inc
 files[] = views/smartling_handler_filter_entity_status.inc
+
+files[] = alters/smartling_content_image_url_processor.inc
+files[] = alters/smartling_content_image_url_parser.inc
+files[] = alters/smartling_content_media_parser.inc
+files[] = alters/smartling_content_media_processor.inc
+files[] = alters/smartling_content_media_encoded_parser.inc
+files[] = alters/smartling_content_media_encoded_processor.inc
+
 files[] = tests/smartling_settings_ct.test
 files[] = tests/smartling_copy_fields.test
 files[] = tests/smartling_settings_in_node_page.test
@@ -42,3 +50,7 @@ files[] = tests/smartling_translatable_fields.test
 files[] = tests/smartling_rebuild_references.test
 files[] = tests/smartling_field_image.test
 files[] = tests/smartling_web_case.test
+files[] = tests/smartling_media_processor.test
+files[] = tests/smartling_image_url_processor.test
+files[] = tests/smartling_image_url_parser.test
+files[] = tests/smartling_text_field_with_summary_processing.test
