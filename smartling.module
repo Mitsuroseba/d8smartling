@@ -1255,7 +1255,6 @@ function smartling_push_callback() {
 
     $log->setMessage('Smartling get parameters: locale - @locale, fileUri - @fileUri')
       ->setVariables(array('@locale' => $d_locale, '@fileUri' => $file_uri))
-      ->setSeverity(WATCHDOG_DEBUG)
       ->execute();
 
     $entity_data = smartling_entity_load_by_conditions(array(

@@ -646,7 +646,8 @@ function smartling_admin_node_translation_settings_form_submit(array $form, arra
           field_update_field($field);
         }
       }
-    } // END:  Selected Content Types and Fields
+    }
+    // END:  Selected Content Types and Fields.
     // Look for Selected Translation Type.
     if (FALSE !== strpos($key, '_TT_')) {
       // And only if set to translate.
@@ -1188,7 +1189,8 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
         $field['translatable'] = 1;
         field_update_field($field);
       }
-    } // END:  Selected Content Types and Fields.
+    }
+    // END:  Selected Content Types and Fields.
     // Look for any comments we need to do the swap for.
     if (FALSE !== strpos($key, 'subject_swap_')) {
       // And only if set to swap.
@@ -1379,7 +1381,8 @@ function smartling_admin_users_translation_settings_form_submit(array $form, arr
         $field['translatable'] = 1;
         field_update_field($field);
       }
-    } // END: Fields.
+    }
+    // END: Fields.
   }
 
   smartling_settings_get_handler()->userSetFieldsSettings($translate);
