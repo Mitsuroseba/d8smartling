@@ -373,7 +373,7 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
   for ($i = 0; $i < $quantity; $i++) {
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')
       ->item(0);
-    $string = smartling_process_content((string) $field->nodeValue, $language_key, $field_name, $original_entity);//(string) $field->nodeValue;
+    $string = smartling_process_content((string) $field->nodeValue, $language_key, $field_name, $original_entity);
 
     if (!smartling_check_fake_field_for_entities_translate_method($field_name)) {
       $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
