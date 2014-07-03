@@ -28,7 +28,7 @@ define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_DEFAULT_API_URL', 'https://capi.smartling.com/v1');
 
 include_once 'smartling.utils.inc';
-include_once 'includes/smartling_settings.handler.inc';
+//include_once 'includes/smartling_settings.handler.inc';
 include_once 'smartling.processing.inc';
 include_once 'includes/smartling.workers.inc';
 include_once 'includes/smartling.entity.inc';
@@ -1327,6 +1327,7 @@ function smartling_smartling_data_processor_info() {
  * @return string
  */
 function smartling_process_content($content, $lang, $field_name, $entity, $reset = FALSE) {
+
   $handlers = &drupal_static(__FUNCTION__);
   if (!isset($actions) || $reset) {
     $handlers = module_invoke_all('smartling_data_processor_info');
@@ -1350,5 +1351,13 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
       $content = $parser->parse($content, $lang, $field_name, $entity);
     }
   }
+
   return $content;
+}
+
+/**
+ * Implements hook_init().
+ */
+function smartling_init() {
+  drupal_classloader()->registerNamespace('Smartling\Settings', __DIR__ . '/lib');
 }

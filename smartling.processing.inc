@@ -373,7 +373,7 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
   for ($i = 0; $i < $quantity; $i++) {
     $field = $xpath->query('//string[@id="' . $field_name . '-' . $i . '"][1]')
       ->item(0);
-    $string = (string) $field->nodeValue;
+    $string = smartling_process_content((string) $field->nodeValue, $language_key, $field_name, $original_entity);//(string) $field->nodeValue;
 
     if (!smartling_check_fake_field_for_entities_translate_method($field_name)) {
       $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
@@ -402,8 +402,9 @@ function smartling_body_with_summary_field_processing($entity_wrapper, $field_na
       ->item(0);
     $summary_obj = $xpath->query('//string[@id="' . $field_name . '-summary-' . $i . '"][1]')
       ->item(0);
-    $body_string = (string) $body_obj->nodeValue;
-    $summary_string = (string) $summary_obj->nodeValue;
+
+    $body_string = smartling_process_content((string) $body_obj->nodeValue, $language_key, $field_name, $original_entity);
+    $summary_string = smartling_process_content((string) $summary_obj->nodeValue, $language_key, $field_name, $original_entity);
     $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
 
     $entity_wrapper->{$field_name}[$language_key][$i]['value'] = $body_string;

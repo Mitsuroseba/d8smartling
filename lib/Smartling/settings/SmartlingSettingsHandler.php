@@ -5,6 +5,8 @@
  * Smartling settings handler.
  */
 
+namespace Smartling\Settings;
+
 /**
  * Class SmartlingSettingsHandler.
  */

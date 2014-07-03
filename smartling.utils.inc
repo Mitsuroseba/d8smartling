@@ -1187,8 +1187,10 @@ function smartling_entity_translation_get_handler($entity_type, $entity) {
  *   Return handler object.
  */
 function smartling_settings_get_handler() {
-  $class = 'SmartlingSettingsHandler';
-  $handler = new $class();
+//  $class = 'SmartlingSettingsHandler';
+//  $handler = new $class();
+  $container = drupal_container();
+  $handler = $container->get('smartling_settings');
   return $handler;
 }
 

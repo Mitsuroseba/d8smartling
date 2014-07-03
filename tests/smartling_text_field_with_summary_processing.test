@@ -33,7 +33,7 @@ class SmartlingTextFieldWithSummaryProcessingTest extends DrupalWebTestCase {
 
 
     $xml_str =<<<EOF
-    <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
     <data><localize title="10">
       <string id="body-body-0" quantity="1">sdfsdfsdfsa</string>
       <string id="body-summary-0" quantity="1"></string>
