@@ -5,6 +5,7 @@ package = smartling
 
 configure = admin/config/regional/smartling
 
+dependencies[] = comment
 dependencies[] = title
 dependencies[] = entity
 dependencies[] = locale
