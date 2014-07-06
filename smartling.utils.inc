@@ -5,6 +5,8 @@
  * Utils functions for Smartling module.
  */
 
+//use Smartling\Settings\SmartlingSettingsHandler;
+
 /**
  * Returns whether the given node type has support for Smartling translations.
  *
@@ -488,7 +490,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  *   Return xml document or NULL.
  */
 function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
 
   if (is_null($file_name)) {
     $file_name = 'smartling_translate_' . $entity_type . '_' . $rid . '.xml';
@@ -596,7 +598,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
  *   Return filename or FALSE.
  */
 function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $content_to_translate = array();
   switch ($entity_type) {
     case 'node':
@@ -870,7 +872,7 @@ function smartling_download_file($entity_data) {
  */
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
 
@@ -1190,7 +1192,19 @@ function smartling_settings_get_handler() {
 //  $class = 'SmartlingSettingsHandler';
 //  $handler = new $class();
   $container = drupal_container();
-  $handler = $container->get('smartling_settings');
+  $handler = $container->get('smartling.settings');
+  return $handler;
+}
+
+/**
+ * Get log handler.
+ *
+ * @return object
+ *   Return handler object.
+ */
+function smartling_log_get_handler() {
+  $container = drupal_container();
+  $handler = $container->get('smartling.log');
   return $handler;
 }
 
@@ -1223,7 +1237,7 @@ function smartling_entity_translation_save($handler, $entity) {
  *   Return TRUE if normal filename.
  */
 function smartling_check_filename_length($title, $entity_type, $rid) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $file_name = strtolower(trim(preg_replace('#\W+#', '_', $title), '_')) . '_' . $entity_type . '_' . $rid . '.xml';
 
   if (strlen($file_name) > 255) {

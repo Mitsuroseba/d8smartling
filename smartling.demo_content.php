@@ -490,6 +490,6 @@ function smartling_get_random_taxonomy_array() {
  */
 function smartling_set_message_watchdog($msg) {
   drupal_set_message($msg);
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $log->setMessage($msg)->execute();
 }

@@ -11,7 +11,7 @@
 function smartling_queue_download_update_translated_item_process($entity_data) {
 
   if (smartling_is_configured() && smartling_supported_type($entity_data->entity_type, $entity_data->bundle)) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     $smartling_settings = smartling_settings_get_handler();
 
     $entity_type = $entity_data->entity_type;
@@ -44,7 +44,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
  */
 function smartling_queue_check_status_process($args) {
   if (smartling_is_configured()) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($args->rid, $args->entity_type);
     $entity_data = smartling_entity_load_by_conditions(array(
@@ -74,7 +74,7 @@ function smartling_queue_check_status_process($args) {
  */
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     $smartling_settings = smartling_settings_get_handler();
     $entity_type = $args->entity_type;
     // Check filename length.

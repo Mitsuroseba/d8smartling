@@ -397,7 +397,7 @@ function smartling_admin_log_info_settings_form(array $form, array &$form_state)
  */
 function smartling_admin_log_info_settings_form_submit(array $form, array &$form_state) {
   if (isset($form_state['values']['log_mode'])) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     if ($form_state['values']['log_mode'] == FALSE) {
       $log->setMessage('Smartling log OFF')
         ->setConsiderLog(FALSE)
@@ -620,7 +620,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
  */
 function smartling_admin_node_translation_settings_form_submit(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -926,7 +926,7 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
  *   FAPI array.
  */
 function smartling_admin_taxonomy_translation_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1165,7 +1165,7 @@ function smartling_admin_comments_translation_settings_form(array $form, array &
  *   FAPI array.
  */
 function smartling_admin_comments_translation_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1358,7 +1358,7 @@ function smartling_admin_users_translation_settings_form(array $form, array &$fo
  *   FAPI array.
  */
 function smartling_admin_users_translation_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 

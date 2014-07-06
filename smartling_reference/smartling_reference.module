@@ -39,7 +39,7 @@ function smartling_admin_reference_settings_form(array $form, array &$form_state
  *   FAPI array.
  */
 function smartling_rebuild_references_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $smartling_active_types = smartling_settings_get_handler()->nodeGetFieldsSettings();
   $condition_active_bundles = array();
   $original_node_ids = FALSE;

@@ -243,7 +243,7 @@ function smartling_get_term_settings_form(array $form, array &$form_state) {
  *   FAPI array.
  */
 function smartling_get_term_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $term = taxonomy_form_term_submit_build_taxonomy_term($form, $form_state);
   $language_default = language_default()->language;
   if ($term->language == $language_default) {

@@ -160,7 +160,7 @@ function smartling_get_user_settings_form(array $form, array &$form_state) {
  *   FAPI array.
  */
 function smartling_get_user_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $account = $form_state['user'];
   $category = $form['#user_category'];
   // Remove unneeded values.

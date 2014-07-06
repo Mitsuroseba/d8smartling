@@ -111,7 +111,7 @@ function smartling_node_content_to_translate($nid) {
         break;
 
       default:
-        $log = new SmartlingLog();
+        $log = smartling_log_get_handler();
         $log->setMessage("Smartling didn't process content of field - @field_name")
           ->setVariables(array('@field_name' => $field_name))
           ->setConsiderLog(FALSE)
@@ -183,7 +183,7 @@ function smartling_taxonomy_term_content_to_translate($tid) {
         break;
 
       default:
-        $log = new SmartlingLog();
+        $log = smartling_log_get_handler();
         $log->setMessage("Smartling didn't process content of field - @field_name")
           ->setVariables(array('@field_name' => $field_name))
           ->setConsiderLog(FALSE)
@@ -244,7 +244,7 @@ function smartling_comment_content_to_translate($cid) {
         break;
 
       default:
-        $log = new SmartlingLog();
+        $log = smartling_log_get_handler();
         $log->setMessage("Smartling didn't process content of field - @field_name")
           ->setVariables(array('@field_name' => $field_name))
           ->setConsiderLog(FALSE)
@@ -305,7 +305,7 @@ function smartling_user_content_to_translate($uid) {
         break;
 
       default:
-        $log = new SmartlingLog();
+        $log = smartling_log_get_handler();
         $log->setMessage("Smartling didn't process content of field - @field_name")
           ->setVariables(array('@field_name' => $field_name))
           ->setConsiderLog(FALSE)
@@ -455,7 +455,7 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
  *   Entity bundle.
  */
 function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $log->setMessage('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale')
     ->setVariables(array(
       '@entity_type' => $entity_type,
@@ -776,7 +776,7 @@ function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid
           break;
 
         default:
-          $log = new SmartlingLog();
+          $log = smartling_log_get_handler();
           $log->setMessage("Smartling didn't process field - @field_name")
             ->setVariables(array('@field_name' => $field_name))
             ->execute();

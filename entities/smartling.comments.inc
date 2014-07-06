@@ -214,7 +214,7 @@ function smartling_get_comment_settings_form(array $form, array &$form_state) {
  *   FAPI array.
  */
 function smartling_get_comment_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $comment = comment_form_submit_build_comment($form, $form_state);
   $d_locale_original = $comment->translations->original;
   $langs = array();

@@ -331,7 +331,7 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
  *   FAPI array.
  */
 function smartling_get_node_settings_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $node = node_form_submit_build_node($form, $form_state);
   $nid = $node->nid;
 

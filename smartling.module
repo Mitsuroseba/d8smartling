@@ -285,7 +285,7 @@ function smartling_field_settings_update_submit(array $form, array &$form_state)
  *   FAPI array.
  */
 function smartling_download_translate_form_submit(array $form, array &$form_state) {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
     global $user;
@@ -627,7 +627,7 @@ function smartling_cron() {
     ->fetchAll();
 
   if (!empty($check_queue)) {
-    $log = new SmartlingLog();
+    $log = smartling_log_get_handler();
     $smartling_queue = DrupalQueue::get('smartling_check_status');
     $smartling_queue->createQueue();
     foreach ($check_queue as $queue_item) {
@@ -715,7 +715,7 @@ function smartling_entity_load($entities, $type) {
             field_attach_update($type, $entity);
             $entity_ids = entity_extract_ids($type, $entity);
             $entity_id = $entity_ids[0];
-            $log = new SmartlingLog();
+            $log = smartling_log_get_handler();
             $log->setMessage('Smartling adds value for field @fieldname, langcode @lang, entity - @entity, id - @id')
               ->setVariables(array(
                 '@fieldname' => $field_name,
@@ -868,7 +868,7 @@ function smartling_action_info() {
  */
 function smartling_do_translate_action($entity, array $context) {
   $entity_type = $context['entity_type'];
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   global $user;
 
   $smartling_queue = DrupalQueue::get('smartling_upload');
@@ -1222,7 +1222,7 @@ function smartling_do_translate_action_validate(array $form, array &$form_state)
  */
 function smartling_do_translate_action_submit(array $form, array $form_state) {
   $count_op = count($form_state['selection']);
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $log->setMessage(format_plural($count_op, 'Smartling Bulk Submit - add 1 entity to queue', 'Smartling Bulk Submit - add @count entities to queue'))
     ->execute();
   return array('translate_to_langs' => $form_state['translate_to_langs']);
@@ -1245,7 +1245,7 @@ function smartling_push_callback_access($key) {
  * Smartling push callback function.
  */
 function smartling_push_callback() {
-  $log = new SmartlingLog();
+  $log = smartling_log_get_handler();
   $log->setMessage('Smartling starts to process callback request')->execute();
 
   if (isset($_GET['locale']) && isset($_GET['fileUri'])) {

@@ -1,7 +1,5 @@
-#parameters:
-#  dummy.param: wrong
-
 services:
-  smartling_settings:
-    class:      Smartling\Settings\SmartlingSettingsHandler
-#    arguments:  [%dummy.param%]
+  smartling.settings:
+    class:              Smartling\Settings\SmartlingSettingsHandler
+  smartling.log:
+    class:              Smartling\Log\SmartlingLog
