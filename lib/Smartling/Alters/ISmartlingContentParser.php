@@ -5,6 +5,8 @@
  * Interface IContentParserSmartlingInterface.
  */
 
+namespace Smartling\Alters;
+
 /**
  * Parses the translated content for the needed parts (like link addresses etc).
  *

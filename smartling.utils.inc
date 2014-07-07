@@ -5,7 +5,7 @@
  * Utils functions for Smartling module.
  */
 
-//use Smartling\Settings\SmartlingSettingsHandler;
+use Smartling\Settings\SmartlingSettingsHandler;
 
 /**
  * Returns whether the given node type has support for Smartling translations.

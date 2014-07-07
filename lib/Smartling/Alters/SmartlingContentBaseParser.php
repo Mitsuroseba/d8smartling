@@ -1,6 +1,17 @@
 <?php
-require_once(dirname(__FILE__) . '/smartling_content_parser_interface.inc');
 
+/**
+ * @file
+ * Smartling content base parser.
+ */
+
+namespace Smartling\Alters;
+
+use Smartling\Alters\ISmartlingContentParser;
+
+/**
+ * Abstract class SmartlingContentBaseParser.
+ */
 abstract class SmartlingContentBaseParser implements ISmartlingContentParser {
   protected $regexp = '';
   protected $processors;

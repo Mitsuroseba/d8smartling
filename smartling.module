@@ -50,6 +50,42 @@ include_once 'api/lib/FileUploadParameterBuilder.php';
 include_once 'smartling.demo_content.php';
 
 /**
+ * Implements hook_boot().
+ */
+function smartling_boot() {
+  smartling_register();
+}
+
+/**
+ * Implements hook_init().
+ */
+function smartling_init() {
+  smartling_register();
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function smartling_flush_caches() {
+  // In some context such as module activation, the boot method is not called so
+  // the component is never registered with the class loader. This cause
+  // troubles as we need the class definition when bootstrapping.
+  smartling_register();
+  return array();
+}
+
+/**
+ * Registers smartling and dependencies name-space with the class loader.
+ */
+function smartling_register() {
+  // Activates the class loader.
+  $loader = drupal_classloader();
+  $loader->registerNamespace('Smartling\Alters', __DIR__ . '/lib');
+  $loader->registerNamespace('Smartling\Log', __DIR__ . '/lib');
+  $loader->registerNamespace('Smartling\Settings', __DIR__ . '/lib');
+}
+
+/**
  * Implements hook_menu().
  */
 function smartling_menu() {
@@ -1351,11 +1387,4 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
   }
 
   return $content;
-}
-
-/**
- * Implements hook_init().
- */
-function smartling_init() {
-  drupal_classloader()->registerNamespace('Smartling\Settings', __DIR__ . '/lib');
 }

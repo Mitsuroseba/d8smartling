@@ -1,5 +1,13 @@
 <?php
-require_once(dirname(__FILE__) . '/smartling_content_processor_interface.inc');
+
+/**
+ * @file
+ * Class SmartlingContentMediaEncodedProcessor.
+ */
+
+namespace Smartling\Alters;
+
+use Smartling\Alters\ISmartlingContentProcessor;
 
 /*
  * Demo url processor. No real value here for now.

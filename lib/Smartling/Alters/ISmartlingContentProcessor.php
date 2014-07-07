@@ -5,6 +5,8 @@
  * Interface IContentProcessorSmartlingInterface.
  */
 
+namespace Smartling\Alters;
+
 /*
  * Content Processor interface. It's implementations allow to change
  * translated content. For example, to

@@ -2,10 +2,12 @@
 
 /**
  * @file
- * Class SmartlingUrlProcessor.
+ * Class SmartlingContentImageUrlProcessor.
  */
 
-require_once dirname(__FILE__) . '/smartling_content_processor_interface.inc';
+namespace Smartling\Alters;
+
+use Smartling\Alters\ISmartlingContentProcessor;
 
 if (!function_exists('http_build_url')) {
   require_once dirname(__FILE__) . '/http_build_url_function.inc';

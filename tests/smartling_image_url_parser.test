@@ -1,8 +1,14 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../alters/smartling_content_image_url_parser.inc');
-require_once(dirname(__FILE__) . '/../alters/smartling_content_processor_interface.inc');
+namespace Smartling\Alters;
 
+use Smartling\Alters\ISmartlingContentProcessor;
+use Smartling\Alters\SmartlingContentImageUrlParser;
+// use Smartling\Alters\MockedSmartlingContentImageUrlProcessor;
+
+/**
+ * Class MockedSmartlingContentImageUrlProcessor.
+ */
 class MockedSmartlingContentImageUrlProcessor implements ISmartlingContentProcessor {
   protected $process_func;
 

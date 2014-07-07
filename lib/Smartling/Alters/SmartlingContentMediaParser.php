@@ -5,7 +5,9 @@
  * Class SmartlingMediaParser.
  */
 
-require_once dirname(__FILE__) . '/smartling_content_base_parser.inc';
+namespace Smartling\Alters;
+
+use Smartling\Alters\SmartlingContentBaseParser;
 
 /**
  * A parser for the Drupal media module and its jsons inside text fields.
