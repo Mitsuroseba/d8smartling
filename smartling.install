@@ -125,10 +125,6 @@ function smartling_install() {
  * Implements hook_enable().
  */
 function smartling_enable() {
-  // Add default private path.
-  if (variable_get('file_private_path', '') == '') {
-    variable_set('file_private_path', 'sites/default/files/private');
-  }
 
   // Set Multilingual support for content types.
   $node_types = node_type_get_types();
