@@ -301,6 +301,28 @@ function smartling_admin_account_info_settings_form_validate(array $form, array 
  *   FAPI array.
  */
 function smartling_admin_account_info_settings_form_submit(array $form, array &$form_state) {
+  // Add default private path.
+  if (variable_get('file_private_path', '') == '') {
+    $directory = 'sites/default/files/private';
+    variable_set('file_private_path', $directory);
+
+    if (!is_dir($directory) && !drupal_mkdir($directory, NULL, TRUE)) {
+      // If the directory does not exists and cannot be created.
+      drupal_set_message(t('The directory %directory does not exist and could not be created.', array('%directory' => $directory)));
+      watchdog('file system', 'The directory %directory does not exist and could not be created.', array('%directory' => $directory), WATCHDOG_ERROR);
+    }
+
+    if (is_dir($directory) && !is_writable($directory) && !drupal_chmod($directory)) {
+      // If the directory is not writable and cannot be made so.
+      drupal_set_message(t('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $directory)));
+      watchdog('file system', 'The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $directory), WATCHDOG_ERROR);
+    }
+    elseif (is_dir($directory)) {
+      // Create private .htaccess file.
+      file_create_htaccess($directory);
+    }
+  }
+
   $smartling_settings = smartling_settings_get_handler();
   // Account settings.
   if (isset($form_state['values']['api_url'])) {
@@ -802,7 +824,10 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
         }
       }
       // Fix bouble field after change translate method.
-      $term_field_names = array('description' => 'description', 'name' => 'name');
+      $term_field_names = array(
+        'description' => 'description',
+        'name' => 'name',
+      );
       foreach ($term_field_names as $property_name) {
         if (isset($fr_fields[$property_name . '_field'])) {
           unset($term_field_names[$property_name]);

@@ -53,22 +53,27 @@ if (!function_exists('http_build_url')) {
    * The parts of the second URL will be merged into the first according to
    * the flags argument.
    *
-   * @param mixed $url     (part(s) of) an URL in form of a string or
-   *                       associative array like parse_url() returns
-   * @param mixed $parts   same as the first argument
-   * @param int   $flags   a bitmask of binary or'ed HTTP_URL constants;
-   *                       HTTP_URL_REPLACE is the default
-   * @param array $new_url if set, it will be filled with the parts of the
-   *                       composed url like parse_url() would return
+   * @param mixed $url
+   *   (part(s) of) an URL in form of a string or
+   *   associative array like parse_url() returns.
+   * @param mixed $parts
+   *   Same as the first argument.
+   * @param int $flags
+   *   A bitmask of binary or'ed HTTP_URL constants;
+   *   HTTP_URL_REPLACE is the default.
+   * @param array $new_url
+   *   If set, it will be filled with the parts of the
+   *   composed url like parse_url() would return.
+   *
    * @return string
+   *   Return url.
    */
-  function http_build_url($url, $parts = array(), $flags = HTTP_URL_REPLACE, &$new_url = array())
-  {
+  function http_build_url($url, $parts = array(), $flags = HTTP_URL_REPLACE, &$new_url = array()) {
     is_array($url) || $url = parse_url($url);
     is_array($parts) || $parts = parse_url($parts);
 
-    isset($url['query']) && is_string($url['query']) || $url['query'] = null;
-    isset($parts['query']) && is_string($parts['query']) || $parts['query'] = null;
+    isset($url['query']) && is_string($url['query']) || $url['query'] = NULL;
+    isset($parts['query']) && is_string($parts['query']) || $parts['query'] = NULL;
 
     $keys = array('user', 'pass', 'port', 'path', 'query', 'fragment');
 
@@ -77,11 +82,12 @@ if (!function_exists('http_build_url')) {
       $flags |= HTTP_URL_STRIP_USER | HTTP_URL_STRIP_PASS
         | HTTP_URL_STRIP_PORT | HTTP_URL_STRIP_PATH
         | HTTP_URL_STRIP_QUERY | HTTP_URL_STRIP_FRAGMENT;
-    } elseif ($flags & HTTP_URL_STRIP_AUTH) {
+    }
+    elseif ($flags & HTTP_URL_STRIP_AUTH) {
       $flags |= HTTP_URL_STRIP_USER | HTTP_URL_STRIP_PASS;
     }
 
-    // Schema and host are alwasy replaced
+    // Schema and host are always replaced.
     foreach (array('scheme', 'host') as $part) {
       if (isset($parts[$part])) {
         $url[$part] = $parts[$part];
@@ -94,14 +100,16 @@ if (!function_exists('http_build_url')) {
           $url[$key] = $parts[$key];
         }
       }
-    } else {
+    }
+    else {
       if (isset($parts['path']) && ($flags & HTTP_URL_JOIN_PATH)) {
         if (isset($url['path']) && substr($parts['path'], 0, 1) !== '/') {
           $url['path'] = rtrim(
               str_replace(basename($url['path']), '', $url['path']),
               '/'
             ) . '/' . ltrim($parts['path'], '/');
-        } else {
+        }
+        else {
           $url['path'] = $parts['path'];
         }
       }
@@ -117,7 +125,8 @@ if (!function_exists('http_build_url')) {
               $parts_query
             )
           );
-        } else {
+        }
+        else {
           $url['query'] = $parts['query'];
         }
       }
@@ -156,7 +165,8 @@ if (!function_exists('http_build_url')) {
 
     if (!empty($url['path'])) {
       $parsed_string .= $url['path'];
-    } else {
+    }
+    else {
       $parsed_string .= '/';
     }
 

@@ -43,7 +43,7 @@ class SmartlingEntityDataController extends EntityAPIController {
    * @param array $values
    *   Entity values.
    *
-   * @return ongect
+   * @return object
    *   Return smartling entity object.
    */
   public function create(array $values = array()) {

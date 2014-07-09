@@ -7,16 +7,16 @@
 
 namespace Smartling\Alters;
 
-use Smartling\Alters\ISmartlingContentProcessor;
+use Smartling\Alters\SmartlingContentProcessorInterface;
 
 if (!function_exists('http_build_url')) {
-  require_once dirname(__FILE__) . '/http_build_url_function.inc';
+  require_once dirname(__FILE__) . '/http_build_url_function.php';
 }
 
 /**
  * Demo url processor. No real value here for now.
  */
-class SmartlingContentImageUrlProcessor implements ISmartlingContentProcessor {
+class SmartlingContentImageUrlProcessor implements SmartlingContentProcessorInterface {
 
   /**
    * Process.
@@ -40,11 +40,11 @@ class SmartlingContentImageUrlProcessor implements ISmartlingContentProcessor {
     $url = $item[2];
     $url = parse_url($url);
 
-    if ( $url['host'] == 'www.site.com') {
+    if ($url['host'] == 'www.site.com') {
       $url['host'] = 'site.com';
     }
 
-    if ( $url['host'] != 'site.com') {
+    if ($url['host'] != 'site.com') {
       return;
     }
 

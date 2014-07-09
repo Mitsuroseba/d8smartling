@@ -28,11 +28,10 @@ class SmartlingTextFieldWithSummaryProcessingTest extends DrupalWebTestCase {
    * Test processing of text field by Smartling hook.
    */
   public function testProcessTextField() {
-    //Enable Smartling module.
+    // Enable Smartling module.
     module_enable(array('smartling'));
 
-
-    $xml_str =<<<EOF
+    $xml_str = <<<EOF
 <?xml version="1.0" encoding="UTF-8"?>
     <data><localize title="10">
       <string id="body-body-0" quantity="1">sdfsdfsdfsa</string>
@@ -53,9 +52,19 @@ EOF;
     $original_entity = new stdClass();
     $new = smartling_body_with_summary_field_processing($node_wrapper, 'body', $xpath, $language_key, 'en', $original_entity);
 
-    $expected_res = array( 'body' => array ( 'en' => array ( 0 => array ( 'value' => 'sdfsdfsdfsa', 'format' => NULL, 'summary' => '', ), ), ), );
+    $expected_res = array(
+      'body' => array(
+        'en' => array(
+          0 => array(
+            'value' => 'sdfsdfsdfsa',
+            'format' => NULL,
+            'summary' => '',
+          ),
+        ),
+      ),
+    );
 
-    $this->assertEqual((array)$new, $expected_res);
+    $this->assertEqual((array) $new, $expected_res);
   }
 
 }

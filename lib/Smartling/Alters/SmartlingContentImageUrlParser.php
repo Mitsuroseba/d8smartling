@@ -35,7 +35,8 @@ class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
 
   /**
    * Determines whether we are dealing with an internal or external link.
-   * most of the code for this function was taken from the "pathologic" module.
+   *
+   * Most of the code for this function was taken from the "pathologic" module.
    *
    * @param array $matches
    *   Array of strings that matched the regexp.
@@ -179,7 +180,7 @@ class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
     $context = $this->getContext($match);
 
     foreach ($this->processors as $processor) {
-      $processor->process($match, $context, $this->lang, $this->field_name, $this->entity);
+      $processor->process($match, $context, $this->lang, $this->fieldName, $this->entity);
     }
 
     return " {$match[1]}=\"{$match[2]}";

@@ -47,7 +47,7 @@ class SmartlingApiWrapper {
   /**
    * Initialize.
    */
-  public function __construct(SmartlingSettingsHandler $settings_handler, $logger) {
+  public function __construct($settings_handler, $logger) {
     $this->settingsHandler = $settings_handler;
     $this->logger = $logger;
 

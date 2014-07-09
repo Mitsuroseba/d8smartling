@@ -1,34 +1,49 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../alters/smartling_content_image_url_processor.inc');
-
-
 /**
  * @file
- * Tests for smartling
+ * Tests for smartling.
  */
-class SmartlingContentImageUrlProcessorTest extends DrupalUnitTestCase {
-  private $context;
-  private $entity;
 
+use Smartling\Alters\SmartlingContentImageUrlProcessor;
+
+/**
+ * SmartlingContentImageUrlProcessorTest.
+ */
+class SmartlingContentImageUrlProcessorTest extends \DrupalUnitTestCase {
+  protected $context;
+  protected $entity;
+
+  /**
+   * Get info.
+   *
+   * @return array
+   *   Return info array.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Content - Smartling Content Urls/image Processor',
       'description' => 'Checks custom demo behaviour of the processor',
-      'group' => 'Smartling UnitTests'
+      'group' => 'Smartling UnitTests',
     );
   }
 
+  /**
+   * Setup.
+   */
   protected function setUp() {
     parent::setUp();
 
-    // Enable Smartling modules
+    // Enable Smartling modules.
     $this->context = array('external' => TRUE);
     $this->entity = new stdClass();
   }
 
+  /**
+   * Test should convert links.
+   */
   public function testShouldConvertLinks() {
-    $item   = array('href="http://site.com"', 'href', 'http://site.com');
+    $item = array('href="http://site.com"', 'href', 'http://site.com');
     $result = array('href="http://site.com"', 'href', 'http://en.site.com/');
     $proc = new SmartlingContentImageUrlProcessor();
 
@@ -37,9 +52,16 @@ class SmartlingContentImageUrlProcessorTest extends DrupalUnitTestCase {
     $this->assertEqual($result, $item);
   }
 
+  /**
+   * Test should convert links with WWW.
+   */
   public function testShouldConvertLinksWithWWW() {
-    $item   = array('href="http://www.site.com"', 'href', 'http://www.site.com');
-    $result = array('href="http://www.site.com"', 'href', 'http://en.site.com/');
+    $item = array('href="http://www.site.com"', 'href', 'http://www.site.com');
+    $result = array(
+      'href="http://www.site.com"',
+      'href',
+      'http://en.site.com/',
+    );
     $proc = new SmartlingContentImageUrlProcessor();
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
@@ -47,17 +69,31 @@ class SmartlingContentImageUrlProcessorTest extends DrupalUnitTestCase {
     $this->assertEqual($result, $item);
   }
 
+  /**
+   * Test should not convert image.
+   */
   public function testShouldNotConvertImage() {
-    $item   = array('src="http://site.com/logo.png"', 'src', 'http://site.com/logo.png');
-    $result = array('src="http://site.com/logo.png"', 'src', 'http://site.com/logo.png');
+    $item = array(
+      'src="http://site.com/logo.png"',
+      'src',
+      'http://site.com/logo.png',
+    );
+    $result = array(
+      'src="http://site.com/logo.png"',
+      'src',
+      'http://site.com/logo.png',
+    );
     $proc = new SmartlingContentImageUrlProcessor();
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
     $this->assertEqual($result, $item);
   }
 
+  /**
+   * Test should not convert another domain.
+   */
   public function testShouldNotConvertAnotherDomain() {
-    $item   = array('href="http://site1.com"', 'href', 'http://site1.com');
+    $item = array('href="http://site1.com"', 'href', 'http://site1.com');
     $result = array('href="http://site1.com"', 'href', 'http://site1.com');
     $proc = new SmartlingContentImageUrlProcessor();
 

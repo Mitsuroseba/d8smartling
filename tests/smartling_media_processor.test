@@ -1,20 +1,54 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../alters/smartling_content_media_processor.inc');
+/**
+ * @file
+ * Tests for smartling.
+ */
 
+use Smartling\Alters\SmartlingContentMediaProcessor;
+
+/**
+ * MockedSmartlingMediaProcessor.
+ */
 class MockedSmartlingMediaProcessor extends SmartlingContentMediaProcessor {
-  private $func1;
-  private $func2;
+  protected $func1;
+  protected $func2;
 
-  function __construct($callable1, $callable2) {
+  /**
+   * Init.
+   *
+   * @param string $callable1
+   *   Function 1.
+   * @param string $callable2
+   *   Function 2.
+   */
+  public function __construct($callable1, $callable2) {
     $this->func1 = $callable1;
     $this->func2 = $callable2;
   }
 
+  /**
+   * Get file by id.
+   *
+   * @param int $fid
+   *   File id.
+   *
+   * @return mixed
+   *   File.
+   */
   protected function getFileById($fid) {
     return call_user_func($this->func1, $fid);
   }
 
+  /**
+   * Get file by file name.
+   *
+   * @param string $fname
+   *   File name.
+   *
+   * @return mixed
+   *   File.
+   */
   protected function getFileByName($fname) {
     return call_user_func($this->func2, $fname);
   }
@@ -24,23 +58,32 @@ class MockedSmartlingMediaProcessor extends SmartlingContentMediaProcessor {
  * @file
  * Tests for smartling
  */
-class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
-  private $item;
-  private $context;
-  private $entity;
+class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
+  protected $item;
+  protected $context;
+  protected $entity;
 
+  /**
+   * Get info.
+   *
+   * @return array
+   *   Return info array.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Content - Smartling Content Media Processor',
       'description' => 'Checks behaviour of the processor for Media items (json)',
-      'group' => 'Smartling UnitTests'
+      'group' => 'Smartling UnitTests',
     );
   }
 
+  /**
+   * Setup.
+   */
   protected function setUp() {
     parent::setUp();
 
-    // Enable Smartling modules
+    // Enable Smartling modules.
     $media_json = '[[{"fid":"41","view_mode":"default","fields":{"format":"default"},"type":"media","attributes":{"class":"media-element file-default"}}]]';
     $this->item = array($media_json, $media_json);
     $this->context = array(json_decode($media_json));
@@ -48,9 +91,16 @@ class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
 
   }
 
-  public function testShoudNotFailIfBothFilesAreNotFound() {
-    $func1 = function() {return null;};
-    $func2 = function() {return null;};
+  /**
+   * Test should not fail if both files are not found.
+   */
+  public function testShouldNotFailIfBothFilesAreNotFound() {
+    $func1 = function () {
+      return NULL;
+    };
+    $func2 = function () {
+      return NULL;
+    };
     $item = $this->item;
     $proc = new MockedSmartlingMediaProcessor($func1, $func2);
 
@@ -59,9 +109,18 @@ class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
     $this->assertEqual($this->item, $item);
   }
 
+  /**
+   * Test should return orig file if translated is not found.
+   */
   public function testShouldReturnOrigFileIfTranslatedIsNotFound() {
-    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
-    $func2 = function() {return null;};
+    $func1 = function () {
+      $tmp = new stdClass();
+      $tmp->filename = 'hi';
+      return $tmp;
+    };
+    $func2 = function () {
+      return NULL;
+    };
     $item = $this->item;
     $proc = new MockedSmartlingMediaProcessor($func1, $func2);
 
@@ -70,9 +129,21 @@ class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
     $this->assertEqual($this->item, $item);
   }
 
+  /**
+   * Test should return single found translated file.
+   */
   public function testShouldReturnSingleFoundTranslatedFile() {
-    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
-    $func2 = function() {$tmp = new stdClass(); $tmp->filename = 'en_hi'; $tmp->fid = 1; return array($tmp);};
+    $func1 = function () {
+      $tmp = new stdClass();
+      $tmp->filename = 'hi';
+      return $tmp;
+    };
+    $func2 = function () {
+      $tmp = new stdClass();
+      $tmp->filename = 'en_hi';
+      $tmp->fid = 1;
+      return array($tmp);
+    };
     $item = $this->item;
     $proc = new MockedSmartlingMediaProcessor($func1, $func2);
 
@@ -84,9 +155,21 @@ class SmartlingContentMediaProcessorTest extends DrupalUnitTestCase {
     $this->assertEqual($item_res, $item);
   }
 
+  /**
+   * Test should return first found translated file.
+   */
   public function testShouldReturnFirstFoundTranslatedFile() {
-    $func1 = function() {$tmp = new stdClass(); $tmp->filename = 'hi'; return $tmp;};
-    $func2 = function() {$tmp = new stdClass(); $tmp->filename = 'en_hi'; $tmp->fid = 1; return array($tmp, $tmp, $tmp);};
+    $func1 = function () {
+      $tmp = new stdClass();
+      $tmp->filename = 'hi';
+      return $tmp;
+    };
+    $func2 = function () {
+      $tmp = new stdClass();
+      $tmp->filename = 'en_hi';
+      $tmp->fid = 1;
+      return array($tmp, $tmp, $tmp);
+    };
     $item = $this->item;
     $proc = new MockedSmartlingMediaProcessor($func1, $func2);
 
