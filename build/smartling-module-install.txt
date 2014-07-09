@@ -66,12 +66,15 @@ drush_e en smartling smartling_reports -y
 drush_e en smartling_demo_content -y
 logit info "Misc. configuration"
 drush_e en devel -y
-drush_e dl queue_ui -y
-drush_e en queue_ui -y
+drush_e dl queue_ui pathauto entityreference -y
+drush_e en queue_ui entityreference -y
 logit info "Generate demo content"
 drush_e cron -y
 logit info "Prepare env for running tests"
 drush_e en simpletest -y
+logit info "Copy credentials from Home folder"
+USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+cp $USER_HOME/credentials.php ./sites/all/modules/custom/smartling
 
 logit info "Fill default smartling settings"
 php -r "print json_encode(array('zh-hans' => 'zh-hans', 'ru' => 'ru'));" | drush_e vset --format=json smartling_target_locales -
