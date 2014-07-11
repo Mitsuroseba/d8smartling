@@ -55,25 +55,6 @@ function smartling_vocabulary_support_type_submit(array &$form, array &$form_sta
 }
 
 /**
- * Implements hook_taxonomy_term_presave().
- */
-function smartling_taxonomy_term_presave($term) {
-  // Make sure the title isn't overwritten
-  // with the translation when using the title module.
-  if (module_exists('title')) {
-    $term_field_names = array('name', 'description');
-    foreach ($term_field_names as $term_property) {
-      $term_field_name = $term_property . '_field';
-      if (array_key_exists($term_field_name, $term)) {
-        if (isset($term->{$term_field_name}[$term->language][0]['value'])) {
-          $term->{$term_property} = $term->{$term_field_name}[$term->language][0]['value'];
-        }
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {

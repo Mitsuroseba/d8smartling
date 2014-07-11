@@ -6,19 +6,6 @@
  */
 
 /**
- * Implements hook_comment_presave().
- */
-function smartling_comment_presave($comment) {
-  // Make sure the title isn't overwritten
-  // with the translation when using the title module.
-  if (module_exists('title') && array_key_exists('subject_field', $comment)) {
-    if (isset($comment->subject_field[$comment->language][0]['value'])) {
-      $comment->subject = $comment->subject_field[$comment->language][0]['value'];
-    }
-  }
-}
-
-/**
  * Implements hook_form_alter().
  */
 function smartling_form_alter(&$form, &$form_state, $form_id) {

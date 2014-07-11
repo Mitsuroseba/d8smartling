@@ -27,20 +27,6 @@ function smartling_form_node_form_alter(&$form, $form_state) {
 }
 
 /**
- * Implements hook_node_presave().
- */
-function smartling_node_presave($node) {
-  // Make sure the title isn't overwritten with
-  // the translation when using the title module.
-  if (module_exists('title') && property_exists($node, 'title_field')) {
-    $titles = field_get_items('node', $node, 'title_field');
-    if (isset($titles[0]['value'])) {
-      $node->title = $titles[0]['value'];
-    }
-  }
-}
-
-/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Enable Smartling translation on a node type

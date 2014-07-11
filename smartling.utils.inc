@@ -1287,3 +1287,32 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
 
   return $fake;
 }
+
+/**
+ * Check field by field name.
+ *
+ * Return TRUE if this field is replacement field by title module.
+ *
+ * @param string $field_name
+ *   Field name.
+ *
+ * @return boolean
+ *   Return check result.
+ */
+function smartling_is_title_module_field($field_name) {
+  $title_module = FALSE;
+  $field_array = array(
+    'title_field',
+    'name_field',
+    'description_field',
+  );
+
+  if (in_array($field_name, $field_array)) {
+    $title_module = TRUE;
+  }
+  else {
+    $title_module = FALSE;
+  }
+
+  return $title_module;
+}
