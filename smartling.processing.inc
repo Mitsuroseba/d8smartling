@@ -375,12 +375,6 @@ function smartling_text_field_processing($entity_wrapper, $field_name, $xpath, $
       ->item(0);
     $string = smartling_process_content((string) $field->nodeValue, $language_key, $field_name, $original_entity);
 
-    if (smartling_is_title_module_field($field_name)) {
-      $property_name = str_ireplace('_field', '', $field_name);
-      $entity_wrapper->{$property_name} = $string;
-      $entity_wrapper->{($property_name . '_original')} = $string;
-    }
-
     if (!smartling_check_fake_field_for_entities_translate_method($field_name)) {
       $format = smartling_get_field_format($original_entity, $field_name, $language_key_format, $i);
 
