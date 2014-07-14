@@ -83,8 +83,8 @@ fi
 [ "x$DB" == "x" ] && { logit err "-db option should be set"; usage; }
 [ "x$URI" == "x" ] && { logit err "-uri option should be set"; usage; }
 
-logit info "Remove folder with all custom modules (including smartling)"
-rm -rf sites/all/modules/custom
+logit info "Remove folder with all modules (including smartling)"
+rm -rf sites modules
 
 drush_e make smartling-demo-install.make -y
 drush_e site-install standard --db-url=mysql://$UN:$PSWD@$HOST/$DB --account-name=admin --account-pass=admin --site-name=Smartling  -y
