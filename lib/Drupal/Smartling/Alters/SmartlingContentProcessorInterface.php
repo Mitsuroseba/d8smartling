@@ -5,7 +5,7 @@
  * Interface IContentProcessorSmartlingInterface.
  */
 
-namespace Smartling\Alters;
+namespace Drupal\smartling\Alters;
 
 /*
  * Content Processor interface. It's implementations allow to change
@@ -13,7 +13,7 @@ namespace Smartling\Alters;
  * rewrite paths and links to respect language translated nodes. Or to
  * substitute files from media module to translated ones.
  */
-interface ISmartlingContentProcessor {
+interface SmartlingContentProcessorInterface {
 
   /**
    * Changes string content according to the other params.

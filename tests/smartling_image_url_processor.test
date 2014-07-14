@@ -5,7 +5,7 @@
  * Tests for smartling.
  */
 
-use Smartling\Alters\SmartlingContentImageUrlProcessor;
+use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
 
 /**
  * SmartlingContentImageUrlProcessorTest.

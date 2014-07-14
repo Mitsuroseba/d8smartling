@@ -5,7 +5,7 @@
  * Smartling settings handler.
  */
 
-namespace Smartling\Settings;
+namespace Drupal\smartling\Settings;
 
 /**
  * Class SmartlingSettingsHandler.

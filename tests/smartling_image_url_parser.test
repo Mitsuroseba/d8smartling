@@ -5,10 +5,10 @@
  * Tests for smartling.
  */
 
-namespace Smartling\Alters;
+namespace Drupal\smartling\Alters;
 
-use Smartling\Alters\SmartlingContentProcessorInterface;
-use Smartling\Alters\SmartlingContentImageUrlParser;
+use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
+use Drupal\smartling\Alters\SmartlingContentImageUrlParser;
 
 /**
  * Class MockedSmartlingContentImageUrlProcessor.

@@ -80,9 +80,9 @@ function smartling_flush_caches() {
 function smartling_register() {
   // Activates the class loader.
   $loader = drupal_classloader();
-  $loader->registerNamespace('Smartling\Alters', __DIR__ . '/lib');
-  $loader->registerNamespace('Smartling\Log', __DIR__ . '/lib');
-  $loader->registerNamespace('Smartling\Settings', __DIR__ . '/lib');
+  $loader->registerNamespace('Drupal\smartling\Alters', __DIR__ . '/lib');
+  $loader->registerNamespace('Drupal\smartling\Log', __DIR__ . '/lib');
+  $loader->registerNamespace('Drupal\smartling\Settings', __DIR__ . '/lib');
 }
 
 /**

@@ -5,7 +5,7 @@
  * Smartling log.
  */
 
-namespace Smartling\Log;
+namespace Drupal\smartling\Log;
 
 /**
  * Class SmartlingLog.

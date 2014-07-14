@@ -5,7 +5,7 @@
  * Interface IContentParserSmartlingInterface.
  */
 
-namespace Smartling\Alters;
+namespace Drupal\smartling\Alters;
 
 /**
  * Parses the translated content for the needed parts (like link addresses etc).

@@ -1,5 +1,5 @@
 services:
   smartling.settings:
-    class:              Smartling\Settings\SmartlingSettingsHandler
+    class:              Drupal\smartling\Settings\SmartlingSettingsHandler
   smartling.log:
-    class:              Smartling\Log\SmartlingLog
+    class:              Drupal\smartling\Log\SmartlingLog

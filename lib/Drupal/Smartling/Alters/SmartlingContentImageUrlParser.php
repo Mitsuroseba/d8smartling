@@ -5,9 +5,9 @@
  * Class SmartlingImageUrlParser.
  */
 
-namespace Smartling\Alters;
+namespace Drupal\smartling\Alters;
 
-use Smartling\Alters\SmartlingContentBaseParser;
+use Drupal\smartling\Alters\SmartlingContentBaseParser;
 
 /**
  * SmartlingImageUrlParser.

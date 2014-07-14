@@ -5,9 +5,9 @@
  * Class SmartlingContentImageUrlProcessor.
  */
 
-namespace Smartling\Alters;
+namespace Drupal\smartling\Alters;
 
-use Smartling\Alters\SmartlingContentProcessorInterface;
+use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
 
 if (!function_exists('http_build_url')) {
   require_once dirname(__FILE__) . '/http_build_url_function.php';
