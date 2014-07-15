@@ -52,7 +52,7 @@ function smartling_admin_configuration_view() {
   }
 
   if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
-    $text = t('Following field(s) should be set as untranslatable for translation: !fields. Click on field name to fix.', array('!fields' => implode(', ', $fix_field_settings)));
+    $text = t('Following field(s) should be set as untranslatable for translation: !fields.', array('!fields' => implode(', ', $fix_field_settings)));
     $suffix = '<div id="smartling-untranslatable-fix">' . $text . '</div>';
     $output['fix'] = array(
       '#type' => 'markup',
@@ -504,12 +504,6 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
         if (array_search($field_type, $translatable_field_types)) {
-          // Fix.
-          if (smartling_nodes_method($value->type) && ($field_machine_name == 'title_field')) {
-            $need_fix = TRUE;
-            continue;
-          }
-
           $fr_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),
@@ -527,15 +521,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
             if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
-              $fix_field_settings[$field_machine_name] = l($field_label, 'smartling/translatable/' . $field_machine_name . '/nojs', array(
-                'attributes' => array(
-                  'class' => array(
-                    'use-ajax',
-                    'smartling-translatable-' . $field_machine_name,
-                  ),
-                  'title' => t('Fix field settings'),
-                ),
-              ));
+              $fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }
         }
@@ -560,7 +546,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
       // Fix double title after change translate method.
       if (!isset($fr_fields['title_field'])) {
         // Fake field title ($node->title) for nodes method.
-        if (smartling_nodes_method($value->type) && !$need_fix) {
+        if (smartling_nodes_method($value->type)) {
           $field_machine_name = 'title_property_field';
           $fr_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
@@ -819,11 +805,6 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
         if (array_search($field_type, $translatable_field_types)) {
-          // Fix.
-          if (($vocabulary_mode == I18N_MODE_TRANSLATE) && ($field_machine_name == 'name_field' || $field_machine_name == 'description_field')) {
-            $need_fix[$field_machine_name] = TRUE;
-            continue;
-          }
           $fr_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),
@@ -841,15 +822,7 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
             if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name) && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field_machine_name, $fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
-              $fix_field_settings[$field_machine_name] = l($field_label, 'smartling/translatable/' . $field_machine_name . '/nojs', array(
-                'attributes' => array(
-                  'class' => array(
-                    'use-ajax',
-                    'smartling-translatable-' . $field_machine_name,
-                  ),
-                  'title' => t('Fix field settings'),
-                ),
-              ));
+              $fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }
         }
@@ -889,24 +862,22 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
       // Fake field for taxonomy name and description ($term->name).
       if ($vocabulary_mode == I18N_MODE_TRANSLATE) {
         foreach ($term_field_names as $term_field) {
-          if (!isset($need_fix[$term_field . '_field'])) {
-            $field_machine_name = $term_field . '_property_field';
-            $fr_fields[$field_machine_name] = array(
-              '#type' => 'checkbox',
-              '#title' => t('@name', array('@name' => ucfirst($term_field))),
-              '#attributes' => array(
-                'id' => array('edit-form-item-' . $vocabulary->machine_name . '-separator-' . $field_machine_name),
-                'name' => $vocabulary->machine_name . '_SEPARATOR_' . $field_machine_name,
-                'class' => array('field'),
-              ),
-              '#id' => 'edit-form-item-' . $vocabulary->machine_name . '-separator-' . $field_machine_name,
-            );
+          $field_machine_name = $term_field . '_property_field';
+          $fr_fields[$field_machine_name] = array(
+            '#type' => 'checkbox',
+            '#title' => t('@name', array('@name' => ucfirst($term_field))),
+            '#attributes' => array(
+              'id' => array('edit-form-item-' . $vocabulary->machine_name . '-separator-' . $field_machine_name),
+              'name' => $vocabulary->machine_name . '_SEPARATOR_' . $field_machine_name,
+              'class' => array('field'),
+            ),
+            '#id' => 'edit-form-item-' . $vocabulary->machine_name . '-separator-' . $field_machine_name,
+          );
 
-            $is_in_conf = (!empty($term_translate_fields) && isset($term_translate_fields[$vocabulary->machine_name][$field_machine_name])) ? TRUE : FALSE;
+          $is_in_conf = (!empty($term_translate_fields) && isset($term_translate_fields[$vocabulary->machine_name][$field_machine_name])) ? TRUE : FALSE;
 
-            if ($is_in_conf) {
-              $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
-            }
+          if ($is_in_conf) {
+            $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
           }
         }
       }

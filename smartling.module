@@ -108,16 +108,6 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  $items['smartling/translatable/%'] = array(
-    'title' => 'Smartling AJAX callback - set field settings',
-    'type' => MENU_CALLBACK,
-    'page arguments' => array(2),
-    'page callback' => 'smartling_translatable_field_ajax_callback',
-    'access arguments' => array('administer smartling'),
-    'theme callback' => 'ajax_base_page_theme',
-    'delivery callback' => 'ajax_deliver',
-  );
-
   $items['smartling'] = array(
     'title' => 'Smartling settings',
     'type' => MENU_CALLBACK,
@@ -150,105 +140,6 @@ function smartling_menu() {
  */
 function smartling_download_translate_simple_callback() {
   return '';
-}
-
-/**
- * Translatable field ajax callback.
- *
- * @param string $field_name
- *   Field name.
- * @param string $mode
- *   Mode.
- *
- * @return array
- *   Ajax commands array.
- */
-function smartling_translatable_field_ajax_callback($field_name, $mode) {
-  // If no javascript.
-  if ($mode != 'ajax') {
-    drupal_set_message(t('Turn Javascript On'));
-    drupal_goto(isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '<front>');
-  }
-
-  $field = field_info_field($field_name);
-  $field['translatable'] = 0;
-  field_update_field($field);
-  unset($field);
-  drupal_set_message(t('Field @field_name settings update', array('@field_name' => $field_name)));
-
-  $sm_settings = smartling_settings_get_handler();
-  $smartling_translate_fields = $sm_settings->nodeGetFieldsSettings();
-  $fix_field_settings = array();
-  $raw_types = node_type_get_types();
-
-  foreach ($raw_types as $value) {
-    $node_type = $value->type;
-    // Delete untranslatable field from settings in field method node types.
-    if (smartling_fields_method($node_type)) {
-      $sm_settings->deleteSingleFieldFromSettings('node', $node_type, $field_name);
-      $commands[] = ajax_command_invoke('#smartling-content-types-and-fields input[name=' . $node_type . '_SEPARATOR_' . $field_name . ']', 'attr', array(
-        'checked',
-        FALSE,
-      ));
-    }
-
-    foreach (field_info_instances('node', $node_type) as $field) {
-      if (smartling_nodes_method($node_type) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($smartling_translate_fields[$node_type][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings) && !smartling_is_title_module_field($field['field_name'])) {
-        $fix_field_settings[$field['field_name']] = l($field['label'], 'smartling/translatable/' . $field['field_name'] . '/nojs', array(
-          'attributes' => array(
-            'class' => array(
-              'use-ajax',
-              'smartling-translatable-' . $field['field_name'],
-            ),
-            'title' => t('Fix field settings'),
-          ),
-        ));
-      }
-    }
-  }
-
-  $taxonomy_raw_types = taxonomy_get_vocabularies();
-  $term_translate_fields = $sm_settings->taxonomyTermGetFieldsSettings();
-
-  foreach ($taxonomy_raw_types as $vocabulary) {
-    $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
-
-    if ($vocabulary_mode == I18N_MODE_LOCALIZE) {
-      $sm_settings->deleteSingleFieldFromSettings('taxonomy_term', $vocabulary->machine_name, $field_name);
-      $commands[] = ajax_command_invoke('#smartling-taxonomy-vocabularies-and-fields input[name=' . $vocabulary->machine_name . '_SEPARATOR_' . $field_name . ']', 'attr', array(
-        'checked',
-        FALSE,
-      ));
-    }
-
-    if (($vocabulary_mode == I18N_MODE_TRANSLATE) && (smartling_supported_type('taxonomy_term', $vocabulary->machine_name))) {
-      // Error in field settings.
-      if (smartling_field_is_translatable_by_field_name($field['field_name']) && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field['field_name'], $fix_field_settings) && !smartling_is_title_module_field($field['field_name'])) {
-        $fix_field_settings[$field['field_name']] = l($field_label, 'smartling/translatable/' . $field['field_name'] . '/nojs', array(
-          'attributes' => array(
-            'class' => array(
-              'use-ajax',
-              'smartling-translatable-' . $field['field_name'],
-            ),
-            'title' => t('Fix field settings'),
-          ),
-        ));
-      }
-    }
-  }
-
-  if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
-    $new_html_fix = '<div id="smartling-untranslatable-fix">' . t('Following field(s) should be set as untranslatable for translation: !fields. Click on field name to fix.', array('!fields' => implode(', ', $fix_field_settings))) . '</div>';
-    $commands[] = ajax_command_replace('#smartling-untranslatable-fix', $new_html_fix);
-  }
-  else {
-    $commands[] = ajax_command_remove('#smartling-untranslatable-fix');
-  }
-
-  $commands[] = ajax_command_remove('div.messages');
-  $commands[] = ajax_command_before('.region-content', theme('status_messages'));
-  $page = array('#type' => 'ajax', '#commands' => $commands);
-  return $page;
 }
 
 /**
@@ -308,27 +199,6 @@ function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state
     '#title' => t('Some settings should be disabled when using Smartling.'),
     '#weight' => -100,
   );
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function smartling_form_title_field_replacement_form_alter(&$form, &$form_state) {
-  $form['#submit'][] = 'smartling_title_field_replacement_submit';
-  $form['#submit'] = array_reverse($form['#submit']);
-}
-
-/**
- * Smartling title field replacement form - Form Submit.
- *
- * @param array $form
- *   FAPI array.
- * @param array $form_state
- *   FAPI array.
- */
-function smartling_title_field_replacement_submit(array $form, array &$form_state) {
-  $smartling_settings = smartling_settings_get_handler();
-  $smartling_settings->deleteSingleFieldFromSettings($form['#entity_type'], $form['#bundle'], $form['#field_name'] . '_property_field');
 }
 
 /**
