@@ -4,10 +4,10 @@
  * Custom css.
  */
 
-#edit-accaunt-info .form-item-callback-url,
-#edit-accaunt-info .form-item-callback-url label,
-#edit-accaunt-info .form-item-callback-url input,
-#edit-accaunt-info .form-item-default-language-format input {
+#edit-account-info .form-item-callback-url,
+#edit-account-info .form-item-callback-url label,
+#edit-account-info .form-item-callback-url input,
+#edit-account-info .form-item-default-language-format input {
     display: inline;
     width: auto;
 }

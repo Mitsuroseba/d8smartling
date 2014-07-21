@@ -28,14 +28,14 @@ function smartling_admin_configuration_view() {
     ),
   );
 
-  $accaunt_info = drupal_get_form('smartling_admin_account_info_settings_form');
+  $account_info = drupal_get_form('smartling_admin_account_info_settings_form');
   $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form');
   $taxonomy_translation_settings = drupal_get_form('smartling_admin_taxonomy_translation_settings_form');
   $comments_translation_settings = drupal_get_form('smartling_admin_comments_translation_settings_form');
   $users_translation_settings = drupal_get_form('smartling_admin_users_translation_settings_form');
   $log_info = drupal_get_form('smartling_admin_log_info_settings_form');
 
-  $output['smartling'][] = smartling_wrap_in_fieldset($accaunt_info, t('Account info'));
+  $output['smartling'][] = smartling_wrap_in_fieldset($account_info, t('Account info'));
   $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, t('Content types and fields'));
   $output['smartling'][] = smartling_wrap_in_fieldset($taxonomy_translation_settings, t('Taxonomy vocabularies and fields'));
   $output['smartling'][] = smartling_wrap_in_fieldset($comments_translation_settings, t('Comment fields'));
@@ -79,12 +79,12 @@ function smartling_admin_configuration_view() {
 function smartling_admin_account_info_settings_form(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
 
-  $form['accaunt_info'] = array(
+  $form['account_info'] = array(
     '#type' => 'item',
     '#title' => t('Account info'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#group' => 'accaunt_info',
+    '#group' => 'account_info',
     'actions' => array(
       '#type' => 'actions',
     ),
@@ -92,7 +92,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#validate' => array('smartling_admin_account_info_settings_form_validate'),
   );
 
-  $form['accaunt_info']['api_url'] = array(
+  $form['account_info']['api_url'] = array(
     '#type' => 'textfield',
     '#title' => t('API URL'),
     '#default_value' => $smartling_settings->getApiUrl(),
@@ -102,7 +102,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#description' => t('Set api url. Default: @api_url', array('@api_url' => SMARTLING_DEFAULT_API_URL)),
   );
 
-  $form['accaunt_info']['project_id'] = array(
+  $form['account_info']['project_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Project Id'),
     '#default_value' => $smartling_settings->getProjectId(),
@@ -111,7 +111,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#required' => TRUE,
   );
 
-  $form['accaunt_info']['smartling_key'] = array(
+  $form['account_info']['smartling_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Key'),
     '#default_value' => '',
@@ -121,7 +121,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#required' => FALSE,
   );
 
-  $form['accaunt_info']['production_retrieval_type'] = array(
+  $form['account_info']['production_retrieval_type'] = array(
     '#type' => 'radios',
     '#title' => t('Retrieval type'),
     '#default_value' => $smartling_settings->getRetrievalType(),
@@ -131,7 +131,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
 
   $target_language_options_list = $smartling_settings->getTargetLanguageOptionsList();
   if (!empty($target_language_options_list)) {
-    $form['accaunt_info']['target_locales'] = array(
+    $form['account_info']['target_locales'] = array(
       '#type' => 'checkboxes',
       '#options' => $target_language_options_list,
       '#title' => t('Target Locales'),
@@ -145,7 +145,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     foreach ($target_language_options_list as $langcode => $lang_name) {
       $counter++;
       if ($counter == 1) {
-        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        $form['account_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
           '#title' => '',
           '#title_display' => 'invisible',
@@ -162,7 +162,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
         );
       }
       else {
-        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        $form['account_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
           '#title' => '',
           '#title_display' => 'invisible',
@@ -179,7 +179,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
       }
 
       if ($counter == $total) {
-        $form['accaunt_info']['target_locales_text_key_' . $langcode] = array(
+        $form['account_info']['target_locales_text_key_' . $langcode] = array(
           '#type' => 'textfield',
           '#title' => '',
           '#title_display' => 'invisible',
@@ -197,12 +197,12 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
       }
       // For one language.
       if ($total == 1) {
-        $form['accaunt_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
+        $form['account_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
       }
     }
   }
   else {
-    $form['accaunt_info']['target_locales'] = array(
+    $form['account_info']['target_locales'] = array(
       '#type' => 'checkboxes',
       '#options' => array(),
       '#title' => t('Target Locales'),
@@ -211,34 +211,34 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     );
   }
 
-  $form['accaunt_info']['default_language'] = array(
+  $form['account_info']['default_language'] = array(
     '#type' => 'item',
     '#title' => t('Default language'),
   );
 
-  $form['accaunt_info']['default_language_markup'] = array(
+  $form['account_info']['default_language_markup'] = array(
     '#markup' => '<p>' . t('Site default language: @lang', array('@lang' => language_default()->name)) . '</p>',
     '#suffix' => '<p>' . l(t('Change default language'), 'admin/config/regional/language') . '</p>',
   );
 
-  $form['accaunt_info']['callback_info_title'] = array(
+  $form['account_info']['callback_info_title'] = array(
     '#type' => 'item',
     '#title' => t('Callback URL'),
   );
 
-  $form['accaunt_info']['callback_url_use'] = array(
+  $form['account_info']['callback_url_use'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use Smartling callback: /smartling/callback/%cron_key'),
     '#default_value' => $smartling_settings->getCallbackUrlUse(),
     '#required' => FALSE,
   );
 
-  $form['accaunt_info']['actions']['submit'][] = array(
+  $form['account_info']['actions']['submit'][] = array(
     '#type' => 'submit',
     '#name' => 'save',
     '#value' => t('Save'),
   );
-  $form['accaunt_info']['actions']['submit'][] = array(
+  $form['account_info']['actions']['submit'][] = array(
     '#type' => 'submit',
     '#name' => 'test_connection',
     '#value' => t('Test connection'),

@@ -211,6 +211,54 @@ function smartling_form_entity_translation_translatable_form_alter(&$form, &$for
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function smartling_form_title_field_replacement_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'smartling_title_field_replacement_submit';
+  $form['#submit'] = array_reverse($form['#submit']);
+}
+
+/**
+ * Title field replacement form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
+function smartling_title_field_replacement_submit(array $form, array &$form_state) {
+  $smartling_settings = smartling_settings_get_handler();
+  switch ($form['#entity_type']) {
+    case 'node':
+      if (smartling_nodes_method($form['#bundle']) && ($form['#field_name'] == 'title')) {
+        $node_settings = $smartling_settings->nodeGetFieldsSettingsByBundle($form['#bundle']);
+        $property_field = $form['#field_name'] . '_property_field';
+        if (isset($node_settings[$property_field])) {
+          $smartling_settings->deleteSingleFieldFromSettings($form['#entity_type'], $form['#bundle'], $form['#field_name'] . '_property_field');
+          $smartling_settings->addSingleFieldToSettings($form['#entity_type'], $form['#bundle'], $form['#field_name'] . '_field');
+        }
+      }
+      break;
+
+    case 'taxonomy_term':
+      $vocabulary = taxonomy_vocabulary_machine_name_load($form['#bundle']);
+      $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+      if (($vocabulary_mode == I18N_MODE_TRANSLATE) && (($form['#field_name'] == 'name') || (($form['#field_name'] == 'description')))) {
+        $term_settings = $smartling_settings->taxonomyTermGetFieldsSettingsByBundle($form['#bundle']);
+        $property_field = $form['#field_name'] . '_property_field';
+        if (isset($term_settings[$property_field])) {
+          $smartling_settings->deleteSingleFieldFromSettings($form['#entity_type'], $form['#bundle'], $form['#field_name'] . '_property_field');
+          $smartling_settings->addSingleFieldToSettings($form['#entity_type'], $form['#bundle'], $form['#field_name'] . '_field');
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
  * Smartling field settings update form - Form Submit.
  *
  * If a translation for the field was turned off, remove
