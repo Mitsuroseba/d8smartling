@@ -332,6 +332,64 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Smartling title fields test.
+   *
+   * @param int $method
+   *   Translate method.
+   * @param string $field_name
+   *   Field name.
+   */
+  public function smartlingTitleFieldsSetUpTest($method, $field_name) {
+    // Set correct account settings.
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling.
+    $this->smartlingSetRetrievalType('pseudo');
+    // Set nodes method for CT.
+    $this->smartlingSetMethodSettings('article', $method);
+    // Set fields for article CT.
+    $this->smartlingSetFieldSettings('article', $field_name);
+    $this->drupalGet('node/1');
+    // Translate node.
+    $this->smartlingUploadDownloadNode(1, array('ru'));
+    $this->drupalGet('node/1');
+    // End Set Up.
+  }
+
+  /**
+   * SmartlingTitleModuleReplaceNode.
+   *
+   * @param string $bundle
+   *   Bundle. Example: article.
+   * @param string $field_name
+   *   Field name. Example: title.
+   * @param int $replace
+   *   If this is enabled the name will be replaced with
+   *   a customizable field that can be translated. 1 by default.
+   */
+  public function smartlingTitleModuleReplaceNode($bundle, $field_name, $replace = 1) {
+    $edit['enabled'] = $replace;
+    $this->drupalPost('admin/structure/types/manage/' . $bundle . '/fields/replace/' . $field_name, $edit, t('Save settings'));
+    $this->drupalGet('node/1');
+  }
+
+  /**
+   * SmartlingTitleModuleReplaceTerm.
+   *
+   * @param string $bundle
+   *   Bundle. Example: article.
+   * @param string $field_name
+   *   Field name. Example: title.
+   * @param int $replace
+   *   If this is enabled the name will be replaced with
+   *   a customizable field that can be translated. 1 by default.
+   */
+  public function smartlingTitleModuleReplaceTerm($bundle, $field_name, $replace = 1) {
+    $edit['enabled'] = $replace;
+    $this->drupalPost('admin/structure/taxonomy/' . $bundle . '/fields/replace/' . $field_name, $edit, t('Save settings'));
+    $this->drupalGet('node/1');
+  }
+
+  /**
    * Set translate method in smartling settings.
    *
    * @param string $node_type

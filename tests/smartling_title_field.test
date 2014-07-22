@@ -29,18 +29,11 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
   public function testCorrectTitlePropertyWithEntitiesMethod() {
     // Add demo content.
     module_enable(array('smartling_demo_content'));
-    // Set correct account settings.
-    $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling.
-    $this->smartlingSetRetrievalType('pseudo');
-    // Set nodes method for CT.
-    $this->smartlingSetMethodSettings('article');
-    // Set fields for article CT.
-    $this->smartlingSetFieldSettings('article', 'title_property_field');
-    // Translate node.
-    $this->smartlingUploadDownloadNode(1, array('ru'));
+    $this->smartlingTitleFieldsSetUpTest(2, 'title_property_field');
+
     $this->drupalGet('node/1');
     $this->drupalGet('node/9');
+
     $original = node_load(1);
     $translate_ru = node_load(9);
     // Check.
@@ -54,19 +47,8 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     // Add demo content.
     module_enable(array('smartling_demo_content'));
     // Replace title.
-    $edit['enabled'] = 1;
-    $this->drupalPost('admin/structure/types/manage/article/fields/replace/title', $edit, t('Save settings'));
-    $this->drupalGet('node/1');
-    // Set correct account settings.
-    $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling.
-    $this->smartlingSetRetrievalType('pseudo');
-    // Set nodes method for CT.
-    $this->smartlingSetMethodSettings('article');
-    // Set fields for article CT.
-    $this->smartlingSetFieldSettings('article', 'title_field');
-    // Translate node.
-    $this->smartlingUploadDownloadNode(1, array('ru'));
+    $this->smartlingTitleModuleReplaceNode('article', 'title');
+    $this->smartlingTitleFieldsSetUpTest(2, 'title_field');
 
     $this->drupalGet('node/1');
     $this->drupalGet('node/9');
@@ -85,22 +67,8 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     // Add demo content.
     module_enable(array('smartling_demo_content'));
     // Replace title.
-    $edit['enabled'] = 1;
-    $this->drupalPost('admin/structure/types/manage/article/fields/replace/title', $edit, t('Save settings'));
-    $this->drupalGet('node/1');
-    // Set correct account settings.
-    $this->smartlingSetCorrectSettings();
-    // Set pseudo for smartling.
-    $this->smartlingSetRetrievalType('pseudo');
-    // Set nodes method for CT.
-    $this->smartlingSetMethodSettings('article', 1);
-    // Set fields for article CT.
-    $this->smartlingSetFieldSettings('article', 'title_field');
-    $this->drupalGet('node/1');
-
-    // Translate node.
-    $this->smartlingUploadDownloadNode(1, array('ru'));
-    $this->drupalGet('node/1');
+    $this->smartlingTitleModuleReplaceNode('article', 'title');
+    $this->smartlingTitleFieldsSetUpTest(1, 'title_field');
 
     $node = node_load(1, NULL, TRUE);
 
