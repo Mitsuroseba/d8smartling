@@ -3,3 +3,8 @@ services:
     class:              Drupal\smartling\Settings\SmartlingSettingsHandler
   smartling.log:
     class:              Drupal\smartling\Log\SmartlingLog
+
+  smartling.api_wrapper:
+    class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
+    arguments:          [@smartling.settings, @smartling.log]
+

@@ -23,7 +23,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object.
-    $api = new SmartlingApiWrapper($smartling_settings, $log);
+    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
 
     $download_result = $api->downloadFile($entity_data, $link_to_entity);
     if ($download_result !== FALSE) {
@@ -53,7 +53,7 @@ function smartling_queue_check_status_process($args) {
       'target_language' => $args->d_locale,
     ));
 
-    $api = new SmartlingApiWrapper($smartling_settings, $log);
+    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
     $result = $api->getStatus($args, $entity_data, $link_to_entity);
 
     if (!empty($result)) {
