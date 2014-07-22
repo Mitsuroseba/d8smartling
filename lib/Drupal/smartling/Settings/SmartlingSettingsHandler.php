@@ -342,7 +342,7 @@ class SmartlingSettingsHandler {
     foreach ($field_names as $field_name) {
       $this->{$name_settings}[$bundle][$field_name] = $field_name;
     }
-    $this->variableSet('smartling_' . $entity_type . '_translate_fields', $this->{$name_settings});
+    $this->variableSet('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
   }
 
   /**
