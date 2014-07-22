@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @file
+ * Tests for smartling.
+ */
+
+/**
+ * SmartlingTitleFieldTest.
+ */
+class SmartlingTitleFieldTest extends SmartlingWebTestCase {
+  /**
+   * Test info.
+   *
+   * @return array
+   *   Return test info.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Content - Process title field',
+      'description' => 'Test translate title fields.',
+      'group' => 'Smartling',
+    );
+  }
+
+  /**
+   * TestCorrectTitlePropertyWithEntitiesMethod.
+   */
+  public function testCorrectTitlePropertyWithEntitiesMethod() {
+    // Add demo content.
+    module_enable(array('smartling_demo_content'));
+    // Set correct account settings.
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling.
+    $this->smartlingSetRetrievalType('pseudo');
+    // Set nodes method for CT.
+    $this->smartlingSetMethodSettings('article');
+    // Set fields for article CT.
+    $this->smartlingSetFieldSettings('article', 'title_property_field');
+    // Translate node.
+    $this->smartlingUploadDownloadNode(1, array('ru'));
+    $this->drupalGet('node/1');
+    $this->drupalGet('node/9');
+    $original = node_load(1);
+    $translate_ru = node_load(9);
+    // Check.
+    $this->assertTrue(($original->title != $translate_ru->title), t('Original title != translated title for RU'), t('Browser'));
+  }
+
+  /**
+   * TestCorrectTitleFieldWithEntitiesMethod.
+   */
+  public function testCorrectTitleFieldWithEntitiesMethod() {
+    // Add demo content.
+    module_enable(array('smartling_demo_content'));
+    // Replace title.
+    $edit['enabled'] = 1;
+    $this->drupalPost('admin/structure/types/manage/article/fields/replace/title', $edit, t('Save settings'));
+    $this->drupalGet('node/1');
+    // Set correct account settings.
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling.
+    $this->smartlingSetRetrievalType('pseudo');
+    // Set nodes method for CT.
+    $this->smartlingSetMethodSettings('article');
+    // Set fields for article CT.
+    $this->smartlingSetFieldSettings('article', 'title_field');
+    // Translate node.
+    $this->smartlingUploadDownloadNode(1, array('ru'));
+
+    $this->drupalGet('node/1');
+    $this->drupalGet('node/9');
+
+    $original = node_load(1, NULL, TRUE);
+    $translate_ru = node_load(9, NULL, TRUE);
+
+    // Check.
+    $this->assertTrue(($original->title_field['en'][0]['value'] != $translate_ru->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+  }
+
+  /**
+   * TestCorrectTitleFieldWithFieldsMethod.
+   */
+  public function testCorrectTitleFieldWithFieldsMethod() {
+    // Add demo content.
+    module_enable(array('smartling_demo_content'));
+    // Replace title.
+    $edit['enabled'] = 1;
+    $this->drupalPost('admin/structure/types/manage/article/fields/replace/title', $edit, t('Save settings'));
+    $this->drupalGet('node/1');
+    // Set correct account settings.
+    $this->smartlingSetCorrectSettings();
+    // Set pseudo for smartling.
+    $this->smartlingSetRetrievalType('pseudo');
+    // Set nodes method for CT.
+    $this->smartlingSetMethodSettings('article', 1);
+    // Set fields for article CT.
+    $this->smartlingSetFieldSettings('article', 'title_field');
+    $this->drupalGet('node/1');
+
+    // Translate node.
+    $this->smartlingUploadDownloadNode(1, array('ru'));
+    $this->drupalGet('node/1');
+
+    $node = node_load(1, NULL, TRUE);
+
+    // Check.
+    $this->assertTrue(($node->title_field['en'][0]['value'] != $node->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+  }
+
+}
