@@ -1220,9 +1220,9 @@ function smartling_entity_translation_get_handler($entity_type, $entity) {
 function smartling_settings_get_handler() {
 //  $class = 'SmartlingSettingsHandler';
 //  $handler = new $class();
-  $container = drupal_container();
-  $handler = $container->get('smartling.settings');
-  return $handler;
+  //$container = drupal_container();
+  //$handler = $container->get('smartling.settings');
+  return drupal_container()->get('smartling.settings');//$handler;
 }
 
 /**
@@ -1232,9 +1232,10 @@ function smartling_settings_get_handler() {
  *   Return handler object.
  */
 function smartling_log_get_handler() {
-  $container = drupal_container();
-  $handler = $container->get('smartling.log');
-  return $handler;
+//  $container = drupal_container();
+//  $handler = $container->get('smartling.log');
+//  return $handler;
+  return drupal_container()->get('smartling.log');
 }
 
 /**

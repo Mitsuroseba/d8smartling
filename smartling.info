@@ -23,7 +23,6 @@ dependencies[] = inject
 
 files[] = includes/smartling_translation.handler.inc
 files[] = includes/smartling.entityController.inc
-files[] = includes/smartling_api_wrapper.handler.inc
 files[] = views/smartling_handler_field_target_language.inc
 files[] = views/smartling_handler_field_locale_info.inc
 files[] = views/smartling_handler_filter_entity_status.inc
