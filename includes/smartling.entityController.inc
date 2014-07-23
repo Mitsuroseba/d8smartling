@@ -10,6 +10,8 @@
  */
 class SmartlingEntityData extends Entity {
 
+  protected $processer;
+
   /**
    * Get default label.
    *
@@ -30,6 +32,25 @@ class SmartlingEntityData extends Entity {
     return array('path' => 'admin/config/regional/smartling/entity-data/' . $this->identifier());
   }
 
+  protected function getProcessor() {
+
+  }
+
+  public function importEntity($entity) {
+
+  }
+
+  public function exportToTranslation($destination, $type) {
+
+  }
+
+  public function importTranslation($source, $type) {
+
+  }
+
+  public function syncTranslation($entityId = NULL) {
+
+  }
 }
 
 /**
