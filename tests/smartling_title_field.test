@@ -54,14 +54,18 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     module_enable(array('smartling_demo_content'));
     // Replace title.
     $this->smartlingTitleModuleReplaceNode('article', 'title');
+    $this->drupalGet('node/1');
     $this->smartlingTitleModuleReplaceNode('travel', 'title');
+    $this->drupalGet('node/3');
     $this->smartlingTitleFieldsSetUpTest(1, 'article', 2, 'title_field');
+    $this->drupalGet('ru/node/9');
     $this->smartlingTitleFieldsSetUpTest(3, 'travel', 2, 'body');
+    $this->drupalGet('ru/node/10');
 
     $this->drupalGet('node/1');
-    $this->drupalGet('node/9');
+    $this->drupalGet('ru/node/9/edit');
     $this->drupalGet('node/3');
-    $this->drupalGet('node/10');
+    $this->drupalGet('ru/node/10/edit');
 
     $original_article = node_load(1, NULL, TRUE);
     $translate_ru_article = node_load(9, NULL, TRUE);
@@ -81,9 +85,18 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     module_enable(array('smartling_demo_content'));
     // Replace title.
     $this->smartlingTitleModuleReplaceNode('article', 'title');
+    $this->drupalGet('node/1');
     $this->smartlingTitleModuleReplaceNode('travel', 'title');
+    $this->drupalGet('node/3');
     $this->smartlingTitleFieldsSetUpTest(1, 'article', 1, 'title_field');
     $this->smartlingTitleFieldsSetUpTest(3, 'travel', 1, 'body');
+
+    $this->drupalGet('node/1');
+    $this->drupalGet('node/3');
+    $this->drupalGet('node/1/edit');
+    $this->drupalGet('ru/node/1/edit');
+    $this->drupalGet('node/3/edit');
+    $this->drupalGet('ru/node/3/edit');
 
     $node_article = node_load(1, NULL, TRUE);
     $node_travel = node_load(3, NULL, TRUE);

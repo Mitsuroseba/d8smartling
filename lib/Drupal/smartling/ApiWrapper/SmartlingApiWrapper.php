@@ -52,7 +52,7 @@ class SmartlingApiWrapper {
     $this->settingsHandler = $settings_handler;
     $this->logger = $logger;
 
-    $this->setApi(new SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
+    $this->setApi(new \SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
   }
 
   /**
@@ -61,7 +61,7 @@ class SmartlingApiWrapper {
    * @param SmartlingAPI $api
    *   Smartling API.
    */
-  public function setApi(SmartlingAPI $api) {
+  public function setApi(\SmartlingAPI $api) {
     $this->api = $api;
   }
 

@@ -373,7 +373,6 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   public function smartlingTitleModuleReplaceNode($bundle, $field_name, $replace = 1) {
     $edit['enabled'] = $replace;
     $this->drupalPost('admin/structure/types/manage/' . $bundle . '/fields/replace/' . $field_name, $edit, t('Save settings'));
-    $this->drupalGet('node/1');
   }
 
   /**
@@ -390,7 +389,6 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   public function smartlingTitleModuleReplaceTerm($bundle, $field_name, $replace = 1) {
     $edit['enabled'] = $replace;
     $this->drupalPost('admin/structure/taxonomy/' . $bundle . '/fields/replace/' . $field_name, $edit, t('Save settings'));
-    $this->drupalGet('node/1');
   }
 
   /**
