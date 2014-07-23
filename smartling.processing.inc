@@ -558,6 +558,9 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             $rid = $node->nid;
           }
         }
+        elseif (smartling_fields_method($bundle)) {
+          $original_entity = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
+        }
         break;
 
       case 'taxonomy_term':
@@ -603,9 +606,20 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
                 taxonomy_term_save($source_term);
               }
               $term->i18n_tsid = $translation_set->tsid;
+
+              // Update field.
+              foreach ($fields as $field_name) {
+                if (!empty($term->{$field_name}[$original_term->language])) {
+                  $term->{$field_name}[$term->language] = $term->{$field_name}[$original_term->language];
+                  unset($term->{$field_name}[$original_term->language]);
+                }
+              }
+              taxonomy_term_save($term);
+              $rid = $term->tid;
               break;
 
             case I18N_MODE_LOCALIZE:
+              $original_term = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
               break;
 
             case I18N_MODE_LANGUAGE:
@@ -628,25 +642,18 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
                 ->execute();
               break;
           }
-          // Update field.
-          foreach ($fields as $field_name) {
-            if (!empty($term->{$field_name}[$original_term->language])) {
-              $term->{$field_name}[$term->language] = $term->{$field_name}[$original_term->language];
-              unset($term->{$field_name}[$original_term->language]);
-            }
-          }
-          taxonomy_term_save($term);
-          $rid = $term->tid;
         }
         break;
 
       case 'comment':
         $original_comment = comment_load($rid);
+        $original_comment = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_comment, $d_locale, $fields);
         $original_entity = $original_comment;
         break;
 
       case 'user':
         $original_user = user_load($rid);
+        $original_user = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_user, $d_locale, $fields);
         $original_entity = $original_user;
         break;
 

@@ -13,10 +13,8 @@ function smartling_form_alter(&$form, &$form_state, $form_id) {
   foreach ($active_node_type as $node_type => $value) {
 
     if (smartling_fields_method($node_type) && ($form_id == 'comment_node_' . $node_type . '_form')) {
-      $comment = $form['#entity'];
-
       if (smartling_supported_type($form['#entity_type'], $form['#bundle'])) {
-
+        $comment = $form['#entity'];
         if (!empty($comment->cid)) {
           if (($comment->language != LANGUAGE_NONE)) {
             $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));

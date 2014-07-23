@@ -245,57 +245,6 @@ function smartling_get_translatable_field_types() {
 }
 
 /**
- * Content node types linked to 'translatable' fields.
- *
- * @return array
- *   Return node types with translatable fields.
- */
-function smartling_translatable_node_types() {
-  $types = array();
-
-  $fields = smartling_translatable_node_field_details();
-  foreach ($fields as $field) {
-    foreach ($field['bundles'] as $bundle) {
-      $types[$bundle] = $bundle;
-    }
-  }
-
-  if (count($types) > 0) {
-    $types = array_keys($types);
-  }
-
-  return $types;
-}
-
-/**
- * Goes though ALL the fields in the system and gets the details.
- *
- * @return array
- *   Return translatable fields details.
- */
-function smartling_translatable_node_field_details() {
-  $fields = field_info_fields();
-  $translatable_fields = array();
-
-  foreach ($fields as $field) {
-    foreach (array_keys($field['bundles']) as $type) {
-      if (field_is_translatable($type, $field)) {
-        $field_db_table = array_keys($field['storage']['details']['sql']['FIELD_LOAD_CURRENT']);
-        $field_db_table = array_shift($field_db_table);
-        $translatable_fields[] = array(
-          'entity_type' => $type,
-          'machine_name' => $field['field_name'],
-          'db_table' => $field_db_table,
-          'bundles' => $field['bundles'][$type],
-        );
-      }
-    }
-  }
-
-  return $translatable_fields;
-}
-
-/**
  * Checks translatable field by field name.
  *
  * @param string $field_name
@@ -1316,4 +1265,43 @@ function smartling_is_title_module_field($field_name) {
   }
 
   return $title_module;
+}
+
+/**
+ * Set dublicate values for fields method.
+ *
+ * We need to duplicate the original value in the first cell of
+ * a target language for the fields that are
+ * not in the settings smartling and that are translated so far.
+ *
+ * @param string $entity_type
+ *   Entity type.
+ * @param string $bundle
+ *   Bundle.
+ * @param object $original_entity
+ *   Original entity.
+ * @param string $d_locale
+ *   Locale.
+ * @param array $fields
+ *   Fields in smartling settings for entity.
+ *
+ * @return object
+ *   Return entity object.
+ */
+function smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, array $fields) {
+  $field_info_instances = field_info_instances($entity_type, $bundle);
+  $need_save = FALSE;
+  foreach ($field_info_instances as $field) {
+    if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($original_entity->{$field['field_name']})) {
+      $need_save = TRUE;
+      $original_lang = entity_language($entity_type, $original_entity);
+      $original_entity->{$field['field_name']}[$d_locale] = $original_entity->{$field['field_name']}[$original_lang];
+    }
+  }
+  if ($need_save) {
+    $function_name = $entity_type . '_save';
+    $function_name($original_entity);
+  }
+
+  return $original_entity;
 }
