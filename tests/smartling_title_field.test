@@ -29,15 +29,21 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
   public function testCorrectTitlePropertyWithEntitiesMethod() {
     // Add demo content.
     module_enable(array('smartling_demo_content'));
-    $this->smartlingTitleFieldsSetUpTest(2, 'title_property_field');
+    $this->smartlingTitleFieldsSetUpTest(1, 'article', 2, 'title_property_field');
+    $this->smartlingTitleFieldsSetUpTest(3, 'travel', 2, 'body');
 
     $this->drupalGet('node/1');
     $this->drupalGet('node/9');
+    $this->drupalGet('node/3');
+    $this->drupalGet('node/10');
 
-    $original = node_load(1);
-    $translate_ru = node_load(9);
+    $original_article = node_load(1);
+    $translate_ru_article = node_load(9);
+    $original_travel = node_load(3);
+    $translate_ru_travel = node_load(10);
     // Check.
-    $this->assertTrue(($original->title != $translate_ru->title), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($original_article->title != $translate_ru_article->title), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($original_travel->title == $translate_ru_travel->title), t('Original title == translated title for RU'), t('Browser'));
   }
 
   /**
@@ -48,16 +54,23 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     module_enable(array('smartling_demo_content'));
     // Replace title.
     $this->smartlingTitleModuleReplaceNode('article', 'title');
-    $this->smartlingTitleFieldsSetUpTest(2, 'title_field');
+    $this->smartlingTitleModuleReplaceNode('travel', 'title');
+    $this->smartlingTitleFieldsSetUpTest(1, 'article', 2, 'title_field');
+    $this->smartlingTitleFieldsSetUpTest(3, 'travel', 2, 'body');
 
     $this->drupalGet('node/1');
     $this->drupalGet('node/9');
+    $this->drupalGet('node/3');
+    $this->drupalGet('node/10');
 
-    $original = node_load(1, NULL, TRUE);
-    $translate_ru = node_load(9, NULL, TRUE);
+    $original_article = node_load(1, NULL, TRUE);
+    $translate_ru_article = node_load(9, NULL, TRUE);
+    $original_travel = node_load(3, NULL, TRUE);
+    $translate_ru_travel = node_load(10, NULL, TRUE);
 
     // Check.
-    $this->assertTrue(($original->title_field['en'][0]['value'] != $translate_ru->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($original_article->title_field['en'][0]['value'] != $translate_ru_article->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($original_travel->title_field['en'][0]['value'] == $translate_ru_travel->title_field['ru'][0]['value']), t('Original title == translated title for RU'), t('Browser'));
   }
 
   /**
@@ -68,12 +81,16 @@ class SmartlingTitleFieldTest extends SmartlingWebTestCase {
     module_enable(array('smartling_demo_content'));
     // Replace title.
     $this->smartlingTitleModuleReplaceNode('article', 'title');
-    $this->smartlingTitleFieldsSetUpTest(1, 'title_field');
+    $this->smartlingTitleModuleReplaceNode('travel', 'title');
+    $this->smartlingTitleFieldsSetUpTest(1, 'article', 1, 'title_field');
+    $this->smartlingTitleFieldsSetUpTest(3, 'travel', 1, 'body');
 
-    $node = node_load(1, NULL, TRUE);
+    $node_article = node_load(1, NULL, TRUE);
+    $node_travel = node_load(3, NULL, TRUE);
 
     // Check.
-    $this->assertTrue(($node->title_field['en'][0]['value'] != $node->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($node_article->title_field['en'][0]['value'] != $node_article->title_field['ru'][0]['value']), t('Original title != translated title for RU'), t('Browser'));
+    $this->assertTrue(($node_travel->title_field['en'][0]['value'] == $node_travel->title_field['ru'][0]['value']), t('Original title == translated title for RU'), t('Browser'));
   }
 
 }

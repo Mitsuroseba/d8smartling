@@ -334,24 +334,28 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   /**
    * Smartling title fields test.
    *
+   * @param int $nid
+   *   Node id.
+   * @param string $bundle
+   *   Bundle.
    * @param int $method
    *   Translate method.
    * @param string $field_name
    *   Field name.
    */
-  public function smartlingTitleFieldsSetUpTest($method, $field_name) {
+  public function smartlingTitleFieldsSetUpTest($nid, $bundle, $method, $field_name) {
     // Set correct account settings.
     $this->smartlingSetCorrectSettings();
     // Set pseudo for smartling.
     $this->smartlingSetRetrievalType('pseudo');
     // Set nodes method for CT.
-    $this->smartlingSetMethodSettings('article', $method);
+    $this->smartlingSetMethodSettings($bundle, $method);
     // Set fields for article CT.
-    $this->smartlingSetFieldSettings('article', $field_name);
-    $this->drupalGet('node/1');
+    $this->smartlingSetFieldSettings($bundle, $field_name);
+    $this->drupalGet('node/' . $nid);
     // Translate node.
-    $this->smartlingUploadDownloadNode(1, array('ru'));
-    $this->drupalGet('node/1');
+    $this->smartlingUploadDownloadNode($nid, array('ru'));
+    $this->drupalGet('node/' . $nid);
     // End Set Up.
   }
 
@@ -425,6 +429,21 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     else {
       $edit[$field_name . '_swap_' . $node_type] = 1;
     }
+    $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
+    $this->assertText(t('Your content types have been updated.'));
+  }
+
+  /**
+   * Unchecked field from smartling settings.
+   *
+   * @param string $node_type
+   *   Node type.
+   * @param string $field_name
+   *   Field name.
+   */
+  public function smartlingUncheckedFieldSettings($node_type, $field_name) {
+    $edit = array();
+    $edit[$node_type . '_SEPARATOR_' . $field_name] = 0;
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-node-translation-settings-form');
     $this->assertText(t('Your content types have been updated.'));
   }
