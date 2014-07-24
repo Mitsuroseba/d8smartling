@@ -44,8 +44,6 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
  */
 function smartling_queue_check_status_process($args) {
   if (smartling_is_configured()) {
-    $log = smartling_log_get_handler();
-    $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($args->rid, $args->entity_type);
     $entity_data = smartling_entity_load_by_conditions(array(
       'eid' => $args->eid,
@@ -54,7 +52,7 @@ function smartling_queue_check_status_process($args) {
     ));
 
     $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
-    $result = $api->getStatus($args, $entity_data, $link_to_entity);
+    $result = $api->getStatus($entity_data, $link_to_entity);
 
     if (!empty($result)) {
       if ($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) {

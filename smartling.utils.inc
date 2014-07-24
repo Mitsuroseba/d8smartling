@@ -850,67 +850,37 @@ function smartling_download_file($entity_data) {
  */
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
-    $log = smartling_log_get_handler();
-    $smartling_settings = smartling_settings_get_handler();
     $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
 
-    $d_locale = $entity_data->target_language;
-    $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
-    $file_name_unic = $entity_data->file_name;
-    $file_uri = smartling_clean_filename(smartling_get_dir() . '/' . $entity_data->file_name, TRUE);
+    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
+    $result = $api->getStatus($entity_data, $link_to_entity);
 
-    // Init api object.
-    $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
-
-    // Try to retrieve file status.
-    $status_result = $api->getStatus($file_name_unic, $s_locale);
-    $status_result = json_decode($status_result);
-
-    // This is a get status.
-    if ($api->getCodeStatus() == 'SUCCESS') {
-      // Calc progress.
-      if ($status_result->response->data->approvedStringCount !== 0) {
-        $progress = (int) (($status_result->response->data->completedStringCount / $status_result->response->data->approvedStringCount) * 100);
-      }
-      else {
-        $progress = 100;
-      }
-
-      $log->setMessage('Smartling progress status for entity id - @rid (@d_locale). approvedString = @as, completedString = @cs, progress = @progress')
-        ->setVariables(array(
-          '@rid' => $entity_data->rid,
-          '@d_locale' => $d_locale,
-          '@as' => $status_result->response->data->approvedStringCount,
-          '@cs' => $status_result->response->data->completedStringCount,
-          '@progress' => $progress,
-        ))
-        ->setLink(l(t('View original file'), $file_uri))
-        ->execute();
-      return $progress;
+    if (!empty($result)) {
+      return $result['response_data']->progress;
     }
     else {
-      $log->setMessage('Smartling tried to check file progress: <br/>
-      Project Id: @project_id <br/>
-      Action: get progress <br/>
-      URI: @file_uri <br/>
-      Locale: @d_locale <br/>
-      Error: response code -> @code and message -> @message')
-        ->setVariables(array(
-          '@project_id' => $smartling_settings->getProjectId(),
-          '@file_uri' => $file_uri,
-          '@d_locale' => $d_locale,
-          '@code' => $status_result->response->code,
-          '@message' => $status_result->response->messages[0],
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
-        ->execute();
-
-      drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array(
-        '@code' => $status_result->response->code,
-        '@message' => $status_result->response->messages[0],
-      )), 'error');
+//      $log->setMessage('Smartling tried to check file progress: <br/>
+//      Project Id: @project_id <br/>
+//      Action: get progress <br/>
+//      URI: @file_uri <br/>
+//      Locale: @d_locale <br/>
+//      Error: response code -> @code and message -> @message')
+//        ->setVariables(array(
+//          '@project_id' => $smartling_settings->getProjectId(),
+//          '@file_uri' => $file_uri,
+//          '@d_locale' => $d_locale,
+//          '@code' => $status_result->response->code,
+//          '@message' => $status_result->response->messages[0],
+//        ))
+//        ->setConsiderLog(FALSE)
+//        ->setSeverity(WATCHDOG_ERROR)
+//        ->setLink($link_to_entity)
+//        ->execute();
+//
+//      drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array(
+//        '@code' => $status_result->response->code,
+//        '@message' => $status_result->response->messages[0],
+//      )), 'error');
       return FALSE;
     }
   }
