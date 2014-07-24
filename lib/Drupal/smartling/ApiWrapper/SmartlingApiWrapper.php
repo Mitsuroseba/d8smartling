@@ -141,12 +141,12 @@ class SmartlingApiWrapper {
    * @return array|null
    *   Return status.
    */
-  public function getStatus($args, $entity_data, $link_to_entity) {
+  public function getStatus($entity_data, $link_to_entity) {
     $error_result = NULL;
 
     if ($entity_data === FALSE) {
       $this->logger->setMessage('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.')
-        ->setVariables(array('@rid' => $args->rid))
+        ->setVariables(array('@rid' => $entity_data->rid))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
         ->setLink($link_to_entity)
@@ -163,7 +163,7 @@ class SmartlingApiWrapper {
     $file_name_unic = $entity_data->file_name;
     $file_uri = smartling_clean_filename($this->settingsHandler->getDir() . '/' . $file_name, TRUE);
 
-    $s_locale = $this->convertLocaleDrupalToSmartling($args->d_locale);
+    $s_locale = $this->convertLocaleDrupalToSmartling($entity_data->target_language);
     // Try to retrieve file status.
     $status_result = $this->api->getStatus($file_name_unic, $s_locale);
     $status_result = json_decode($status_result);
@@ -177,11 +177,11 @@ class SmartlingApiWrapper {
       Locale: @d_locale <br/>
       Error: response code -> @code and message -> @message')
         ->setVariables(array(
-          '@entity_type' => $args->entity_type,
-          '@rid' => $args->rid,
+          '@entity_type' => $entity_data->entity_type,
+          '@rid' => $entity_data->rid,
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
-          '@d_locale' => $args->d_locale,
+          '@d_locale' => $entity_data->target_language,
           '@code' => $status_result->response->code,
           '@message' => $status_result->response->messages[0],
         ))
@@ -195,9 +195,9 @@ class SmartlingApiWrapper {
 
     $this->logger->setMessage('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs')
       ->setVariables(array(
-        '@entity_type' => $args->entity_type,
-        '@rid' => $args->rid,
-        '@d_locale' => $args->d_locale,
+        '@entity_type' => $entity_data->entity_type,
+        '@rid' => $entity_data->rid,
+        '@d_locale' => $entity_data->target_language,
         '@as' => $status_result->response->data->approvedStringCount,
         '@cs' => $status_result->response->data->completedStringCount,
       ))
