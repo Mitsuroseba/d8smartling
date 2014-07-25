@@ -25,10 +25,7 @@ define('TAXONOMY_TRAVEL', 'travel');
 define('DEMO_LANGUAGE_DEFAULT', language_default()->language);
 
 /**
- * Smartling modules enabled.
- *
- * @param array $modules
- *   Module names array.
+ * Implements hook_modules_enabled().
  */
 function smartling_modules_enabled(array $modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
@@ -39,20 +36,19 @@ function smartling_modules_enabled(array $modules) {
     smartling_create_taxonomy();
     smartling_add_taxonomy_to_travel_node();
 
-    db_query("UPDATE {block} SET region = :region, status = :status WHERE delta = :delta AND module = :module", array(
-      ':region' => 'sidebar_first',
-      ':status' => 1,
-      ':delta' => 'language_content',
-      ':module' => 'locale',
-    ));
+    db_update('block')
+      ->fields(array(
+        'region' => 'sidebar_first',
+        'status' => 1,
+      ))
+      ->condition('delta', 'language_content')
+      ->condition('module', 'locale')
+      ->execute();
   }
 }
 
 /**
- * Smartling modules disabled.
- *
- * @param array $modules
- *   Module names array.
+ * Implements hook_modules_disabled().
  */
 function smartling_modules_disabled(array $modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
@@ -224,7 +220,7 @@ function smartling_create_additional_fields_for_account() {
     array(
       'fields' => array(
         'name' => 'john_doe',
-        'mail' => 'john_doe@test.com',
+        'mail' => 'john_doe@example.com',
         'pass' => user_password(8),
         'status' => 1,
         'init' => 'email address',
@@ -241,7 +237,7 @@ function smartling_create_additional_fields_for_account() {
     array(
       'fields' => array(
         'name' => 'jane_roe',
-        'mail' => 'jane_roe@test.com',
+        'mail' => 'jane_roe@example.com',
         'pass' => user_password(8),
         'status' => 1,
         'init' => 'email address',

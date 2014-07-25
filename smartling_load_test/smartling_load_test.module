@@ -67,7 +67,7 @@ function smartling_admin_dev_settings_form(array $form, array &$form_state) {
  */
 function smartling_admin_dev_settings_form_submit(array $form, array &$form_state) {
   $log = smartling_log_get_handler();
-  if ($form_state['clicked_button']['#name'] == 'load_tests_submit') {
+  if ($form_state['triggering_element']['#name'] == 'load_tests_submit') {
     for ($i = 0; $i < 10000; $i++) {
       $operations[] = array('smartling_create_load_test_node_batch', array());
     }
@@ -79,7 +79,7 @@ function smartling_admin_dev_settings_form_submit(array $form, array &$form_stat
     $log->setMessage('Create 10000 load-tests nodes submit')->execute();
   }
 
-  if ($form_state['clicked_button']['#name'] == 'cleanup_load_tests_submit') {
+  if ($form_state['triggering_element']['#name'] == 'cleanup_load_tests_submit') {
     $query = db_select('node', 'n');
     $result = $query->condition('n.type', 'smartling_load_test')
       ->fields('n', array('nid'))
@@ -99,7 +99,7 @@ function smartling_admin_dev_settings_form_submit(array $form, array &$form_stat
     $log->setMessage('Delete all load-tests nodes submit')->execute();
   }
 
-  if ($form_state['clicked_button']['#name'] == 'cleanup_all_submit') {
+  if ($form_state['triggering_element']['#name'] == 'cleanup_all_submit') {
     $query = db_select('smartling_entity_data', 'sed');
     $result = $query->fields('sed', array('eid'))
       ->execute()
