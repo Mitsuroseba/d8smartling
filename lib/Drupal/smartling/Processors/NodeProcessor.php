@@ -3,7 +3,7 @@
 namespace Drupal\smartling\Processors;
 
 class NodeProcessor extends BaseEntityProcessor {
-  protected function prepareOriginalEntity() {
+  public function prepareOriginalEntity() {
     $this->originalEntity = node_load($this->entity->rid);
 
     if (smartling_nodes_method($this->entity->bundle)) {
@@ -11,8 +11,7 @@ class NodeProcessor extends BaseEntityProcessor {
       $translations = translation_node_get_translations($this->originalEntity->tnid);
       if (isset($translations[$this->drupalLocale])) {
         $this->entity->rid = $translations[$this->drupalLocale]->nid;
-      }
-      else {
+      } else {
         // If node not exist, need clone.
         $node = clone $this->originalEntity;
         unset($node->nid);
@@ -43,5 +42,6 @@ class NodeProcessor extends BaseEntityProcessor {
         node_object_prepare($node);
         node_save($node);
       }
+    }
   }
 }

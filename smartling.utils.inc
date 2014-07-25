@@ -304,9 +304,9 @@ function smartling_translatable_node_field_details() {
  * @return bool
  *   Return TRUE if field is translatable.
  */
-function smartling_field_is_translatable_by_field_name($field_name) {
+function smartling_field_is_translatable_by_field_name($field_name, $entity_type) {
   $field = field_info_field($field_name);
-  return (bool) $field['translatable'];
+  return field_is_translatable($entity_type, $field);
 }
 
 /**

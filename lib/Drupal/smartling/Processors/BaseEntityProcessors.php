@@ -2,7 +2,7 @@
 
 namespace Drupal\smartling\Processors;
 
-abstract class BaseEntityProcessor {
+class BaseEntityProcessor {
   /**
    * @var SmartlingEntityData
    */
@@ -43,7 +43,7 @@ abstract class BaseEntityProcessor {
     if (($this->originalEntityType == 'node') && smartling_nodes_method($this->entity->bundle)) {
       return;
     }
-    $entity_load = entity_load_single($this->originalEntityType, $rid);
+    $entity_load = entity_load_single($this->originalEntityType, $this->entity->rid);
     $handler = smartling_entity_translation_get_handler($this->originalEntityType, $entity_load);
     $translations = $handler->getTranslations();
 
@@ -56,7 +56,7 @@ abstract class BaseEntityProcessor {
 
     $entity_translation = array(
       'entity_type' => $this->originalEntityType,
-      'entity_id' => $rid,
+      'entity_id' => $this->entity->rid,
       'translate' => '0',
       'status' => $entity_load->status,
       'language' => $this->drupalLocale,
@@ -81,18 +81,30 @@ abstract class BaseEntityProcessor {
   /**
    * @see smartling_copy_translations_from_xml_to_fields().
    */
-  public function importXMLTranslation($xml) {
+  public function importSmartlingTranslation($smartling_data) {
+    $this->prepareOriginalEntity();
 
+    foreach ($smartling_data as $field_name) {
+      /* @var $fieldProcessor BaseFieldProcessor */
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingData($smartling_data);
+
+      $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalFormat();
+    }
+
+    $this->originalEntity->save();
   }
 
-  /**
-   * Process all field types at beginning.
-   */
-  public function processFields() {
+  public function exportContentToTranslation() {
+    $this->prepareOriginalEntity();
+    $node_current_translatable_content = array();
 
-  }
+    foreach (smartling_settings_get_handler()->getFieldsSettings($this->originalEntity->type) as $field_name) {
+      /* @var $fieldProcessor BaseFieldProcessor */
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity);
 
-  public function exportContentToXML() {
+      $node_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingFormat();
+    }
 
+    return $node_current_translatable_content;
   }
 }

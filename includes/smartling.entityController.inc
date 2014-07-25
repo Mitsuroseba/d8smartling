@@ -10,7 +10,7 @@
  */
 class SmartlingEntityData extends Entity {
 
-  protected $processer;
+  protected $processor;
 
   /**
    * Get default label.
@@ -33,19 +33,40 @@ class SmartlingEntityData extends Entity {
   }
 
   protected function getProcessor() {
+    if ($this->processor === NULL) {
+      $log = smartling_log_get_handler();
+
+      switch ($this->bundle) {
+        case 'node':
+          $this->processor = new \Drupal\smartling\Processors\NodeProcessor($this, $this->entity->language, $log, $this->rid);
+          break;
+
+        case 'taxonomy_term':
+          $this->processor = new \Drupal\smartling\Processors\TaxonomyTermProcessor($this, $this->entity->language, $log, $this->rid);
+          break;
+
+        default:
+          $this->processor = new \Drupal\smartling\Processors\BaseEntityProcessor($this, $this->entity->language, $log, $this->rid)
+          break;
+      }
+    }
+
+    return $this->processor;
+  }
+
+  public function importDrupalEntity($entity) {
 
   }
 
-  public function importEntity($entity) {
-
-  }
-
-  public function exportToTranslation($destination, $type) {
-
+  public function exportToTranslation() {
+    return $this->getProcessor()->exportContentToTranslation();
   }
 
   public function importTranslation($source, $type) {
 
+    if (is_array($source)) {
+      $this->getProcessor()->importSmartlingTranslation($source);
+    }
   }
 
   public function syncTranslation($entityId = NULL) {

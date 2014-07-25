@@ -3,7 +3,7 @@
 namespace Drupal\smartling\Processors;
 
 class TaxonomyTermProcessor extends BaseEntityProcessor {
-  protected function prepareOriginalEntity() {
+  public function prepareOriginalEntity() {
     $this->originalEntity = taxonomy_term_load($this->entity->rid);
     $original_entity = $this->originalEntity;
     $term = i18n_taxonomy_term_get_translation($this->originalEntity, $this->drupalLocale);
@@ -71,13 +71,7 @@ class TaxonomyTermProcessor extends BaseEntityProcessor {
             ->execute();
           break;
       }
-      // Update field.
-      foreach ($fields as $field_name) {
-        if (!empty($term->{$field_name}[$this->originalEntity->language])) {
-          $term->{$field_name}[$term->language] = $term->{$field_name}[$this->originalEntity->language];
-          unset($term->{$field_name}[$this->originalEntity->language]);
-        }
-      }
+
       taxonomy_term_save($term);
       $this->entity->rid = $term->tid;
     }

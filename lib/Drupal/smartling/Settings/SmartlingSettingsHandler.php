@@ -139,6 +139,33 @@ class SmartlingSettingsHandler {
     return $method_name;
   }
 
+  public function getFieldsSettings($entity_type, $bundle = NULL) {
+    $fields = array();
+
+    switch ($entity_type) {
+      case 'node':
+        $fields = !empty($bundle) ? $this->nodeGetFieldsSettingsByBundle($bundle) : $this->nodeGetFieldsSettings();
+        break;
+
+      case 'user':
+        $fields = !empty($bundle) ? $this->userGetFieldsSettingsByBundle($bundle) : $this->userGetFieldsSettings();
+        break;
+
+      case 'comment':
+        $fields = !empty($bundle) ? $this->commentGetFieldsSettingsByBundle($bundle) : $this->commentGetFieldsSettings();
+        break;
+
+      case 'taxonomy_term':
+        $fields = !empty($bundle) ? $this->taxonomyTermGetFieldsSettingsByBundle($bundle) : $this->taxonomyTermGetFieldsSettings();
+        break;
+
+      default:
+        break;
+    }
+
+    return $fields;
+  }
+
   /**
    * Set smartling fields settings for node entity.
    *

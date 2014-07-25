@@ -75,7 +75,7 @@ function smartling_node_content_to_translate($nid) {
   }
 
   foreach (smartling_settings_get_handler()->nodeGetFieldsSettingsByBundle($node->type) as $field_name) {
-    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('node', $node) : LANGUAGE_NONE;
+    $language = (smartling_field_is_translatable_by_field_name($field_name, 'node')) ? entity_language('node', $node) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'title_property_field':
         if (!empty($node->title)) {
