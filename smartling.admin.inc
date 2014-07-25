@@ -80,16 +80,14 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
   $smartling_settings = smartling_settings_get_handler();
 
   $form['account_info'] = array(
-    '#type' => 'item',
-    '#title' => t('Account info'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'account_info',
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_account_info_settings_form_submit'),
-    '#validate' => array('smartling_admin_account_info_settings_form_validate'),
+  );
+
+  $form['account_info']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Account info'),
   );
 
   $form['account_info']['api_url'] = array(
@@ -115,7 +113,7 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#type' => 'textfield',
     '#title' => t('Key'),
     '#default_value' => '',
-    '#description' => check_plain(t('Current key:') . ' ' . smartling_hide_key($smartling_settings->getKey())),
+    '#description' => t('Current key: @key', array('@key' => smartling_hide_key($smartling_settings->getKey()))),
     '#size' => 40,
     '#maxlength' => 40,
     '#required' => FALSE,
@@ -142,62 +140,30 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     $total = count($target_language_options_list);
     $counter = 0;
     $locales_convert_array = $smartling_settings->getLocalesConvertArray();
-    foreach ($target_language_options_list as $langcode => $lang_name) {
+    foreach (array_keys($target_language_options_list) as $langcode) {
       $counter++;
+
+      $form['account_info']['target_locales_text_key_' . $langcode] = array(
+        '#type' => 'textfield',
+        '#title' => '',
+        '#title_display' => 'invisible',
+        '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
+        '#size' => 6,
+        '#maxlength' => 10,
+        '#required' => FALSE,
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
+          ),
+        ),
+      );
+
       if ($counter == 1) {
-        $form['account_info']['target_locales_text_key_' . $langcode] = array(
-          '#type' => 'textfield',
-          '#title' => '',
-          '#title_display' => 'invisible',
-          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
-          '#size' => 6,
-          '#maxlength' => 10,
-          '#required' => FALSE,
-          '#states' => array(
-            'disabled' => array(
-              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
-            ),
-          ),
-          '#prefix' => '<div class="wrap-target-locales-text-key">',
-        );
-      }
-      else {
-        $form['account_info']['target_locales_text_key_' . $langcode] = array(
-          '#type' => 'textfield',
-          '#title' => '',
-          '#title_display' => 'invisible',
-          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
-          '#size' => 6,
-          '#maxlength' => 10,
-          '#required' => FALSE,
-          '#states' => array(
-            'disabled' => array(
-              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
-            ),
-          ),
-        );
+        $form['account_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
       }
 
       if ($counter == $total) {
-        $form['account_info']['target_locales_text_key_' . $langcode] = array(
-          '#type' => 'textfield',
-          '#title' => '',
-          '#title_display' => 'invisible',
-          '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
-          '#size' => 6,
-          '#maxlength' => 10,
-          '#required' => FALSE,
-          '#states' => array(
-            'disabled' => array(
-              ':input[name="target_locales[' . $langcode . ']"]' => array('checked' => FALSE),
-            ),
-          ),
-          '#suffix' => '</div></div>',
-        );
-      }
-      // For one language.
-      if ($total == 1) {
-        $form['account_info']['target_locales_text_key_' . $langcode]['#prefix'] = '<div class="wrap-target-locales-text-key">';
+        $form['account_info']['target_locales_text_key_' . $langcode]['#suffix'] = '</div></div>';
       }
     }
   }
@@ -243,6 +209,9 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#name' => 'test_connection',
     '#value' => t('Test connection'),
   );
+
+  $form['#validate'][] = 'smartling_admin_account_info_settings_form_validate';
+  $form['#submit'][] = 'smartling_admin_account_info_settings_form_submit';
 
   return $form;
 }
@@ -364,17 +333,14 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
     $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
   }
 
-  menu_rebuild();
-  menu_router_build();
-
   drupal_set_message(t('Account settings saved.'));
 
-  if ($form_state['clicked_button']['#name'] == 'save') {
+  if ($form_state['triggering_element']['#name'] == 'save') {
     drupal_goto(current_path());
   }
 
   // Test.
-  if ($form_state['clicked_button']['#name'] == 'test_connection') {
+  if ($form_state['triggering_element']['#name'] == 'test_connection') {
     foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
       if ($d_locale !== 0 && $d_locale == $key) {
         $s_locale = smartling_convert_locale_drupal_to_smartling($d_locale);
@@ -407,22 +373,21 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
  */
 function smartling_admin_log_info_settings_form(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
+
   $form['log_info']['log_mode'] = array(
     '#type' => 'radios',
     '#title' => t('Smartling mode'),
     '#default_value' => $smartling_settings->getLogMode(),
     '#options' => $smartling_settings->getLogModeOptions(),
     '#description' => t('Log ON dy default.'),
-    'actions' => array(
-      '#type' => 'actions',
-    ),
-    '#submit' => array('smartling_admin_log_info_settings_form_submit'),
   );
 
   $form['log_info']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
   );
+
+  $form['#submit'][] = 'smartling_admin_log_info_settings_form_submit';
 
   return $form;
 }
@@ -472,15 +437,14 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
   $translatable_field_types = smartling_get_translatable_field_types();
 
   $form['node_translation'] = array(
-    '#type' => 'item',
-    '#title' => t('Which content types do you want to translate?'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'administrative_settings',
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_node_translation_settings_form_submit'),
+  );
+
+  $form['node_translation']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Which content types do you want to translate?'),
   );
 
   $rows = array();
@@ -629,6 +593,8 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
     '#value' => t('Save'),
   );
 
+  $form['#submit'][] = 'smartling_admin_node_translation_settings_form_submit';
+
   return $form;
 }
 
@@ -760,15 +726,14 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
   $translatable_field_types = smartling_get_translatable_field_types();
 
   $form['taxonomy_translation'] = array(
-    '#type' => 'item',
-    '#title' => t('Which vocabularies do you want to translate?'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'administrative_settings',
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_taxonomy_translation_settings_form_submit'),
+  );
+
+  $form['taxonomy_translation']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Which vocabularies do you want to translate?'),
   );
 
   $rows = array();
@@ -779,11 +744,11 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
       switch ($vocabulary_mode) {
         case I18N_MODE_TRANSLATE:
-          $voc_title = 'Translate method';
+          $voc_title = t('Translate method');
           break;
 
         case I18N_MODE_LOCALIZE:
-          $voc_title = 'Localize method';
+          $voc_title = t('Localize method');
           break;
 
         case I18N_MODE_LANGUAGE:
@@ -945,6 +910,8 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
     '#value' => t('Save'),
   );
 
+  $form['#submit'][] = 'smartling_admin_taxonomy_translation_settings_form_submit';
+
   return $form;
 }
 
@@ -1082,15 +1049,14 @@ function smartling_admin_comments_translation_settings_form(array $form, array &
   $translatable_field_types = smartling_get_translatable_field_types();
 
   $form['comments_translation'] = array(
-    '#type' => 'item',
-    '#title' => t('Which comments do you want to translate?'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'administrative_settings',
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_comments_translation_settings_form_submit'),
+  );
+
+  $form['comments_translation']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Which comments do you want to translate?'),
   );
 
   $rows = array();
@@ -1183,6 +1149,8 @@ function smartling_admin_comments_translation_settings_form(array $form, array &
     '#type' => 'submit',
     '#value' => t('Save'),
   );
+
+  $form['#submit'][] = 'smartling_admin_comments_translation_settings_form_submit';
 
   return $form;
 }
@@ -1298,15 +1266,14 @@ function smartling_admin_users_translation_settings_form(array $form, array &$fo
   $translatable_field_types = smartling_get_translatable_field_types();
 
   $form['users_translation'] = array(
-    '#type' => 'item',
-    '#title' => t('Which user do you want to translate?'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#group' => 'administrative_settings',
     'actions' => array(
       '#type' => 'actions',
     ),
-    '#submit' => array('smartling_admin_users_translation_settings_form_submit'),
+  );
+
+  $form['users_translation']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Which user do you want to translate?'),
   );
 
   $rows = array();
@@ -1376,6 +1343,8 @@ function smartling_admin_users_translation_settings_form(array $form, array &$fo
     '#type' => 'submit',
     '#value' => t('Save'),
   );
+
+  $form['#submit'][] = 'smartling_admin_users_translation_settings_form_submit';
 
   return $form;
 }
@@ -1477,7 +1446,7 @@ function smartling_hide_key($key = '') {
  *   Return checked api key.
  */
 function smartling_api_key_check($key) {
-  return preg_match("/[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}/", $key);
+  return preg_match("/^[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}$/", $key);
 }
 
 /**
@@ -1490,5 +1459,5 @@ function smartling_api_key_check($key) {
  *   Return checked project id.
  */
 function smartling_project_id_check($project_id) {
-  return preg_match("/[a-z0-9]{9}/", $project_id);
+  return preg_match("/^[a-z0-9]{9}$/", $project_id);
 }

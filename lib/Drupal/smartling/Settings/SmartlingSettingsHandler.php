@@ -31,7 +31,7 @@ class SmartlingSettingsHandler {
   public function __construct() {
     $this->apiUrl = $this->variableGet('smartling_api_url', SMARTLING_DEFAULT_API_URL);
     $this->callbackUrlUse = $this->variableGet('smartling_callback_url_use', TRUE);
-    $this->logMode = $this->variableGet('smartling_log', TRUE);
+    $this->logMode = $this->variableGet('smartling_log', 1);
     $this->projectId = $this->variableGet('smartling_project_id', '');
     $this->key = $this->variableGet('smartling_key', '');
     $this->retrievalType = $this->variableGet('smartling_retrieval_type', 'published');
@@ -495,11 +495,11 @@ class SmartlingSettingsHandler {
   /**
    * Set smartling log mode.
    *
-   * @param bool $log_mode
-   *   TRUE if log mode ON. TRUE by default.
+   * @param int $log_mode
+   *   1 if log mode ON. 1 by default.
    */
-  public function setLogMode($log_mode = TRUE) {
-    $this->logMode = (bool) $log_mode;
+  public function setLogMode($log_mode = 1) {
+    $this->logMode = $log_mode;
     $this->variableSet('smartling_log', $this->logMode);
   }
 
@@ -510,7 +510,7 @@ class SmartlingSettingsHandler {
    *   Return log mode options.
    */
   public function getLogModeOptions() {
-    return array(FALSE => 'OFF', TRUE => 'ON');
+    return array(0 => 'OFF', 1 => 'ON');
   }
 
   /**

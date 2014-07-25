@@ -24,8 +24,8 @@ function smartling_admin_reference_settings_form(array $form, array &$form_state
   $form['smartling_reference']['rebuild_references'] = array(
     '#type' => 'submit',
     '#value' => t('Rebuild references'),
-    '#submit' => array('smartling_rebuild_references_form_submit'),
   );
+  $form['#submit'][] = 'smartling_rebuild_references_form_submit';
 
   return $form;
 }

@@ -221,14 +221,14 @@ function smartling_schema() {
         'default' => 0,
       ),
       'entity_type' => array(
-        'description' => '',
+        'description' => 'Entity type',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
       'bundle' => array(
-        'description' => '',
+        'description' => 'Bundle',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -263,14 +263,14 @@ function smartling_schema() {
         'default' => '',
       ),
       'progress' => array(
-        'description' => '',
+        'description' => 'Progress',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
         'default' => NULL,
       ),
       'submitter' => array(
-        'description' => '',
+        'description' => 'Submitter',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -283,21 +283,21 @@ function smartling_schema() {
         'default' => 0,
       ),
       'download' => array(
-        'description' => '',
+        'description' => 'Download status',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
       'status' => array(
-        'description' => '',
+        'description' => 'Status',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
         'default' => NULL,
       ),
       'content_hash' => array(
-        'description' => '',
+        'description' => 'Content hash',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -354,7 +354,7 @@ function smartling_update_7100(&$sandbox) {
 
     // Add new fields.
     $field_settings = array(
-      'description' => '',
+      'description' => 'Entity type',
       'type' => 'varchar',
       'length' => 255,
       'not null' => TRUE,
@@ -384,21 +384,30 @@ function smartling_update_7100(&$sandbox) {
         $item->d_locales[$key] = smartling_convert_locale_drupal_to_smartling($locale, TRUE);
       }
 
-      db_query("UPDATE {queue} SET data = :data WHERE item_id = :item_id", array(
-        ':data' => serialize($item),
-        ':item_id' => $smartling_upload_item->item_id,
-      ));
+      db_update('queue')
+        ->fields(array(
+          'data' => serialize($item),
+        ))
+        ->condition('item_id', $smartling_upload_item->item_id)
+        ->execute();
     }
 
     // Check status.
+    $eids = array();
     $smartling_entities_data = db_query("SELECT eid, status FROM {smartling_entity_data} ORDER BY eid");
     foreach ($smartling_entities_data as $smartling_entity_data) {
       if ($smartling_entity_data->status != '0') {
-        db_query("UPDATE {smartling_entity_data} SET status = :status WHERE eid = :eid", array(
-          ':status' => '3',
-          ':eid' => $smartling_entity_data->eid,
-        ));
+        $eids[] = $smartling_entity_data->eid;
       }
+    }
+
+    if(!empty($eids)){
+    db_update('smartling_entity_data')
+      ->fields(array(
+        'status' => 3,
+      ))
+      ->condition('item_id', $eids, 'IN')
+      ->execute();
     }
 
     // New dependencies.
@@ -547,17 +556,19 @@ function smartling_update_7100(&$sandbox) {
         $translated_file_name = $res->translated_file_name;
       }
 
-      db_query("UPDATE {smartling_entity_data} SET content_hash = :content_hash, entity_type = :entity_type, original_language = :original_language, target_language = :target_language, file_name = :file_name, translated_file_name = :translated_file_name, status = :status WHERE eid = :eid", array(
-        ':content_hash' => $content_hash,
-        ':entity_type' => 'node',
-        ':original_language' => $original_language,
-        ':target_language' => $target_language,
-        ':file_name' => $file_name,
-        ':translated_file_name' => $translated_file_name,
-        ':status' => $status,
-        ':eid' => $res->eid,
-      ));
-
+      db_update('smartling_entity_data')
+        ->fields(array(
+          'content_hash' => $content_hash,
+          'entity_type' => 'node',
+          'original_language' => $original_language,
+          'target_language' => $target_language,
+          'file_name' => $file_name,
+          'translated_file_name' => $translated_file_name,
+          'status' => $status,
+          'content_hash' => $content_hash,
+        ))
+        ->condition('eid', $res->eid)
+        ->execute();
       // Update entity translation info for fields method.
       if (in_array($res->bundle, $field_method_types)) {
         $entity_load = entity_load_single('node', $res->rid);
