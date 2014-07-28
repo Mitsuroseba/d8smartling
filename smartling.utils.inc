@@ -6,6 +6,9 @@
  */
 
 use Drupal\smartling\Settings\SmartlingSettingsHandler;
+use Drupal\smartling\Processors\NodeProcessor;
+use Drupal\smartling\Processors\TaxonomyTermProcessor;
+use Drupal\smartling\Processors\BaseEntityProcessor;
 
 /**
  * Returns whether the given node type has support for Smartling translations.
@@ -582,6 +585,22 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   }
 }
 
+function smartling_get_entity_processor($smartling_entity, $locale, $log) {
+  switch ($smartling_entity->entity_type) {
+    case 'node':
+      return new NodeProcessor($smartling_entity, $locale, $log);
+      break;
+
+    case 'taxonomy_term':
+      return new TaxonomyTermProcessor($smartling_entity, $locale, $log);
+      break;
+
+    default:
+      return new BaseEntityProcessor($this, $locale, $log);
+      break;
+  }
+}
+
 /**
  * Build xml document and save in file.
  *
@@ -599,28 +618,38 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
  */
 function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) {
   $log = smartling_log_get_handler();
-  $content_to_translate = array();
-  switch ($entity_type) {
-    case 'node':
-      $content_to_translate = smartling_node_content_to_translate($rid);
-      break;
 
-    case 'taxonomy_term':
-      $content_to_translate = smartling_taxonomy_term_content_to_translate($rid);
-      break;
+  /* @var $smartling_entity SmartlingEntityData */
+  $smartling_entity = smartling_entity_load_by_conditions(array(
+    'rid' => $rid,
+    'entity_type' => $entity_type,
+    'target_language' => $d_locale,
+  ));
+  $processor = smartling_get_entity_processor($smartling_entity, $d_locale, $log);
+  $content_to_translate = $processor->exportContentToTranslation();
 
-    case 'comment':
-      $content_to_translate = smartling_comment_content_to_translate($rid);
-      break;
-
-    case 'user':
-      $content_to_translate = smartling_user_content_to_translate($rid);
-      break;
-
-    default:
-      $file_name = FALSE;
-      break;
-  }
+//  $content_to_translate = array();
+//  switch ($entity_type) {
+//    case 'node':
+//      $content_to_translate = smartling_node_content_to_translate($rid);
+//      break;
+//
+//    case 'taxonomy_term':
+//      $content_to_translate = smartling_taxonomy_term_content_to_translate($rid);
+//      break;
+//
+//    case 'comment':
+//      $content_to_translate = smartling_comment_content_to_translate($rid);
+//      break;
+//
+//    case 'user':
+//      $content_to_translate = smartling_user_content_to_translate($rid);
+//      break;
+//
+//    default:
+//      $file_name = FALSE;
+//      break;
+//  }
 
   if (!empty($content_to_translate)) {
     $xml = new DOMDocument('1.0', 'UTF-8');

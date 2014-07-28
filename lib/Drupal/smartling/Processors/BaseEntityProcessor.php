@@ -2,6 +2,8 @@
 
 namespace Drupal\smartling\Processors;
 
+use Drupal\smartling\FieldProcessors\FieldProcessorFactory;
+
 class BaseEntityProcessor {
   /**
    * @var SmartlingEntityData
@@ -24,11 +26,11 @@ class BaseEntityProcessor {
 
   protected $ifFieldMethod;
 
-  public function __construct($entity, $locale, $log, $relatedId = NULL) {
+  public function __construct($entity, $locale, $log) {
     $this->entity = $entity;
-    $this->drupalLocale = $locale;
-    $this->originalLocale = smartling_convert_locale_drupal_to_smartling($locale);
-    $this->relatedId = $relatedId;
+    $this->drupalLocale = reset($locale);
+    $this->originalLocale = smartling_convert_locale_drupal_to_smartling(reset($locale));
+    $this->relatedId = $entity->rid;
     $this->log = $log;
   }
 
@@ -98,11 +100,13 @@ class BaseEntityProcessor {
     $this->prepareOriginalEntity();
     $node_current_translatable_content = array();
 
-    foreach (smartling_settings_get_handler()->getFieldsSettings($this->originalEntity->type) as $field_name) {
-      /* @var $fieldProcessor BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity);
+    foreach (smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle) as $field_name) {
+      /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
 
-      $node_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingFormat();
+      if ($fieldProcessor) {
+        $node_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingFormat();
+      }
     }
 
     return $node_current_translatable_content;

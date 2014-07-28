@@ -46,7 +46,7 @@ class SmartlingEntityData extends Entity {
           break;
 
         default:
-          $this->processor = new \Drupal\smartling\Processors\BaseEntityProcessor($this, $this->entity->language, $log, $this->rid)
+          $this->processor = new \Drupal\smartling\Processors\BaseEntityProcessor($this, $this->entity->language, $log, $this->rid);
           break;
       }
     }

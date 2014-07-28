@@ -83,6 +83,8 @@ function smartling_register() {
   $loader->registerNamespace('Drupal\smartling\Alters', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Log', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Settings', __DIR__ . '/lib');
+  $loader->registerNamespace('Drupal\smartling\Processors', __DIR__ . '/lib');
+  $loader->registerNamespace('Drupal\smartling\FieldProcessors', __DIR__ . '/lib');
 }
 
 /**
@@ -125,6 +127,15 @@ function smartling_menu() {
       'access arguments' => array(2),
     );
   }
+
+  $items['admin/config/regional/smartling/manual-management'] = array(
+    'title' => 'Smartling manual translation management',
+    'description' => 'Here you can send node to smartling or get translation from smartling for specific node if available',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smartling_manual_management_form'),
+    'access arguments' => array('administer smartling'),
+    'file' => 'smartling.pages.inc',
+  );
 
   return $items;
 }
@@ -713,7 +724,7 @@ function smartling_entity_load($entities, $type) {
 
         foreach ($sm_settings->{$sm_settings->getByBundleMethodName($type)}($bundle) as $field_name) {
 
-          if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
+          if (smartling_field_is_translatable_by_field_name($field_name, $type) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
             // If field have und value and don't have need value.
             $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];
             field_attach_presave($type, $entity);
