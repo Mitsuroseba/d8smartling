@@ -222,6 +222,55 @@ class SmartlingApiWrapper {
    * Test connect.
    */
   public function testConnection() {
+    $this->api->getList();
+    return $this->api->getCodeStatus() == 'SUCCESS';
+  }
 
+  public function uploadFile($file_path, $upload_params, $args, $link_to_entity) {
+    // Try to upload file.
+    $entity_type = $args->entity_type;
+
+    $locales_to_approve = array();
+    foreach ($args->d_locales as $d_locale) {
+      $locales_to_approve[] = $this->convertLocaleDrupalToSmartling($d_locale);
+    }
+
+    $upload_result = $this->api->uploadFile($file_path, $upload_params);
+    $upload_result = json_decode($upload_result);
+
+    if ($this->api->getCodeStatus() == 'SUCCESS') {
+
+      $this->logger->setMessage('Smartling uploaded @entity_type @nid for locales: @locales')
+        ->setVariables(array(
+          '@entity_type' => $entity_type,
+          '@nid' => $args->rid,
+          '@locales' => implode('; ', $locales_to_approve),
+        ))
+        ->setLink(l(t('View file'), $file_path))
+        ->execute();
+
+      return SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE;
+    }
+    elseif (is_object($upload_result)) {
+      $this->logger->setMessage('Smartling failed to upload xml file: <br/>
+          Project Id: @project_id <br/>
+          Action: upload <br/>
+          URI: @file_uri <br/>
+          Error: response code -> @code and message -> @message
+          Upload aparms: @upload_params')
+        ->setVariables(array(
+          '@project_id' => $this->settingsHandler->getProjectId(),
+          '@file_uri' => $file_path,
+          '@code' => $upload_result->response->code,
+          '@message' => $upload_result->response->messages[0],
+          '@upload_params' => $upload_params,
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->setLink($link_to_entity)
+        ->execute();
+    }
+
+    return SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
   }
 }

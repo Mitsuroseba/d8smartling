@@ -859,28 +859,6 @@ function smartling_get_progress_status($entity_data) {
       return $result['response_data']->progress;
     }
     else {
-//      $log->setMessage('Smartling tried to check file progress: <br/>
-//      Project Id: @project_id <br/>
-//      Action: get progress <br/>
-//      URI: @file_uri <br/>
-//      Locale: @d_locale <br/>
-//      Error: response code -> @code and message -> @message')
-//        ->setVariables(array(
-//          '@project_id' => $smartling_settings->getProjectId(),
-//          '@file_uri' => $file_uri,
-//          '@d_locale' => $d_locale,
-//          '@code' => $status_result->response->code,
-//          '@message' => $status_result->response->messages[0],
-//        ))
-//        ->setConsiderLog(FALSE)
-//        ->setSeverity(WATCHDOG_ERROR)
-//        ->setLink($link_to_entity)
-//        ->execute();
-//
-//      drupal_set_message(t('Smartling tried to check file progress: response code - @code, message - @message', array(
-//        '@code' => $status_result->response->code,
-//        '@message' => $status_result->response->messages[0],
-//      )), 'error');
       return FALSE;
     }
   }
