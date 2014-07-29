@@ -19,6 +19,7 @@ class SmartlingSettingsHandler {
   public $targetLocales;
   public $localesConvertArray;
   public $callbackUrlUse;
+  public $autoAuthorizeContent;
   public $logMode;
   public $nodeFieldsSettings;
   public $commentFieldsSettings;
@@ -31,6 +32,7 @@ class SmartlingSettingsHandler {
   public function __construct() {
     $this->apiUrl = $this->variableGet('smartling_api_url', SMARTLING_DEFAULT_API_URL);
     $this->callbackUrlUse = $this->variableGet('smartling_callback_url_use', TRUE);
+    $this->autoAuthorizeContent = $this->variableGet('smartling_auto_authorize_content', TRUE);
     $this->logMode = $this->variableGet('smartling_log', 1);
     $this->projectId = $this->variableGet('smartling_project_id', '');
     $this->key = $this->variableGet('smartling_key', '');
@@ -453,6 +455,27 @@ class SmartlingSettingsHandler {
   public function setCallbackUrlUse($use = TRUE) {
     $this->callbackUrlUse = (bool) $use;
     $this->variableSet('smartling_callback_url_use', $this->callbackUrlUse);
+  }
+
+  /**
+   * Get auto authorize content.
+   *
+   * @return bool
+   *   Return auto authorize content mode.
+   */
+  public function getAutoAuthorizeContent() {
+    return $this->autoAuthorizeContent;
+  }
+
+  /**
+   * Set auto authorize content.
+   *
+   * @param bool $auto
+   *   TRUE by default.
+   */
+  public function setAutoAuthorizeContent($auto = TRUE) {
+    $this->autoAuthorizeContent = (bool) $auto;
+    $this->variableSet('smartling_auto_authorize_content', $this->autoAuthorizeContent);
   }
 
   /**

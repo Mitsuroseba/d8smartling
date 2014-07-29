@@ -125,9 +125,13 @@ function smartling_queue_send_to_translate_process($args) {
       $upload_params = new FileUploadParameterBuilder();
       $upload_params->setFileUri($file_name_unic)
         ->setFileType($file_type)
-        ->setLocalesToApprove($locales_to_approve)
-        ->setOverwriteApprovedLocales(0)
         ->setApproved(0);
+
+      if ($smartling_settings->getAutoAuthorizeContent()) {
+      $upload_params->setLocalesToApprove($locales_to_approve)
+        ->setOverwriteApprovedLocales(0);
+      }
+
       if ($smartling_settings->getCallbackUrlUse()) {
         $upload_params->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
       }
