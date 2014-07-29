@@ -856,7 +856,7 @@ function smartling_get_progress_status($entity_data) {
     $result = $api->getStatus($entity_data, $link_to_entity);
 
     if (!empty($result)) {
-      return $result['response_data']->progress;
+      return $result['entity_data']->progress;
     }
     else {
       return FALSE;

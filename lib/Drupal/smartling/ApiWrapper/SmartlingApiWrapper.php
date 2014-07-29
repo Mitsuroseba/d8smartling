@@ -169,7 +169,7 @@ class SmartlingApiWrapper {
     $status_result = json_decode($status_result);
 
     // This is a get status.
-    if ($this->api->getCodeStatus() != 'SUCCESS') {
+    if (($this->api->getCodeStatus() != 'SUCCESS') || !isset($status_result->response->data)) {
       $this->logger->setMessage('Smartling checks status for @entity_type id - @rid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
