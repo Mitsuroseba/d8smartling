@@ -341,18 +341,13 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
 
   // Test.
   if ($form_state['triggering_element']['#name'] == 'test_connection') {
-    foreach ($form_state['values']['target_locales'] as $key => $d_locale) {
-      if ($d_locale !== 0 && $d_locale == $key) {
+    $api = drupal_container()->get('smartling.api_wrapper');
 
-        $api = drupal_container()->get('smartling.api_wrapper');
-
-        if ($api->testConnection()) {
-          drupal_set_message(t('Test connection for locale @d_locale is success.', array('@d_locale' => $d_locale)));
-        }
-        else {
-          drupal_set_message(t('Test connection for locale @d_locale is fail.', array('@d_locale' => $d_locale)), 'error');
-        }
-      }
+    if ($api->testConnection()) {
+      drupal_set_message(t('Connected successfully.'));
+    }
+    else {
+      drupal_set_message(t('Connectiob failed.'), 'error');
     }
     drupal_goto(current_path());
   }

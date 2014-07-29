@@ -35,20 +35,8 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
   }
 
   /**
-   * Test incorrect smartling account info settings api url.
-   */
-  public function testIncorrectSmartlingAccountInfoSettingsApiUrl() {
-    // Set correct account settings.
-    $this->smartlingSetCorrectSettings();
-
-    $edit = array(
-      "api_url" => 'https://capi.smartling.com/incorrect',
-    );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Test connection for locale ru is fail.'));
-  }
-
-  /**
    * Test incorrect smartling account info settings progect id.
    */
   public function testIncorrectSmartlingAccountInfoSettingsProjectId() {
@@ -56,7 +44,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     $this->smartlingSetCorrectSettings();
 
     $edit = array(
-      "project_id" => strtolower($this->randomName(9)),
+      "project_id" => '---' . strtolower($this->randomName(9)) . '---',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Test connection for locale ru is fail.'));
@@ -70,7 +58,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
     $this->smartlingSetCorrectSettings();
 
     $edit = array(
-      "smartling_key" => $this->generateRandomSmartlingKey(),
+      "smartling_key" => '---' . $this->generateRandomSmartlingKey() . '---',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Test connection for locale ru is fail.'));
