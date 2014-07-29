@@ -973,21 +973,18 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
  *   Return link to entity.
  */
 function smartling_get_link_to_entity($rid, $entity_type) {
+  $function_uri = $entity_type . '_uri';
+  $function_load = $entity_type . '_load';
+  $entity = $function_load($rid);
+  $uri = $function_uri($entity);
+  $path = $uri['path'];
+
   switch ($entity_type) {
     case 'node':
-      $link = l(t('Related entity'), 'node/' . $rid);
-      break;
-
     case 'taxonomy_term':
-      $link = l(t('Related entity'), 'taxonomy/term/' . $rid);
-      break;
-
     case 'comment':
-      $link = l(t('Related entity'), 'comment/' . $rid);
-      break;
-
     case 'user':
-      $link = l(t('Related entity'), 'user/' . $rid);
+      $link = l(t('Related entity'), $path);
       break;
 
     default:
