@@ -235,9 +235,12 @@ class SmartlingApiWrapper {
     $upload_params = new FileUploadParameterBuilder();
     $upload_params->setFileUri($file_name_unic)
       ->setFileType('xml')
-      ->setLocalesToApprove($locales_to_approve)
-      ->setOverwriteApprovedLocales(0)
       ->setApproved(0);
+
+    if ($this->settingsHandler->getAutoAuthorizeContent()) {
+      $upload_params->setLocalesToApprove($locales_to_approve)
+        ->setOverwriteApprovedLocales(0);
+    }
     if ($this->settingsHandler->getCallbackUrlUse()) {
       $upload_params->setCallbackUrl($this->settingsHandler->getCallbackUrl());
     }
