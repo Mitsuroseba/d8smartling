@@ -199,6 +199,18 @@ function smartling_admin_account_info_settings_form(array $form, array &$form_st
     '#required' => FALSE,
   );
 
+  $form['account_info']['auto_authorize_content_title'] = array(
+    '#type' => 'item',
+    '#title' => t('Auto authorize'),
+  );
+
+  $form['account_info']['auto_authorize_content'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Auto authorize content'),
+    '#default_value' => $smartling_settings->getAutoAuthorizeContent(),
+    '#required' => FALSE,
+  );
+
   $form['account_info']['actions']['submit'][] = array(
     '#type' => 'submit',
     '#name' => 'save',
@@ -314,6 +326,11 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
   // Callback.
   if (isset($form_state['values']['callback_url_use'])) {
     $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
+  }
+
+  // AutoAuthorizeContent.
+  if (isset($form_state['values']['auto_authorize_content'])) {
+    $smartling_settings->setAutoAuthorizeContent($form_state['values']['auto_authorize_content']);
   }
 
   drupal_set_message(t('Account settings saved.'));

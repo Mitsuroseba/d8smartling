@@ -12,6 +12,7 @@ function smartling_install() {
   variable_set('smartling_log', TRUE);
   variable_set('smartling_retrieval_type', 'published');
   variable_set('smartling_callback_url_use', TRUE);
+  variable_set('smartling_auto_authorize_content', TRUE);
   variable_set('smartling_api_url', SMARTLING_DEFAULT_API_URL);
 
   $language_negotiation_language = array(
