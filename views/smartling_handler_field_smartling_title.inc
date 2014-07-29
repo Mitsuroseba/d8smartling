@@ -23,25 +23,24 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
     $entity_type = $values->smartling_entity_data_entity_type;
     $rid = $values->smartling_entity_data_rid;
 
+    $function_uri = $entity_type . '_uri';
+    $function_load = $entity_type . '_load';
+    $entity = $function_load($rid);
+    $uri = $function_uri($entity);
+    $path = $uri['path'];
+
     switch ($entity_type) {
       case 'node':
-        $node = node_load($rid);
-        $link = l(t('!title', array('!title' => $node->title)), 'node/' . $rid);
+        $link = l(t('!title', array('!title' => $entity->title)), $path);
         break;
 
       case 'taxonomy_term':
-        $term = taxonomy_term_load($rid);
-        $link = l(t('!title', array('!title' => $term->name)), 'taxonomy/term/' . $rid);
+      case 'user':
+        $link = l(t('!title', array('!title' => $entity->name)), $path);
         break;
 
       case 'comment':
-        $comment = comment_load($rid);
-        $link = l(t('!title', array('!title' => $comment->subject)), 'comment/' . $rid);
-        break;
-
-      case 'user':
-        $account = user_load($rid);
-        $link = l(t('!title', array('!title' => $account->name)), 'user/' . $rid);
+        $link = l(t('!title', array('!title' => $entity->subject)), $path);
         break;
 
       default:
