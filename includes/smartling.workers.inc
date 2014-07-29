@@ -111,13 +111,6 @@ function smartling_queue_send_to_translate_process($args) {
       $file_name_unic = $file_name;
       $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
 
-
-
-      if ($smartling_settings->getAutoAuthorizeContent()) {
-      $upload_params->setLocalesToApprove($locales_to_approve)
-        ->setOverwriteApprovedLocales(0);
-      }
-
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
       $result_status = $api->uploadFile($file_path, $file_name_unic, $args->d_locales);
