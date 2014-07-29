@@ -12,19 +12,20 @@ namespace Drupal\smartling\Settings;
  */
 class SmartlingSettingsHandler {
 
-  public $apiUrl;
-  public $projectId;
-  public $key;
-  public $retrievalType;
-  public $targetLocales;
-  public $localesConvertArray;
-  public $callbackUrlUse;
-  public $autoAuthorizeContent;
-  public $logMode;
-  public $nodeFieldsSettings;
-  public $commentFieldsSettings;
-  public $taxonomyTermFieldsSettings;
-  public $userFieldsSettings;
+  protected $apiUrl;
+  protected $projectId;
+  protected $key;
+  protected $retrievalType;
+  protected $targetLocales;
+  protected $localesConvertArray;
+  protected $callbackUrlUse;
+  protected $callbackUrl;
+  protected $autoAuthorizeContent;
+  protected $logMode;
+  protected $nodeFieldsSettings;
+  protected $commentFieldsSettings;
+  protected $taxonomyTermFieldsSettings;
+  protected $userFieldsSettings;
 
   /**
    * Initialize.
@@ -32,6 +33,7 @@ class SmartlingSettingsHandler {
   public function __construct() {
     $this->apiUrl = $this->variableGet('smartling_api_url', SMARTLING_DEFAULT_API_URL);
     $this->callbackUrlUse = $this->variableGet('smartling_callback_url_use', TRUE);
+    $this->callbackUrl = $this->getBaseUrl() . '/smartling/callback/' . $this->variableGet('cron_key', 'drupal');
     $this->autoAuthorizeContent = $this->variableGet('smartling_auto_authorize_content', TRUE);
     $this->logMode = $this->variableGet('smartling_log', 1);
     $this->projectId = $this->variableGet('smartling_project_id', '');
@@ -84,6 +86,16 @@ class SmartlingSettingsHandler {
     variable_del($variable_name);
   }
 
+  /**
+   * Getter for global base_url variable.
+   *
+   * @return string
+   *   BaseUrl.
+   */
+  public function getBaseUrl() {
+    global $base_url;
+    return $base_url;
+  }
   /**
    * Get property name by entity type.
    *
@@ -740,5 +752,25 @@ class SmartlingSettingsHandler {
     $smartling_dir = ($this->variableGet('file_private_path', FALSE)) ? ($this->variableGet('file_private_path') . '/smartling') : ($this->variableGet('file_public_path', conf_path() . '/files') . '/smartling');
     $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
     return (string) $smartling_dir;
+  }
+
+  /**
+   * Set Smartling callback url.
+   *
+   * @param string $url
+   *   Callback url.
+   */
+  public function setCallbackUrl($url) {
+    $this->callbackUrl = $url;
+  }
+
+  /**
+   * Get Smartling callback url.
+   *
+   * @return string
+   *   Return smartling callback url.
+   */
+  public function getCallbackUrl() {
+    return $this->callbackUrl;
   }
 }

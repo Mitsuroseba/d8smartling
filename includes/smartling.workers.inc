@@ -23,7 +23,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
 
     // Init api object.
-    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
+    $api = drupal_container()->get('smartling.api_wrapper');
 
     $download_result = $api->downloadFile($entity_data, $link_to_entity);
     if ($download_result !== FALSE) {
@@ -51,7 +51,7 @@ function smartling_queue_check_status_process($args) {
       'target_language' => $args->d_locale,
     ));
 
-    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
+    $api = drupal_container()->get('smartling.api_wrapper');
     $result = $api->getStatus($entity_data, $link_to_entity);
 
     if (!empty($result)) {
@@ -73,7 +73,6 @@ function smartling_queue_check_status_process($args) {
 function smartling_queue_send_to_translate_process($args) {
   if (smartling_is_configured()) {
 
-    $smartling_settings = smartling_settings_get_handler();
     $entity_type = $args->entity_type;
     // Check filename length.
     if (!smartling_check_filename_length($args->title, $entity_type, $args->rid)) {
@@ -108,40 +107,20 @@ function smartling_queue_send_to_translate_process($args) {
     $saves[] = smartling_build_xml($args->rid, $args->d_locales, $args->title, $entity_type);
 
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
-      global $base_url;
-
       $file_name = $saves[0];
       $file_name_unic = $file_name;
       $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
-      $file_type = 'xml';
 
 
-
-      $locales_to_approve = array();
-      foreach ($args->d_locales as $d_locale) {
-        $locales_to_approve[] = smartling_convert_locale_drupal_to_smartling($d_locale);
-      }
-
-      $upload_params = new FileUploadParameterBuilder();
-      $upload_params->setFileUri($file_name_unic)
-        ->setFileType($file_type)
-        ->setApproved(0);
 
       if ($smartling_settings->getAutoAuthorizeContent()) {
       $upload_params->setLocalesToApprove($locales_to_approve)
         ->setOverwriteApprovedLocales(0);
       }
 
-      if ($smartling_settings->getCallbackUrlUse()) {
-        $upload_params->setCallbackUrl($base_url . '/smartling/callback/' . variable_get('cron_key', 'drupal'));
-      }
-      $upload_params = $upload_params->buildParameters();
-
-      $link_to_entity = smartling_get_link_to_entity($args->rid, $entity_type);
-
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile($file_path, $upload_params, $args, $link_to_entity);
+      $result_status = $api->uploadFile($file_path, $file_name_unic, $args->d_locales);
 
       foreach ($entity_data_array as $entity) {
         smartling_set_translation_status($entity, $result_status);
