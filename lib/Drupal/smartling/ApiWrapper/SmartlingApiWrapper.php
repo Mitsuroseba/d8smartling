@@ -221,9 +221,20 @@ class SmartlingApiWrapper {
   /**
    * Test connect.
    */
-  public function testConnection() {
-    $this->api->getList();
-    return $this->api->getCodeStatus() == 'SUCCESS';
+  public function testConnection($locales) {
+    $result = array();
+
+    foreach ($locales as $key => $locale) {
+      if ($locale !== 0 && $locale == $key) {
+        $s_locale = $this->convertLocaleDrupalToSmartling($locale);
+        // Init api object.
+        $this->api->getList($s_locale, array('limit' => 1));
+
+        $result[$s_locale] = $this->api->getCodeStatus() == 'SUCCESS';
+      }
+    }
+
+    return $result;
   }
 
   public function uploadFile($file_path, $file_name_unic, $locales) {
