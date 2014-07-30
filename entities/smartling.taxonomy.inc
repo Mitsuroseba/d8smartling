@@ -24,16 +24,18 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
  *   FAPI array.
  */
 function smartling_vocabulary_support_type_validate(array &$form, array &$form_state) {
-  // Set old i18n_mode.
-  $vocabulary = taxonomy_vocabulary_machine_name_load($form_state['values']['machine_name']);
-  if (is_object($vocabulary) && !empty($vocabulary->machine_name)) {
-    $form_state['old_i18n_mode'] = i18n_taxonomy_vocabulary_mode($vocabulary);
-  }
+  if (!isset($form_state['confirm_delete']) || ($form_state['confirm_delete'] != TRUE)) {
+    // Set old i18n_mode.
+    $vocabulary = taxonomy_vocabulary_machine_name_load($form_state['values']['machine_name']);
+    if (is_object($vocabulary) && !empty($vocabulary->machine_name)) {
+      $form_state['old_i18n_mode'] = i18n_taxonomy_vocabulary_mode($vocabulary);
+    }
 
-  if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
-    if (!smartling_is_configured()) {
-      drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
-      form_set_error('i18n_translation');
+    if (isset($form_state['values']['i18n_mode']) && ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE)) {
+      if (!smartling_is_configured()) {
+        drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
+        form_set_error('i18n_translation');
+      }
     }
   }
 }
@@ -47,13 +49,17 @@ function smartling_vocabulary_support_type_validate(array &$form, array &$form_s
  *   FAPI array.
  */
 function smartling_vocabulary_support_type_submit(array &$form, array &$form_state) {
-  // Delete content type in smartling support types.
-  $bundle = $form_state['values']['machine_name'];
-  if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
-    smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
-  }
-  elseif ($form_state['values']['i18n_mode'] != $form_state['old_i18n_mode']) {
-    smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
+  if (!isset($form_state['confirm_delete']) || ($form_state['confirm_delete'] != TRUE)) {
+    // Delete content type in smartling support types.
+    $bundle = $form_state['values']['machine_name'];
+    if (isset($form_state['values']['i18n_mode'])) {
+      if ($form_state['values']['i18n_mode'] != I18N_MODE_LOCALIZE && $form_state['values']['i18n_mode'] != I18N_MODE_TRANSLATE) {
+        smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
+      }
+      elseif (isset($form_state['old_i18n_mode']) && ($form_state['values']['i18n_mode'] != $form_state['old_i18n_mode'])) {
+        smartling_settings_get_handler()->deleteSingleBundleFromSettings('taxonomy_term', $bundle);
+      }
+    }
   }
 }
 
