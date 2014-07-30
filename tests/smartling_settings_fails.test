@@ -47,7 +47,7 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
       "project_id" => '---' . strtolower($this->randomName(9)) . '---',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Test connection for locale ru is fail.'));
+    $this->assertText(t('Please enter valid Smartling Project Id.'));
   }
 
   /**
@@ -61,7 +61,8 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
       "smartling_key" => '---' . $this->generateRandomSmartlingKey() . '---',
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Test connection for locale ru is fail.'));
+    $this->assertText(t('Key cannot be longer than 40 characters but is currently 42 characters long.'));
+    $this->assertText(t('Please enter valid Smartling key.'));
   }
 
   /**
