@@ -243,7 +243,7 @@ class SmartlingApiWrapper {
       $locales_to_approve[] = $this->convertLocaleDrupalToSmartling($locale);
     }
 
-    $upload_params = new FileUploadParameterBuilder();
+    $upload_params = new \FileUploadParameterBuilder();
     $upload_params->setFileUri($file_name_unic)
       ->setFileType('xml')
       ->setApproved(0);
