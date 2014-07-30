@@ -567,15 +567,13 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
         $original_term = taxonomy_term_load($rid);
         $original_entity = $original_term;
         $term = i18n_taxonomy_term_get_translation($original_term, $d_locale);
+        $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
+        $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
         if (!is_null($term) && ($term->language != $original_term->language)) {
           $rid = $term->tid;
         }
         else {
           // If term not exist, need create new term.
-          $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
-
-          // Add language field or not depending on taxonomy mode.
-          $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
           switch ($vocabulary_mode) {
             case I18N_MODE_TRANSLATE:
               $fields_method = FALSE;
@@ -683,13 +681,13 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       // Update Translations info.
       switch ($entity_type) {
         case 'taxonomy_term':
-
-          break;
-
         case 'node':
         case 'comment':
         case 'user':
           if (($entity_type == 'node') && smartling_nodes_method($entity_data->bundle)) {
+            break;
+          }
+          if (($entity_type == 'taxonomy_term') && ($vocabulary_mode != I18N_MODE_LOCALIZE)) {
             break;
           }
           $entity_load = entity_load_single($entity_type, $rid);
@@ -707,11 +705,14 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             'entity_type' => $entity_type,
             'entity_id' => $rid,
             'translate' => '0',
-            'status' => $entity_load->status,
             'language' => $d_locale,
             'uid' => $entity_data->submitter,
             'changed' => $entity_data->submission_date,
           );
+
+          if ($entity_type != 'taxonomy_term') {
+            $entity_translation['status'] = $entity_load->status;
+          }
 
           if (isset($translations->data[$d_locale])) {
             $handler->setTranslation($entity_translation);
@@ -720,8 +721,14 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
             // Add the new translation.
             $entity_translation += array(
               'source' => $translations->original,
-              'created' => $entity_load->created,
             );
+
+            if ($entity_type != 'taxonomy_term') {
+              $entity_translation += array(
+                'created' => $entity_load->created,
+              );
+            }
+
             $handler->setTranslation($entity_translation);
           }
           smartling_entity_translation_save($handler, $entity_load);

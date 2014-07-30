@@ -26,7 +26,10 @@ function smartling_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
 function smartling_vocabulary_support_type_validate(array &$form, array &$form_state) {
   // Set old i18n_mode.
   $vocabulary = taxonomy_vocabulary_machine_name_load($form_state['values']['machine_name']);
-  $form_state['old_i18n_mode'] = i18n_taxonomy_vocabulary_mode($vocabulary);
+  if (is_object($vocabulary) && !empty($vocabulary->machine_name)) {
+    $form_state['old_i18n_mode'] = i18n_taxonomy_vocabulary_mode($vocabulary);
+  }
+
   if ($form_state['values']['i18n_mode'] == I18N_MODE_LOCALIZE || $form_state['values']['i18n_mode'] == I18N_MODE_TRANSLATE) {
     if (!smartling_is_configured()) {
       drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
