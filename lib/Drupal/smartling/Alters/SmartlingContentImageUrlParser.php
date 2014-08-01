@@ -44,7 +44,7 @@ class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
    * @return array
    *   Context array.
    */
-  protected function getContext($matches) {
+  protected function getContext(array $matches) {
     // Get the base path.
     list($base_path, $base_url) = $this->getGlobalSettings();
 
@@ -108,11 +108,6 @@ class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
       }
       $new_parts['path'] = rawurldecode($new_parts['path']);
       $parts = $new_parts;
-      // Don't do language handling for file paths.
-      $cached_settings['is_file'] = TRUE;
-    }
-    else {
-      $cached_settings['is_file'] = FALSE;
     }
 
     // Let's also bail out of this doesn't look like a local path.
@@ -176,7 +171,7 @@ class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
    * @return string
    *   Return match.
    */
-  protected function processorExecutor($match) {
+  protected function processorExecutor(array $match) {
     $context = $this->getContext($match);
 
     foreach ($this->processors as $processor) {

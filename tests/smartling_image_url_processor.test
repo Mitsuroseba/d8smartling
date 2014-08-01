@@ -5,7 +5,6 @@
  * Tests for smartling.
  */
 
-//require_once __DIR__ . '/../lib/Drupal/smartling/Alters/SmartlingContentImageUrlProcessor.php';
 use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
 
 /**

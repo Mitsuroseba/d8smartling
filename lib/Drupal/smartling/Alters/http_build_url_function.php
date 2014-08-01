@@ -6,6 +6,8 @@
  */
 
 /**
+ * URL constants.
+ *
  * URL constants as defined in the PHP Manual under "Constants usable with
  * http_build_url()".
  *
@@ -68,7 +70,7 @@ if (!function_exists('http_build_url')) {
    * @return string
    *   Return url.
    */
-  function http_build_url($url, $parts = array(), $flags = HTTP_URL_REPLACE, &$new_url = array()) {
+  function http_build_url($url, $parts = array(), $flags = HTTP_URL_REPLACE, array &$new_url = array()) {
     is_array($url) || $url = parse_url($url);
     is_array($parts) || $parts = parse_url($parts);
 
@@ -79,9 +81,7 @@ if (!function_exists('http_build_url')) {
 
     // HTTP_URL_STRIP_ALL and HTTP_URL_STRIP_AUTH cover several other flags.
     if ($flags & HTTP_URL_STRIP_ALL) {
-      $flags |= HTTP_URL_STRIP_USER | HTTP_URL_STRIP_PASS
-        | HTTP_URL_STRIP_PORT | HTTP_URL_STRIP_PATH
-        | HTTP_URL_STRIP_QUERY | HTTP_URL_STRIP_FRAGMENT;
+      $flags |= HTTP_URL_STRIP_USER | HTTP_URL_STRIP_PASS | HTTP_URL_STRIP_PORT | HTTP_URL_STRIP_PATH | HTTP_URL_STRIP_QUERY | HTTP_URL_STRIP_FRAGMENT;
     }
     elseif ($flags & HTTP_URL_STRIP_AUTH) {
       $flags |= HTTP_URL_STRIP_USER | HTTP_URL_STRIP_PASS;

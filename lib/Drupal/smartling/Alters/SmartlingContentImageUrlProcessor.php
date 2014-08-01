@@ -32,7 +32,7 @@ class SmartlingContentImageUrlProcessor implements SmartlingContentProcessorInte
    * @param object $entity
    *   Entity object.
    */
-  public function process(&$item, $context, $lang, $field_name, $entity) {
+  public function process(array &$item, array $context, $lang, $field_name, $entity) {
     if (!$context['external'] || $item[1] != 'href') {
       return;
     }

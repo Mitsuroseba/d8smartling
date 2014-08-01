@@ -17,25 +17,25 @@ function smartling_translation_context_resource() {
   global $base_url;
 
   $params = drupal_get_query_parameters();
-  $html_getter = new ContextHTML(new TokenStorage(), $base_url);
+  $html_getter = new SmartlingContextHTML(new SmartlingTokenStorage(), $base_url);
 
   return $html_getter->getHtml($params['fileUrl'], $params['token']);
 }
 
 /**
- * Class ContextResource.
+ * Class SmartlingContextResource.
  */
-class ContextResource extends ContextBase {
+class SmartlingContextResource extends SmartlingContextBase {
 
   /**
    * Construct.
    *
-   * @param TokenStorage $storage
-   *   TokenStorage object.
+   * @param SmartlingTokenStorage $storage
+   *   SmartlingTokenStorage object.
    * @param string $site_url
    *   Site url.
    */
-  public function __construct(TokenStorage $storage, $site_url) {
+  public function __construct(SmartlingTokenStorage $storage, $site_url) {
     parent::__construct($storage, $site_url);
   }
 

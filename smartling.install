@@ -402,13 +402,13 @@ function smartling_update_7100(&$sandbox) {
       }
     }
 
-    if(!empty($eids)){
-    db_update('smartling_entity_data')
-      ->fields(array(
-        'status' => 3,
-      ))
-      ->condition('item_id', $eids, 'IN')
-      ->execute();
+    if (!empty($eids)) {
+      db_update('smartling_entity_data')
+        ->fields(array(
+          'status' => 3,
+        ))
+        ->condition('item_id', $eids, 'IN')
+        ->execute();
     }
 
     // New dependencies.

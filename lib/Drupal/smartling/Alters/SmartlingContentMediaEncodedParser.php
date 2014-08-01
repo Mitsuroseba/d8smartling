@@ -31,7 +31,7 @@ class SmartlingContentMediaEncodedParser extends SmartlingContentBaseParser {
    * @return array
    *   Return $matches.
    */
-  protected function getContext($matches) {
+  protected function getContext(array $matches) {
     foreach ($matches as $k => $v) {
       $matches[$k] = json_decode(htmlspecialchars_decode($v));
     }

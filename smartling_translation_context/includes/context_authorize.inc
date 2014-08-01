@@ -18,7 +18,7 @@ function smartling_translation_context_authorize() {
 
   $project_id = variable_get('smartling_project_id', '');
   $api_key = variable_get('smartling_key', '');
-  $auth = new ContextAuthorize(new TokenStorage(), $user, $project_id, $api_key);
+  $auth = new SmartlingContextAuthorize(new SmartlingTokenStorage(), $user, $project_id, $api_key);
 
   $params = drupal_get_query_parameters();
   return $auth->authorize($params['projectId'], $params['apiKey'], 'admin');
@@ -35,13 +35,16 @@ function smartling_translation_context_token_expire() {
 
   $project_id = variable_get('smartling_project_id', '');
   $api_key = variable_get('smartling_key', '');
-  $auth = new ContextAuthorize(new TokenStorage(), $user, $project_id, $api_key);
+  $auth = new SmartlingContextAuthorize(new SmartlingTokenStorage(), $user, $project_id, $api_key);
 
   $params = drupal_get_query_parameters();
   return $auth->expireToken($params['token']);
 }
 
-class ContextAuthorize {
+/**
+ * SmartlingContextAuthorize.
+ */
+class SmartlingContextAuthorize {
   protected $tokenStorage;
   protected $user;
   protected $apiKey;
@@ -66,7 +69,7 @@ class ContextAuthorize {
   /**
    * Construct.
    *
-   * @param TokenStorage $storage
+   * @param SmartlingTokenStorage $storage
    *   Storage object.
    * @param object $user
    *   User object.
@@ -75,7 +78,7 @@ class ContextAuthorize {
    * @param string $api_key
    *   API key.
    */
-  public function __construct(TokenStorage $storage, $user, $project_id, $api_key) {
+  public function __construct(SmartlingTokenStorage $storage, $user, $project_id, $api_key) {
     $this->tokenStorage = $storage;
     $this->user = $user;
 
@@ -139,7 +142,7 @@ class ContextAuthorize {
    *   Return response array.
    */
   public function expireToken($token) {
-    if ($data = $this->tokenStorage->getToken($token)) {
+    if ($this->tokenStorage->getToken($token)) {
       $this->tokenStorage->setToken($token, NULL, time() - self::$tokenTtl);
       return array(
         'response' => array(

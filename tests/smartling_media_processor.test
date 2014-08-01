@@ -8,9 +8,9 @@
 use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
 
 /**
- * MockedSmartlingMediaProcessor.
+ * SmartlingMockedMediaProcessor.
  */
-class MockedSmartlingMediaProcessor extends SmartlingContentMediaProcessor {
+class SmartlingMockedMediaProcessor extends SmartlingContentMediaProcessor {
   protected $func1;
   protected $func2;
 
@@ -55,8 +55,7 @@ class MockedSmartlingMediaProcessor extends SmartlingContentMediaProcessor {
 }
 
 /**
- * @file
- * Tests for smartling
+ * SmartlingContentMediaProcessorTest.
  */
 class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
   protected $item;
@@ -102,7 +101,7 @@ class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
       return NULL;
     };
     $item = $this->item;
-    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+    $proc = new SmartlingMockedMediaProcessor($func1, $func2);
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
@@ -122,7 +121,7 @@ class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
       return NULL;
     };
     $item = $this->item;
-    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+    $proc = new SmartlingMockedMediaProcessor($func1, $func2);
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
@@ -145,7 +144,7 @@ class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
       return array($tmp);
     };
     $item = $this->item;
-    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+    $proc = new SmartlingMockedMediaProcessor($func1, $func2);
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
@@ -171,7 +170,7 @@ class SmartlingContentMediaProcessorTest extends \DrupalUnitTestCase {
       return array($tmp, $tmp, $tmp);
     };
     $item = $this->item;
-    $proc = new MockedSmartlingMediaProcessor($func1, $func2);
+    $proc = new SmartlingMockedMediaProcessor($func1, $func2);
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 

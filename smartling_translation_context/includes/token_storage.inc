@@ -6,9 +6,9 @@
  */
 
 /**
- * Class TokenStorage.
+ * Class SmartlingTokenStorage.
  */
-class TokenStorage {
+class SmartlingTokenStorage {
 
   /**
    * Get token.

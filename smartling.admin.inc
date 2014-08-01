@@ -17,8 +17,8 @@ function smartling_admin_configuration_view() {
   // Add ajax library.
   drupal_add_library('system', 'drupal.ajax');
 
-  global $fix_field_settings;
-  $fix_field_settings = array();
+  global $_fix_field_settings;
+  $_fix_field_settings = array();
 
   $output['smartling'] = array(
     '#type' => 'vertical_tabs',
@@ -51,8 +51,8 @@ function smartling_admin_configuration_view() {
     $output['smartling'][] = smartling_wrap_in_fieldset($reference_settings, t('References settings'));
   }
 
-  if (!empty($fix_field_settings) && is_array($fix_field_settings)) {
-    $text = t('Following field(s) should be set as untranslatable for translation: !fields.', array('!fields' => implode(', ', $fix_field_settings)));
+  if (!empty($_fix_field_settings) && is_array($_fix_field_settings)) {
+    $text = t('Following field(s) should be set as untranslatable for translation: !fields.', array('!fields' => implode(', ', $_fix_field_settings)));
     $suffix = '<div id="smartling-untranslatable-fix">' . $text . '</div>';
     $output['fix'] = array(
       '#type' => 'markup',
@@ -445,7 +445,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
   );
 
   $rows = array();
-  global $fix_field_settings;
+  global $_fix_field_settings;
 
   foreach ($raw_types as $value) {
     if (smartling_supported_type('node', $value->type)) {
@@ -458,7 +458,6 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
       }
 
       $fr_fields = array();
-      $need_fix = FALSE;
 
       foreach (field_info_instances('node', $value->type) as $field) {
         $field_label = $field['label'];
@@ -481,8 +480,8 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
           if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
-            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
-              $fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
+            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
+              $_fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }
         }
@@ -734,7 +733,7 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
   );
 
   $rows = array();
-  global $fix_field_settings;
+  global $_fix_field_settings;
 
   foreach ($raw_types as $vocabulary) {
     if (smartling_supported_type('taxonomy_term', $vocabulary->machine_name)) {
@@ -756,7 +755,6 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
       }
 
       $fr_fields = array();
-      $need_fix = array();
       $fr_tt['from'] = array(
         '#type' => 'item',
         '#title' => t('@type', array('@type' => $voc_title)),
@@ -783,8 +781,8 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
           if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
-            if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name) && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field_machine_name, $fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
-              $fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
+            if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name) && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
+              $_fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }
         }

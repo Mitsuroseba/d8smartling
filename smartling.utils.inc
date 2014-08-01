@@ -1083,11 +1083,7 @@ function smartling_entity_translation_get_handler($entity_type, $entity) {
  *   Return handler object.
  */
 function smartling_settings_get_handler() {
-//  $class = 'SmartlingSettingsHandler';
-//  $handler = new $class();
-  //$container = drupal_container();
-  //$handler = $container->get('smartling.settings');
-  return drupal_container()->get('smartling.settings');//$handler;
+  return drupal_container()->get('smartling.settings');
 }
 
 /**
@@ -1097,9 +1093,6 @@ function smartling_settings_get_handler() {
  *   Return handler object.
  */
 function smartling_log_get_handler() {
-//  $container = drupal_container();
-//  $handler = $container->get('smartling.log');
-//  return $handler;
   return drupal_container()->get('smartling.log');
 }
 
@@ -1191,7 +1184,7 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
  * @param string $field_name
  *   Field name.
  *
- * @return boolean
+ * @return bool
  *   Return check result.
  */
 function smartling_is_title_module_field($field_name) {

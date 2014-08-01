@@ -11,9 +11,6 @@
 function smartling_queue_download_update_translated_item_process($entity_data) {
 
   if (smartling_is_configured() && smartling_supported_type($entity_data->entity_type, $entity_data->bundle)) {
-    $log = smartling_log_get_handler();
-    $smartling_settings = smartling_settings_get_handler();
-
     $entity_type = $entity_data->entity_type;
     $d_locale = $entity_data->target_language;
     $rid = $entity_data->rid;

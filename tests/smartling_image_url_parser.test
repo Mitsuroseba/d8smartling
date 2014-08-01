@@ -51,8 +51,7 @@ class MockedSmartlingContentImageUrlProcessor implements SmartlingContentProcess
 }
 
 /**
- * @file
- * Tests for smartling
+ * SmartlingContentImageUrlParserTest.
  */
 class SmartlingContentImageUrlParserTest extends \DrupalUnitTestCase {
   protected $context;

@@ -2,8 +2,9 @@
 
 /**
  * @file
- * Smartling settings handler.
+ * Smartling api wrapper.
  */
+
 namespace Drupal\smartling\ApiWrapper;
 
 /**
@@ -58,7 +59,7 @@ class SmartlingApiWrapper {
   /**
    * Set Smartling API.
    *
-   * @param SmartlingAPI $api
+   * @param \SmartlingAPI $api
    *   Smartling API.
    */
   public function setApi(\SmartlingAPI $api) {
@@ -206,8 +207,9 @@ class SmartlingApiWrapper {
 
     // If true, file translated.
     $response_data = $status_result->response->data;
-    $progress = ($response_data->approvedStringCount == $response_data->completedStringCount || $response_data->approvedStringCount == 0) ?
-      100 : (int) (($response_data->completedStringCount / $response_data->approvedStringCount) * 100);
+    $approved = $response_data->approvedStringCount;
+    $completed = $response_data->completedStringCount;
+    $progress = ($approved == $completed || $approved == 0) ? 100 : (int) (($completed / $approved) * 100);
     $entity->download = 0;
     $entity->progress = $progress;
     $entity->status = SMARTLING_STATUS_IN_TRANSLATE;
