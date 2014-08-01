@@ -67,7 +67,6 @@ function smartling_create_comments_to_nodes() {
   $field['translatable'] = 1;
   field_update_field($field);
 
-  module_load_include('inc', 'devel_generate', 'devel_generate');
   $nodes = node_load_multiple(array(), array(
     'type' => array(
       'article',
@@ -86,12 +85,12 @@ function smartling_create_comments_to_nodes() {
         'is_anonymous' => 0,
         'homepage' => '',
         'status' => COMMENT_PUBLISHED,
-        'subject' => devel_create_greeking(mt_rand(1, 3), TRUE),
+        'subject' => smartling_devel_create_greeking(mt_rand(1, 3), TRUE),
         'language' => DEMO_LANGUAGE_DEFAULT,
         'comment_body' => array(
           DEMO_LANGUAGE_DEFAULT => array(
             0 => array(
-              'value' => devel_create_greeking(mt_rand(2, 17), TRUE),
+              'value' => smartling_devel_create_greeking(mt_rand(2, 17), TRUE),
               'format' => 'filtered_html',
             ),
           ),

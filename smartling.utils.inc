@@ -1250,3 +1250,72 @@ function smartling_dublicate_values_for_fields_method($entity_type, $bundle, $or
 
   return $original_entity;
 }
+
+/**
+ * Copy devel_create_greeking().
+ *
+ * @param int $word_count
+ *   Words count.
+ * @param bool $title
+ *   Is title?
+ *
+ * @return string
+ *   Return random string.
+ */
+function smartling_devel_create_greeking($word_count, $title = FALSE) {
+  $dictionary = array("abbas", "abdo", "abico", "abigo", "abluo", "accumsan",
+    "acsi", "ad", "adipiscing", "aliquam", "aliquip", "amet", "antehabeo",
+    "appellatio", "aptent", "at", "augue", "autem", "bene", "blandit",
+    "brevitas", "caecus", "camur", "capto", "causa", "cogo", "comis",
+    "commodo", "commoveo", "consectetuer", "consequat", "conventio", "cui",
+    "damnum", "decet", "defui", "diam", "dignissim", "distineo", "dolor",
+    "dolore", "dolus", "duis", "ea", "eligo", "elit", "enim", "erat",
+    "eros", "esca", "esse", "et", "eu", "euismod", "eum", "ex", "exerci",
+    "exputo", "facilisi", "facilisis", "fere", "feugiat", "gemino",
+    "genitus", "gilvus", "gravis", "haero", "hendrerit", "hos", "huic",
+    "humo", "iaceo", "ibidem", "ideo", "ille", "illum", "immitto",
+    "importunus", "imputo", "in", "incassum", "inhibeo", "interdico",
+    "iriure", "iusto", "iustum", "jugis", "jumentum", "jus", "laoreet",
+    "lenis", "letalis", "lobortis", "loquor", "lucidus", "luctus", "ludus",
+    "luptatum", "macto", "magna", "mauris", "melior", "metuo", "meus",
+    "minim", "modo", "molior", "mos", "natu", "neo", "neque", "nibh",
+    "nimis", "nisl", "nobis", "nostrud", "nulla", "nunc", "nutus", "obruo",
+    "occuro", "odio", "olim", "oppeto", "os", "pagus", "pala", "paratus",
+    "patria", "paulatim", "pecus", "persto", "pertineo", "plaga", "pneum",
+    "populus", "praemitto", "praesent", "premo", "probo", "proprius",
+    "quadrum", "quae", "qui", "quia", "quibus", "quidem", "quidne", "quis",
+    "ratis", "refero", "refoveo", "roto", "rusticus", "saepius",
+    "sagaciter", "saluto", "scisco", "secundum", "sed", "si", "similis",
+    "singularis", "sino", "sit", "sudo", "suscipere", "suscipit", "tamen",
+    "tation", "te", "tego", "tincidunt", "torqueo", "tum", "turpis",
+    "typicus", "ulciscor", "ullamcorper", "usitas", "ut", "utinam",
+    "utrum", "uxor", "valde", "valetudo", "validus", "vel", "velit",
+    "veniam", "venio", "vereor", "vero", "verto", "vicis", "vindico",
+    "virtus", "voco", "volutpat", "vulpes", "vulputate", "wisi", "ymo",
+    "zelus");
+  $dictionary_flipped = array_flip($dictionary);
+
+  $greeking = '';
+
+  if (!$title) {
+    $words_remaining = $word_count;
+    while ($words_remaining > 0) {
+      $sentence_length = mt_rand(3, 10);
+      $words = array_rand($dictionary_flipped, $sentence_length);
+      $sentence = implode(' ', $words);
+      $greeking .= ucfirst($sentence) . '. ';
+      $words_remaining -= $sentence_length;
+    }
+  }
+  else {
+    // Use slightly different method for titles.
+    $words = array_rand($dictionary_flipped, $word_count);
+    $words = is_array($words) ? implode(' ', $words) : $words;
+    $greeking = ucwords($words);
+  }
+
+  // Work around possible php garbage collection bug. Without an unset(), this
+  // function gets very expensive over many calls (php 5.2.11).
+  unset($dictionary, $dictionary_flipped);
+  return trim($greeking);
+}
