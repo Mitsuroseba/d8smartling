@@ -237,7 +237,19 @@ class SmartlingApiWrapper {
     return $result;
   }
 
-  public function uploadFile($file_path, $file_name_unic, $locales) {
+  /**
+   * Upload file to service.
+   *
+   * @param string $file_path
+   *   File path.
+   * @param string $file_name_unic
+   *   File name.
+   * @param array $locales
+   *   Locales.
+   *
+   * @return string
+   */
+  public function uploadFile($file_path, $file_name_unic, array $locales) {
     $locales_to_approve = array();
     foreach ($locales as $locale) {
       $locales_to_approve[] = $this->convertLocaleDrupalToSmartling($locale);
@@ -257,8 +269,6 @@ class SmartlingApiWrapper {
     }
     $upload_params = $upload_params->buildParameters();
 
-
-
     $upload_result = $this->api->uploadFile($file_path, $upload_params);
     $upload_result = json_decode($upload_result);
 
@@ -275,18 +285,21 @@ class SmartlingApiWrapper {
       return SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE;
     }
     elseif (is_object($upload_result)) {
+      foreach ($upload_params as $param_name => $value) {
+        $upload_params[$param_name] = $param_name . ' => ' . $value;
+      }
       $this->logger->setMessage('Smartling failed to upload xml file: <br/>
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
           Error: response code -> @code and message -> @message
-          Upload aparms: @upload_params')
+          Upload params: @upload_params')
         ->setVariables(array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_path,
           '@code' => $upload_result->response->code,
           '@message' => $upload_result->response->messages[0],
-          '@upload_params' => $upload_params,
+          '@upload_params' => implode(' | ', $upload_params),
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
