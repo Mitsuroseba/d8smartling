@@ -116,15 +116,13 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  if (variable_get('smartling_callback_url_use', TRUE)) {
-    $items['smartling/callback/%'] = array(
-      'title' => 'Smartling push',
-      'type' => MENU_CALLBACK,
-      'page callback' => 'smartling_push_callback',
-      'access callback' => 'smartling_push_callback_access',
-      'access arguments' => array(2),
-    );
-  }
+  $items['smartling/callback/%'] = array(
+    'title' => 'Smartling push',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'smartling_push_callback',
+    'access callback' => 'smartling_push_callback_access',
+    'access arguments' => array(2),
+  );
 
   return $items;
 }
