@@ -132,8 +132,6 @@ class SmartlingApiWrapper {
   /**
    * Get status.
    *
-   * @param object $args
-   *   Arguments.
    * @param object $entity
    *   Smartling transaction entity.
    * @param string $link_to_entity
@@ -250,6 +248,7 @@ class SmartlingApiWrapper {
    *   Locales.
    *
    * @return string
+   *   Return status string.
    */
   public function uploadFile($file_path, $file_name_unic, array $locales) {
     $locales_to_approve = array();

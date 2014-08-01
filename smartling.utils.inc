@@ -823,7 +823,7 @@ function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
     $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
 
-    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
+    $api = drupal_container()->get('smartling.api_wrapper');
     $result = $api->getStatus($entity_data, $link_to_entity);
 
     if (!empty($result)) {
@@ -1250,7 +1250,7 @@ function smartling_dublicate_values_for_fields_method($entity_type, $bundle, $or
  * @param int $word_count
  *   Words count.
  * @param bool $title
- *   Is title?
+ *   TRUE if is title. FALSE by default.
  *
  * @return string
  *   Return random string.

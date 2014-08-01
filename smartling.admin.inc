@@ -264,7 +264,6 @@ function smartling_admin_account_info_settings_form_validate(array $form, array 
     }
   }
 
-
   // Target locales validate.
   if (count(array_filter($form_state['values']['target_locales'])) == 0) {
     drupal_set_message(t('At least one locale must be selected'), 'error');
