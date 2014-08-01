@@ -972,17 +972,7 @@ function smartling_do_translate_action($entity, array $context) {
           }
         }
 
-        $obj = new stdClass();
-        $obj->rid = $entity->nid;
-        $obj->entity_type = $entity_type;
-        $obj->bundle = $entity->type;
-        $obj->title = $entity->title;
-        $obj->original_language = $d_locale_original;
-        $obj->d_locales = $d_locales;
-        $obj->submitter = $user->uid;
-        // Create queue item.
-        $smartling_queue->createItem($obj);
-        unset($obj);
+        $smartling_queue->createItem($entity_data->eid);
       }
       else {
         drupal_set_message(t('Not support type or Smartling configuration problem for content type - @type.', array('@type' => $entity->type)), 'warning');
@@ -1041,17 +1031,8 @@ function smartling_do_translate_action($entity, array $context) {
           }
         }
 
-        $obj = new stdClass();
-        $obj->rid = $tid;
-        $obj->entity_type = $entity_type;
-        $obj->bundle = $entity->vocabulary_machine_name;
-        $obj->title = $entity->name;
-        $obj->original_language = $d_locale_original;
-        $obj->d_locales = $d_locales;
-        $obj->submitter = $user->uid;
         // Create queue item.
-        $smartling_queue->createItem($obj);
-        unset($obj);
+        $smartling_queue->createItem($entity_data->eid);
       }
       else {
         drupal_set_message(t('Not support vocabulary - @vocabulary.', array('@vocabulary' => $entity->vocabulary_machine_name)), 'warning');
@@ -1098,17 +1079,7 @@ function smartling_do_translate_action($entity, array $context) {
           }
         }
 
-        $obj = new stdClass();
-        $obj->rid = $entity->cid;
-        $obj->entity_type = $entity_type;
-        $obj->bundle = $entity->node_type;
-        $obj->title = $entity->subject;
-        $obj->original_language = $d_locale_original;
-        $obj->d_locales = $d_locales;
-        $obj->submitter = $user->uid;
-        // Create queue item.
-        $smartling_queue->createItem($obj);
-        unset($obj);
+        $smartling_queue->createItem($entity_data->eid);
       }
       else {
         drupal_set_message(t('Not support comment - @comment.', array('@comment' => $entity->node_type)), 'warning');
@@ -1155,17 +1126,8 @@ function smartling_do_translate_action($entity, array $context) {
             $d_locales[] = $d_locale;
           }
         }
-        $obj = new stdClass();
-        $obj->rid = $entity->uid;
-        $obj->entity_type = $entity_type;
-        $obj->bundle = 'user';
-        $obj->title = $entity->name;
-        $obj->original_language = $d_locale_original;
-        $obj->d_locales = $d_locales;
-        $obj->submitter = $user->uid;
-        // Create queue item.
-        $smartling_queue->createItem($obj);
-        unset($obj);
+
+        $smartling_queue->createItem($entity_data->eid);
       }
       else {
         drupal_set_message(t('Users do not translatable fields.'), 'warning');

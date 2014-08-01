@@ -216,17 +216,9 @@ function smartling_get_user_settings_form_submit(array $form, array &$form_state
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass();
-    $obj->rid = $account->uid;
-    $obj->entity_type = $form['#entity_type'];
-    $obj->bundle = $form['#bundle'];
-    $obj->title = $account->name;
-    $obj->original_language = $d_locale_origin;
-    $obj->d_locales = $langs;
-    $obj->submitter = $user->uid;
+
     // Create queue item.
-    $smartling_queue->createItem($obj);
-    unset($obj);
+    $smartling_queue->createItem($entity_data->eid);
 
     $log->setMessage('Add smartling queue task for user uid - @uid, locale - @locale')
       ->setVariables(array(

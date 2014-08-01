@@ -63,8 +63,8 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     }
     else {
       $data = unserialize($queue->data);
-      $this->verbose(print_r($data, TRUE));
-      $this->assertEqual($data->rid, 1);
+//      $this->verbose(print_r($data, TRUE));
+      $this->assertEqual($data, 1);
     }
   }
 

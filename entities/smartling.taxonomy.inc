@@ -285,17 +285,9 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass();
-    $obj->rid = $tid;
-    $obj->entity_type = $form['#entity_type'];
-    $obj->bundle = $term->vocabulary_machine_name;
-    $obj->title = $term->name;
-    $obj->original_language = $d_locale_origin;
-    $obj->d_locales = $langs;
-    $obj->submitter = $user->uid;
+
     // Create queue item.
-    $smartling_queue->createItem($obj);
-    unset($obj);
+    $smartling_queue->createItem($entity_data->eid);
     $log->setMessage('Add smartling queue task for term tid - @tid, locale - @locale')
       ->setVariables(array('@tid' => $tid, '@locale' => implode('; ', $langs)))
       ->setLink($link)

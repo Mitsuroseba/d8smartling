@@ -238,17 +238,8 @@ function smartling_get_comment_settings_form_submit(array $form, array &$form_st
         $langs[] = $d_locale;
       }
     }
-    $obj = new stdClass();
-    $obj->rid = $comment->cid;
-    $obj->entity_type = $form['#entity_type'];
-    $obj->bundle = $form['#bundle'];
-    $obj->title = $comment->subject;
-    $obj->original_language = $d_locale_original;
-    $obj->d_locales = $langs;
-    $obj->submitter = $user->uid;
-    // Create queue item.
-    $smartling_queue->createItem($obj);
-    unset($obj);
+
+    $smartling_queue->createItem($entity_data);
     $log->setMessage('Add smartling queue task for comment cid - @cid, locale - @locale')
       ->setVariables(array(
         '@cid' => $comment->cid,

@@ -386,18 +386,10 @@ function smartling_get_node_settings_form_submit(array $form, array &$form_state
           }
         }
       }
-      $obj = new stdClass();
-      $obj->rid = $original_nid;
-      $obj->entity_type = $form['#entity_type'];
-      $obj->bundle = $node->type;
-      $obj->title = $original_title;
-      $obj->original_language = $d_locale_origin;
-      $obj->d_locales = $langs;
-      $obj->submitter = $user->uid;
+
       // Create queue item.
-      $smartling_queue->createItem($obj);
+      $smartling_queue->createItem($entity_data->eid);
       $title = $original_title;
-      unset($obj);
       $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
         ->setVariables(array(
           '@nid' => $original_nid,
