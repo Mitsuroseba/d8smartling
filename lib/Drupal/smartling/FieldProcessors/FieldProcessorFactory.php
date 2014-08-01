@@ -33,7 +33,7 @@ class FieldProcessorFactory {
    * @param $entity
    * @return BaseFieldProcessor
    */
-  public static function getProcessor($field_name, $entity_type, $entity) {
+  public static function getProcessor($field_name, $entity) {
     $field_info = field_info_field($field_name);
 
     if ($field_info) {
@@ -66,6 +66,6 @@ class FieldProcessorFactory {
 
     $class_name = self::$namespace . self::$fields_mapping[$type];
 
-    return new $class_name($entity, $entity_type, $language, $field_name);
+    return new $class_name($entity, $language, $field_name);
   }
 }

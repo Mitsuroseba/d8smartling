@@ -484,15 +484,15 @@ function smartling_get_entity_processor($smartling_entity, $locale, $log) {
   // @TODO move it to EntityProcessorFactory.
   switch ($smartling_entity->entity_type) {
     case 'node':
-      return new NodeProcessor($smartling_entity, $locale, $log);
+      return new NodeProcessor($smartling_entity, $log);
       break;
 
     case 'taxonomy_term':
-      return new TaxonomyTermProcessor($smartling_entity, $locale, $log);
+      return new TaxonomyTermProcessor($smartling_entity, $log);
       break;
 
     default:
-      return new BaseEntityProcessor($this, $locale, $log);
+      return new BaseEntityProcessor($this, $log);
       break;
   }
 }

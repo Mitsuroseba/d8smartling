@@ -26,10 +26,10 @@ class BaseEntityProcessor {
 
   protected $ifFieldMethod;
 
-  public function __construct($entity, $locale, $log) {
+  public function __construct($entity, $log) {
     $this->entity = $entity;
-    $this->drupalLocale = reset($locale);
-    $this->originalLocale = smartling_convert_locale_drupal_to_smartling(reset($locale));
+    $this->drupalLocale = $entity->target_language;
+    $this->originalLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
     $this->relatedId = $entity->rid;
     $this->log = $log;
   }
@@ -95,6 +95,8 @@ class BaseEntityProcessor {
 
     $this->originalEntity->save();
   }
+
+//  public function importSmartlingXML()
 
   public function exportContentToTranslation() {
     $this->prepareOriginalEntity();
