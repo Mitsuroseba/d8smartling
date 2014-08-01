@@ -453,42 +453,12 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
   $file_type = 'original';
 
-  if (is_dir($directory) && is_writable($directory)) {
-    $xml_doc->save($path);
-
-    if ($translated_file == TRUE) {
-      $file_type = 'translated';
-    }
-
-    if (is_array($d_locale)) {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale),
-        ))
-        ->setLink(l(t('View file'), $path))
-        ->execute();
-    }
-    else {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale,
-        ))
-        ->setLink(l(t('View file'), $path))
-        ->execute();
-    }
-
-    if (!is_null($rid)) {
-      smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file, $entity_type);
-    }
-    return $xml_doc;
+  if (!is_dir($directory) || !is_writable($directory)) {
+    drupal_mkdir($directory);
+    drupal_chmod($directory);
   }
-  elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
+
+  if (is_dir($directory) && is_writable($directory)) {
     $xml_doc->save($path);
 
     if ($translated_file == TRUE) {
