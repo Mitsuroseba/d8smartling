@@ -276,49 +276,25 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  *   Entity type.
  */
 function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file = FALSE, $entity_type = '') {
-  if (is_array($d_locale)) {
-    if (!$translated_file) {
-      foreach ($d_locale as $value) {
-        $entity_data = smartling_entity_load_by_conditions(array(
-          'rid' => $rid,
-          'entity_type' => $entity_type,
-          'target_language' => $value,
-        ));
-        $entity_data->file_name = $file_name;
-        smartling_entity_data_save($entity_data);
-      }
-    }
-    else {
-      foreach ($d_locale as $value) {
-        $entity_data = smartling_entity_load_by_conditions(array(
-          'rid' => $rid,
-          'entity_type' => $entity_type,
-          'target_language' => $value,
-        ));
-        $entity_data->translated_file_name = $file_name;
-        smartling_entity_data_save($entity_data);
-      }
-    }
+  if (!is_array($d_locale)) {
+    array($d_locale);
   }
-  else {
-    if (!$translated_file) {
-      $entity_data = smartling_entity_load_by_conditions(array(
-        'rid' => $rid,
-        'entity_type' => $entity_type,
-        'target_language' => $d_locale,
-      ));
-      $entity_data->file_name = $file_name;
-      smartling_entity_data_save($entity_data);
+
+  foreach ($d_locale as $value) {
+    $entity_data = smartling_entity_load_by_conditions(array(
+      'rid' => $rid,
+      'entity_type' => $entity_type,
+      'target_language' => $value,
+    ));
+
+    if ($translated_file) {
+      $entity_data->translated_file = $file_name;
     }
     else {
-      $entity_data = smartling_entity_load_by_conditions(array(
-        'rid' => $rid,
-        'entity_type' => $entity_type,
-        'target_language' => $d_locale,
-      ));
-      $entity_data->translated_file_name = $file_name;
-      smartling_entity_data_save($entity_data);
+      $entity_data->file_name = $file_name;
     }
+
+    smartling_entity_data_save($entity_data);
   }
 }
 
