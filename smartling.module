@@ -627,35 +627,42 @@ function smartling_views_api() {
  * Implements hook_cron().
  */
 function smartling_cron() {
-  $check_queue = db_select('smartling_entity_data', 'sed')
-    ->fields('sed', array(
-      'eid',
-      'rid',
-      'entity_type',
-      'bundle',
-      'file_name',
-      'target_language',
-      'status',
-    ))
-    ->condition('sed.progress', 100, '<>')
-    ->condition('sed.target_language', 'original', '<>')
-    ->execute()
-    ->fetchAll();
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'smartling_entity_data')
+    ->propertyCondition('progress', 100, '<>')
+    // @TODO move 'original' to constant.
+    ->propertyCondition('target_language', 'original', '<>')
+    ->execute();
+//  $check_queue = db_select('smartling_entity_data', 'sed')
+//    ->fields('sed', array(
+//      'eid',
+//      'rid',
+//      'entity_type',
+//      'bundle',
+//      'file_name',
+//      'target_language',
+//      'status',
+//    ))
+//    ->condition('sed.progress', 100, '<>')
+//    ->condition('sed.target_language', 'original', '<>')
+//    ->condition('sed.file_name', '', '!=')
+//    ->execute()
+//    ->fetchAllAssoc('eid');
 
-  if (!empty($check_queue)) {
+  if (!empty($entities['smartling_entity_data'])) {
     $log = smartling_log_get_handler();
     $smartling_queue = DrupalQueue::get('smartling_check_status');
     $smartling_queue->createQueue();
-    foreach ($check_queue as $queue_item) {
+    foreach (array_keys($entities['smartling_entity_data']) as $eid => $queue_item) {
       if (!empty($queue_item->file_name)) {
-        $obj = new stdClass();
-        $obj->eid = $queue_item->eid;
-        $obj->rid = $queue_item->rid;
-        $obj->entity_type = $queue_item->entity_type;
-        $obj->bundle = $queue_item->bundle;
-        $obj->d_locale = $queue_item->target_language;
+//        $obj = new stdClass();
+//        $obj->eid = $queue_item->eid;
+//        $obj->rid = $queue_item->rid;
+//        $obj->entity_type = $queue_item->entity_type;
+//        $obj->bundle = $queue_item->bundle;
+//        $obj->d_locale = $queue_item->target_language;
 
-        $smartling_queue->createItem($obj);
+        $smartling_queue->createItem($eid);
         $log->setMessage('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
           ->setVariables(array(
             '@eid' => $queue_item->eid,
@@ -663,7 +670,7 @@ function smartling_cron() {
             '@entity_type' => $queue_item->entity_type,
           ))
           ->execute();
-        unset($obj);
+//        unset($obj);
       }
       else {
         if ($queue_item->status != 0) {

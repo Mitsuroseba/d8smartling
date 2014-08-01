@@ -42,17 +42,19 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
 /**
  * Worker callback defined in hook_cron_queue_info().
  */
-function smartling_queue_check_status_process($args) {
+function smartling_queue_check_status_process($eid) {
+  $smartling_entity = entity_load_single('smartling_entity_data', $eid);
+
   if (smartling_is_configured()) {
-    $link_to_entity = smartling_get_link_to_entity($args->rid, $args->entity_type);
-    $entity_data = smartling_entity_load_by_conditions(array(
-      'eid' => $args->eid,
-      'rid' => $args->rid,
-      'target_language' => $args->d_locale,
-    ));
+    $link_to_entity = smartling_get_link_to_entity($smartling_entity->rid, $smartling_entity->entity_type);
+//    $entity_data = smartling_entity_load_by_conditions(array(
+//      'eid' => $smartling_entity->eid,
+//      'rid' => $smartling_entity->rid,
+//      'target_language' => $smartling_entity->d_locale,
+//    ));
 
     $api = drupal_container()->get('smartling.api_wrapper');
-    $result = $api->getStatus($entity_data, $link_to_entity);
+    $result = $api->getStatus($smartling_entity, $link_to_entity);
 
     if (!empty($result)) {
       if ($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) {
