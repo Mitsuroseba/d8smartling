@@ -30,3 +30,7 @@
 #smartling_fieldset .lang-status.status-changed {
     background-position: 0 -48px;
 }
+
+#smartling_fieldset .lang-status.status-failed {
+    background-position: 0 -48px;
+}
