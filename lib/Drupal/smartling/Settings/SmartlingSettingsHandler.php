@@ -493,7 +493,7 @@ class SmartlingSettingsHandler {
   /**
    * Get smartling log mode.
    *
-   * @return bool
+   * @return int
    *   Return smarling log mode.
    */
   public function getLogMode() {
@@ -507,7 +507,7 @@ class SmartlingSettingsHandler {
    *   1 if log mode ON. 1 by default.
    */
   public function setLogMode($log_mode = 1) {
-    $this->logMode = $log_mode;
+    $this->logMode = (int) $log_mode;
     $this->variableSet('smartling_log', $this->logMode);
   }
 
