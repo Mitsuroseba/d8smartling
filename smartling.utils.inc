@@ -480,7 +480,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   }
 }
 
-function smartling_get_entity_processor($smartling_entity, $locale, $log) {
+function smartling_get_entity_processor($smartling_entity, $log) {
   // @TODO move it to EntityProcessorFactory.
   switch ($smartling_entity->entity_type) {
     case 'node':
@@ -521,7 +521,7 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
     'entity_type' => $entity_type,
     'target_language' => $d_locale,
   ));
-  $processor = smartling_get_entity_processor($smartling_entity, $d_locale, $log);
+  $processor = smartling_get_entity_processor($smartling_entity, $log);
   $content_to_translate = $processor->exportContentToTranslation();
 
 //  $content_to_translate = array();
@@ -737,7 +737,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
 
         // If result is saved.
         if (is_object($save)) {
-          smartling_update_translated_fields($rid, $d_locale, $entity_data->entity_type, $entity_data->bundle);
+          smartling_update_translated_fields($entity_data);
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);
           drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
@@ -1189,7 +1189,7 @@ function smartling_is_title_module_field($field_name) {
 }
 
 /**
- * Set dublicate values for fields method.
+ * Set duplicated values for fields method.
  *
  * We need to duplicate the original value in the first cell of
  * a target language for the fields that are
@@ -1206,14 +1206,16 @@ function smartling_is_title_module_field($field_name) {
  * @param array $fields
  *   Fields in smartling settings for entity.
  *
+ * @deprecated
+ *
  * @return object
  *   Return entity object.
  */
-function smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, array $fields) {
+function smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, array $fields) {
   $field_info_instances = field_info_instances($entity_type, $bundle);
   $need_save = FALSE;
   foreach ($field_info_instances as $field) {
-    if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name']) && isset($original_entity->{$field['field_name']})) {
+    if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $entity_type) && isset($original_entity->{$field['field_name']})) {
       $need_save = TRUE;
       $original_lang = entity_language($entity_type, $original_entity);
       $original_entity->{$field['field_name']}[$d_locale] = $original_entity->{$field['field_name']}[$original_lang];

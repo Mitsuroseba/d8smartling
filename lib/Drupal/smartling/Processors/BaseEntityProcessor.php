@@ -26,11 +26,14 @@ class BaseEntityProcessor {
 
   protected $ifFieldMethod;
 
+  protected $isOriginalEntityPrepared;
+
   public function __construct($entity, $log) {
     $this->entity = $entity;
     $this->drupalLocale = $entity->target_language;
     $this->originalLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
     $this->relatedId = $entity->rid;
+    $this->ifFieldMethod = smartling_fields_method($this->originalEntity->bundle);
     $this->log = $log;
   }
 
@@ -38,7 +41,10 @@ class BaseEntityProcessor {
    * Should be overriden for node and term.
    */
   public function prepareOriginalEntity() {
-    $this->originalEntity = entity_load($this->entity->bundle, array($this->entity->rid));
+    if (!$this->isOriginalEntityPrepared) {
+      $this->originalEntity = entity_load($this->entity->bundle, array($this->entity->rid));
+      $this->isOriginalEntityPrepared = TRUE;
+    }
   }
 
   public function updateTranslation() {
@@ -102,7 +108,7 @@ class BaseEntityProcessor {
     $this->prepareOriginalEntity();
     $node_current_translatable_content = array();
 
-    foreach (smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle) as $field_name) {
+    foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
       $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
 
@@ -112,5 +118,30 @@ class BaseEntityProcessor {
     }
 
     return $node_current_translatable_content;
+  }
+
+  public function getConfiguredFields() {
+    return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
+  }
+
+  public function fillFieldFromOriginalLanguage() {
+    $this->prepareOriginalEntity();
+
+    if ($this->ifFieldMethod) {
+      $field_info_instances = field_info_instances($this->originalEntityType, $this->originalEntity->bundle);
+      $fields = $this->getConfiguredFields();
+      $need_save = FALSE;
+      foreach ($field_info_instances as $field) {
+        if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->originalEntityType) && isset($this->originalEntity->{$field['field_name']})) {
+          $need_save = TRUE;
+          $original_lang = entity_language($entity_type, $original_entity);
+          $this->originalEntity->{$field['field_name']}[$this->drupalLocale] = $this->originalEntity->{$field['field_name']}[$original_lang];
+        }
+      }
+      if ($need_save) {
+        $function_name = $this->originalEntityType . '_save';
+        $function_name($this->originalEntity);
+      }
+    }
   }
 }

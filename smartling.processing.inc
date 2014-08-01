@@ -4,6 +4,7 @@
  * @file
  * Processing functions for Smartling module.
  */
+use Drupal\smartling\Processors\BaseEntityProcessor;
 
 /**
  * Get field processing mode.
@@ -463,24 +464,22 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
  * @param string $bundle
  *   Entity bundle.
  */
-function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL, $bundle = NULL) {
+function smartling_update_translated_fields($smartling_entity) {
   $log = smartling_log_get_handler();
   $log->setMessage('Smartling starts update fields of entity @entity_type, id - @rid. Locale: @locale')
     ->setVariables(array(
-      '@entity_type' => $entity_type,
-      '@rid' => $rid,
-      '@locale' => $d_locale,
+      '@entity_type' => $smartling_entity->entity_type,
+      '@rid' => $smartling_entity->rid,
+      '@locale' => $smartling_entity->target_language,
     ))
     ->setSeverity(WATCHDOG_DEBUG)
     ->execute();
 
-  if (smartling_supported_type($entity_type, $bundle)) {
+  if (smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
+    /* @var $processor BaseEntityProcessor */
+    $processor = smartling_get_entity_processor($smartling_entity, $log);
     $smartling_settings = smartling_settings_get_handler();
-    $entity_data = smartling_entity_load_by_conditions(array(
-      'rid' => $rid,
-      'entity_type' => $entity_type,
-      'target_language' => $d_locale,
-    ));
+
     $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
 
     // Get field names for entity.

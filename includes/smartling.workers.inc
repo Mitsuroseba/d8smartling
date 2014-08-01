@@ -33,7 +33,7 @@ function smartling_queue_download_update_translated_item_process($eid) {
 
       $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_type);
       if (is_object($save)) {
-        smartling_update_translated_fields($rid, $d_locale, $entity_type, $smartling_entity->bundle);
+        smartling_update_translated_fields($smartling_entity);
       }
     }
   }
