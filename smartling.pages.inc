@@ -47,7 +47,6 @@ function smartling_manual_management_form($form, $form_state) {
 }
 
 function smartling_manual_management_form_submit($form, $form_state) {
-  global $user;
   $log = smartling_log_get_handler();
 
   if ($form_state['values']['operation'] == 'upload') {
@@ -55,23 +54,18 @@ function smartling_manual_management_form_submit($form, $form_state) {
     $entity = entity_load_single($form_state['values']['entity_type'], $form_state['values']['entity_id']);
     /* var $entity EntityDrupalWrapper */
     $wrapper = entity_metadata_wrapper($form_state['values']['entity_type'], $entity);
-    $obj = new stdClass();
-    $obj->rid = $wrapper->getIdentifier();
-    $obj->entity_type = $wrapper->type();
-    $obj->bundle = $wrapper->getBundle();
-    $obj->title = $wrapper->label();
-    $obj->original_language = entity_language($wrapper->type(), $entity);
-    $obj->d_locales = array($form_state['values']['language']);
-    $obj->submitter = $user->uid;
+    $smartling_data = smartling_entity_load_by_conditions(array(
+      'rid' => $wrapper->getIdentifier(),
+      'target_language' => $form_state['values']['language'],
+    ));
     $log->setMessage('Smartling start send to translate action for node id - @nid (@d_locales).')
       ->setVariables(array(
-        '@nid' => $obj->rid,
+        '@nid' => $wrapper->getIdentifier(),
         '@s_locales' => implode('; ', array($form_state['values']['language'])),
       ))
       // @TODO remove this ugly hardcode.
       ->setLink(l(t('Edit node'), 'node/' . $wrapper->getIdentifier() . '/edit'))
       ->execute();
-    smartling_queue_send_to_translate_process($obj);
-    unset($obj);
+    smartling_queue_send_to_translate_process($smartling_data->eid);
   }
 }

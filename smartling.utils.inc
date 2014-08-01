@@ -481,6 +481,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 }
 
 function smartling_get_entity_processor($smartling_entity, $locale, $log) {
+  // @TODO move it to EntityProcessorFactory.
   switch ($smartling_entity->entity_type) {
     case 'node':
       return new NodeProcessor($smartling_entity, $locale, $log);
