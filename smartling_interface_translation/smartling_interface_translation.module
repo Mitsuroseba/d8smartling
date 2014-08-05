@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * @file
+ * Smartling interface translation.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function smartling_interface_translation_menu() {
+  $menu = array();
+
+  $menu['admin/config/regional/translate/smartling-translate'] = array(
+    'title' => 'Smartling translate',
+    'weight' => 90,
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'smartling_interface_translation_screen',
+    'access arguments' => array('translate interface'),
+  );
+
+  return $menu;
+}
+
+/**
+ * Smartling translate screen.
+ */
+function smartling_interface_translation_screen() {
+  $elements = drupal_get_form('smartling_interface_translation_form');
+  $output = drupal_render($elements);
+
+  if (variable_get('smartling_interface_translation_exported', FALSE)) {
+    $elements = drupal_get_form('smartling_interface_translation_import_form');
+    $output .= drupal_render($elements);
+  }
+  return $output;
+}
+
+/**
+ * Return form for smartling interface translation.
+ *
+ * @return array
+ *   Return FAPI array for smartling interface translation.
+ */
+function smartling_interface_translation_form() {
+  // Complete template export of the strings
+  $form['export_title'] = array('#type' => 'item',
+    '#title' => t('Export template'),
+    '#description' => t('Generate a Gettext Portable Object Template (<em>.pot</em>) file with all strings from the Drupal locale database and upload file to Smartling. Text group: Built-in interface.'),
+  );
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#name' => 'export_to_smartling', '#value' => t('Export to Smartling'));
+  $form['#submit'][] = 'smartling_interface_translation_form_submit';
+  return $form;
+}
+
+/**
+ * Validate result from smartling_interface_translation_form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
+function smartling_interface_translation_form_validate(array $form, array &$form_state) {
+  if (!smartling_is_configured()) {
+    form_set_error('submit', t('Smartling not configured!'));
+  }
+}
+
+/**
+ * Process result from smartling_interface_translation_form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
+function smartling_interface_translation_form_submit(array $form, array &$form_state) {
+  if ($form_state['triggering_element']['#name'] == 'export_to_smartling') {
+    $language = NULL;
+    $file_name = 'smartling_interface_translation.pot';
+    $file_name_unic = $file_name;
+    $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
+    $output = _locale_export_po_generate($language, _locale_export_get_strings($language, 'default'));
+    $save = smartling_interface_translation_save_pot($output, $file_name);
+
+    if ($save) {
+      // Init api object.
+      $api = drupal_container()->get('smartling.api_wrapper');
+      $result_status = $api->uploadPotFile($file_path, $file_name_unic);
+      if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
+        variable_set('smartling_interface_translation_exported', TRUE);
+      }
+    }
+  }
+}
+
+/**
+ * Return form for smartling interface import translation.
+ *
+ * @return array
+ *   Return FAPI array for smartling interface import translation.
+ */
+function smartling_interface_translation_import_form() {
+  $form['import_title'] = array('#type' => 'item',
+    '#title' => t('Import from Smartling'),
+    '#description' => t('Download a Gettext Portable Object Template (<em>.pot</em>) file with translated strings from the Smartling and import this data to Drupal locale database.'),
+  );
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#name' => 'import_from_smartling', '#value' => t('Import from Smartling'));
+  $form['#submit'][] = 'smartling_interface_translation_import_form_submit';
+  return $form;
+}
+
+/**
+ * Process result from smartling_interface_translation_import_form.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
+function smartling_interface_translation_import_form_submit(array $form, array &$form_state) {
+  if ($form_state['triggering_element']['#name'] == 'import_from_smartling') {
+
+  }
+}
+
+function smartling_interface_translation_save_pot($content, $file_name = 'smartling_interface_translation.pot', $translated_file = FALSE) {
+  $log = smartling_log_get_handler();
+  $directory = smartling_get_dir();
+  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
+  $file_type = 'original';
+
+  if (is_dir($directory) && is_writable($directory)) {
+    $save = file_unmanaged_save_data($content, $path, FILE_EXISTS_REPLACE);
+
+    if ($translated_file == TRUE) {
+      $file_type = 'translated';
+    }
+
+    if ($save) {
+      $log->setMessage('Smartling saves @file_type smartling_interface_translation.pot file.')
+        ->setVariables(array(
+          '@file_type' => $file_type,
+        ))
+        ->setLink(l(t('View file'), $save))
+        ->execute();
+
+      return TRUE;
+    }
+  }
+  elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
+    $save = file_unmanaged_save_data($content, $path, FILE_EXISTS_REPLACE);
+
+    if ($translated_file == TRUE) {
+      $file_type = 'translated';
+    }
+
+    if ($save) {
+      $log->setMessage('Smartling saves @file_type smartling_interface_translation.pot file.')
+        ->setVariables(array(
+          '@file_type' => $file_type,
+        ))
+        ->setLink(l(t('View file'), $save))
+        ->execute();
+
+      return TRUE;
+    }
+  }
+  else {
+    $log->setMessage('Smartling (.pot) file was not saved because of some errors.')
+      ->setConsiderLog(FALSE)
+      ->setSeverity(WATCHDOG_ERROR)
+      ->execute();
+    drupal_set_message(t('File (.pot) was not saved because of some errors.'), 'error');
+    return FALSE;
+  }
+}
