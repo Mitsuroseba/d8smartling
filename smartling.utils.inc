@@ -790,24 +790,17 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
  *   Return xml dom from downloaded file.
  */
 function smartling_download_file($entity_data) {
-  $file_name_unic = $entity_data->file_name;
-  $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
-  $smartling_settings = smartling_settings_get_handler();
+  $api = drupal_container()->get('smartling.api_wrapper');
+  $download_result = $api->downloadFile($entity_data);
 
-  // Init api object.
-  $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
+  if ($download_result) {
+    $xml = new DOMDocument();
+    $xml->loadXML($download_result);
 
-  $download_param = array(
-    'retrievalType' => $smartling_settings->getRetrievalType(),
-  );
+    return $xml;
+  }
 
-  // Try to download file.
-  $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-  // This is a download result.
-  $xml = new DOMDocument();
-  $xml->loadXML($download_result);
-
-  return $xml;
+  return FALSE;
 }
 
 /**
