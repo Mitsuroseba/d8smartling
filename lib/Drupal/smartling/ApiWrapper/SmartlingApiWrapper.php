@@ -77,7 +77,7 @@ class SmartlingApiWrapper {
    * @return \DOMDocument
    *   Return xml dom from downloaded file.
    */
-  public function downloadFile($entity, $link_to_entity) {
+  public function downloadFile($entity) {
     $entity_type = $entity->entity_type;
     $d_locale = $entity->target_language;
     $file_name_unic = $entity->file_name;
@@ -119,7 +119,6 @@ class SmartlingApiWrapper {
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
         ->execute();
 
       return FALSE;
@@ -140,7 +139,7 @@ class SmartlingApiWrapper {
    * @return array|null
    *   Return status.
    */
-  public function getStatus($entity, $link_to_entity) {
+  public function getStatus($entity) {
     $error_result = NULL;
 
     if ($entity === FALSE) {
@@ -148,7 +147,6 @@ class SmartlingApiWrapper {
         ->setVariables(array('@rid' => $entity->rid))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
         ->execute();
 
       return $error_result;
@@ -186,7 +184,6 @@ class SmartlingApiWrapper {
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link_to_entity)
         ->execute();
 
       return $error_result;
