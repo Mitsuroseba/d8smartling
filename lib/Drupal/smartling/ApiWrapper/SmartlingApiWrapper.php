@@ -225,9 +225,20 @@ class SmartlingApiWrapper {
       if ($locale !== 0 && $locale == $key) {
         $s_locale = $this->convertLocaleDrupalToSmartling($locale);
         // Init api object.
-        $this->api->getList($s_locale, array('limit' => 1));
+        $server_response = $this->api->getList($s_locale, array('limit' => 1));
 
-        $result[$s_locale] = $this->api->getCodeStatus() == 'SUCCESS';
+        if ($this->api->getCodeStatus() == 'SUCCESS') {
+          $result[$s_locale] = TRUE;
+        }
+        else {
+          $this->logger->setMessage('Connection test for project: @project_id and locale: @locale FAILED and returned the following result: @server_response.')
+            ->setVariables(array(
+              '@project_id' => $this->settingsHandler->getProjectId(),
+              '@locale' => $key,
+              '@server_response' => $server_response,
+            ))
+            ->execute();
+        }
       }
     }
 
