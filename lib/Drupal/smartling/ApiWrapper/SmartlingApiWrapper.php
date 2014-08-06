@@ -178,7 +178,7 @@ class SmartlingApiWrapper {
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
         ->execute();
-      drupal_set_message($download_result->response->messages[0], 'warning');
+      drupal_set_message(t('Download .po file: @message', array('@message' => $download_result->response->messages[0])), 'warning');
 
       return FALSE;
     }
@@ -317,7 +317,7 @@ class SmartlingApiWrapper {
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
         ->execute();
-      drupal_set_message($status_result->response->messages[0], 'warning');
+      drupal_set_message(t('Get progress: @message', array('@message' => $status_result->response->messages[0])), 'warning');
 
       return $error_result;
     }

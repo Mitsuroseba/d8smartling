@@ -234,30 +234,33 @@ function smartling_interface_translation_import_form() {
 function smartling_interface_translation_import_form_submit(array $form, array &$form_state) {
   if ($form_state['triggering_element']['#name'] == 'import_from_smartling') {
     global $user;
+    $smartling_interface_translation_info = variable_get('smartling_interface_translation_info', array());
     $langcode = $form_state['values']['langcode'];
     $group = $form_state['values']['group'];
     $file_name = 'smartling_interface_translation_' . $group . '_' . $langcode . '.po';
 
-    // Init api object.
-    $api = drupal_container()->get('smartling.api_wrapper');
-    $download_result = $api->downloadPoFile($file_name, $langcode);
-    if ($download_result !== FALSE) {
-      $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
-      $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
-      if ($uri) {
-        // Create a file object.
-        $file = new stdClass();
-        $file->fid = NULL;
-        $file->uri = $uri;
-        $file->filename = drupal_basename($uri);
-        $file->filemime = file_get_mimetype($file->uri);
-        $file->uid = $user->uid;
-        $file->status = FILE_STATUS_PERMANENT;
-        $file = file_save($file);
+    if (isset($smartling_interface_translation_info[$file_name]) && ($smartling_interface_translation_info[$file_name] == $langcode)) {
+      // Init api object.
+      $api = drupal_container()->get('smartling.api_wrapper');
+      $download_result = $api->downloadPoFile($file_name, $langcode);
+      if ($download_result !== FALSE) {
+        $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
+        $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
+        if ($uri) {
+          // Create a file object.
+          $file = new stdClass();
+          $file->fid = NULL;
+          $file->uri = $uri;
+          $file->filename = drupal_basename($uri);
+          $file->filemime = file_get_mimetype($file->uri);
+          $file->uid = $user->uid;
+          $file->status = FILE_STATUS_PERMANENT;
+          $file = file_save($file);
+        }
       }
-    }
-    else {
-      return;
+      else {
+        return;
+      }
     }
 
     if (!empty($file->fid)) {
