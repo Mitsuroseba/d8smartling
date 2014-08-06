@@ -128,6 +128,64 @@ class SmartlingApiWrapper {
     return $download_result;
   }
 
+  /**
+   * Download (.po) file from service.
+   *
+   * @param string $file_name
+   *   File name.
+   * @param string $target_language
+   *   Target language.
+   *
+   * @return mixed
+   *   Return FALSE or file content.
+   */
+  public function downloadPoFile($file_name, $target_language) {
+    $file_name_unic = $file_name;
+    $file_path = $this->settingsHandler->getDir($file_name);
+
+    $retrieval_type = $this->settingsHandler->variableGet('smartling_retrieval_type', 'published');
+    $download_param = array(
+      'retrievalType' => $retrieval_type,
+    );
+
+    $this->logger->setMessage('Smartling start download .po file, locale - @locale.')
+      ->setVariables(array(
+        '@locale' => $target_language,
+      ))
+      ->setLink(l(t('View file'), $file_path))
+      ->execute();
+
+    $s_locale = $this->convertLocaleDrupalToSmartling($target_language);
+    // Try to download file.
+    $download_result = $this->api->downloadFile($file_name_unic, $s_locale, $download_param);
+
+    if (isset($download_result->response->code)) {
+      $download_result = json_decode($download_result);
+
+      $this->logger->setMessage('smartling_queue_download_update_translated_item_process try to download file:<br/>
+      Project Id: @project_id <br/>
+      Action: download <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message')
+        ->setVariables(array(
+          '@project_id' => $this->settingsHandler->getProjectId(),
+          '@file_uri' => $file_name_unic,
+          '@s_locale' => $s_locale,
+          '@code' => $download_result->response->code,
+          '@message' => $download_result->response->messages[0],
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->execute();
+      drupal_set_message($download_result->response->messages[0], 'warning');
+
+      return FALSE;
+    }
+
+    return $download_result;
+  }
+
 
   /**
    * Get status.
@@ -216,6 +274,70 @@ class SmartlingApiWrapper {
       'entity_data' => $entity,
       'response_data' => $status_result->response->data,
     );
+  }
+
+  /**
+   * Get (.po) progress.
+   *
+   * @param string $file_name
+   *   File name.
+   * @param string $target_language
+   *   Target locale.
+   *
+   * @return int|bool
+   *   Return progress.
+   */
+  public function getPoProgress($file_name, $target_language) {
+    $error_result = FALSE;
+
+    $file_name = $file_name;
+    $file_name_unic = $file_name;
+    $file_uri = smartling_clean_filename($this->settingsHandler->getDir() . '/' . $file_name, TRUE);
+
+    $s_locale = $this->convertLocaleDrupalToSmartling($target_language);
+    // Try to retrieve file status.
+    $status_result = $this->api->getStatus($file_name_unic, $s_locale);
+    $status_result = json_decode($status_result);
+
+    // This is a get status.
+    if (($this->api->getCodeStatus() != 'SUCCESS') || !isset($status_result->response->data)) {
+      $this->logger->setMessage('Smartling checks progress for .po file: <br/>
+      Project Id: @project_id <br/>
+      Action: progress <br/>
+      URI: @file_uri <br/>
+      Locale: @d_locale <br/>
+      Error: response code -> @code and message -> @message')
+        ->setVariables(array(
+          '@project_id' => $this->settingsHandler->getProjectId(),
+          '@file_uri' => $file_name_unic,
+          '@d_locale' => $target_language,
+          '@code' => $status_result->response->code,
+          '@message' => $status_result->response->messages[0],
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->execute();
+      drupal_set_message($status_result->response->messages[0], 'warning');
+
+      return $error_result;
+    }
+
+    $this->logger->setMessage('Smartling checks progress for .po file (@d_locale). approvedString = @as, completedString = @cs')
+      ->setVariables(array(
+        '@d_locale' => $target_language,
+        '@as' => $status_result->response->data->approvedStringCount,
+        '@cs' => $status_result->response->data->completedStringCount,
+      ))
+      ->setLink(l(t('View file'), $file_uri))
+      ->execute();
+
+    // If true, file translated.
+    $response_data = $status_result->response->data;
+    $approved = $response_data->approvedStringCount;
+    $completed = $response_data->completedStringCount;
+    $progress = ($approved == $completed || $approved == 0) ? 100 : (int) (($completed / $approved) * 100);
+
+    return $progress;
   }
 
   /**
@@ -311,21 +433,27 @@ class SmartlingApiWrapper {
   }
 
   /**
-   * Upload pot file to service.
+   * Upload .po file to service.
    *
    * @param string $file_path
    *   File path.
    * @param string $file_name_unic
    *   File name.
+   * @param string $locale
+   *   Drupal locale.
    *
    * @return string
    *   Return status string.
    */
-  public function uploadPotFile($file_path, $file_name_unic) {
+  public function uploadPoFile($file_path, $file_name_unic, $locale) {
+    $locales_to_approve[] = $this->convertLocaleDrupalToSmartling($locale);
+
     $upload_params = new \FileUploadParameterBuilder();
     $upload_params->setFileUri($file_name_unic)
       ->setFileType('gettext')
-      ->setApproved(0);
+      ->setApproved(0)
+      ->setLocalesToApprove($locales_to_approve)
+      ->setOverwriteApprovedLocales(0);
 
     $upload_params = $upload_params->buildParameters();
 
@@ -334,9 +462,10 @@ class SmartlingApiWrapper {
 
     if ($this->api->getCodeStatus() == 'SUCCESS') {
 
-      $this->logger->setMessage('Smartling uploaded @file_name.')
+      $this->logger->setMessage('Smartling uploaded @file_name for locale: @locales')
         ->setVariables(array(
           '@file_name' => $file_name_unic,
+          '@locale' => $locale,
         ))
         ->setLink(l(t('View file'), $file_path))
         ->execute();
@@ -347,7 +476,7 @@ class SmartlingApiWrapper {
       foreach ($upload_params as $param_name => $value) {
         $upload_params[$param_name] = $param_name . ' => ' . $value;
       }
-      $this->logger->setMessage('Smartling failed to upload pot file: <br/>
+      $this->logger->setMessage('Smartling failed to upload .po file: <br/>
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
