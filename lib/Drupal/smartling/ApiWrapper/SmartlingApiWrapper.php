@@ -69,7 +69,7 @@ class SmartlingApiWrapper {
   /**
    * Download file from service.
    *
-   * @param object $entity
+   * @param object $smartling_entity
    *   Smartling transaction entity.
    * @param string $link_to_entity
    *   Link to entity.
@@ -77,11 +77,11 @@ class SmartlingApiWrapper {
    * @return \DOMDocument
    *   Return xml dom from downloaded file.
    */
-  public function downloadFile($entity) {
-    $entity_type = $entity->entity_type;
-    $d_locale = $entity->target_language;
-    $file_name_unic = $entity->file_name;
-    $file_path = $this->settingsHandler->getDir($entity->file_name);
+  public function downloadFile($smartling_entity) {
+    $smartling_entity_type = $smartling_entity->entity_type;
+    $d_locale = $smartling_entity->target_language;
+    $file_name_unic = $smartling_entity->file_name;
+    $file_path = $this->settingsHandler->getDir($smartling_entity->file_name);
 
     $retrieval_type = $this->settingsHandler->variableGet('smartling_retrieval_type', 'published');
     $download_param = array(
@@ -90,9 +90,9 @@ class SmartlingApiWrapper {
 
     $this->logger->setMessage('Smartling queue start download xml file and update fields for @entity_type id - @rid, locale - @locale.')
       ->setVariables(array(
-        '@entity_type' => $entity_type,
-        '@rid' => $entity->rid,
-        '@locale' => $entity->target_language,
+        '@entity_type' => $smartling_entity_type,
+        '@rid' => $smartling_entity->rid,
+        '@locale' => $smartling_entity->target_language,
       ))
       ->setLink(l(t('View file'), $file_path))
       ->execute();
@@ -131,7 +131,7 @@ class SmartlingApiWrapper {
   /**
    * Get status.
    *
-   * @param object $entity
+   * @param object $smartling_entity
    *   Smartling transaction entity.
    * @param string $link_to_entity
    *   Link to entity.
@@ -139,12 +139,12 @@ class SmartlingApiWrapper {
    * @return array|null
    *   Return status.
    */
-  public function getStatus($entity) {
+  public function getStatus($smartling_entity) {
     $error_result = NULL;
 
-    if ($entity === FALSE) {
+    if ($smartling_entity === FALSE) {
       $this->logger->setMessage('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.')
-        ->setVariables(array('@rid' => $entity->rid))
+        ->setVariables(array('@rid' => $smartling_entity->rid))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
         ->execute();
@@ -152,15 +152,15 @@ class SmartlingApiWrapper {
       return $error_result;
     }
 
-    if ($entity->progress == 100) {
+    if ($smartling_entity->progress == 100) {
       return $error_result;
     }
 
-    $file_name = $entity->file_name;
-    $file_name_unic = $entity->file_name;
+    $file_name = $smartling_entity->file_name;
+    $file_name_unic = $smartling_entity->file_name;
     $file_uri = smartling_clean_filename($this->settingsHandler->getDir() . '/' . $file_name, TRUE);
 
-    $s_locale = $this->convertLocaleDrupalToSmartling($entity->target_language);
+    $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
     // Try to retrieve file status.
     $status_result = $this->api->getStatus($file_name_unic, $s_locale);
     $status_result = json_decode($status_result);
@@ -174,11 +174,11 @@ class SmartlingApiWrapper {
       Locale: @d_locale <br/>
       Error: response code -> @code and message -> @message')
         ->setVariables(array(
-          '@entity_type' => $entity->entity_type,
-          '@rid' => $entity->rid,
+          '@entity_type' => $smartling_entity->entity_type,
+          '@rid' => $smartling_entity->rid,
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
-          '@d_locale' => $entity->target_language,
+          '@d_locale' => $smartling_entity->target_language,
           '@code' => $status_result->response->code,
           '@message' => $status_result->response->messages[0],
         ))
@@ -191,9 +191,9 @@ class SmartlingApiWrapper {
 
     $this->logger->setMessage('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs')
       ->setVariables(array(
-        '@entity_type' => $entity->entity_type,
-        '@rid' => $entity->rid,
-        '@d_locale' => $entity->target_language,
+        '@entity_type' => $smartling_entity->entity_type,
+        '@rid' => $smartling_entity->rid,
+        '@d_locale' => $smartling_entity->target_language,
         '@as' => $status_result->response->data->approvedStringCount,
         '@cs' => $status_result->response->data->completedStringCount,
       ))
@@ -205,12 +205,12 @@ class SmartlingApiWrapper {
     $approved = $response_data->approvedStringCount;
     $completed = $response_data->completedStringCount;
     $progress = ($approved == $completed || $approved == 0) ? 100 : (int) (($completed / $approved) * 100);
-    $entity->download = 0;
-    $entity->progress = $progress;
-    $entity->status = SMARTLING_STATUS_IN_TRANSLATE;
+    $smartling_entity->download = 0;
+    $smartling_entity->progress = $progress;
+    $smartling_entity->status = SMARTLING_STATUS_IN_TRANSLATE;
 
     return array(
-      'entity_data' => $entity,
+      'entity_data' => $smartling_entity,
       'response_data' => $status_result->response->data,
     );
   }
