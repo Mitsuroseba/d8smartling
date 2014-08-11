@@ -53,6 +53,13 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
           . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
 
+      case 'smartling_interface_entity':
+        $options['attributes'] = array('title' => t('Existing strings and the plural format are kept, only new strings are added.'));
+        $options2['attributes'] = array('title' => t('Strings in the uploaded file replace existing ones, new ones are added. The plural format is updated.'));
+        $output = l(t('Import (keep mode)'), 'smartling/import-interface/' . LOCALE_IMPORT_KEEP . '/' . $eid, $options) . ' | '
+            . l(t('Import (owerwrite mode)'), 'smartling/import-interface/' . LOCALE_IMPORT_OVERWRITE . '/' . $eid, $options2);
+        break;
+
       default:
         $output = '-';
         break;

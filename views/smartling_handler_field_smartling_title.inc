@@ -25,9 +25,13 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
 
     $function_uri = $entity_type . '_uri';
     $function_load = $entity_type . '_load';
-    $entity = $function_load($rid);
-    $uri = $function_uri($entity);
-    $path = $uri['path'];
+    if (function_exists($function_load)) {
+      $entity = $function_load($rid);
+    }
+    if (function_exists($function_uri)) {
+      $uri = $function_uri($entity);
+      $path = $uri['path'];
+    }
 
     switch ($entity_type) {
       case 'node':
@@ -41,6 +45,10 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
 
       case 'comment':
         $link = l(t('!title', array('!title' => $entity->subject)), $path);
+        break;
+
+      case 'smartling_interface_entity':
+        $link = t('!title', array('!title' => $entity->textgroup_name));
         break;
 
       default:

@@ -52,8 +52,7 @@ function smartling_queue_check_status_process($args) {
     $result = $api->getStatus($entity_data, $link_to_entity);
 
     if (!empty($result)) {
-      if ($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) {
-
+      if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($args->entity_type != 'smartling_interface_entity')) {
         $smartling_queue = DrupalQueue::get('smartling_download');
         $smartling_queue->createQueue();
         $smartling_queue->createItem($result['entity_data']);

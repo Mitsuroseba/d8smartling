@@ -946,9 +946,13 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 function smartling_get_link_to_entity($rid, $entity_type) {
   $function_uri = $entity_type . '_uri';
   $function_load = $entity_type . '_load';
-  $entity = $function_load($rid);
-  $uri = $function_uri($entity);
-  $path = $uri['path'];
+  if (function_exists($function_load)) {
+    $entity = $function_load($rid);
+  }
+  if (function_exists($function_uri)) {
+    $uri = $function_uri($entity);
+    $path = $uri['path'];
+  }
 
   switch ($entity_type) {
     case 'node':

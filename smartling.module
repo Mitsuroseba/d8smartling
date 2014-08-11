@@ -673,7 +673,7 @@ function smartling_cron() {
  */
 function smartling_cron_alter(&$hooks) {
   if (isset($hooks['smartling_cron']['description'])) {
-    $hooks['smartling_cron']['description'] = t('Add nodes for translation');
+    $hooks['smartling_cron']['description'] = t('Add item to "smartling_check_status" queue');
   }
 }
 
