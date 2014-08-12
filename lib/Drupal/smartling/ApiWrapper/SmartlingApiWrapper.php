@@ -71,8 +71,6 @@ class SmartlingApiWrapper {
    *
    * @param object $smartling_entity
    *   Smartling transaction entity.
-   * @param string $link_to_entity
-   *   Link to entity.
    *
    * @return \DOMDocument
    *   Return xml dom from downloaded file.
@@ -133,8 +131,6 @@ class SmartlingApiWrapper {
    *
    * @param object $smartling_entity
    *   Smartling transaction entity.
-   * @param string $link_to_entity
-   *   Link to entity.
    *
    * @return array|null
    *   Return status.
