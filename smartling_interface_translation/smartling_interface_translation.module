@@ -234,6 +234,11 @@ function smartling_interface_translation_submission_import($mode, $eid) {
         $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
         $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
         if ($uri) {
+          $file_result = entity_load('file', FALSE, array('uri' => $uri), TRUE);
+          // Delete file if exist.
+          foreach ($file_result as $file) {
+            file_delete($file);
+          }
           // Create a file object.
           $file = new stdClass();
           $file->fid = NULL;
@@ -333,4 +338,40 @@ function smartling_interface_translation_save_po($content, $file_name, $translat
     drupal_set_message(t('File (.po) was not saved because of some errors.'), 'error');
     return FALSE;
   }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function smartling_interface_translation_modules_enabled($modules) {
+  $groups = module_invoke_all('locale', 'groups');
+  $query = db_select('smartling_interface_entity', 'sie');
+  $isset_groups = $query->fields('sie', array('textgroup'))
+    ->execute()
+    ->fetchCol();
+
+  // Add only new groups.
+  foreach ($groups as $group => $group_name) {
+    if (!in_array($group, $isset_groups)) {
+      $smartling_interface_entity = smartling_interface_entity_create();
+      $smartling_interface_entity->textgroup = $group;
+      $smartling_interface_entity->textgroup_name = $group_name;
+      smartling_interface_entity_save($smartling_interface_entity);
+    }
+  }
+}
+
+/**
+ * Implements hook_modules_disabled().
+ */
+function smartling_interface_translation_modules_disabled($modules) {
+  $groups = module_invoke_all('locale', 'groups');
+  $groups = array_keys($groups);
+  // Delete smartling_interface_entity.
+  db_delete('smartling_interface_entity')->condition('textgroup', $groups, 'NOT IN')->execute();
+  // Delete smartling_entity_data.
+  db_delete('smartling_entity_data')
+    ->condition('entity_type', 'smartling_interface_entity')
+    ->condition('bundle', $groups, 'NOT IN')
+    ->execute();
 }
