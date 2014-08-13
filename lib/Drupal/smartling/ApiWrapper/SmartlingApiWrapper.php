@@ -152,9 +152,9 @@ class SmartlingApiWrapper {
       return $error_result;
     }
 
-    $file_name = $smartling_entity->file_name;
-    $file_name_unic = $smartling_entity->file_name;
-    $file_uri = smartling_clean_filename($this->settingsHandler->getDir() . '/' . $file_name, TRUE);
+    $file_name = $entity->file_name;
+    $file_name_unic = $entity->file_name;
+    $file_uri = $this->settingsHandler->getDir() . '/' . smartling_clean_filename($file_name);
 
     $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
     // Try to retrieve file status.
@@ -193,7 +193,7 @@ class SmartlingApiWrapper {
         '@as' => $status_result->response->data->approvedStringCount,
         '@cs' => $status_result->response->data->completedStringCount,
       ))
-      ->setLink(l(t('View file'), $file_uri))
+      ->setLink(l(t('View file'), file_create_url($file_uri)))
       ->execute();
 
     // If true, file translated.

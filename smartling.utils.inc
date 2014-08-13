@@ -375,10 +375,10 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  *   File name.
  *
  * @return string
- *   Return path for smartling dir.
+ *   Return path for smartling dir without end '/' or file path with dir.
  */
 function smartling_get_dir($file_name = '') {
-  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  $smartling_dir = (variable_get('file_private_path', FALSE)) ? ('private://smartling') : ('public://smartling');
   $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
   return (string) $smartling_dir;
 }
@@ -447,11 +447,11 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
   $directory = smartling_get_dir();
-  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
+  $path = $directory . '/' . smartling_clean_filename($file_name);
   $file_type = 'original';
 
-  if (is_dir($directory) && is_writable($directory)) {
-    $xml_doc->save($path);
+  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    $xml_doc->save(drupal_realpath($path));
 
     if ($translated_file == TRUE) {
       $file_type = 'translated';
@@ -465,7 +465,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
           '@rid' => $rid,
           '@locale' => implode('; ', $d_locale),
         ))
-        ->setLink(l(t('View file'), $path))
+        ->setLink(l(t('View file'), file_create_url($path)))
         ->execute();
     }
     else {
@@ -476,42 +476,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
           '@rid' => $rid,
           '@locale' => $d_locale,
         ))
-        ->setLink(l(t('View file'), $path))
-        ->execute();
-    }
-
-    if (!is_null($rid)) {
-      smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file, $entity_type);
-    }
-    return $xml_doc;
-  }
-  elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
-    $xml_doc->save($path);
-
-    if ($translated_file == TRUE) {
-      $file_type = 'translated';
-    }
-
-    if (is_array($d_locale)) {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale),
-        ))
-        ->setLink(l(t('View file'), $path))
-        ->execute();
-    }
-    else {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale,
-        ))
-        ->setLink(l(t('View file'), $path))
+        ->setLink(l(t('View file'), file_create_url($path)))
         ->execute();
     }
 

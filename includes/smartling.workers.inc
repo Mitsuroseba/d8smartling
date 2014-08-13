@@ -105,11 +105,11 @@ function smartling_queue_send_to_translate_process($args) {
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
+      $file_path = smartling_get_dir() . '/' . smartling_clean_filename($file_name);
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile($file_path, $file_name_unic, $args->d_locales);
+      $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, $args->d_locales);
 
       foreach ($entity_data_array as $entity) {
         smartling_set_translation_status($entity, $result_status);
@@ -120,6 +120,11 @@ function smartling_queue_send_to_translate_process($args) {
           $node_event = node_load($args->rid);
           rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
         }
+      }
+    }
+    else {
+      foreach ($entity_data_array as $entity) {
+        smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
       }
     }
   }
