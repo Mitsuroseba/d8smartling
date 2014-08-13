@@ -152,8 +152,8 @@ class SmartlingApiWrapper {
       return $error_result;
     }
 
-    $file_name = $entity->file_name;
-    $file_name_unic = $entity->file_name;
+    $file_name = $smartling_entity->file_name;
+    $file_name_unic = $smartling_entity->file_name;
     $file_uri = $this->settingsHandler->getDir() . '/' . smartling_clean_filename($file_name);
 
     $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
