@@ -1293,6 +1293,8 @@ function smartling_smartling_data_processor_info() {
  * @param bool $reset
  *   Reset.
  *
+ * @deprecated
+ *
  * @return string
  *   Return content.
  */

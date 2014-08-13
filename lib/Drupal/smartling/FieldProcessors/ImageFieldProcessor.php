@@ -28,4 +28,29 @@ class ImageFieldProcessor extends BaseFieldProcessor {
 
     return $data;
   }
+
+  //@todo fetch format from xml as well.
+  public function fetchDataFromXML(\DomXpath $xpath) {
+    $data = array();
+    $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-alt-img-0' . '"][1]')
+      ->item(0);
+    $quantity = $quantity_value->getAttribute('quantity');
+
+    for ($i = 0; $i < $quantity; $i++) {
+      $altField = $xpath->query('//string[@id="' . $this->fieldName . '-alt-img-' . $i . '"][1]')->item(0);
+      $titleField = $xpath->query('//string[@id="' . $this->fieldName . '-title-img-' . $i . '"][1]')->item(0);
+
+
+      $fid = $altField->getAttribute('fid');
+      $file_img = file_load($fid);
+
+      if ($file_img) {
+        $data[$this->language][$i] = (array) $file_img;
+        $data[$this->language][$i]['alt'] = $this->processXMLContent((string) $altField->nodeValue);
+        $data[$this->language][$i]['title'] = $this->processXMLContent((string) $titleField->nodeValue);
+      }
+    }
+
+    return $data;
+  }
 }

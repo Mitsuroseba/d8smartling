@@ -916,6 +916,8 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
  * @param string $entity_type
  *   Entity type.
  *
+ * @deprecated
+ *
  * @return string
  *   Return link to entity.
  */
@@ -949,6 +951,8 @@ function smartling_get_link_to_entity($rid, $entity_type) {
  *   Related id.
  * @param string $entity_type
  *   Entity type.
+ *
+ * @deprecated
  *
  * @return object|bool
  *   Return entity object or FALSE.
@@ -1138,6 +1142,8 @@ function smartling_check_filename_length($title, $entity_type, $rid) {
  * @param string $field_name
  *   Field name for check.
  *
+ * @deprecated
+ *
  * @return bool
  *   Return fake parameter.
  */
@@ -1166,6 +1172,8 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
  *
  * @param string $field_name
  *   Field name.
+ *
+ * @deprecated
  *
  * @return boolean
  *   Return check result.

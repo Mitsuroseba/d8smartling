@@ -2,12 +2,12 @@
 
 namespace Drupal\smartling\Processors;
 
+use DOMXPath;
+use Drupal\smartling\FieldProcessors\BaseFieldProcessor;
 use Drupal\smartling\FieldProcessors\FieldProcessorFactory;
 
 class BaseEntityProcessor {
-  /**
-   * @var SmartlingEntityData
-   */
+
   public $entity;
 
   public $originalEntity;
@@ -89,12 +89,12 @@ class BaseEntityProcessor {
   /**
    * @see smartling_copy_translations_from_xml_to_fields().
    */
-  public function importSmartlingTranslation($smartling_data) {
+  public function importSmartlingTranslationToOriginalEntity() {
     $this->prepareOriginalEntity();
 
-    foreach ($smartling_data as $field_name) {
+    foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingData($smartling_data);
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingData((array) $this->entity);
 
       $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalFormat();
     }
@@ -102,7 +102,39 @@ class BaseEntityProcessor {
     $this->originalEntity->save();
   }
 
-//  public function importSmartlingXML()
+  public function importSmartlingXMLToSmartlingEntity($xml) {
+    $this->prepareOriginalEntity();
+    $xpath = new DomXpath($xml);
+
+    foreach ($this->getConfiguredFields() as $field_name) {
+      // Get language key for field translatable type.
+      // @todo handle entity/field translation types in field processors.
+      if (smartling_field_is_translatable_by_field_name($field_name, $this->originalEntityType)) {
+        $language_key = $this->drupalLocale;
+      }
+      else {
+        $language_key = LANGUAGE_NONE;
+      }
+
+      // @TODO test if format could be set automatically.
+      $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
+      $this->entity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
+    }
+
+    $this->entity->save();
+  }
+
+  public function updateEntityFromXML(\DOMDocument $xml) {
+    // Update smartling entity.
+    $this->importSmartlingXMLToSmartlingEntity($xml);
+
+    // Update original entity from smartling.
+    $this->importSmartlingTranslationToOriginalEntity();
+
+    // Update translations information.
+    $this->updateTranslation();
+
+  }
 
   public function exportContentToTranslation() {
     $this->prepareOriginalEntity();
