@@ -11,6 +11,9 @@ projects[libraries][version] = "2.2"
 projects[background_process][subdir] = "contrib"
 projects[background_process][version] = "1.16"
 
+projects[classloader][subdir] = "contrib"
+projects[classloader][version] = "1.1"
+
 projects[ctools][subdir] = "contrib"
 projects[ctools][version] = "1.4"
 
@@ -20,7 +23,11 @@ projects[defaultcontent][version] = "1.0-alpha9"
 projects[entity][subdir] = "contrib"
 projects[entity][version] = "1.5"
 
-project[inject][subdir] = "contrib"
+projects[entity_translation][subdir] = "contrib"
+projects[entity_translation][version] = "1.0-beta3"
+
+projects[inject][subdir] = "contrib"
+projects[inject][version] = "2.3"
 
 projects[features][subdir] = "contrib"
 projects[features][version] = "2.0"
