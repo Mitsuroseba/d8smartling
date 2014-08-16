@@ -755,15 +755,9 @@ function smartling_update_translated_fields($smartling_entity) {
 //          break;
 //      }
 
-      if (module_exists('rules') && ($smartling_entity->entity_type == 'node')) {
-        $node_event = node_load($smartling_entity->rid);
-        rules_invoke_event('smartling_translation_download_event', $node_event);
-      }
-    }
-    else {
-      $log->setMessage('Translatable @entity_type with id - @rid not found in database')
-        ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-        ->execute();
+    if (module_exists('rules') && ($smartling_entity->entity_type == 'node')) {
+      $node_event = node_load($smartling_entity->rid);
+      rules_invoke_event('smartling_translation_download_event', $node_event);
     }
   }
 }

@@ -5,6 +5,7 @@
  * Utils functions for Smartling module.
  */
 
+use Drupal\smartling\EntityProcessorFactory;
 use Drupal\smartling\Settings\SmartlingSettingsHandler;
 use Drupal\smartling\Processors\NodeProcessor;
 use Drupal\smartling\Processors\TaxonomyTermProcessor;
@@ -480,21 +481,9 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
   }
 }
 
-function smartling_get_entity_processor($smartling_entity, $log) {
+function smartling_get_entity_processor($smartling_entity) {
   // @TODO move it to EntityProcessorFactory.
-  switch ($smartling_entity->entity_type) {
-    case 'node':
-      return new NodeProcessor($smartling_entity, $log);
-      break;
-
-    case 'taxonomy_term':
-      return new TaxonomyTermProcessor($smartling_entity, $log);
-      break;
-
-    default:
-      return new BaseEntityProcessor($this, $log);
-      break;
-  }
+  return EntityProcessorFactory::getProcessor($smartling_entity);
 }
 
 /**
@@ -791,6 +780,8 @@ function smartling_download_file($entity_data) {
  *
  * @param object $entity_data
  *   Smartling transaction entity.
+ *
+ * @deprecated @see getProgressStatus()
  *
  * @return int|bool
  *   Return number of progress or FALSE.

@@ -25,6 +25,11 @@ class BaseEntityProcessor {
   protected $originalLocale;
 
   protected $ifFieldMethod;
+  // @todo choose better name.
+  /**
+   * @var Drupal\smartling\ApiWrapper\SmartlingApiWrapper
+   */
+  protected $smartlingAPI;
 
   protected $isOriginalEntityPrepared;
 
@@ -35,10 +40,58 @@ class BaseEntityProcessor {
     $this->relatedId = $entity->rid;
     $this->ifFieldMethod = smartling_fields_method($this->originalEntity->bundle);
     $this->log = $log;
+    $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
+  }
+
+  public function getProgressStatus() {
+    if (!empty($this->entity->file_name)) {
+      $api = drupal_container()->get('smartling.api_wrapper');
+      $result = $api->getStatus($this->entity, $this->linkToContent());
+
+      if (!empty($result)) {
+        return $result['entity_data']->progress;
+      }
+      else {
+        return FALSE;
+      }
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * @todo move this logic to original entity Proxy object.
+   */
+  public function linkToContent() {
+    $uri_callback = $this->entity->entity_type . '_uri';
+    return l(t('Related entity'), $uri_callback($this->originalEntity));
+  }
+
+  public function downloadTranslation() {
+    $download_result = $this->downloadFile($this->entity, $this->linkToContent());
+    // This is a download result.
+    $xml = new DOMDocument();
+    $xml->loadXML($download_result);
+
+    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
+    $translated_filename = $file_name . '_' . $this->entity->target_language . '.xml';
+
+    // Save result.
+    $save = smartling_save_xml($xml, $this->entity->rid, $this->drupalLocale, $translated_filename, TRUE, $this->entity->entity_type);
+
+    // If result is saved.
+    if (is_object($save)) {
+      smartling_update_translated_fields($entity_data);
+      $entity_data->progress = $progress;
+      smartling_entity_data_save($entity_data);
+      drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
+    }
   }
 
   /**
    * Should be overriden for node and term.
+   * @todo move this logic to original entity Proxy object.
    */
   public function prepareOriginalEntity() {
     if (!$this->isOriginalEntityPrepared) {

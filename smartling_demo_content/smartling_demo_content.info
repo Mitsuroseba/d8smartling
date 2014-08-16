@@ -8,6 +8,7 @@ dependencies[] = image
 dependencies[] = locale
 dependencies[] = taxonomy
 dependencies[] = text
+dependencies[] = devel
 dependencies[] = devel_generate
 features[content][] = apple_iphone
 features[content][] = baseball_museums
