@@ -38,7 +38,8 @@ class BaseEntityProcessor {
     $this->drupalLocale = $entity->target_language;
     $this->originalLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
     $this->relatedId = $entity->rid;
-    $this->ifFieldMethod = smartling_fields_method($this->originalEntity->bundle);
+    $this->originalEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
+    $this->ifFieldMethod = smartling_fields_method($this->originalEntity->type);
     $this->log = $log;
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
   }
@@ -58,6 +59,54 @@ class BaseEntityProcessor {
     else {
       return FALSE;
     }
+  }
+
+  public function setStatus($status) {
+    switch ($status) {
+      case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
+        if (empty($this->entity->status) || ($this->entity->status == SMARTLING_STATUS_CHANGE)) {
+          $this->entity->status = SMARTLING_STATUS_IN_QUEUE;
+          $this->saveEntity();
+        }
+        break;
+
+      case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
+        if ($this->entity->status != SMARTLING_STATUS_CHANGE) {
+          $this->entity->status = SMARTLING_STATUS_IN_TRANSLATE;
+          $this->saveEntity();
+        }
+        break;
+
+      case SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE:
+      case SMARTLING_STATUS_EVENT_UPDATE_FIELDS:
+        if ($this->entity->status != SMARTLING_STATUS_CHANGE) {
+          if ($this->entity->progress == 100) {
+            $this->entity->status = SMARTLING_STATUS_TRANSLATED;
+          }
+          $this->saveEntity();
+        }
+        break;
+
+      case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
+        $this->entity->status = SMARTLING_STATUS_CHANGE;
+        $this->saveEntity();
+        break;
+
+      case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
+        $this->entity->status = SMARTLING_STATUS_FAILED;
+        $this->saveEntity();
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /**
+   * @todo move this logic to original entity Proxy object.
+   */
+  public function saveEntity() {
+    smartling_entity_data_save($this->entity);
   }
 
   /**
@@ -203,6 +252,10 @@ class BaseEntityProcessor {
     }
 
     return $node_current_translatable_content;
+  }
+
+  public function buildXmlFileName() {
+    return strtolower(trim(preg_replace('#\W+#', '_', $this->originalEntity->title), '_')) . '_' . $this->entity->entity_type . '_' . $this->entity->rid . '.xml';
   }
 
   public function getConfiguredFields() {

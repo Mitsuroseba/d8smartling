@@ -633,7 +633,7 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
 //      default:
 //        break;
 //    }
-//  }
+  }
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
     drupal_goto(current_path());
@@ -1351,4 +1351,23 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
   }
 
   return $content;
+}
+
+function smartling_create_from_entity($entity, $entity_type, $origin_language, $target_language) {
+  global $user;
+  $entity_data = smartling_entity_data_create();
+  $wrapper = entity_metadata_wrapper($entity_type, $entity);
+  $entity_data->rid = $wrapper->getIdentifier();
+  $entity_data->entity_type = $entity_type;
+  $entity_data->bundle = $wrapper->getBundle();
+  $entity_data->original_language = $origin_language;
+  $entity_data->target_language = $target_language;
+  $entity_data->progress = 0;
+
+  $entity_data->translated_file_name = FALSE;
+  $entity_data->submitter = $user->uid;
+  $entity_data->submission_date = time();
+  smartling_entity_data_save($entity_data);
+
+  return $entity_data;
 }

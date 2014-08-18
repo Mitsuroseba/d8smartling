@@ -60,20 +60,18 @@ abstract class BaseFieldProcessor {
 
   public function fetchDataFromXML(\DomXpath $xpath) {
     //@todo fetch format from xml as well.
-    public function fetchDataFromXML(\DomXpath $xpath) {
-      $data = array();
-      $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-0' . '"][1]')
+    $data = array();
+    $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-0' . '"][1]')
+      ->item(0);
+    $quantity = $quantity_value->getAttribute('quantity');
+
+    for ($i = 0; $i < $quantity; $i++) {
+      $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
         ->item(0);
-      $quantity = $quantity_value->getAttribute('quantity');
-
-      for ($i = 0; $i < $quantity; $i++) {
-        $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
-          ->item(0);
-        $data[$this->language][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
-      }
-
-      return $data;
+      $data[$this->language][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
     }
+
+    return $data;
   }
 
 }

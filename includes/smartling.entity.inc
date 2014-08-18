@@ -155,3 +155,11 @@ function smartling_entity_data_delete($entity) {
 function smartling_entity_data_delete_multiple($entity_ids) {
   entity_delete_multiple('smartling_entity_data', $entity_ids);
 }
+
+function smartling_entity_load($entities, $type) {
+  if ($type == 'smartling_entity_data') {
+    foreach ($entities as $entity) {
+      $entity->content_entity = entity_load($entity->entity_type, $entity->rid);
+    }
+  }
+}

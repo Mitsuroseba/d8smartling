@@ -277,11 +277,11 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  *   Entity type.
  */
 function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file = FALSE, $entity_type = '') {
-  if (!is_array($d_locale)) {
-    array($d_locale);
-  }
-
-  foreach ($d_locale as $value) {
+//  if (!is_array($d_locale)) {
+//    array($d_locale);
+//  }
+//
+//  foreach ($d_locale as $value) {
     $entity_data = smartling_entity_load_by_conditions(array(
       'rid' => $rid,
       'entity_type' => $entity_type,
@@ -296,7 +296,7 @@ function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $tra
     }
 
     smartling_entity_data_save($entity_data);
-  }
+//  }
 }
 
 /**
@@ -415,8 +415,8 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  * @param string $entity_type
  *   Entity type.
  *
- * @return object|null
- *   Return xml document or NULL.
+ * @return bool
+ *   Was file creation successful or not.
  */
 function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
   $log = smartling_log_get_handler();
@@ -468,7 +468,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
     if (!is_null($rid)) {
       smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file, $entity_type);
     }
-    return $xml_doc;
+    return TRUE;
   }
   else {
     $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid')
@@ -477,7 +477,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
       ->setSeverity(WATCHDOG_ERROR)
       ->execute();
     drupal_set_message(t('File was not saved because of some errors.'), 'error');
-    return NULL;
+    return FALSE;
   }
 }
 
@@ -489,29 +489,25 @@ function smartling_get_entity_processor($smartling_entity) {
 /**
  * Build xml document and save in file.
  *
- * @param int $rid
- *   Related id.
- * @param string $d_locale
- *   Locale in drupal format (ru, en).
- * @param string $title
- *   Entity title.
- * @param string $entity_type
- *   Entity type.
+ * @param string $file_name
+ *   XML file name to be created.
+ * @param array $content_to_translate
+ *   Array of string to be translated.
  *
  * @return string|bool
  *   Return filename or FALSE.
  */
-function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) {
-  $log = smartling_log_get_handler();
-
-  /* @var $smartling_entity SmartlingEntityData */
-  $smartling_entity = smartling_entity_load_by_conditions(array(
-    'rid' => $rid,
-    'entity_type' => $entity_type,
-    'target_language' => $d_locale,
-  ));
-  $processor = smartling_get_entity_processor($smartling_entity, $log);
-  $content_to_translate = $processor->exportContentToTranslation();
+function smartling_build_xml($file_name, $content_to_translate, $rid) {
+//  $log = smartling_log_get_handler();
+//
+//  /* @var $smartling_entity SmartlingEntityData */
+//  $smartling_entity = smartling_entity_load_by_conditions(array(
+//    'rid' => $rid,
+//    'entity_type' => $entity_type,
+//    'target_language' => $d_locale,
+//  ));
+//  $processor = smartling_get_entity_processor($smartling_entity, $log);
+//  $content_to_translate = $processor->exportContentToTranslation();
 
 //  $content_to_translate = array();
 //  switch ($entity_type) {
@@ -536,6 +532,8 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
 //      break;
 //  }
 
+  $xml = FALSE;
+
   if (!empty($content_to_translate)) {
     $xml = new DOMDocument('1.0', 'UTF-8');
 
@@ -546,27 +544,20 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
 
     $data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
     $xml->appendChild($data);
-
-    $file_name = strtolower(trim(preg_replace('#\W+#', '_', $title), '_')) . '_' . $entity_type . '_' . $rid . '.xml';
-
-    $xml = smartling_save_xml($xml, $rid, $d_locale, $file_name, FALSE, $entity_type);
-    if (is_null($xml)) {
-      $file_name = FALSE;
-    }
   }
-  else {
-    smartling_entity_delete_all_by_conditions(array(
-      'rid' => $rid,
-      'entity_type' => $entity_type,
-    ));
-    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
-      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-      ->setSeverity(WATCHDOG_WARNING)
-      ->execute();
-    $file_name = FALSE;
-  }
+//  else {
+//    smartling_entity_delete_all_by_conditions(array(
+//      'rid' => $rid,
+//      'entity_type' => $entity_type,
+//    ));
+//    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
+//      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+//      ->setSeverity(WATCHDOG_WARNING)
+//      ->execute();
+//    $file_name = FALSE;
+//  }
 
-  return $file_name;
+  return $xml;
 }
 
 /**
@@ -586,7 +577,7 @@ function smartling_build_xml($rid, $d_locale, $title = '', $entity_type = NULL) 
  *   If TRUE tag -> nolocalize, if FALSE tag -> localize.
  *   Tag localize use by default.
  *
- * @return object
+ * @return DOMNode
  *   Return localize object.
  */
 function smartling_build_localize($dom, $title = '', array $strings = array(), $index = '', $no = FALSE) {
@@ -853,6 +844,7 @@ function smartling_language_list() {
  */
 function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   if (!is_null($entity_data) && !is_null($event)) {
+    // @todo: why do we need reload this entity everywhere?
     $entity_data = smartling_entity_load_by_conditions(array(
       'rid' => $entity_data->rid,
       'entity_type' => $entity_data->entity_type,

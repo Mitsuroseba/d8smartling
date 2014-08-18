@@ -220,6 +220,7 @@ function smartling_get_comment_settings_form_submit(array $form, array &$form_st
         ));
 
         if ($entity_data == FALSE) {
+          // @todo: use smartling_create_from_entity().
           $entity_data = smartling_entity_data_create();
           $entity_data->rid = $comment->cid;
           $entity_data->entity_type = $form['#entity_type'];

@@ -198,6 +198,7 @@ function smartling_get_user_settings_form_submit(array $form, array &$form_state
         ));
 
         if ($entity_data == FALSE) {
+          // @todo: use smartling_create_from_entity().
           $entity_data = smartling_entity_data_create();
           $entity_data->rid = $account->uid;
           $entity_data->entity_type = $form['#entity_type'];
