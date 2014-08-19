@@ -7,7 +7,6 @@
 
 include_once 'smartling_interface_translation.features.inc';
 include_once 'includes/smartling_interface_translation.entity.inc';
-include_once 'includes/smartling_interface_translation.entityController.inc';
 
 /**
  * Implements hook_menu().
@@ -56,21 +55,21 @@ function smartling_interface_translation_views_data_alter(&$data) {
       'handler' => 'SmartlingHandlerFieldLocaleInfo',
       'click sortable' => TRUE,
     );
-  }
 
-  // Smartling interface entity relationship.
-  $data['smartling_interface_entity']['smartling_entity_data'] = array(
-    'group' => t('Smartling'),
-    'title' => t('Smartling Entity'),
-    'help' => t('Smartling interface entity relationship.'),
-    'relationship' => array(
-      'base' => 'smartling_entity_data',
-      'base field' => 'rid',
-      'relationship field' => 'gid',
-      'handler' => 'views_handler_relationship',
-      'label' => t('Smartling related ID'),
-    ),
-  );
+    // Smartling interface entity relationship.
+    $data['smartling_interface_entity']['smartling_entity_data'] = array(
+      'group' => t('Smartling'),
+      'title' => t('Smartling Entity'),
+      'help' => t('Smartling interface entity relationship.'),
+      'relationship' => array(
+        'base' => 'smartling_entity_data',
+        'base field' => 'rid',
+        'relationship field' => 'gid',
+        'handler' => 'views_handler_relationship',
+        'label' => t('Smartling related ID'),
+      ),
+    );
+  }
 }
 
 /**
@@ -88,21 +87,20 @@ function smartling_interface_translation_do_translate_action($entity, array $con
   $entity_type = $context['entity_type'];
   global $user;
 
-  foreach ($context['translate_to_langs'] as $locale) {
-    $languages = language_list();
-    $language = $languages[$locale];
-    $group = $entity->textgroup;
-    $file_name = 'smartling_interface_translation_' . $group . '_' . $locale . '.po';
-    $file_name_unic = $file_name;
-    $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
-    $output = _locale_export_po_generate($language, _locale_export_get_strings($language, $group));
-    $uri = smartling_interface_translation_save_po($output, $file_name);
+  $group = $entity->textgroup;
+  $file_name = 'smartling_interface_translation_' . $group . '.pot';
+  $file_name_unic = $file_name;
+  $file_path = smartling_get_dir() . '/' . smartling_clean_filename($file_name);
+  // $language = NULL for generate .pot files. Save .pot as .po file.
+  $output = _locale_export_po_generate(NULL, _locale_export_get_strings(NULL, $group));
+  $uri = smartling_interface_translation_save_po($output, $file_name);
 
-    if ($uri) {
-      // Init api object.
-      $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadPoFile($file_path, $file_name_unic, $locale);
-      if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
+  if ($uri) {
+    // Init api object.
+    $api = drupal_container()->get('smartling.api_wrapper');
+    $result_status = $api->uploadPoFile(drupal_realpath($file_path), $file_name_unic, $context['translate_to_langs']);
+    if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
+      foreach ($context['translate_to_langs'] as $locale) {
         $entity_data = smartling_entity_load_by_conditions(array(
           'entity_type' => $entity_type,
           'bundle' => $entity->textgroup,
@@ -226,7 +224,7 @@ function smartling_interface_translation_submission_import($mode, $eid) {
       global $user;
       $langcode = $entity_data->target_language;
       $group = $entity_data->bundle;
-      $file_name = 'smartling_interface_translation_' . $group . '_' . $langcode . '.po';
+      $file_name = $entity_data->file_name;
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
       $download_result = $api->downloadPoFile($file_name, $langcode);
@@ -235,18 +233,21 @@ function smartling_interface_translation_submission_import($mode, $eid) {
         $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
         if ($uri) {
           $file_result = entity_load('file', FALSE, array('uri' => $uri), TRUE);
-          // Delete file if exist.
-          foreach ($file_result as $file) {
-            file_delete($file);
+          $key = key($file_result);
+          // If file exist.
+          if (!is_null($key) && isset($file_result[$key]) && ($file_result[$key]->uri == $uri)) {
+            $file = $file_result[$key];
           }
-          // Create a file object.
-          $file = new stdClass();
-          $file->fid = NULL;
-          $file->uri = $uri;
-          $file->filename = drupal_basename($uri);
-          $file->filemime = file_get_mimetype($file->uri);
-          $file->uid = $user->uid;
-          $file->status = FILE_STATUS_PERMANENT;
+          else {
+            // Create a file object.
+            $file = new stdClass();
+            $file->fid = NULL;
+            $file->uri = $uri;
+            $file->filename = drupal_basename($uri);
+            $file->filemime = file_get_mimetype($file->uri);
+            $file->uid = $user->uid;
+            $file->status = FILE_STATUS_PERMANENT;
+          }
           $file = file_save($file);
         }
       }
@@ -289,10 +290,10 @@ function smartling_interface_translation_submission_import($mode, $eid) {
 function smartling_interface_translation_save_po($content, $file_name, $translated_file = FALSE) {
   $log = smartling_log_get_handler();
   $directory = smartling_get_dir();
-  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
+  $path = $directory . '/' . smartling_clean_filename($file_name);
   $file_type = 'original';
 
-  if (is_dir($directory) && is_writable($directory)) {
+  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
     $uri = file_unmanaged_save_data($content, $path, FILE_EXISTS_REPLACE);
 
     if ($translated_file == TRUE) {
@@ -305,26 +306,7 @@ function smartling_interface_translation_save_po($content, $file_name, $translat
           '@file_type' => $file_type,
           '@file_name' => $file_name,
         ))
-        ->setLink(l(t('View file'), $uri))
-        ->execute();
-
-      return $uri;
-    }
-  }
-  elseif (drupal_mkdir($directory) && drupal_chmod($directory)) {
-    $uri = file_unmanaged_save_data($content, $path, FILE_EXISTS_REPLACE);
-
-    if ($translated_file == TRUE) {
-      $file_type = 'translated';
-    }
-
-    if ($uri) {
-      $log->setMessage('Smartling saves @file_type @file_name file.')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@file_name' => $file_name,
-        ))
-        ->setLink(l(t('View file'), $uri))
+        ->setLink(l(t('View file'), file_create_url($uri)))
         ->execute();
 
       return $uri;

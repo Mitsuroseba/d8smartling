@@ -17,7 +17,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     // Enable Smartling modules.
-    parent::setUp('smartling', 'smartling_reports', 'smartling_reference');
+    parent::setUp('smartling', 'smartling_reports', 'smartling_reference', 'smartling_interface_translation');
 
     // Create a user with access.
     $this->privileged_user = $this->drupalCreateUser(array(

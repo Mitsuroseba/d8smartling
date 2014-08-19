@@ -481,7 +481,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
       'entity_type' => $entity_type,
       'target_language' => $d_locale,
     ));
-    $file_path = smartling_clean_filename(smartling_get_dir($entity_data->translated_file_name), TRUE);
+    $file_path = smartling_get_dir() . '/' . smartling_clean_filename($entity_data->translated_file_name);
 
     // Get field names for entity.
     switch ($entity_type) {
@@ -660,7 +660,7 @@ function smartling_update_translated_fields($rid, $d_locale, $entity_type = NULL
     }
 
     $xml = new DOMDocument();
-    $xml->load($file_path);
+    $xml->load(drupal_realpath($file_path));
 
     if (smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid, $d_locale, $entity_data->original_language, $fields, $original_entity, $fields_method)) {
 

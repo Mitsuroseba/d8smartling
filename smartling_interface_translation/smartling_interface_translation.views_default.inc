@@ -11,11 +11,11 @@ function smartling_interface_translation_views_default_views() {
   $export = array();
 
   $view = new view();
-  $view->name = 'smartling_bulk_submit_interface_entity';
+  $view->name = 'smartling_bulk_submit_interface';
   $view->description = '';
   $view->tag = 'default';
   $view->base_table = 'smartling_interface_entity';
-  $view->human_name = 'smartling_bulk_submit_interface_entity';
+  $view->human_name = 'Smartling Bulk Submit Interface';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
@@ -28,6 +28,7 @@ function smartling_interface_translation_views_default_views() {
   $handler->display->display_options['access']['perm'] = 'translate interface';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -143,7 +144,7 @@ function smartling_interface_translation_views_default_views() {
   $handler->display->display_options['menu']['weight'] = '100';
   $handler->display->display_options['menu']['context'] = 1;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $translatables['smartling_bulk_submit_interface_entity'] = array(
+  $translatables['smartling_bulk_submit_interface'] = array(
     t('Master'),
     t('Smartling Bulk Submit Interface'),
     t('more'),
@@ -160,7 +161,7 @@ function smartling_interface_translation_views_default_views() {
     t('Status'),
     t('Page'),
   );
-  $export['smartling_bulk_submit_interface_entity'] = $view;
+  $export['smartling_bulk_submit_interface'] = $view;
 
   return $export;
 }

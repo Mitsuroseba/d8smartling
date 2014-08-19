@@ -96,7 +96,7 @@ drush_e dl module_filter -y
 drush_e en module_filter -y
 drush_e cc all -y
 
-# don't like this but devs wanna this :)
+# don't like this but devs want this :)
 #logit info "Set owner to nginx"
 #if [ $EUID -eq 0 ]; then
 #    chown nginx.nginx -R ./

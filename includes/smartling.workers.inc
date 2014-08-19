@@ -14,7 +14,6 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     $entity_type = $entity_data->entity_type;
     $d_locale = $entity_data->target_language;
     $rid = $entity_data->rid;
-    $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
     $file_name = $entity_data->file_name;
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
     $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
@@ -22,7 +21,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
     // Init api object.
     $api = drupal_container()->get('smartling.api_wrapper');
 
-    $download_result = $api->downloadFile($entity_data, $link_to_entity);
+    $download_result = $api->downloadFile($entity_data);
     if ($download_result !== FALSE) {
       // This is a $download_result
       $xml = new DOMDocument();
@@ -41,7 +40,7 @@ function smartling_queue_download_update_translated_item_process($entity_data) {
  */
 function smartling_queue_check_status_process($args) {
   if (smartling_is_configured()) {
-    $link_to_entity = smartling_get_link_to_entity($args->rid, $args->entity_type);
+
     $entity_data = smartling_entity_load_by_conditions(array(
       'eid' => $args->eid,
       'rid' => $args->rid,
@@ -49,7 +48,7 @@ function smartling_queue_check_status_process($args) {
     ));
 
     $api = drupal_container()->get('smartling.api_wrapper');
-    $result = $api->getStatus($entity_data, $link_to_entity);
+    $result = $api->getStatus($entity_data);
 
     if (!empty($result)) {
       if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($args->entity_type != 'smartling_interface_entity')) {
@@ -105,11 +104,11 @@ function smartling_queue_send_to_translate_process($args) {
     if (!in_array(FALSE, $saves) && is_string($saves[0])) {
       $file_name = $saves[0];
       $file_name_unic = $file_name;
-      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
+      $file_path = smartling_get_dir() . '/' . smartling_clean_filename($file_name);
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadXmlFile($file_path, $file_name_unic, $args->d_locales);
+      $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, $args->d_locales);
 
       foreach ($entity_data_array as $entity) {
         smartling_set_translation_status($entity, $result_status);
@@ -120,6 +119,11 @@ function smartling_queue_send_to_translate_process($args) {
           $node_event = node_load($args->rid);
           rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
         }
+      }
+    }
+    else {
+      foreach ($entity_data_array as $entity) {
+        smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
       }
     }
   }

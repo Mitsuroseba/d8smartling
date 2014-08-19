@@ -1,12 +1,12 @@
 name = Smartling interface translation
-description = Import and export .po files
+description = Import and export .po/.pot files
 core = 7.x
 package = smartling
 dependencies[] = smartling
 dependencies[] = views
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
-features[views_view][] = smartling_bulk_submit_interface_entity
+features[views_view][] = smartling_bulk_submit_interface
 features_exclude[dependencies][ctools] = ctools
 
 files[] = includes/smartling_interface_translation.entityController.inc
