@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessors\TextFieldProcessor.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
 class TextFieldProcessor extends BaseFieldProcessor {
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSmartlingFormat() {
     $data = array();
 
@@ -15,6 +24,9 @@ class TextFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getDrupalFormat() {
     $data = $this->entity->{$this->fieldName};
 
@@ -24,4 +36,5 @@ class TextFieldProcessor extends BaseFieldProcessor {
 
     return $data;
   }
+
 }

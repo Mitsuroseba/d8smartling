@@ -1,8 +1,19 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\Processors\NodeProcessor.
+ */
+
 namespace Drupal\smartling\Processors;
 
 class NodeProcessor extends BaseEntityProcessor {
+
+  /**
+   * {inheritdoc}
+   *
+   * @todo remove procedural code.
+   */
   public function prepareOriginalEntity() {
     $this->originalEntity = node_load($this->entity->rid);
 

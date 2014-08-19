@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessors\ImageFieldProcessor.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
 class ImageFieldProcessor extends BaseFieldProcessor {
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSmartlingFormat() {
     $data = array();
 
@@ -17,6 +26,9 @@ class ImageFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getDrupalFormat() {
     $data = $this->entity->{$this->fieldName};
 
@@ -30,6 +42,9 @@ class ImageFieldProcessor extends BaseFieldProcessor {
   }
 
   //@todo fetch format from xml as well.
+  /**
+   * {@inheritdoc}
+   */
   public function fetchDataFromXML(\DomXpath $xpath) {
     $data = array();
     $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-alt-img-0' . '"][1]')
@@ -53,4 +68,5 @@ class ImageFieldProcessor extends BaseFieldProcessor {
 
     return $data;
   }
+
 }

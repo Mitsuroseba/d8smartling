@@ -1,38 +1,117 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\Processors\BaseEntityProcessor.
+ *
+ * @todo rename namespace to EntityProcessor or something else.
+ */
+
 namespace Drupal\smartling\Processors;
 
 use DOMXPath;
 use Drupal\smartling\FieldProcessors\BaseFieldProcessor;
 use Drupal\smartling\FieldProcessors\FieldProcessorFactory;
 
+/**
+ * Contains smartling entity and provide main Smartling connector business logic.
+ *
+ * @package Drupal\smartling\Processors
+ */
 class BaseEntityProcessor {
 
+  /**
+   * Contains Smartling data entity.
+   *
+   * Instance of SmartlingEntityData if processor was created from newly created
+   * smartling data entity that has such type in other cases - just stdClass.
+   *
+   * @var \stdClass|\SmartlingEntityData
+   */
   public $entity;
 
+  /**
+   * Contains Smartling data referenced drupal content entity, e.g. Node, User.
+   *
+   * @var \stdClass|\Entity
+   *
+   * @see smartling_entity_load().
+   */
   public $originalEntity;
 
+  /**
+   * List of drupal content entity fields that could be translated.
+   *
+   * @var array
+   */
   protected $fields;
 
+  /**
+   * Contain drupal content entity type.
+   *
+   * @var string
+   */
   protected $originalEntityType;
 
+  /**
+   * Contains Smartling log object.
+   *
+   * @var \Drupal\smartling\Log\SmartlingLog
+   */
   protected $log;
 
+  /**
+   * Contains drupal content entity id.
+   *
+   * @var string|int
+   */
   protected $relatedId;
 
+  /**
+   * Contains locale in drupal format, e.g. 'en', 'und'.
+   *
+   * @var string
+   */
   protected $drupalLocale;
 
+  /**
+   * Contains locale in drupal format, e.g. 'en-US', 'ru-RU'.
+   *
+   * @var string
+   */
   protected $originalLocale;
 
+  /**
+   * Contains if drupal content bundle has "Field translation" mode.
+   *
+   * @var bool
+   */
   protected $ifFieldMethod;
   // @todo choose better name.
   /**
-   * @var Drupal\smartling\ApiWrapper\SmartlingApiWrapper
+   * @var \Drupal\smartling\ApiWrapper\SmartlingApiWrapper
    */
   protected $smartlingAPI;
 
+  /**
+   * Helper internal flag to avoid duplicated execution.
+   *
+   * @var bool
+   *
+   * @see self::prepareOriginalEntity()
+   */
   protected $isOriginalEntityPrepared;
 
+  /**
+   * Create BaseEntityProcessor instance.
+   *
+   * @param $entity object
+   *   Smartling data entity.
+   * @param $log \Drupal\smartling\Log\SmartlingLog
+   *   Smartling log object.
+   *
+   * @todo avoid procedural code in construct to achieve full DI.
+   */
   public function __construct($entity, $log) {
     $this->entity = $entity;
     $this->drupalLocale = $entity->target_language;
@@ -44,10 +123,14 @@ class BaseEntityProcessor {
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
   }
 
+  /**
+   * Fetch translation status from Smartling server.
+   *
+   * @return bool
+   */
   public function getProgressStatus() {
     if (!empty($this->entity->file_name)) {
-      $api = drupal_container()->get('smartling.api_wrapper');
-      $result = $api->getStatus($this->entity, $this->linkToContent());
+      $result = $this->smartlingAPI->getStatus($this->entity, $this->linkToContent());
 
       if (!empty($result)) {
         return $result['entity_data']->progress;
@@ -61,6 +144,11 @@ class BaseEntityProcessor {
     }
   }
 
+  /**
+   * Set translation status|progress to smartling data entity.
+   *
+   * @param $status
+   */
   public function setStatus($status) {
     switch ($status) {
       case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
@@ -103,13 +191,25 @@ class BaseEntityProcessor {
   }
 
   /**
-   * @todo move this logic to original entity Proxy object.
+   * Wrapper for smartling data entity saving.
+   *
    */
   public function saveEntity() {
     smartling_entity_data_save($this->entity);
   }
 
   /**
+   * Wrapper for drupal entity saving.
+   *
+   * @todo move this logic to original entity Proxy object.
+   */
+  public function saveDrupalEntity() {
+    entity_save($this->originalEntityType, $this->originalEntity);
+  }
+
+  /**
+   * Get link to drupal content.
+   *
    * @todo move this logic to original entity Proxy object.
    */
   public function linkToContent() {
@@ -117,8 +217,11 @@ class BaseEntityProcessor {
     return l(t('Related entity'), $uri_callback($this->originalEntity));
   }
 
+  /**
+   * Downloads translation data from Smartling server and push into drupal entity.
+   */
   public function downloadTranslation() {
-    $download_result = $this->downloadFile($this->entity, $this->linkToContent());
+    $download_result = $this->smartlingAPI->downloadFile($this->entity, $this->linkToContent());
     // This is a download result.
     $xml = new DOMDocument();
     $xml->loadXML($download_result);
@@ -130,6 +233,7 @@ class BaseEntityProcessor {
     $save = smartling_save_xml($xml, $this->entity->rid, $this->drupalLocale, $translated_filename, TRUE, $this->entity->entity_type);
 
     // If result is saved.
+    // @todo finish converting.
     if (is_object($save)) {
       smartling_update_translated_fields($entity_data);
       $entity_data->progress = $progress;
@@ -139,7 +243,10 @@ class BaseEntityProcessor {
   }
 
   /**
-   * Should be overriden for node and term.
+   * Contains preparation for entity before smartling processing.
+   *
+   * Should be overridden for node and term. E.g. before pushing translation we have to fetch data
+   * from original node, so swap current node to original translation if necessary.
    * @todo move this logic to original entity Proxy object.
    */
   public function prepareOriginalEntity() {
@@ -149,6 +256,12 @@ class BaseEntityProcessor {
     }
   }
 
+  /**
+   * Implements entity_translation logic to update translation data in Drupal.
+   *
+   * Should be used after ::importSmartlingTranslationToOriginalEntity()
+   * @todo remove procedural code and use entities from properties.
+   */
   public function updateTranslation() {
     if (($this->originalEntityType == 'node') && smartling_nodes_method($this->entity->bundle)) {
       return;
@@ -189,6 +302,8 @@ class BaseEntityProcessor {
   }
 
   /**
+   * Moves translations from smartling entity to drupal content entity.
+   *
    * @see smartling_copy_translations_from_xml_to_fields().
    */
   public function importSmartlingTranslationToOriginalEntity() {
@@ -201,10 +316,15 @@ class BaseEntityProcessor {
       $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalFormat();
     }
 
-    $this->originalEntity->save();
+    $this->saveDrupalEntity();
   }
 
-  public function importSmartlingXMLToSmartlingEntity($xml) {
+  /**
+   * Updates smartling data entity from given xml parsed object.
+   *
+   * @param $xml \DomNode
+   */
+  public function importSmartlingXMLToSmartlingEntity(\DOMNode $xml) {
     $this->prepareOriginalEntity();
     $xpath = new DomXpath($xml);
 
@@ -223,10 +343,15 @@ class BaseEntityProcessor {
       $this->entity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
     }
 
-    $this->entity->save();
+    $this->saveEntity();
   }
 
-  public function updateEntityFromXML(\DOMDocument $xml) {
+  /**
+   * Process given xml parsed object
+   *
+   * @param $xml \DOMNode
+   */
+  public function updateEntityFromXML(\DOMNode $xml) {
     // Update smartling entity.
     $this->importSmartlingXMLToSmartlingEntity($xml);
 
@@ -254,14 +379,31 @@ class BaseEntityProcessor {
     return $node_current_translatable_content;
   }
 
+  /**
+   * Build name for translations xml file.
+   *
+   * @todo move it to XML convector class.
+   *
+   * @return string
+   */
   public function buildXmlFileName() {
     return strtolower(trim(preg_replace('#\W+#', '_', $this->originalEntity->title), '_')) . '_' . $this->entity->entity_type . '_' . $this->entity->rid . '.xml';
   }
 
+  /**
+   * Wrapper for Smartling settings storage.
+   *
+   * @todo avoid procedural code and inject storage to keep DI pattern.
+   *
+   * @return array()
+   */
   public function getConfiguredFields() {
     return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
   }
 
+  /**
+   * Clone fields values to new node during creating new translations
+   */
   public function fillFieldFromOriginalLanguage() {
     $this->prepareOriginalEntity();
 
@@ -269,6 +411,7 @@ class BaseEntityProcessor {
       $field_info_instances = field_info_instances($this->originalEntityType, $this->originalEntity->bundle);
       $fields = $this->getConfiguredFields();
       $need_save = FALSE;
+      // @todo finish converting.
       foreach ($field_info_instances as $field) {
         if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->originalEntityType) && isset($this->originalEntity->{$field['field_name']})) {
           $need_save = TRUE;

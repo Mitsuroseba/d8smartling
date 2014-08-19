@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
 class TextSummaryFieldProcessor extends BaseFieldProcessor {
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSmartlingFormat() {
     $data = array();
 
@@ -16,6 +25,9 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getDrupalFormat() {
     $data = $this->entity->{$this->fieldName};
 
@@ -28,6 +40,9 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
   }
 
   //@todo fetch format from xml as well.
+  /**
+   * {@inheritdoc}
+   */
   public function fetchDataFromXML(\DomXpath $xpath) {
     $data = array();
     $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-body-0' . '"][1]')

@@ -1,8 +1,19 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\Processors\NodeProcessor.
+ */
+
 namespace Drupal\smartling\Processors;
 
 class TaxonomyTermProcessor extends BaseEntityProcessor {
+
+  /**
+   * {inheritdoc}
+   *
+   * @todo remove procedural code.
+   */
   public function prepareOriginalEntity() {
     $this->originalEntity = taxonomy_term_load($this->entity->rid);
     $original_entity = $this->originalEntity;

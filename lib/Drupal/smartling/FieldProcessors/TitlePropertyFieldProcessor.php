@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
 class TitlePropertyFieldProcessor extends BaseFieldProcessor {
+
+  /**
+   * {@inheritdoc}
+   */
   public function getSmartlingFormat() {
 //    $data = array();
 
@@ -13,6 +22,9 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     return array(entity_label($this->entityType, $this->entity));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getDrupalFormat() {
     $data = $this->entity->{$this->fieldName};
 
@@ -22,6 +34,5 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
 
     return $data;
   }
-
 
 }

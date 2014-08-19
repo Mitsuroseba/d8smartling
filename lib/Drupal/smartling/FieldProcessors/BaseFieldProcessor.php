@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessors\BaseFieldProcessor.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
+/**
+ * Handle business logic for different drupal field types.
+ *
+ * @package Drupal\smartling\FieldProcessors
+ */
 abstract class BaseFieldProcessor {
 
   protected $entityType;
@@ -27,6 +37,16 @@ abstract class BaseFieldProcessor {
     return $this;
   }
 
+  /**
+   * Runs specific smartling alters.
+   *
+   * @param $value string
+   * @param bool $reset
+   *
+   * @see \Drupal\smartling\Alters\*
+   *
+   * @return string
+   */
   public function processXMLContent($value, $reset = FALSE) {
     $handlers = & drupal_static(__FUNCTION__);
     if (!isset($actions) || $reset) {
@@ -55,9 +75,30 @@ abstract class BaseFieldProcessor {
     return $value;
   }
 
+  /**
+   * Converts drupal field format to smartling data.
+   *
+   * @return array
+   *   Drupal field structure ready to be put into drupal content entity.
+   */
   abstract public function getSmartlingFormat();
+
+  /**
+   * Converts smartling data field format to drupal.
+   *
+   * @return array
+   *   Drupal field structure ready to be put into smartling entity.
+   */
   abstract public function getDrupalFormat();
 
+  /**
+   * Fetch translation data from xml based on structure for particular field.
+   *
+   * @param \DomXpath $xpath
+   *
+   * @return array
+   *   Drupal field structure ready to be put into smartling entity.
+   */
   public function fetchDataFromXML(\DomXpath $xpath) {
     //@todo fetch format from xml as well.
     $data = array();

@@ -1,15 +1,29 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\EntityProcessorFactory.
+ */
+
 namespace Drupal\smartling;
 
 use Drupal\smartling\Processors\NodeProcessor;
 use Drupal\smartling\Processors\TaxonomyTermProcessor;
 use Drupal\smartling\Processors\BaseEntityProcessor;
 
+/**
+ * Factory that creates entity processor instances and caches it statically.
+ *
+ * @package Drupal\smartling
+ */
 class EntityProcessorFactory {
 
   /**
-   * @param $smartling_entity
+   * Creates BaseEntityProcessor instance based on entity type.
+   *
+   * Also caches instances statically to work with nested usages.
+   *
+   * @param $smartling_entity \stdClass|\SmartlingEntityData
    *
    * @return BaseEntityProcessor
    */

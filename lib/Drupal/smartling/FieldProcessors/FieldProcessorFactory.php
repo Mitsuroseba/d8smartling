@@ -1,11 +1,28 @@
 <?php
 
+/**
+ * @file
+ * Contains Drupal\smartling\FieldProcessor\FieldProcessorFactory.
+ *
+ * @todo move to Drupal\smartling namespace.
+ */
+
 namespace Drupal\smartling\FieldProcessors;
 
+/**
+ * Factory that creates field processor instances and contains mapping.
+ *
+ * @package Drupal\smartling\FieldProcessors
+ */
 class FieldProcessorFactory {
   // @TODO remove this hardcode and figure out how to pass namespace to factory.
   protected static $namespace = 'Drupal\smartling\FieldProcessors\\';
 
+  /**
+   * Mapping field_type => FieldProcessor.
+   *
+   * @var array
+   */
   protected static $fields_mapping = array(
     'text' => 'TextFieldProcessor',
     'text_long' => 'TextFieldProcessor',
@@ -18,20 +35,27 @@ class FieldProcessorFactory {
     'title_property_field' => 'TitlePropertyFieldProcessor',
   );
 
+  /**
+   * List of fake fields which should be processed in the separate way.
+   *
+   * @var array
+   */
   protected static $fake_fields = array(
     'title_property_field',
     'name_property_field',
     'description_property_field',
   );
 
-  public static function getFieldsProcessorsMapping() {
-    return self::$fields_mapping;
-  }
-
   /**
-   * @param $field_name
-   * @param $entity
+   * @param $field_name string
+   *   Field's machine name.
+   * @param $entity \stdClass
+   *   Drupal content entity.
+   *
    * @return BaseFieldProcessor
+   *
+   * @todo remove procedural code or at least put into the separate method
+   * to allow unit testing.
    */
   public static function getProcessor($field_name, $entity) {
     $field_info = field_info_field($field_name);
