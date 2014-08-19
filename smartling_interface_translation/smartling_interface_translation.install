@@ -54,3 +54,19 @@ function smartling_interface_translation_install() {
     smartling_interface_entity_save($smartling_interface_entity);
   }
 }
+
+/**
+ * Implements hook_enable().
+ */
+function smartling_interface_translation_enable() {
+  // Clear caches.
+  views_invalidate_cache();
+}
+
+/**
+ * Implements hook_disable().
+ */
+function smartling_interface_translation_disable() {
+  // Clear caches.
+  views_invalidate_cache();
+}
