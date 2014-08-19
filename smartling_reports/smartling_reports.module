@@ -130,11 +130,15 @@ function smartling_reports_preprocess_views_view_table(array &$vars) {
 
   $rows = $vars['view']->result;
   if (!empty($rows) && is_array($rows)) {
+    $add_css = FALSE;
     foreach ($rows as $k => $v) {
-      if ($v->smartling_entity_data_status == SMARTLING_STATUS_FAILED) {
+      if (isset($v->smartling_entity_data_status) && ($v->smartling_entity_data_status == SMARTLING_STATUS_FAILED)) {
         $vars['row_classes'][$k][] = 'failed_status';
+        $add_css = TRUE;
       }
     }
-    drupal_add_css(drupal_get_path('module', 'smartling') . '/css/smartling_admin.css');
+    if ($add_css) {
+      drupal_add_css(drupal_get_path('module', 'smartling') . '/css/smartling_admin.css');
+    }
   }
 }
