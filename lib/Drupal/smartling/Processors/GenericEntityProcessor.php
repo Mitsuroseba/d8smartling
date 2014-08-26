@@ -230,15 +230,13 @@ class GenericEntityProcessor {
     $translated_filename = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $save = smartling_save_xml($xml, $this->entity->rid, $this->drupalLocale, $translated_filename, TRUE, $this->entity->entity_type);
+    $isSuccessfulSave = smartling_save_xml($xml, $this->entity->rid, $this->drupalLocale, $translated_filename, TRUE, $this->entity->entity_type);
 
     // If result is saved.
     // @todo finish converting.
-    if (is_object($save)) {
-      smartling_update_translated_fields($entity_data);
-      $entity_data->progress = $progress;
-      smartling_entity_data_save($entity_data);
-      drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
+    if ($isSuccessfulSave) {
+      $this->setStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
+      $this->updateTranslation();
     }
   }
 
