@@ -34,5 +34,5 @@ interface SmartlingContentParserInterface {
    * @param object $entity
    *   Entity object.
    */
-  public function parse($content, $lang, $field_name, $entity);
+  public function parse(array $content, $lang, $field_name, $entity);
 }

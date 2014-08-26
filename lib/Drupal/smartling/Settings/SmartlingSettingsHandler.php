@@ -520,7 +520,7 @@ class SmartlingSettingsHandler {
   /**
    * Get smartling log mode.
    *
-   * @return bool
+   * @return int
    *   Return smarling log mode.
    */
   public function getLogMode() {
@@ -534,7 +534,8 @@ class SmartlingSettingsHandler {
    *   1 if log mode ON. 1 by default.
    */
   public function setLogMode($log_mode = 1) {
-    $this->logMode = $log_mode;
+    $this->logMode = (int) $log_mode;
+
     $this->variableSet('smartling_log', $this->logMode);
   }
 
@@ -749,9 +750,7 @@ class SmartlingSettingsHandler {
    *   Return smartling dir path.
    */
   public function getDir($file_name = '') {
-    $smartling_dir = ($this->variableGet('file_private_path', FALSE)) ? ($this->variableGet('file_private_path') . '/smartling') : ($this->variableGet('file_public_path', conf_path() . '/files') . '/smartling');
-    $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
-    return (string) $smartling_dir;
+    return smartling_get_dir($file_name);
   }
 
   /**
@@ -773,4 +772,5 @@ class SmartlingSettingsHandler {
   public function getCallbackUrl() {
     return $this->callbackUrl;
   }
+
 }

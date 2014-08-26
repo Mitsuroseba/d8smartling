@@ -35,8 +35,6 @@ class SmartlingSettingsAccountInfoSaveFailsTest extends SmartlingWebTestCase {
   }
 
   /**
-    $this->drupalPost('admin/config/regional/smartling', $edit, t('Test connection'), array(), array(), 'smartling-admin-account-info-settings-form');
-    $this->assertText(t('Test connection for locale ru is fail.'));
    * Test incorrect smartling account info settings progect id.
    */
   public function testIncorrectSmartlingAccountInfoSettingsProjectId() {

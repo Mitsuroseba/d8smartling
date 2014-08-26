@@ -565,9 +565,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       while (!$cron) {
         $cron = drupal_cron_run();
         if (!$cron) {
-          db_delete('semaphore')
-              ->condition('name', 'cron')
-              ->execute();
+          sleep(10);
         }
       }
     }

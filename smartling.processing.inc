@@ -148,7 +148,7 @@ function smartling_taxonomy_term_content_to_translate($tid) {
   }
 
   foreach (smartling_settings_get_handler()->taxonomyTermGetFieldsSettingsByBundle($term->vocabulary_machine_name) as $field_name) {
-    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('taxonomy_term', $term) : LANGUAGE_NONE;
+    $language = (smartling_field_is_translatable_by_field_name($field_name, 'taxonomy_term')) ? entity_language('taxonomy_term', $term) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'name_property_field':
         if (!empty($term->name)) {
@@ -223,7 +223,7 @@ function smartling_comment_content_to_translate($cid) {
   }
 
   foreach (smartling_settings_get_handler()->commentGetFieldsSettingsByBundle($comment->node_type) as $field_name) {
-    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('comment', $comment) : LANGUAGE_NONE;
+    $language = (smartling_field_is_translatable_by_field_name($field_name, 'comment')) ? entity_language('comment', $comment) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($comment->{$field_name}[$language])) {
@@ -286,7 +286,7 @@ function smartling_user_content_to_translate($uid) {
   }
 
   foreach (smartling_settings_get_handler()->userGetFieldsSettingsByBundle('user') as $field_name) {
-    $language = (smartling_field_is_translatable_by_field_name($field_name)) ? entity_language('user', $user) : LANGUAGE_NONE;
+    $language = (smartling_field_is_translatable_by_field_name($field_name, 'user')) ? entity_language('user', $user) : LANGUAGE_NONE;
     switch (smartling_get_field_content_processing_mode($field_name)) {
       case 'text-field':
         if (!empty($user->{$field_name}[$language])) {
@@ -573,7 +573,7 @@ function smartling_update_translated_fields($smartling_entity) {
 //          }
 //        }
 //        elseif (smartling_fields_method($bundle)) {
-//          $original_entity = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
+//          $original_entity = smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
 //        }
 //        break;
 //
@@ -631,7 +631,7 @@ function smartling_update_translated_fields($smartling_entity) {
 //              break;
 //
 //            case I18N_MODE_LOCALIZE:
-//              $original_term = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
+//              $original_term = smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, $fields);
 //              break;
 //
 //            case I18N_MODE_LANGUAGE:
@@ -659,13 +659,13 @@ function smartling_update_translated_fields($smartling_entity) {
 //
 //      case 'comment':
 //        $original_comment = comment_load($rid);
-//        $original_comment = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_comment, $d_locale, $fields);
+//        $original_comment = smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_comment, $d_locale, $fields);
 //        $original_entity = $original_comment;
 //        break;
 //
 //      case 'user':
 //        $original_user = user_load($rid);
-//        $original_user = smartling_dublicate_values_for_fields_method($entity_type, $bundle, $original_user, $d_locale, $fields);
+//        $original_user = smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_user, $d_locale, $fields);
 //        $original_entity = $original_user;
 //        break;
 //
@@ -674,7 +674,7 @@ function smartling_update_translated_fields($smartling_entity) {
 //    }
 
     $xml = new DOMDocument();
-    $xml->load($file_path);
+    $xml->load(drupal_realpath($file_path));
 
     $processor->updateEntityFromXML($xml);
 
@@ -791,7 +791,7 @@ function smartling_copy_translations_from_xml_to_fields($entity_type, $xml, $rid
   if ($entity_wrapper) {
     foreach ($fields as $field_name) {
       // Get language key for field translatable type.
-      if (smartling_field_is_translatable_by_field_name($field_name)) {
+      if (smartling_field_is_translatable_by_field_name($field_name, $entity_type)) {
         $language_key = $d_locale;
         $language_key_format = $original_locale;
       }

@@ -120,15 +120,13 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  if (variable_get('smartling_callback_url_use', TRUE)) {
-    $items['smartling/callback/%'] = array(
-      'title' => 'Smartling push',
-      'type' => MENU_CALLBACK,
-      'page callback' => 'smartling_push_callback',
-      'access callback' => 'smartling_push_callback_access',
-      'access arguments' => array(2),
-    );
-  }
+  $items['smartling/callback/%'] = array(
+    'title' => 'Smartling push',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'smartling_push_callback',
+    'access callback' => 'smartling_push_callback_access',
+    'access arguments' => array(2),
+  );
 
   $items['admin/config/regional/smartling/manual-management'] = array(
     'title' => 'Smartling manual translation management',
@@ -699,8 +697,18 @@ function smartling_cron() {
  * Implements hook_cron_alter().
  */
 function smartling_cron_alter(&$hooks) {
-  if (isset($hooks['smartling_cron']['description'])) {
-    $hooks['smartling_cron']['description'] = t('Add nodes for translation');
+  if (isset($hooks['smartling_cron'])) {
+    $hooks['smartling_cron']['title'] = t('Add items to "smartling_check_status" queue.');
+    $hooks['smartling_cron']['scheduler']['crontab']['rules'][0] = '0 * * * *';
+  }
+  if (isset($hooks['queue_smartling_upload'])) {
+    $hooks['queue_smartling_upload']['scheduler']['crontab']['rules'][0] = '* * * * *';
+  }
+  if (isset($hooks['queue_smartling_check_status'])) {
+    $hooks['queue_smartling_check_status']['scheduler']['crontab']['rules'][0] = '* * * * *';
+  }
+  if (isset($hooks['queue_smartling_download'])) {
+    $hooks['queue_smartling_download']['scheduler']['crontab']['rules'][0] = '* * * * *';
   }
 }
 

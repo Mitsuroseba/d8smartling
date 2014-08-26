@@ -9,7 +9,7 @@
  * Implements hook_install().
  */
 function smartling_install() {
-  variable_set('smartling_log', TRUE);
+  variable_set('smartling_log', 1);
   variable_set('smartling_retrieval_type', 'published');
   variable_set('smartling_callback_url_use', TRUE);
   variable_set('smartling_auto_authorize_content', TRUE);
@@ -68,50 +68,6 @@ function smartling_install() {
   variable_set('language_negotiation_language_content', $language_negotiation_language_content);
   variable_set('locale_language_providers_weight_language', $locale_language_providers_weight_language);
   variable_set('locale_language_providers_weight_language_content', $locale_language_providers_weight_language_content);
-
-  // Install default cron settings for smartling process.
-  $cron_base_settings = array();
-
-  $cron_base_settings['smartling_cron'] = array(
-    'enabled' => 1,
-    'rules' => array(0 => '0 * * * *'),
-    'catch_up' => '',
-    'service_group' => '',
-  );
-
-  $cron_base_settings['ultimate_cron_queue_smartling_check_status'] = array(
-    'enabled' => 1,
-    'rules' => array(0 => '* * * * *'),
-    'catch_up' => '',
-    'queue_lease_time' => '',
-    'service_group' => '',
-    'queue_threads' => '5',
-    'queue_threshold' => '1',
-  );
-
-  $cron_base_settings['ultimate_cron_queue_smartling_upload'] = array(
-    'enabled' => 1,
-    'rules' => array(0 => '* * * * *'),
-    'catch_up' => '',
-    'queue_lease_time' => '',
-    'service_group' => '',
-    'queue_threads' => '5',
-    'queue_threshold' => '1',
-  );
-
-  $cron_base_settings['ultimate_cron_queue_smartling_download'] = array(
-    'enabled' => 1,
-    'rules' => array(0 => '* * * * *'),
-    'catch_up' => '',
-    'queue_lease_time' => '',
-    'service_group' => '',
-    'queue_threads' => '5',
-    'queue_threshold' => '1',
-  );
-
-  foreach ($cron_base_settings as $name => $settings) {
-    ultimate_cron_set_settings($name, $settings);
-  }
 
   // i18 string settings.
   $i18n_string_allowed_formats = array();
@@ -402,13 +358,13 @@ function smartling_update_7100(&$sandbox) {
       }
     }
 
-    if(!empty($eids)){
-    db_update('smartling_entity_data')
-      ->fields(array(
-        'status' => 3,
-      ))
-      ->condition('item_id', $eids, 'IN')
-      ->execute();
+    if (!empty($eids)) {
+      db_update('smartling_entity_data')
+        ->fields(array(
+          'status' => 3,
+        ))
+        ->condition('item_id', $eids, 'IN')
+        ->execute();
     }
 
     // New dependencies.
@@ -566,7 +522,6 @@ function smartling_update_7100(&$sandbox) {
           'file_name' => $file_name,
           'translated_file_name' => $translated_file_name,
           'status' => $status,
-          'content_hash' => $content_hash,
         ))
         ->condition('eid', $res->eid)
         ->execute();

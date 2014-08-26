@@ -8,9 +8,9 @@
 include_once 'token_storage.inc';
 
 /**
- * Class ContextBase.
+ * Class SmartlingContextBase.
  */
-class ContextBase {
+class SmartlingContextBase {
 
   protected $storage;
 
@@ -40,12 +40,12 @@ class ContextBase {
   /**
    * Construct.
    *
-   * @param TokenStorage $storage
-   *   TokenStorage object.
+   * @param SmartlingTokenStorage $storage
+   *   SmartlingTokenStorage object.
    * @param string $url
    *   Url.
    */
-  public function __construct(TokenStorage $storage, $url) {
+  public function __construct(SmartlingTokenStorage $storage, $url) {
     $this->storage = $storage;
 
     if ($url[strlen($url) - 1] != '/') {

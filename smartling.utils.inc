@@ -355,10 +355,10 @@ function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE)
  *   File name.
  *
  * @return string
- *   Return path for smartling dir.
+ *   Return path for smartling dir without end '/' or file path with dir.
  */
 function smartling_get_dir($file_name = '') {
-  $smartling_dir = (variable_get('file_private_path', FALSE)) ? (variable_get('file_private_path') . '/smartling') : (variable_get('file_public_path', conf_path() . '/files') . '/smartling');
+  $smartling_dir = (variable_get('file_private_path', FALSE)) ? ('private://smartling') : ('public://smartling');
   $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
   return (string) $smartling_dir;
 }
@@ -406,7 +406,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  *   Xml document.
  * @param int $rid
  *   Related id.
- * @param string $d_locale
+ * @param string|boolean $d_locale
  *   Locale in drupal format (ru, en).
  * @param string $file_name
  *   File name.
@@ -427,16 +427,11 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
 
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
   $directory = smartling_get_dir();
-  $path = smartling_clean_filename($directory . '/' . $file_name, TRUE);
+  $path = $directory . '/' . smartling_clean_filename($file_name);
   $file_type = 'original';
 
-  if (!is_dir($directory) || !is_writable($directory)) {
-    drupal_mkdir($directory);
-    drupal_chmod($directory);
-  }
-
-  if (is_dir($directory) && is_writable($directory)) {
-    $xml_doc->save($path);
+  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    $xml_doc->save(drupal_realpath($path));
 
     if ($translated_file == TRUE) {
       $file_type = 'translated';
@@ -450,7 +445,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
           '@rid' => $rid,
           '@locale' => implode('; ', $d_locale),
         ))
-        ->setLink(l(t('View file'), $path))
+        ->setLink(l(t('View file'), file_create_url($path)))
         ->execute();
     }
     else {
@@ -461,7 +456,7 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
           '@rid' => $rid,
           '@locale' => $d_locale,
         ))
-        ->setLink(l(t('View file'), $path))
+        ->setLink(l(t('View file'), file_create_url($path)))
         ->execute();
     }
 
@@ -728,7 +723,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
       }
     }
     else {
-      drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $s_locale)), 'error');
+      drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $d_locale)), 'error');
     }
   }
   else {
@@ -746,24 +741,17 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
  *   Return xml dom from downloaded file.
  */
 function smartling_download_file($entity_data) {
-  $file_name_unic = $entity_data->file_name;
-  $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
-  $smartling_settings = smartling_settings_get_handler();
+  $api = drupal_container()->get('smartling.api_wrapper');
+  $download_result = $api->downloadFile($entity_data);
 
-  // Init api object.
-  $api = new SmartlingAPI($smartling_settings->getApiUrl(), $smartling_settings->getKey(), $smartling_settings->getProjectId(), SMARTLING_PRODUCTION_MODE);
+  if ($download_result) {
+    $xml = new DOMDocument();
+    $xml->loadXML($download_result);
 
-  $download_param = array(
-    'retrievalType' => $smartling_settings->getRetrievalType(),
-  );
+    return $xml;
+  }
 
-  // Try to download file.
-  $download_result = $api->downloadFile($file_name_unic, $s_locale, $download_param);
-  // This is a download result.
-  $xml = new DOMDocument();
-  $xml->loadXML($download_result);
-
-  return $xml;
+  return FALSE;
 }
 
 /**
@@ -779,10 +767,8 @@ function smartling_download_file($entity_data) {
  */
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
-    $link_to_entity = smartling_get_link_to_entity($entity_data->rid, $entity_data->entity_type);
-
-    $api = drupal_container()->get('smartling.api_wrapper'); //new SmartlingApiWrapper($smartling_settings, $log);
-    $result = $api->getStatus($entity_data, $link_to_entity);
+    $api = drupal_container()->get('smartling.api_wrapper');
+    $result = $api->getStatus($entity_data);
 
     if (!empty($result)) {
       return $result['entity_data']->progress;
@@ -1041,11 +1027,7 @@ function smartling_entity_translation_get_handler($entity_type, $entity) {
  *   Return handler object.
  */
 function smartling_settings_get_handler() {
-//  $class = 'SmartlingSettingsHandler';
-//  $handler = new $class();
-  //$container = drupal_container();
-  //$handler = $container->get('smartling.settings');
-  return drupal_container()->get('smartling.settings');//$handler;
+  return drupal_container()->get('smartling.settings');
 }
 
 /**
@@ -1055,9 +1037,6 @@ function smartling_settings_get_handler() {
  *   Return handler object.
  */
 function smartling_log_get_handler() {
-//  $container = drupal_container();
-//  $handler = $container->get('smartling.log');
-//  return $handler;
   return drupal_container()->get('smartling.log');
 }
 
@@ -1151,9 +1130,13 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
  * @param string $field_name
  *   Field name.
  *
+<<<<<<< HEAD
  * @deprecated
  *
  * @return boolean
+=======
+ * @return bool
+>>>>>>> 7.x-2.x
  *   Return check result.
  */
 function smartling_is_title_module_field($field_name) {
@@ -1175,7 +1158,11 @@ function smartling_is_title_module_field($field_name) {
 }
 
 /**
+<<<<<<< HEAD
  * Set duplicated values for fields method.
+=======
+ * Set dublicate values for fields method.
+>>>>>>> 7.x-2.x
  *
  * We need to duplicate the original value in the first cell of
  * a target language for the fields that are
@@ -1213,4 +1200,73 @@ function smartling_duplicate_values_for_fields_method($entity_type, $bundle, $or
   }
 
   return $original_entity;
+}
+
+/**
+ * Copy devel_create_greeking().
+ *
+ * @param int $word_count
+ *   Words count.
+ * @param bool $title
+ *   TRUE if is title. FALSE by default.
+ *
+ * @return string
+ *   Return random string.
+ */
+function smartling_devel_create_greeking($word_count, $title = FALSE) {
+  $dictionary = array("abbas", "abdo", "abico", "abigo", "abluo", "accumsan",
+    "acsi", "ad", "adipiscing", "aliquam", "aliquip", "amet", "antehabeo",
+    "appellatio", "aptent", "at", "augue", "autem", "bene", "blandit",
+    "brevitas", "caecus", "camur", "capto", "causa", "cogo", "comis",
+    "commodo", "commoveo", "consectetuer", "consequat", "conventio", "cui",
+    "damnum", "decet", "defui", "diam", "dignissim", "distineo", "dolor",
+    "dolore", "dolus", "duis", "ea", "eligo", "elit", "enim", "erat",
+    "eros", "esca", "esse", "et", "eu", "euismod", "eum", "ex", "exerci",
+    "exputo", "facilisi", "facilisis", "fere", "feugiat", "gemino",
+    "genitus", "gilvus", "gravis", "haero", "hendrerit", "hos", "huic",
+    "humo", "iaceo", "ibidem", "ideo", "ille", "illum", "immitto",
+    "importunus", "imputo", "in", "incassum", "inhibeo", "interdico",
+    "iriure", "iusto", "iustum", "jugis", "jumentum", "jus", "laoreet",
+    "lenis", "letalis", "lobortis", "loquor", "lucidus", "luctus", "ludus",
+    "luptatum", "macto", "magna", "mauris", "melior", "metuo", "meus",
+    "minim", "modo", "molior", "mos", "natu", "neo", "neque", "nibh",
+    "nimis", "nisl", "nobis", "nostrud", "nulla", "nunc", "nutus", "obruo",
+    "occuro", "odio", "olim", "oppeto", "os", "pagus", "pala", "paratus",
+    "patria", "paulatim", "pecus", "persto", "pertineo", "plaga", "pneum",
+    "populus", "praemitto", "praesent", "premo", "probo", "proprius",
+    "quadrum", "quae", "qui", "quia", "quibus", "quidem", "quidne", "quis",
+    "ratis", "refero", "refoveo", "roto", "rusticus", "saepius",
+    "sagaciter", "saluto", "scisco", "secundum", "sed", "si", "similis",
+    "singularis", "sino", "sit", "sudo", "suscipere", "suscipit", "tamen",
+    "tation", "te", "tego", "tincidunt", "torqueo", "tum", "turpis",
+    "typicus", "ulciscor", "ullamcorper", "usitas", "ut", "utinam",
+    "utrum", "uxor", "valde", "valetudo", "validus", "vel", "velit",
+    "veniam", "venio", "vereor", "vero", "verto", "vicis", "vindico",
+    "virtus", "voco", "volutpat", "vulpes", "vulputate", "wisi", "ymo",
+    "zelus");
+  $dictionary_flipped = array_flip($dictionary);
+
+  $greeking = '';
+
+  if (!$title) {
+    $words_remaining = $word_count;
+    while ($words_remaining > 0) {
+      $sentence_length = mt_rand(3, 10);
+      $words = array_rand($dictionary_flipped, $sentence_length);
+      $sentence = implode(' ', $words);
+      $greeking .= ucfirst($sentence) . '. ';
+      $words_remaining -= $sentence_length;
+    }
+  }
+  else {
+    // Use slightly different method for titles.
+    $words = array_rand($dictionary_flipped, $word_count);
+    $words = is_array($words) ? implode(' ', $words) : $words;
+    $greeking = ucwords($words);
+  }
+
+  // Work around possible php garbage collection bug. Without an unset(), this
+  // function gets very expensive over many calls (php 5.2.11).
+  unset($dictionary, $dictionary_flipped);
+  return trim($greeking);
 }

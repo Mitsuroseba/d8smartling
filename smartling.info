@@ -18,7 +18,6 @@ dependencies[] = entity_translation
 dependencies[] = ctools
 dependencies[] = views
 dependencies[] = ultimate_cron
-dependencies[] = ultimate_cron_queue_scaler
 dependencies[] = inject
 
 files[] = includes/smartling_translation.handler.inc

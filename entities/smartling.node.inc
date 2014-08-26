@@ -162,6 +162,10 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
+
+                case SMARTLING_STATUS_FAILED:
+                  $options[$d_locale] = '<span title="' . t('Request to service failed') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-failed">' . $entity_data->progress . '%</span></span>';
+                  break;
               }
             }
             else {
@@ -212,6 +216,10 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
                   break;
+
+                case SMARTLING_STATUS_FAILED:
+                  $options[$d_locale] = '<span title="' . t('Request to service failed') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-failed">' . $entity_data->progress . '%</span></span>';
+                  break;
               }
             }
             else {
@@ -250,6 +258,10 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
 
                 case SMARTLING_STATUS_CHANGE:
                   $options[$d_locale] = '<span title="' . t('Node was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
+                  break;
+
+                case SMARTLING_STATUS_FAILED:
+                  $options[$d_locale] = '<span title="' . t('Request to service failed') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-failed">' . $entity_data->progress . '%</span></span>';
                   break;
               }
             }

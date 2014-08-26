@@ -38,7 +38,7 @@ abstract class SmartlingContentBaseParser implements SmartlingContentParserInter
    * @return array
    *   Return content.
    */
-  protected abstract function getContext($matches);
+  protected abstract function getContext(array $matches);
 
 
   /**
@@ -50,7 +50,7 @@ abstract class SmartlingContentBaseParser implements SmartlingContentParserInter
    * @return string
    *   Return executor.
    */
-  protected function processorExecutor($match) {
+  protected function processorExecutor(array $match) {
     $context = $this->getContext($match);
 
     foreach ($this->processors as $processor) {
