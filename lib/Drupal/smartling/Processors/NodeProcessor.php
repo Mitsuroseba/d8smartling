@@ -7,7 +7,7 @@
 
 namespace Drupal\smartling\Processors;
 
-class NodeProcessor extends BaseEntityProcessor {
+class NodeProcessor extends GenericEntityProcessor {
 
   /**
    * {inheritdoc}
@@ -55,4 +55,16 @@ class NodeProcessor extends BaseEntityProcessor {
       }
     }
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateTranslation() {
+    if (($this->originalEntityType == 'node') && smartling_nodes_method($this->entity->bundle)) {
+      return;
+    }
+
+    parent::updateTranslation();
+  }
+
 }

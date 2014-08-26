@@ -9,7 +9,7 @@ use Drupal\smartling\EntityProcessorFactory;
 use Drupal\smartling\Settings\SmartlingSettingsHandler;
 use Drupal\smartling\Processors\NodeProcessor;
 use Drupal\smartling\Processors\TaxonomyTermProcessor;
-use Drupal\smartling\Processors\BaseEntityProcessor;
+use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
  * Returns whether the given node type has support for Smartling translations.
@@ -997,13 +997,8 @@ function smartling_get_original_entity($rid, $entity_type) {
  */
 function smartling_get_field_format($original_entity, $field_name, $language_key_format, $i = 0) {
   if (isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
-    $format = $original_entity->{$field_name}[$language_key_format][$i]['format'];
+    return $original_entity->{$field_name}[$language_key_format][$i]['format'];
   }
-  else {
-    $format = NULL;
-  }
-
-  return $format;
 }
 
 /**

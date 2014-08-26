@@ -2,7 +2,7 @@
 
 namespace Drupal\smartling\Convectors;
 
-class XMLConvector implements ConvectorInterface {
+class XMLConverter implements ConverterInterface {
   public function import() {
     // TODO: Implement import() method.
   }

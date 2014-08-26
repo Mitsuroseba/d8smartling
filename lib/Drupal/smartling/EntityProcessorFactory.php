@@ -9,7 +9,7 @@ namespace Drupal\smartling;
 
 use Drupal\smartling\Processors\NodeProcessor;
 use Drupal\smartling\Processors\TaxonomyTermProcessor;
-use Drupal\smartling\Processors\BaseEntityProcessor;
+use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
  * Factory that creates entity processor instances and caches it statically.
@@ -19,13 +19,13 @@ use Drupal\smartling\Processors\BaseEntityProcessor;
 class EntityProcessorFactory {
 
   /**
-   * Creates BaseEntityProcessor instance based on entity type.
+   * Creates GenericEntityProcessor instance based on entity type.
    *
    * Also caches instances statically to work with nested usages.
    *
    * @param $smartling_entity \stdClass|\SmartlingEntityData
    *
-   * @return BaseEntityProcessor
+   * @return GenericEntityProcessor
    */
   public static function getProcessor($smartling_entity) {
     $log = smartling_log_get_handler();
@@ -47,7 +47,7 @@ class EntityProcessorFactory {
         break;
 
       default:
-        $static_storage[$smartling_entity->eid] = new BaseEntityProcessor($smartling_entity, $log);
+        $static_storage[$smartling_entity->eid] = new GenericEntityProcessor($smartling_entity, $log);
         return $static_storage[$smartling_entity->eid];
         break;
     }

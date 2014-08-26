@@ -12,7 +12,7 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
   /**
    * {@inheritdoc}
    */
-  public function getSmartlingFormat() {
+  public function getSmartlingContent() {
 //    $data = array();
 
 //    if (!empty($this->entity->title)) {
@@ -25,10 +25,10 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
   /**
    * {@inheritdoc}
    */
-  public function getDrupalFormat() {
+  public function getDrupalContent() {
     $data = $this->entity->{$this->fieldName};
 
-    foreach ($this->smartlingData[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
       $data = $value;
     }
 

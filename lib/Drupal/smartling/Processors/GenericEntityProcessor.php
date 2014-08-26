@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\smartling\Processors\BaseEntityProcessor.
+ * Contains Drupal\smartling\Processors\GenericEntityProcessor.
  *
  * @todo rename namespace to EntityProcessor or something else.
  */
@@ -18,7 +18,7 @@ use Drupal\smartling\FieldProcessors\FieldProcessorFactory;
  *
  * @package Drupal\smartling\Processors
  */
-class BaseEntityProcessor {
+class GenericEntityProcessor {
 
   /**
    * Contains Smartling data entity.
@@ -103,7 +103,7 @@ class BaseEntityProcessor {
   protected $isOriginalEntityPrepared;
 
   /**
-   * Create BaseEntityProcessor instance.
+   * Create GenericEntityProcessor instance.
    *
    * @param $entity object
    *   Smartling data entity.
@@ -223,7 +223,7 @@ class BaseEntityProcessor {
   public function downloadTranslation() {
     $download_result = $this->smartlingAPI->downloadFile($this->entity, $this->linkToContent());
     // This is a download result.
-    $xml = new DOMDocument();
+    $xml = new \DOMDocument();
     $xml->loadXML($download_result);
 
     $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
@@ -263,17 +263,14 @@ class BaseEntityProcessor {
    * @todo remove procedural code and use entities from properties.
    */
   public function updateTranslation() {
-    if (($this->originalEntityType == 'node') && smartling_nodes_method($this->entity->bundle)) {
-      return;
-    }
-    $entity_load = entity_load_single($this->originalEntityType, $this->entity->rid);
-    $handler = smartling_entity_translation_get_handler($this->originalEntityType, $entity_load);
+    $entity = entity_load_single($this->originalEntityType, $this->entity->rid);
+    $handler = smartling_entity_translation_get_handler($this->originalEntityType, $entity);
     $translations = $handler->getTranslations();
 
     // Initialize translations if they are empty.
     if (empty($translations->original)) {
       $handler->initTranslations();
-      smartling_entity_translation_save($handler, $entity_load);
+      smartling_entity_translation_save($handler, $entity);
       $translations = $handler->getTranslations();
     }
 
@@ -281,7 +278,7 @@ class BaseEntityProcessor {
       'entity_type' => $this->originalEntityType,
       'entity_id' => $this->entity->rid,
       'translate' => '0',
-      'status' => $entity_load->status,
+      'status' => $entity->status,
       'language' => $this->drupalLocale,
       'uid' => $this->entity->submitter,
       'changed' => $this->entity->submission_date,
@@ -294,11 +291,11 @@ class BaseEntityProcessor {
       // Add the new translation.
       $entity_translation += array(
         'source' => $translations->original,
-        'created' => $entity_load->created,
+        'created' => $entity->created,
       );
       $handler->setTranslation($entity_translation);
     }
-    smartling_entity_translation_save($handler, $entity_load);
+    smartling_entity_translation_save($handler, $entity);
   }
 
   /**
@@ -311,9 +308,9 @@ class BaseEntityProcessor {
 
     foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingData((array) $this->entity);
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingEntity((array) $this->entity);
 
-      $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalFormat();
+      $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalContent();
     }
 
     $this->saveDrupalEntity();
@@ -365,18 +362,18 @@ class BaseEntityProcessor {
 
   public function exportContentToTranslation() {
     $this->prepareOriginalEntity();
-    $node_current_translatable_content = array();
+    $entity_current_translatable_content = array();
 
     foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
       $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
 
       if ($fieldProcessor) {
-        $node_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingFormat();
+        $entity_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingContent();
       }
     }
 
-    return $node_current_translatable_content;
+    return $entity_current_translatable_content;
   }
 
   /**
@@ -402,7 +399,7 @@ class BaseEntityProcessor {
   }
 
   /**
-   * Clone fields values to new node during creating new translations
+   * Clone fields values to new entity during creating new translations
    */
   public function fillFieldFromOriginalLanguage() {
     $this->prepareOriginalEntity();

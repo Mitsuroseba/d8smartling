@@ -4,7 +4,7 @@
  * @file
  * Processing functions for Smartling module.
  */
-use Drupal\smartling\Processors\BaseEntityProcessor;
+use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
  * Get field processing mode.
@@ -491,7 +491,7 @@ function smartling_update_translated_fields($smartling_entity) {
     ->execute();
 
   if (smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
-    /* @var $processor BaseEntityProcessor */
+    /* @var $processor GenericEntityProcessor */
     $processor = smartling_get_entity_processor($smartling_entity, $log);
     $smartling_settings = smartling_settings_get_handler();
 

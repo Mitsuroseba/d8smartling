@@ -7,7 +7,7 @@
 
 namespace Drupal\smartling\Processors;
 
-class TaxonomyTermProcessor extends BaseEntityProcessor {
+class TaxonomyTermProcessor extends GenericEntityProcessor {
 
   /**
    * {inheritdoc}

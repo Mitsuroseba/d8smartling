@@ -12,7 +12,7 @@ class ImageFieldProcessor extends BaseFieldProcessor {
   /**
    * {@inheritdoc}
    */
-  public function getSmartlingFormat() {
+  public function getSmartlingContent() {
     $data = array();
 
     if (!empty($this->entity->{$this->fieldName}[$this->language])) {
@@ -29,10 +29,10 @@ class ImageFieldProcessor extends BaseFieldProcessor {
   /**
    * {@inheritdoc}
    */
-  public function getDrupalFormat() {
+  public function getDrupalContent() {
     $data = $this->entity->{$this->fieldName};
 
-    foreach ($this->smartlingData[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
       $data[$this->language][$delta]['alt'] = $value['alt-img'];
       $data[$this->language][$delta]['title'] = $value['title-img'];
       $data[$this->language][$delta]['fid'] = $value['fid-img'];

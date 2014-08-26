@@ -19,20 +19,20 @@ abstract class BaseFieldProcessor {
   protected $language;
   protected $fieldName;
 
-  protected $smartlingData;
+  protected $smartling_entity;
 
   public function __construct($entity, $entity_type, $language, $field_name, $smartling_data = NULL) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
     $this->language = $language;
     $this->fieldName = $field_name;
-    $this->smartlingData = $smartling_data;
+    $this->smartling_entity = $smartling_data;
 
     return $this;
   }
 
-  public function setSmartlingData($smartling_data) {
-    $this->smartlingData = $smartling_data;
+  public function setSmartlingEntity($smartling_data) {
+    $this->smartling_entity = $smartling_data;
 
     return $this;
   }
@@ -81,7 +81,7 @@ abstract class BaseFieldProcessor {
    * @return array
    *   Drupal field structure ready to be put into drupal content entity.
    */
-  abstract public function getSmartlingFormat();
+  abstract public function getSmartlingContent();
 
   /**
    * Converts smartling data field format to drupal.
@@ -89,7 +89,7 @@ abstract class BaseFieldProcessor {
    * @return array
    *   Drupal field structure ready to be put into smartling entity.
    */
-  abstract public function getDrupalFormat();
+  abstract public function getDrupalContent();
 
   /**
    * Fetch translation data from xml based on structure for particular field.
@@ -99,20 +99,6 @@ abstract class BaseFieldProcessor {
    * @return array
    *   Drupal field structure ready to be put into smartling entity.
    */
-  public function fetchDataFromXML(\DomXpath $xpath) {
-    //@todo fetch format from xml as well.
-    $data = array();
-    $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-0' . '"][1]')
-      ->item(0);
-    $quantity = $quantity_value->getAttribute('quantity');
-
-    for ($i = 0; $i < $quantity; $i++) {
-      $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
-        ->item(0);
-      $data[$this->language][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
-    }
-
-    return $data;
-  }
+  abstract public function fetchDataFromXML(\DomXpath $xpath);
 
 }

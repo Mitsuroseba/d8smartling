@@ -758,6 +758,12 @@ function smartling_entity_load($entities, $type) {
       }
     }
   }
+
+  if ($type == 'smartling_entity_data') {
+    foreach ($entities as $entity) {
+      $entity->content_entity = entity_load($entity->entity_type, $entity->rid);
+    }
+  }
 }
 
 /**

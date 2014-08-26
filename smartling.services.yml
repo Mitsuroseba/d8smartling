@@ -8,3 +8,11 @@ services:
     class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
     arguments:          [@smartling.settings, @smartling.log]
 
+parameters:
+  field_processors_mapping:
+    text:                 Drupal\smartling\FieldProcessors\TextFieldProcessor
+    text_long:            Drupal\smartling\FieldProcessors\TextFieldProcessor
+    text_with_summary:    Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
+    image:                Drupal\smartling\FieldProcessors\ImageFieldProcessor
+    title_property:       Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
+    title_property_field: Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor

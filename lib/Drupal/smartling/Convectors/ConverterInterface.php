@@ -2,7 +2,7 @@
 
 namespace Drupal\smartling\Convectors;
 
-interface ConvectorInterface {
+interface ConverterInterface {
   public function import();
   public function export();
 }
