@@ -313,21 +313,22 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       if ($d_locale !== 0) {
         $langs[] = $d_locale;
       }
+      $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $form['#entity']);
 
       $entity_data = smartling_entity_load_by_conditions(array(
-        'rid' => $form['#entity_id'],
-        'bundle' => $form['#bundle'],
+        'rid' => $entity_wrapper->getIdentifier(),
+        'bundle' => $entity_wrapper->getBundle(),
         'target_language' => $d_locale,
       ));
 
       if (!$entity_data) {
         $log->setMessage('Smartling FAIL force download translated file for node id - @nid, language - @language')
           ->setVariables(array(
-            '@nid' => $form['#entity_id'],
+            '@nid' => $entity_wrapper->getIdentifier(),
             '@language' => $d_locale,
           ))
           // @todo remove hardcoded link.
-          ->setLink(l(t('Edit node'), 'node/' . $form['#entity_id'] . '/edit'))
+          ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
           ->execute();
         drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
         return;
