@@ -480,7 +480,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
           if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
-            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name) && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
+            if (smartling_nodes_method($value->type) && smartling_field_is_translatable_by_field_name($field_machine_name, 'node') && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
               $_fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }

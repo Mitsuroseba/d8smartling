@@ -254,6 +254,8 @@ function smartling_get_translatable_field_types() {
  * @param string $field_name
  *   Field name.
  *
+ * @param string $entity_type
+ *   Entity type machine name.
  * @return bool
  *   Return TRUE if field is translatable.
  */
