@@ -118,6 +118,7 @@ class GenericEntityProcessor {
     $this->originalLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
     $this->relatedId = $entity->rid;
     $this->originalEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
+    $this->originalEntityType = $this->entity->entity_type;
     $this->ifFieldMethod = smartling_fields_method($this->originalEntity->type);
     $this->log = $log;
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
