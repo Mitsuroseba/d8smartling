@@ -410,7 +410,7 @@ class GenericEntityProcessor {
       foreach ($field_info_instances as $field) {
         if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->originalEntityType) && isset($this->originalEntity->{$field['field_name']})) {
           $need_save = TRUE;
-          $original_lang = entity_language($entity_type, $original_entity);
+          $original_lang = entity_language($this->originalEntityType, $this->originalEntity);
           $this->originalEntity->{$field['field_name']}[$this->drupalLocale] = $this->originalEntity->{$field['field_name']}[$original_lang];
         }
       }
