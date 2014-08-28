@@ -75,4 +75,12 @@ function smartling_manual_management_form_submit($form, $form_state) {
 
     smartling_queue_send_to_translate_process($smartling_data->eid);
   }
+  elseif ($form_state['values']['operation'] == 'download') {
+    $smartling_data = smartling_entity_load_by_conditions(array(
+      'rid' => $wrapper->getIdentifier(),
+      'target_language' => $form_state['values']['language'],
+    ));
+
+    smartling_queue_download_update_translated_item_process($smartling_data->eid);
+  }
 }

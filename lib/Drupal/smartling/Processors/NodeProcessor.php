@@ -15,30 +15,30 @@ class NodeProcessor extends GenericEntityProcessor {
    * @todo remove procedural code.
    */
   public function prepareOriginalEntity() {
-    $this->originalEntity = node_load($this->entity->rid);
+    $this->contentEntity = node_load($this->entity->rid);
 
     if (smartling_nodes_method($this->entity->bundle)) {
       $this->ifFieldMethod = FALSE;
-      $translations = translation_node_get_translations($this->originalEntity->tnid);
+      $translations = translation_node_get_translations($this->contentEntity->tnid);
       if (isset($translations[$this->drupalLocale])) {
         $this->entity->rid = $translations[$this->drupalLocale]->nid;
       } else {
         // If node not exist, need clone.
-        $node = clone $this->originalEntity;
+        $node = clone $this->contentEntity;
         unset($node->nid);
         unset($node->vid);
         node_object_prepare($node);
         $node->language = $this->drupalLocale;
         $node->uid = $this->entity->submitter;
-        $node->tnid = $this->originalEntity->nid;
+        $node->tnid = $this->contentEntity->nid;
 
-        $node_fields = field_info_instances('node', $this->originalEntity->type);
+        $node_fields = field_info_instances('node', $this->contentEntity->type);
         foreach ($node_fields as $field) {
           $field_info = field_info_field($field['field_name']);
           if (($field_info['type'] == 'taxonomy_term_reference') && ($field_info['translatable'] == '1')) {
-            foreach ($this->originalEntity->{$field['field_name']} as $items) {
+            foreach ($this->contentEntity->{$field['field_name']} as $items) {
               foreach ($items as $index => $item) {
-                $term = taxonomy_term_load($this->originalEntity->{$field['field_name']}[$this->originalEntity->language][$index]['tid']);
+                $term = taxonomy_term_load($this->contentEntity->{$field['field_name']}[$this->contentEntity->language][$index]['tid']);
                 if ($translation = i18n_taxonomy_term_get_translation($term, $this->drupalLocale)) {
                   $node->{$field['field_name']}[$this->drupalLocale][$index] = array('taxonomy_term' => $translation, 'tid' => $translation->tid,);
                 }
@@ -46,7 +46,7 @@ class NodeProcessor extends GenericEntityProcessor {
               }
             }
           } else {
-            $node->{$field['field_name']} = $this->originalEntity->{$field['field_name']};
+            $node->{$field['field_name']} = $this->contentEntity->{$field['field_name']};
           }
         }
 

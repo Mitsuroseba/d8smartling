@@ -15,10 +15,10 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
    * @todo remove procedural code.
    */
   public function prepareOriginalEntity() {
-    $this->originalEntity = taxonomy_term_load($this->entity->rid);
-    $original_entity = $this->originalEntity;
-    $term = i18n_taxonomy_term_get_translation($this->originalEntity, $this->drupalLocale);
-    if (!is_null($term) && ($term->language != $this->originalEntity->language)) {
+    $this->contentEntity = taxonomy_term_load($this->entity->rid);
+    $original_entity = $this->contentEntity;
+    $term = i18n_taxonomy_term_get_translation($this->contentEntity, $this->drupalLocale);
+    if (!is_null($term) && ($term->language != $this->contentEntity->language)) {
       $this->entity->rid = $term->tid;
     }
     else {

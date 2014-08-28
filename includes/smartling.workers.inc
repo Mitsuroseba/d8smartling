@@ -10,30 +10,33 @@
  */
 function smartling_queue_download_update_translated_item_process($eid) {
   $smartling_entity = entity_load_single('smartling_entity_data', $eid);
-  if ($smartling_entity && smartling_is_configured() && smartling_supported_type($smartling_entity->entity_type, $entity_data->bundle)) {
-    $entity_type = $smartling_entity->entity_type;
-    $d_locale = $smartling_entity->target_language;
-    $rid = $smartling_entity->rid;
-    $file_name = $smartling_entity->file_name;
-
-    $file_name = substr($file_name, 0, strlen($file_name) - 4);
-    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
-
-    // Init api object.
-    $api = drupal_container()->get('smartling.api_wrapper');
-
-    $download_result = $api->downloadFile($entity_data);
-
-    if ($download_result !== FALSE) {
-      // This is a $download_result
-      $xml = new DOMDocument();
-      $xml->loadXML($download_result);
-
-      $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_type);
-      if (is_object($save)) {
-        smartling_update_translated_fields($smartling_entity);
-      }
-    }
+  if ($smartling_entity && smartling_is_configured() && smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
+    $log = smartling_log_get_handler();
+    $processor = smartling_get_entity_processor($smartling_entity, $log);
+    $processor->downloadTranslation();
+//    $entity_type = $smartling_entity->entity_type;
+//    $d_locale = $smartling_entity->target_language;
+//    $rid = $smartling_entity->rid;
+//    $file_name = $smartling_entity->file_name;
+//
+//    $file_name = substr($file_name, 0, strlen($file_name) - 4);
+//    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
+//
+//    // Init api object.
+//    $api = drupal_container()->get('smartling.api_wrapper');
+//
+//    $download_result = $api->downloadFile($smartling_entity);
+//
+//    if ($download_result !== FALSE) {
+//      // This is a $download_result
+//      $xml = new DOMDocument();
+//      $xml->loadXML($download_result);
+//
+//      $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_type);
+//      if (is_object($save)) {
+//        smartling_update_translated_fields($smartling_entity);
+//      }
+//    }
   }
 }
 
@@ -72,7 +75,7 @@ function smartling_queue_send_to_translate_process($eid) {
     $entity_type = $smartling_entity->entity_type;
 
     // Check filename length.
-    if (!smartling_check_filename_length($smartling_entity->entity->title, $entity_type, $smartling_entity->rid)) {
+    if (!smartling_check_filename_length($smartling_entity->content_entity->title, $entity_type, $smartling_entity->rid)) {
       return NULL;
     }
 

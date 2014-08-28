@@ -279,15 +279,10 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  *   Entity type.
  */
 function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file = FALSE, $entity_type = '') {
-//  if (!is_array($d_locale)) {
-//    array($d_locale);
-//  }
-//
-//  foreach ($d_locale as $value) {
     $entity_data = smartling_entity_load_by_conditions(array(
       'rid' => $rid,
       'entity_type' => $entity_type,
-      'target_language' => $value,
+      'target_language' => $d_locale,
     ));
 
     if ($translated_file) {
@@ -298,7 +293,6 @@ function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $tra
     }
 
     smartling_entity_data_save($entity_data);
-//  }
 }
 
 /**
@@ -586,7 +580,7 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
   $localize->appendChild($localize_attr);
 
   foreach ($strings as $field_name => $field_value) {
-    if (is_array($field_value)) {
+    if (is_array($field_value) && !empty($field_value)) {
       // Fields body-summary or image or text.
       if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
         // Field body-summary.

@@ -57,7 +57,7 @@ class FieldProcessorFactory {
    * @todo remove procedural code or at least put into the separate method
    * to allow unit testing.
    */
-  public static function getProcessor($field_name, $entity) {
+  public static function getProcessor($field_name, $entity, $entity_type, $smartling_entity) {
     $field_info = field_info_field($field_name);
 
     if ($field_info) {
@@ -86,10 +86,10 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    $language = (smartling_field_is_translatable_by_field_name($field_name, $entity)) ? entity_language($entity->entityType(), $entity) : LANGUAGE_NONE;
+    $language = (smartling_field_is_translatable_by_field_name($field_name, $entity)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
 
     $class_name = self::$namespace . self::$fields_mapping[$type];
 
-    return new $class_name($entity, $language, $field_name);
+    return new $class_name($entity, $entity_type, $language, $field_name, $smartling_entity);
   }
 }

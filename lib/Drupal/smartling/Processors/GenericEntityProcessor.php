@@ -37,7 +37,7 @@ class GenericEntityProcessor {
    *
    * @see smartling_entity_load().
    */
-  public $originalEntity;
+  public $contentEntity;
 
   /**
    * List of drupal content entity fields that could be translated.
@@ -117,9 +117,11 @@ class GenericEntityProcessor {
     $this->drupalLocale = $entity->target_language;
     $this->originalLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
     $this->relatedId = $entity->rid;
-    $this->originalEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
+
+    $this->contentEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
     $this->originalEntityType = $this->entity->entity_type;
-    $this->ifFieldMethod = smartling_fields_method($this->originalEntity->type);
+    $this->ifFieldMethod = smartling_fields_method($this->contentEntity->type);
+
     $this->log = $log;
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
   }
@@ -205,7 +207,7 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function saveDrupalEntity() {
-    entity_save($this->originalEntityType, $this->originalEntity);
+    entity_save($this->originalEntityType, $this->contentEntity);
   }
 
   /**
@@ -214,8 +216,8 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function linkToContent() {
-    $uri_callback = $this->entity->entity_type . '_uri';
-    return l(t('Related entity'), $uri_callback($this->originalEntity));
+    $uri_callback = $this->contentEntity->entity_type . '_uri';
+    return l(t('Related entity'), $uri_callback($this->contentEntity));
   }
 
   /**
@@ -250,7 +252,7 @@ class GenericEntityProcessor {
    */
   public function prepareOriginalEntity() {
     if (!$this->isOriginalEntityPrepared) {
-      $this->originalEntity = entity_load($this->entity->bundle, array($this->entity->rid));
+      $this->contentEntity = entity_load($this->entity->bundle, array($this->entity->rid));
       $this->isOriginalEntityPrepared = TRUE;
     }
   }
@@ -307,9 +309,9 @@ class GenericEntityProcessor {
 
     foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->originalEntity)->setSmartlingEntity((array) $this->entity);
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->originalEntityType, $this->entity)->setSmartlingEntity((array) $this->entity);
 
-      $this->originalEntity->{$field_name} = $fieldProcessor->getDrupalContent();
+      $this->contentEntity->{$field_name} = $fieldProcessor->getDrupalContent();
     }
 
     $this->saveDrupalEntity();
@@ -335,7 +337,7 @@ class GenericEntityProcessor {
       }
 
       // @TODO test if format could be set automatically.
-      $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
+      $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity);
       $this->entity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
     }
 
@@ -365,7 +367,7 @@ class GenericEntityProcessor {
 
     foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->entity->entity_type, $this->originalEntity);
+      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity);
 
       if ($fieldProcessor) {
         $entity_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingContent();
@@ -383,7 +385,7 @@ class GenericEntityProcessor {
    * @return string
    */
   public function buildXmlFileName() {
-    return strtolower(trim(preg_replace('#\W+#', '_', $this->originalEntity->title), '_')) . '_' . $this->entity->entity_type . '_' . $this->entity->rid . '.xml';
+    return strtolower(trim(preg_replace('#\W+#', '_', $this->contentEntity->title), '_')) . '_' . $this->entity->entity_type . '_' . $this->entity->rid . '.xml';
   }
 
   /**
@@ -404,20 +406,20 @@ class GenericEntityProcessor {
     $this->prepareOriginalEntity();
 
     if ($this->ifFieldMethod) {
-      $field_info_instances = field_info_instances($this->originalEntityType, $this->originalEntity->bundle);
+      $field_info_instances = field_info_instances($this->originalEntityType, $this->contentEntity->bundle);
       $fields = $this->getConfiguredFields();
       $need_save = FALSE;
       // @todo finish converting.
       foreach ($field_info_instances as $field) {
-        if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->originalEntityType) && isset($this->originalEntity->{$field['field_name']})) {
+        if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->originalEntityType) && isset($this->contentEntity->{$field['field_name']})) {
           $need_save = TRUE;
-          $original_lang = entity_language($this->originalEntityType, $this->originalEntity);
-          $this->originalEntity->{$field['field_name']}[$this->drupalLocale] = $this->originalEntity->{$field['field_name']}[$original_lang];
+          $original_lang = entity_language($this->originalEntityType, $this->contentEntity);
+          $this->contentEntity->{$field['field_name']}[$this->drupalLocale] = $this->contentEntity->{$field['field_name']}[$original_lang];
         }
       }
       if ($need_save) {
         $function_name = $this->originalEntityType . '_save';
-        $function_name($this->originalEntity);
+        $function_name($this->contentEntity);
       }
     }
   }
