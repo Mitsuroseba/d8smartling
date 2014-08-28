@@ -1369,6 +1369,22 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
   return $content;
 }
 
+/**
+ * Create Smartling entity.
+ *
+ * @param stdClass $entity
+ *   Drupal content entity.
+ * @param string $entity_type
+ *   Drupal entity type machine name.
+ * @param string $origin_language
+ *   Language key of source drupal content entity.
+ * @param string $target_language
+ *   Target language key for smartling entity.
+ *
+ * @return SmartlingEntityData
+ *
+ * @todo try to avoid original language in arguments.
+ */
 function smartling_create_from_entity($entity, $entity_type, $origin_language, $target_language) {
   global $user;
   $entity_data = smartling_entity_data_create();

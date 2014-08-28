@@ -61,7 +61,8 @@ function smartling_manual_management_form_submit($form, $form_state) {
     ));
 
     if (!$smartling_data) {
-      $smartling_data = smartling_create_from_entity($entity, $entity_type, $entity_type, $target_language);
+      // @todo verify that entity has language property.
+      $smartling_data = smartling_create_from_entity($entity, $entity_type, $entity->language, $target_language);
     }
 
     $log->setMessage('Smartling start send to translate action for node id - @nid (@d_locales).')
