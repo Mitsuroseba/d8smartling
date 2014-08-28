@@ -110,7 +110,7 @@ function smartling_queue_send_to_translate_process($eid) {
     $file_name = $processor->buildXmlFileName();
     $xml = smartling_build_xml($file_name, $content_to_translate, $smartling_entity->rid);
     if ($xml instanceof DOMNode) {
-      $success = smartling_save_xml($xml, $smartling_entity->rid, $smartling_entity->target_language, $file_name, FALSE, $entity_type);
+      $success = smartling_save_xml($xml, $smartling_entity, $file_name, FALSE);
     }
 
     if ($success) {

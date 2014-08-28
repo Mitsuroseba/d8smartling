@@ -269,30 +269,20 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  *
  * @param string $file_name
  *   File name.
- * @param int $rid
- *   Related id.
- * @param string $d_locale
- *   Locale in drupal format (ru, en).
+ * @param stdClass $smartling_entity
+ *   Smartling entity.
  * @param bool $translated_file
  *   TRUE if save translated file. FALSE by default.
- * @param string $entity_type
- *   Entity type.
  */
-function smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file = FALSE, $entity_type = '') {
-    $entity_data = smartling_entity_load_by_conditions(array(
-      'rid' => $rid,
-      'entity_type' => $entity_type,
-      'target_language' => $d_locale,
-    ));
-
+function smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file = FALSE) {
     if ($translated_file) {
-      $entity_data->translated_file = $file_name;
+      $smartling_entity->translated_file = $file_name;
     }
     else {
-      $entity_data->file_name = $file_name;
+      $smartling_entity->file_name = $file_name;
     }
 
-    smartling_entity_data_save($entity_data);
+    smartling_entity_data_save($smartling_entity);
 }
 
 /**
@@ -400,9 +390,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  *
  * @param object $xml_doc
  *   Xml document.
- * @param int $rid
- *   Related id.
- * @param string|boolean $d_locale
+ * @param stdClass $smartling_entity
  *   Locale in drupal format (ru, en).
  * @param string $file_name
  *   File name.
@@ -414,11 +402,11 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  * @return bool
  *   Was file creation successful or not.
  */
-function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name = NULL, $translated_file = FALSE, $entity_type = NULL) {
+function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $translated_file = FALSE) {
   $log = smartling_log_get_handler();
 
   if (is_null($file_name)) {
-    $file_name = 'smartling_translate_' . $entity_type . '_' . $rid . '.xml';
+    $file_name = 'smartling_translate_' . $smartling_entity->entity_type . '_' . $smartling_entity->rid . '.xml';
   }
 
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
@@ -433,37 +421,26 @@ function smartling_save_xml($xml_doc, $rid = NULL, $d_locale = FALSE, $file_name
       $file_type = 'translated';
     }
 
-    if (is_array($d_locale)) {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => implode('; ', $d_locale),
-        ))
-        ->setLink(l(t('View file'), file_create_url($path)))
-        ->execute();
-    }
-    else {
-      $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@entity_type' => $entity_type,
-          '@rid' => $rid,
-          '@locale' => $d_locale,
-        ))
-        ->setLink(l(t('View file'), file_create_url($path)))
-        ->execute();
-    }
 
-    if (!is_null($rid)) {
-      smartling_entity_data_filename_update($file_name, $rid, $d_locale, $translated_file, $entity_type);
+    $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+      ->setVariables(array(
+        '@file_type' => $file_type,
+        '@entity_type' => $smartling_entity->entity_type,
+        '@rid' => $smartling_entity->rid,
+        '@locale' => $smartling_entity->target_language,
+      ))
+      ->setLink(l(t('View file'), file_create_url($path)))
+      ->execute();
+
+
+    if (!is_null($smartling_entity->rid)) {
+      smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file);
     }
     return TRUE;
   }
   else {
     $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid')
-      ->setVariables(array('@file_name' => $file_name, '@rid' => $rid))
+      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid))
       ->setConsiderLog(FALSE)
       ->setSeverity(WATCHDOG_ERROR)
       ->execute();
@@ -704,7 +681,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
         $translated_filename = $file_name . '_' . $entity_data->target_language . '.xml';
 
         // Save result.
-        $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_data->entity_type);
+        $save = smartling_save_xml($xml, $entity_data, $translated_filename, TRUE);
 
         // If result is saved.
         if (is_object($save)) {

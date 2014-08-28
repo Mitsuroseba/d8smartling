@@ -233,7 +233,7 @@ class GenericEntityProcessor {
     $translated_filename = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccessfulSave = smartling_save_xml($xml, $this->entity->rid, $this->drupalLocale, $translated_filename, TRUE, $this->entity->entity_type);
+    $isSuccessfulSave = smartling_save_xml($xml, $this->entity, $translated_filename, TRUE);
 
     // If result is saved.
     // @todo finish converting.
