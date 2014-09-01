@@ -47,6 +47,11 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     $data = array();
     $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-body-0' . '"][1]')
       ->item(0);
+
+    if (!$quantity_value) {
+      return NULL;
+    }
+
     $quantity = $quantity_value->getAttribute('quantity');
 
     for ($i = 0; $i < $quantity; $i++) {
