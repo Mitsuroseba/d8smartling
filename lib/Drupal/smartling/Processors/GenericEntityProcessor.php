@@ -216,12 +216,13 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function linkToContent() {
-    $uri_callback = $this->entity->entity_type . '_uri';
-    return l(t('Related entity'), $uri_callback($this->contentEntity));
+    $uri_callback = $this->originalEntityType . '_uri';
+    $uri = $uri_callback($this->contentEntity);
+    return l(t('Related entity'), $uri['path']);
   }
 
   /**
-   * Downloads translation data from Smartling server and push into drupal entity.
+   * Downloads translation data from Smartling server.
    */
   public function downloadTranslation() {
     $download_result = $this->smartlingAPI->downloadFile($this->entity, $this->linkToContent());

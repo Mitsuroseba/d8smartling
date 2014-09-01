@@ -1103,13 +1103,9 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
  * @param string $field_name
  *   Field name.
  *
-<<<<<<< HEAD
  * @deprecated
  *
  * @return boolean
-=======
- * @return bool
->>>>>>> 7.x-2.x
  *   Return check result.
  */
 function smartling_is_title_module_field($field_name) {
@@ -1131,11 +1127,7 @@ function smartling_is_title_module_field($field_name) {
 }
 
 /**
-<<<<<<< HEAD
  * Set duplicated values for fields method.
-=======
- * Set dublicate values for fields method.
->>>>>>> 7.x-2.x
  *
  * We need to duplicate the original value in the first cell of
  * a target language for the fields that are
