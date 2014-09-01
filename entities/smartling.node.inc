@@ -331,151 +331,188 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
 function smartling_get_node_settings_form_submit(array $form, array &$form_state) {
   $log = smartling_log_get_handler();
   $node = node_form_submit_build_node($form, $form_state);
-  $nid = $node->nid;
 
-  if (count(array_filter($form_state['values']['target'])) !== 0) {
+  $smartling_queue = DrupalQueue::get('smartling_upload');
+  $smartling_queue->createQueue();
 
-    global $user;
+  /* @var $entity_wrapper \EntityDrupalWrapper */
+  $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $node);
 
-    $smartling_queue = DrupalQueue::get('smartling_upload');
-    $smartling_queue->createQueue();
-    $langs = array();
+  foreach ($form_state['values']['target'] as $target_language) {
+    if ($target_language) {
+      $smartling_entity = smartling_entity_load_by_conditions(array(
+        'rid' => $entity_wrapper->getIdentifier(),
+        'entity_type' => $entity_wrapper->getBundle(),
+        'target_language' => $target_language,
+      ));
 
-    if (smartling_nodes_method($node->type)) {
-      $original_nid = $node->nid;
-      $original_title = $node->title;
-      // For nodes method.
-      $status = smartling_nodes_method_node_status($node);
-      if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
-        $node->tnid = $node->nid;
-        $d_locale_origin = $node->language;
+      if (!$smartling_entity) {
+        $smartling_entity = smartling_create_from_entity($node, $entity_wrapper->type(), $entity_wrapper->language->value(), $target_language);
       }
 
-      if ($status == SMARTLING_TRANSLATE_NODE) {
-        $translations = translation_node_get_translations($node->tnid);
-        // Get original language.
-        foreach ($translations as $langcode => $value) {
-          if ($translations[$langcode]->nid == $node->tnid) {
-            $d_locale_origin = $langcode;
-            $original_nid = $translations[$langcode]->nid;
-            $original_title = $translations[$langcode]->title;
-            break;
-          }
-          else {
-            $d_locale_origin = 'error';
-          }
-        }
-      }
+      $processor = smartling_get_entity_processor($smartling_entity);
+      $processor->sendToUploadQueue();
 
-      foreach ($form_state['values']['target'] as $d_locale) {
-        if ($d_locale !== 0) {
+      $smartling_queue->createItem($smartling_entity->eid);
 
-          if (smartling_supported_type($form['#entity_type'], $form_state['values']['type'])) {
-
-            $entity_data = smartling_entity_load_by_conditions(array(
-              'rid' => $original_nid,
-              'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale,
-            ));
-
-            if ($entity_data == FALSE) {
-              // @todo: use smartling_create_from_entity().
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $original_nid;
-              $entity_data->entity_type = $form['#entity_type'];
-              $entity_data->bundle = $node->type;
-              $entity_data->original_language = $d_locale_origin;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
-            }
-
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
-
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $langs[] = $d_locale;
-          }
-        }
-      }
-
-      // Create queue item.
-      $smartling_queue->createItem($entity_data->eid);
-      $title = $original_title;
       $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
         ->setVariables(array(
-          '@nid' => $original_nid,
-          '@locale' => implode('; ', $langs),
+          '@nid' => $entity_wrapper->getIdentifier(),
+          '@locale' => $target_language,
         ))
-        ->setLink(l(t('Edit node'), 'node/' . $original_nid . '/edit'))
+        ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
         ->execute();
+
+      drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@lang".', array(
+        '@title' => $entity_wrapper->title->value(),
+        '@lang' => $target_language,
+      )));
     }
-    else {
-      // For fields method.
-      foreach ($form_state['values']['target'] as $d_locale) {
-        if ($d_locale !== 0 && ($d_locale !== $node->language)) {
-
-          if (smartling_supported_type($form['#entity_type'], $form_state['values']['type'])) {
-            $d_locale_origin = $node->language;
-
-            $entity_data = smartling_entity_load_by_conditions(array(
-              'rid' => $nid,
-              'entity_type' => $form['#entity_type'],
-              'target_language' => $d_locale,
-            ));
-
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $nid;
-              $entity_data->entity_type = $form['#entity_type'];
-              $entity_data->bundle = $form_state['values']['type'];
-              $entity_data->original_language = $d_locale_origin;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
-            }
-
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
-
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $langs[] = $d_locale;
-          }
-        }
-      }
-      $obj = new stdClass();
-      $obj->rid = $nid;
-      $obj->entity_type = $form['#entity_type'];
-      $obj->bundle = $form_state['values']['type'];
-      $obj->title = $form_state['values']['title'];
-      $obj->original_language = $d_locale_origin;
-      $obj->d_locales = $langs;
-      $obj->submitter = $user->uid;
-      // Create queue item.
-      $smartling_queue->createItem($obj);
-      $title = $form_state['values']['title'];
-      unset($obj);
-      $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
-        ->setVariables(array(
-          '@nid' => $nid,
-          '@locale' => implode('; ', $langs),
-        ))
-        ->setLink(l(t('Edit node'), 'node/' . $nid . '/edit'))
-        ->execute();
-    }
-
-    if (isset($_GET['destination'])) {
-      unset($_GET['destination']);
-    }
-
-    $langs = implode(', ', $langs);
-    drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
-      '@title' => $title,
-      '@langs' => $langs,
-    )));
   }
+
+//  $entity_data = smartling_entity_load_by_conditions(array(
+//    'rid' => $original_nid,
+//    'entity_type' => $form['#entity_type'],
+//    'target_language' => $d_locale,
+//  ));
+//
+//  $nid = $node->nid;
+//  if (count(array_filter($form_state['values']['target'])) !== 0) {
+//
+//    global $user;
+//
+//    $smartling_queue = DrupalQueue::get('smartling_upload');
+//    $smartling_queue->createQueue();
+//    $langs = array();
+//
+//    if (smartling_nodes_method($node->type)) {
+//      $original_nid = $node->nid;
+//      $original_title = $node->title;
+//      // For nodes method.
+//      $status = smartling_nodes_method_node_status($node);
+//      if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {
+//        $node->tnid = $node->nid;
+//        $d_locale_origin = $node->language;
+//      }
+//
+//      if ($status == SMARTLING_TRANSLATE_NODE) {
+//        $translations = translation_node_get_translations($node->tnid);
+//        // Get original language.
+//        foreach ($translations as $langcode => $value) {
+//          if ($translations[$langcode]->nid == $node->tnid) {
+//            $d_locale_origin = $langcode;
+//            $original_nid = $translations[$langcode]->nid;
+//            $original_title = $translations[$langcode]->title;
+//            break;
+//          }
+//          else {
+//            $d_locale_origin = 'error';
+//          }
+//        }
+//      }
+//
+//      foreach ($form_state['values']['target'] as $d_locale) {
+//        if ($d_locale !== 0) {
+//
+//          if (smartling_supported_type($form['#entity_type'], $form_state['values']['type'])) {
+//
+//            $entity_data = smartling_entity_load_by_conditions(array(
+//              'rid' => $original_nid,
+//              'entity_type' => $form['#entity_type'],
+//              'target_language' => $d_locale,
+//            ));
+//
+//            if ($entity_data == FALSE) {
+//              // @todo: use smartling_create_from_entity().
+//              $entity_data = smartling_entity_data_create();
+//              $entity_data->rid = $original_nid;
+//              $entity_data->entity_type = $form['#entity_type'];
+//              $entity_data->bundle = $node->type;
+//              $entity_data->original_language = $d_locale_origin;
+//              $entity_data->target_language = $d_locale;
+//              $entity_data->progress = 0;
+//            }
+//
+//            $entity_data->translated_file_name = FALSE;
+//            $entity_data->submitter = $user->uid;
+//            $entity_data->submission_date = time();
+//            smartling_entity_data_save($entity_data);
+//
+//            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+//            $langs[] = $d_locale;
+//          }
+//        }
+//      }
+//
+//      // Create queue item.
+//      $smartling_queue->createItem($entity_data->eid);
+//      $title = $original_title;
+//      $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
+//        ->setVariables(array(
+//          '@nid' => $original_nid,
+//          '@locale' => implode('; ', $langs),
+//        ))
+//        ->setLink(l(t('Edit node'), 'node/' . $original_nid . '/edit'))
+//        ->execute();
+//    }
+//    else {
+//      // For fields method.
+//      foreach ($form_state['values']['target'] as $d_locale) {
+//        if ($d_locale !== 0 && ($d_locale !== $node->language)) {
+//
+//          if (smartling_supported_type($form['#entity_type'], $form_state['values']['type'])) {
+//            $d_locale_origin = $node->language;
+//
+//            $entity_data = smartling_entity_load_by_conditions(array(
+//              'rid' => $nid,
+//              'entity_type' => $form['#entity_type'],
+//              'target_language' => $d_locale,
+//            ));
+//
+//            if ($entity_data == FALSE) {
+//              $entity_data = smartling_entity_data_create();
+//              $entity_data->rid = $nid;
+//              $entity_data->entity_type = $form['#entity_type'];
+//              $entity_data->bundle = $form_state['values']['type'];
+//              $entity_data->original_language = $d_locale_origin;
+//              $entity_data->target_language = $d_locale;
+//              $entity_data->progress = 0;
+//            }
+//
+//            $entity_data->translated_file_name = FALSE;
+//            $entity_data->submitter = $user->uid;
+//            $entity_data->submission_date = time();
+//            smartling_entity_data_save($entity_data);
+//
+//            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+//            $langs[] = $d_locale;
+//          }
+//        }
+//      }
+//
+//      // Create queue item.
+//      $smartling_queue->createItem($entity_data->eid);
+//      $title = $form_state['values']['title'];
+//      unset($obj);
+//      $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
+//        ->setVariables(array(
+//          '@nid' => $nid,
+//          '@locale' => implode('; ', $langs),
+//        ))
+//        ->setLink(l(t('Edit node'), 'node/' . $nid . '/edit'))
+//        ->execute();
+//    }
+//
+//
+//
+//    $langs = implode(', ', $langs);
+//    drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+//      '@title' => $title,
+//      '@langs' => $langs,
+//    )));
+//  }
+
+  unset($_GET['destination']);
   // For not change node status to red when send node and change content.
   $node->send_to_smartling = TRUE;
   node_save($node);

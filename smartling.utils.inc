@@ -276,7 +276,7 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  */
 function smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file = FALSE) {
     if ($translated_file) {
-      $smartling_entity->translated_file = $file_name;
+      $smartling_entity->translated_file_name = $file_name;
     }
     else {
       $smartling_entity->file_name = $file_name;
@@ -371,7 +371,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
     return '';
   }
 
-  $pattern = '/[^a-zA-Z0-9_\-]/i';
+  $pattern = '/[^a-zA-Z0-9_\-\:]/i';
   $info = pathinfo(trim($filename));
   $filename = preg_replace($pattern, '_', $info['filename']);
   if (isset($info['extension']) && !empty($info['extension'])) {
@@ -379,7 +379,7 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
   }
 
   if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
-    $filename = preg_replace('/[^a-zA-Z0-9_\/\-]/i', '_', $info['dirname']) . '/' . $filename;
+    $filename = preg_replace('/[^a-zA-Z0-9_\/\-\:]/i', '_', $info['dirname']) . '/' . $filename;
   }
 
   return (string) $filename;
@@ -678,10 +678,10 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
         $xml = smartling_download_file($entity_data);
 
         $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
-        $translated_filename = $file_name . '_' . $entity_data->target_language . '.xml';
+        $translated_file_name = $file_name . '_' . $entity_data->target_language . '.xml';
 
         // Save result.
-        $save = smartling_save_xml($xml, $entity_data, $translated_filename, TRUE);
+        $save = smartling_save_xml($xml, $entity_data, $translated_file_name, TRUE);
 
         // If result is saved.
         if (is_object($save)) {
@@ -741,7 +741,7 @@ function smartling_download_file($entity_data) {
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
     $api = drupal_container()->get('smartling.api_wrapper');
-    $result = $api->getStatus($entity_data);
+    $result = $api->getStatus($entity_data, '');
 
     if (!empty($result)) {
       return $result['entity_data']->progress;

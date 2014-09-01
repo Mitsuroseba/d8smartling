@@ -11,9 +11,9 @@
 function smartling_queue_download_update_translated_item_process($eid) {
   $smartling_entity = entity_load_single('smartling_entity_data', $eid);
   if ($smartling_entity && smartling_is_configured() && smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
-    $log = smartling_log_get_handler();
-    $processor = smartling_get_entity_processor($smartling_entity, $log);
+    $processor = smartling_get_entity_processor($smartling_entity);
     $processor->downloadTranslation();
+    $processor->updateEntityFromXML();
 //    $entity_type = $smartling_entity->entity_type;
 //    $d_locale = $smartling_entity->target_language;
 //    $rid = $smartling_entity->rid;
@@ -69,8 +69,6 @@ function smartling_queue_check_status_process($eid) {
 function smartling_queue_send_to_translate_process($eid) {
   $smartling_entity = entity_load_single('smartling_entity_data', $eid);
 
-  $log = smartling_log_get_handler();
-
   if ($smartling_entity && smartling_is_configured()) {
     $entity_type = $smartling_entity->entity_type;
 
@@ -105,7 +103,7 @@ function smartling_queue_send_to_translate_process($eid) {
 //      $entity_data_array[] = $entity_data;
 //    }
 
-    $processor = smartling_get_entity_processor($smartling_entity, $log);
+    $processor = smartling_get_entity_processor($smartling_entity);
     $content_to_translate = $processor->exportContentToTranslation();
     $file_name = $processor->buildXmlFileName();
     $xml = smartling_build_xml($file_name, $content_to_translate, $smartling_entity->rid);
@@ -115,13 +113,13 @@ function smartling_queue_send_to_translate_process($eid) {
 
     if ($success) {
       $file_name_unic = $file_name;
-      $file_path = smartling_clean_filename(smartling_get_dir($file_name), TRUE);
+      $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($file_name), TRUE));
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
       $result_status = $api->uploadFile($file_path, $file_name_unic, array($smartling_entity->target_language));
 
-      $processor->setStatus($result_status);
+      $processor->setProgressStatus($result_status);
 
       if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
         if (module_exists('rules') && ($entity_type == 'node')) {

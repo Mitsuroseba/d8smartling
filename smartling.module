@@ -332,10 +332,10 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
         return;
       }
 
-      $processor = smartling_get_entity_processor($entity_data, $log);
+      $processor = smartling_get_entity_processor($entity_data);
       // @todo implement chain interface.
       $processor->downloadTranslation();
-      $processor->updateTranslation();
+      $processor->updateDrupalTranslation();
     }
 
 //    switch ($form['#entity_type']) {
@@ -1385,10 +1385,10 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
  *
  * @todo try to avoid original language in arguments.
  */
-function smartling_create_from_entity($entity, $entity_type, $origin_language, $target_language) {
+function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language) {
   global $user;
   $entity_data = smartling_entity_data_create();
-  $wrapper = entity_metadata_wrapper($entity_type, $entity);
+  $wrapper = entity_metadata_wrapper($entity_type, $drupal_entity);
   $entity_data->rid = $wrapper->getIdentifier();
   $entity_data->entity_type = $entity_type;
   $entity_data->bundle = $wrapper->getBundle();

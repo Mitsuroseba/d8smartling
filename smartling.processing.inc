@@ -492,7 +492,7 @@ function smartling_update_translated_fields($smartling_entity) {
 
   if (smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
     /* @var $processor GenericEntityProcessor */
-    $processor = smartling_get_entity_processor($smartling_entity, $log);
+    $processor = smartling_get_entity_processor($smartling_entity);
     $smartling_settings = smartling_settings_get_handler();
 
     $file_path = smartling_clean_filename(smartling_get_dir($smartling_entity->translated_file_name), TRUE);

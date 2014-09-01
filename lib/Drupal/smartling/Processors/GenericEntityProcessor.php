@@ -428,4 +428,15 @@ class GenericEntityProcessor {
       }
     }
   }
+
+  public function sendToUploadQueue() {
+    $this->prepareDrupalEntity();
+
+    global $user;
+    $this->entity->translated_file_name = FALSE;
+    $this->entity->submitter = $user->uid;
+    $this->entity->submission_date = REQUEST_TIME;
+
+    $this->setProgressStatus(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+  }
 }
