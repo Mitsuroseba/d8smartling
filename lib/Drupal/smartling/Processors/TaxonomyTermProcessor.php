@@ -14,7 +14,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
    *
    * @todo remove procedural code.
    */
-  public function prepareOriginalEntity() {
+  public function prepareDrupalEntity() {
     $this->contentEntity = taxonomy_term_load($this->entity->rid);
     $original_entity = $this->contentEntity;
     $term = i18n_taxonomy_term_get_translation($this->contentEntity, $this->drupalLocale);
@@ -88,7 +88,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
     }
   }
 
-  public function updateTranslation() {
+  public function updateDrupalTranslation() {
     // Do nothings.
   }
 }

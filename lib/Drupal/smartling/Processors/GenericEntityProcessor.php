@@ -152,19 +152,19 @@ class GenericEntityProcessor {
    *
    * @param $status
    */
-  public function setStatus($status) {
+  public function setProgressStatus($status) {
     switch ($status) {
       case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
         if (empty($this->entity->status) || ($this->entity->status == SMARTLING_STATUS_CHANGE)) {
           $this->entity->status = SMARTLING_STATUS_IN_QUEUE;
-          $this->saveEntity();
+          $this->saveSmartlingEntity();
         }
         break;
 
       case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
         if ($this->entity->status != SMARTLING_STATUS_CHANGE) {
           $this->entity->status = SMARTLING_STATUS_IN_TRANSLATE;
-          $this->saveEntity();
+          $this->saveSmartlingEntity();
         }
         break;
 
@@ -174,18 +174,18 @@ class GenericEntityProcessor {
           if ($this->entity->progress == 100) {
             $this->entity->status = SMARTLING_STATUS_TRANSLATED;
           }
-          $this->saveEntity();
+          $this->saveSmartlingEntity();
         }
         break;
 
       case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
         $this->entity->status = SMARTLING_STATUS_CHANGE;
-        $this->saveEntity();
+        $this->saveSmartlingEntity();
         break;
 
       case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
         $this->entity->status = SMARTLING_STATUS_FAILED;
-        $this->saveEntity();
+        $this->saveSmartlingEntity();
         break;
 
       default:
@@ -197,7 +197,7 @@ class GenericEntityProcessor {
    * Wrapper for smartling data entity saving.
    *
    */
-  public function saveEntity() {
+  public function saveSmartlingEntity() {
     smartling_entity_data_save($this->entity);
   }
 
@@ -230,16 +230,16 @@ class GenericEntityProcessor {
     $xml->loadXML($download_result);
 
     $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
-    $translated_filename = $file_name . '_' . $this->entity->target_language . '.xml';
+    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccessfulSave = smartling_save_xml($xml, $this->entity, $translated_filename, TRUE);
+    $isSuccessfulSave = smartling_save_xml($xml, $this->entity, $translated_file_name, TRUE);
 
     // If result is saved.
     // @todo finish converting.
     if ($isSuccessfulSave) {
-      $this->setStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
-      $this->updateTranslation();
+      $this->setProgressStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
+      $this->updateDrupalTranslation();
     }
   }
 
@@ -250,7 +250,7 @@ class GenericEntityProcessor {
    * from original node, so swap current node to original translation if necessary.
    * @todo move this logic to original entity Proxy object.
    */
-  public function prepareOriginalEntity() {
+  public function prepareDrupalEntity() {
     if (!$this->isOriginalEntityPrepared) {
       $this->contentEntity = entity_load($this->entity->bundle, array($this->entity->rid));
       $this->isOriginalEntityPrepared = TRUE;
@@ -263,7 +263,7 @@ class GenericEntityProcessor {
    * Should be used after ::importSmartlingTranslationToOriginalEntity()
    * @todo remove procedural code and use entities from properties.
    */
-  public function updateTranslation() {
+  public function updateDrupalTranslation() {
     $entity = entity_load_single($this->originalEntityType, $this->entity->rid);
     $handler = smartling_entity_translation_get_handler($this->originalEntityType, $entity);
     $translations = $handler->getTranslations();
@@ -305,7 +305,7 @@ class GenericEntityProcessor {
    * @see smartling_copy_translations_from_xml_to_fields().
    */
   public function importSmartlingTranslationToOriginalEntity() {
-    $this->prepareOriginalEntity();
+    $this->prepareDrupalEntity();
 
     foreach ($this->getConfiguredFields() as $field_name) {
       /* @var $fieldProcessor BaseFieldProcessor */
@@ -323,7 +323,7 @@ class GenericEntityProcessor {
    * @param $xml \DomNode
    */
   public function importSmartlingXMLToSmartlingEntity(\DOMNode $xml) {
-    $this->prepareOriginalEntity();
+    $this->prepareDrupalEntity();
     $xpath = new DomXpath($xml);
 
     foreach ($this->getConfiguredFields() as $field_name) {
@@ -338,31 +338,35 @@ class GenericEntityProcessor {
 
       // @TODO test if format could be set automatically.
       $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity);
-      $this->entity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
+      $this->contentEntity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
     }
 
-    $this->saveEntity();
+    $this->saveDrupalEntity();
   }
 
   /**
-   * Process given xml parsed object
-   *
-   * @param $xml \DOMNode
+   * Process given xml parsed object using translated_file.
    */
-  public function updateEntityFromXML(\DOMNode $xml) {
+  public function updateEntityFromXML() {
+    // @todo Move it into separate method.
+    $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($this->entity->translated_file_name), TRUE));
+
+    $xml = new \DOMDocument();
+    $xml->load($file_path);
+
     // Update smartling entity.
     $this->importSmartlingXMLToSmartlingEntity($xml);
 
     // Update original entity from smartling.
-    $this->importSmartlingTranslationToOriginalEntity();
+//    $this->importSmartlingTranslationToOriginalEntity();
 
     // Update translations information.
-    $this->updateTranslation();
+    $this->updateDrupalTranslation();
 
   }
 
   public function exportContentToTranslation() {
-    $this->prepareOriginalEntity();
+    $this->prepareDrupalEntity();
     $entity_current_translatable_content = array();
 
     foreach ($this->getConfiguredFields() as $field_name) {
@@ -403,7 +407,7 @@ class GenericEntityProcessor {
    * Clone fields values to new entity during creating new translations
    */
   public function fillFieldFromOriginalLanguage() {
-    $this->prepareOriginalEntity();
+    $this->prepareDrupalEntity();
 
     if ($this->ifFieldMethod) {
       $field_info_instances = field_info_instances($this->originalEntityType, $this->contentEntity->bundle);

@@ -14,7 +14,7 @@ class NodeProcessor extends GenericEntityProcessor {
    *
    * @todo remove procedural code.
    */
-  public function prepareOriginalEntity() {
+  public function prepareDrupalEntity() {
     $this->contentEntity = node_load($this->entity->rid);
 
     if (smartling_nodes_method($this->entity->bundle)) {
@@ -59,12 +59,12 @@ class NodeProcessor extends GenericEntityProcessor {
   /**
    * {@inheritdoc}
    */
-  public function updateTranslation() {
-    if (($this->originalEntityType == 'node') && smartling_nodes_method($this->entity->bundle)) {
+  public function updateDrupalTranslation() {
+    if (smartling_nodes_method($this->entity->bundle)) {
       return;
     }
 
-    parent::updateTranslation();
+    parent::updateDrupalTranslation();
   }
 
 }
