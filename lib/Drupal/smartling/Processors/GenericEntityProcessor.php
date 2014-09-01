@@ -216,7 +216,7 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function linkToContent() {
-    $uri_callback = $this->contentEntity->entity_type . '_uri';
+    $uri_callback = $this->entity->entity_type . '_uri';
     return l(t('Related entity'), $uri_callback($this->contentEntity));
   }
 
