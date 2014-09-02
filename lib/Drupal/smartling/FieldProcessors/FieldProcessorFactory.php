@@ -33,6 +33,8 @@ class FieldProcessorFactory {
 
     'title_property' => 'TitlePropertyFieldProcessor',
     'title_property_field' => 'TitlePropertyFieldProcessor',
+
+    'field_collection' => 'FieldCollectionFieldProcessor',
   );
 
   /**

@@ -227,24 +227,8 @@ function smartling_get_translatable_field_types() {
     'text_textarea',
     'text_textarea_with_summary',
     'image_image',
-    // 'options_select',
-    // 'options_buttons',
-    // 'taxonomy_autocomplete',
+    'field_collection_embed',
   );
-  /* uncomment after more tests
-   $included_fields = array(
-   'text',
-   'text_long',
-   'text_textfield',
-   'text_textarea',
-   'text_textarea_with_summary',
-   'field_collection_embed',
-   );
-
-   if (module_exists('link')) {
-   $included_fields[] = 'link_field';
-   }
-   */
   return $included_fields;
 }
 

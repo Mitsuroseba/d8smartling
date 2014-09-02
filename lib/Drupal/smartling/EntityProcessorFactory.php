@@ -9,6 +9,7 @@ namespace Drupal\smartling;
 
 use Drupal\smartling\Processors\NodeProcessor;
 use Drupal\smartling\Processors\TaxonomyTermProcessor;
+use Drupal\smartling\Processors\FieldCollectionProcessor;
 use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
@@ -43,6 +44,11 @@ class EntityProcessorFactory {
 
       case 'taxonomy_term':
         $static_storage[$smartling_entity->eid] = new TaxonomyTermProcessor($smartling_entity, $log);
+        return $static_storage[$smartling_entity->eid];
+        break;
+
+      case 'field_collection':
+        $static_storage[$smartling_entity->eid] = new FieldCollectionProcessor($smartling_entity, $log);
         return $static_storage[$smartling_entity->eid];
         break;
 
