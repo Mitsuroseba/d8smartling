@@ -101,4 +101,12 @@ abstract class BaseFieldProcessor {
    */
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
+  /**
+   * Prepare before download.
+   *
+   */
+  public function preparebeforeDownload() {
+
+  }
+
 }
