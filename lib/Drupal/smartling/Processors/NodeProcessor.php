@@ -18,8 +18,10 @@ class NodeProcessor extends GenericEntityProcessor {
     $this->contentEntity = node_load($this->entity->rid);
 
     if (smartling_nodes_method($this->entity->bundle)) {
+      // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
-      $translations = translation_node_get_translations($this->contentEntity->tnid);
+      $tnid = $this->contentEntity->tnid ?: $this->contentEntity->nid;
+      $translations = translation_node_get_translations($tnid);
       if (isset($translations[$this->drupalLocale])) {
         $this->entity->rid = $translations[$this->drupalLocale]->nid;
       } else {
