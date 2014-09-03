@@ -22,15 +22,15 @@ class NodeProcessor extends GenericEntityProcessor {
       $this->ifFieldMethod = FALSE;
       $tnid = $this->contentEntity->tnid ?: $this->contentEntity->nid;
       $translations = translation_node_get_translations($tnid);
-      if (isset($translations[$this->drupalLocale])) {
-        $this->entity->rid = $translations[$this->drupalLocale]->nid;
+      if (isset($translations[$this->drupalTargetLocale])) {
+        $this->entity->rid = $translations[$this->drupalTargetLocale]->nid;
       } else {
         // If node not exist, need clone.
         $node = clone $this->contentEntity;
         unset($node->nid);
         unset($node->vid);
         node_object_prepare($node);
-        $node->language = $this->drupalLocale;
+        $node->language = $this->drupalTargetLocale;
         $node->uid = $this->entity->submitter;
         $node->tnid = $this->contentEntity->nid;
 
@@ -41,8 +41,8 @@ class NodeProcessor extends GenericEntityProcessor {
             foreach ($this->contentEntity->{$field['field_name']} as $items) {
               foreach ($items as $index => $item) {
                 $term = taxonomy_term_load($this->contentEntity->{$field['field_name']}[$this->contentEntity->language][$index]['tid']);
-                if ($translation = i18n_taxonomy_term_get_translation($term, $this->drupalLocale)) {
-                  $node->{$field['field_name']}[$this->drupalLocale][$index] = array('taxonomy_term' => $translation, 'tid' => $translation->tid,);
+                if ($translation = i18n_taxonomy_term_get_translation($term, $this->drupalTargetLocale)) {
+                  $node->{$field['field_name']}[$this->drupalTargetLocale][$index] = array('taxonomy_term' => $translation, 'tid' => $translation->tid,);
                 }
                 $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
               }

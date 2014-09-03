@@ -17,7 +17,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
   public function prepareDrupalEntity() {
     $this->contentEntity = taxonomy_term_load($this->entity->rid);
     $original_entity = $this->contentEntity;
-    $term = i18n_taxonomy_term_get_translation($this->contentEntity, $this->drupalLocale);
+    $term = i18n_taxonomy_term_get_translation($this->contentEntity, $this->drupalTargetLocale);
     if (!is_null($term) && ($term->language != $this->contentEntity->language)) {
       $this->entity->rid = $term->tid;
     }
@@ -39,7 +39,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
           $term = clone $source_term;
           unset($term->tid);
 
-          $target_language = i18n_language_object($this->drupalLocale);
+          $target_language = i18n_language_object($this->drupalTargetLocale);
           // Set context language to target language.
           i18n_language_context($target_language);
 
@@ -66,7 +66,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
         case I18N_MODE_NONE:
           $this->log->setMessage('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode')
             ->setVariables(array(
-              '@entity_type' => $this->originalEntityType,
+              '@entity_type' => $this->drupalEntityType,
               '@rid' => $this->entity->rid,
               '@vocabulary_mode' => $vocabulary_mode,
             ))
@@ -76,7 +76,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
         default:
           $this->log->setMessage('Translatable @entity_type with id - @rid FAIL')
             ->setVariables(array(
-              '@entity_type' => $this->originalEntityType,
+              '@entity_type' => $this->drupalEntityType,
               '@rid' => $this->entity->rid,
             ))
             ->execute();

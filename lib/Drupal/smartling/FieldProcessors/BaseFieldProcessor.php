@@ -102,11 +102,20 @@ abstract class BaseFieldProcessor {
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
   /**
-   * Prepare before download.
+   * Prepare default field data for translatable field before applying new translation.
    *
+   * @param array $fieldData
+   *   Field data under language key.
+   *   Array(
+   *     $delta => array(
+   *       'value' => $value,
+   *     )
+   *   )
+   *
+   * @return array
    */
-  public function preparebeforeDownload() {
-
+  public function prepareBeforeDownload(array $fieldData) {
+    return $fieldData;
   }
 
 }
