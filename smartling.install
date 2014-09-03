@@ -303,10 +303,12 @@ function smartling_requirements($phase) {
  */
 function smartling_update_7100(&$sandbox) {
   $sandbox['#finished'] = 0;
+  $field_method_types = array();
+
   // Multi-part update.
   if (!isset($sandbox['user_from'])) {
     // Move smartling node settings.
-    smartling_settings_get_handler()->nodeSetFieldsSettings(variable_get('smartling_translate_fields', array()));
+    variable_set('smartling_node_fields_settings', variable_get('smartling_translate_fields', array()));
     variable_del('smartling_translate_fields');
 
     // Add new fields.
@@ -363,7 +365,7 @@ function smartling_update_7100(&$sandbox) {
         ->fields(array(
           'status' => 3,
         ))
-        ->condition('item_id', $eids, 'IN')
+        ->condition('eid', $eids, 'IN')
         ->execute();
     }
 
@@ -432,8 +434,6 @@ function smartling_update_7100(&$sandbox) {
         'shared_fields_original_only' => 0,
       );
 
-      $field_method_types = array();
-
       foreach ($node_types as $type) {
         // Update mode key for new smartling version.
         $mode = variable_get('language_content_type_' . $type->type, NULL);
@@ -482,84 +482,93 @@ function smartling_update_7100(&$sandbox) {
     foreach ($result as $res) {
       $status = $res->status;
       $node = node_load($res->rid);
-      // Add content hash and convert locale format.
-      $content_array = smartling_node_content_to_translate($node);
-      $content_hash = md5(serialize($content_array));
-      $original_language = $node->language;
-      $target_language = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
-
-      // Update file_name and translated_file_name for new version.
-      if (!empty($res->file_name)) {
-        $file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '.xml';
-        $file_path_old = smartling_get_dir() . '/' . $res->file_name;
-        $file_path_new = smartling_get_dir() . '/' . $file_name;
-        if (!rename($file_path_old, $file_path_new)) {
-          $status = '3';
-        }
-      }
-      else {
-        $file_name = $res->file_name;
-      }
-
-      if (!empty($res->translated_file_name)) {
-        $translated_file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_' . $target_language . '.xml';
-        $file_path_old = smartling_get_dir() . '/' . $res->translated_file_name;
-        $file_path_new = smartling_get_dir() . '/' . $translated_file_name;
-        if (!rename($file_path_old, $file_path_new)) {
-          $status = '3';
-        }
-      }
-      else {
-        $translated_file_name = $res->translated_file_name;
-      }
-
-      db_update('smartling_entity_data')
-        ->fields(array(
-          'content_hash' => $content_hash,
-          'entity_type' => 'node',
-          'original_language' => $original_language,
-          'target_language' => $target_language,
-          'file_name' => $file_name,
-          'translated_file_name' => $translated_file_name,
-          'status' => $status,
-        ))
-        ->condition('eid', $res->eid)
-        ->execute();
-      // Update entity translation info for fields method.
-      if (in_array($res->bundle, $field_method_types)) {
-        $entity_load = entity_load_single('node', $res->rid);
-        $handler = smartling_entity_translation_get_handler('node', $entity_load);
-        $translations = $handler->getTranslations();
-
-        // Initialize translations if they are empty.
-        if (empty($translations->original)) {
-          $handler->initTranslations();
-          smartling_entity_translation_save($handler, $entity_load);
-          $translations = $handler->getTranslations();
+      if (is_object($node)) {
+        // Add content hash and convert locale format.
+        $content_array = smartling_node_content_to_translate($node);
+        $content_hash = md5(serialize($content_array));
+        $original_language = $node->language;
+        $target_language = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
+        if (is_null($target_language)) {
+          $target_language = $res->target_language;
         }
 
-        $entity_translation = array(
-          'entity_type' => 'node',
-          'entity_id' => $res->rid,
-          'translate' => '0',
-          'status' => $entity_load->status,
-          'language' => $target_language,
-          'uid' => $res->submitter,
-          'changed' => $res->submission_date,
-        );
-
-        if (isset($translations->data[$target_language])) {
-          $handler->setTranslation($entity_translation);
+        // Update file_name and translated_file_name for new version.
+        if (!empty($res->file_name)) {
+          $file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '.xml';
+          $file_path_old = smartling_get_dir() . '/' . $res->file_name;
+          $file_path_new = smartling_get_dir() . '/' . $file_name;
+          if (!rename($file_path_old, $file_path_new)) {
+            $status = '3';
+          }
         }
         else {
-          // Add the new translation.
-          $entity_translation += array(
-            'source' => $translations->original,
-            'created' => $entity_load->created,
-          );
-          $handler->setTranslation($entity_translation);
+          $file_name = $res->file_name;
         }
-        smartling_entity_translation_save($handler, $entity_load);
+
+        if (!empty($res->translated_file_name)) {
+          $translated_file_name = strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_' . $target_language . '.xml';
+          $file_path_old = smartling_get_dir() . '/' . $res->translated_file_name;
+          $file_path_new = smartling_get_dir() . '/' . $translated_file_name;
+          if (!rename($file_path_old, $file_path_new)) {
+            $status = '3';
+          }
+        }
+        else {
+          $translated_file_name = $res->translated_file_name;
+        }
+
+        db_update('smartling_entity_data')
+          ->fields(array(
+            'content_hash' => $content_hash,
+            'entity_type' => 'node',
+            'original_language' => $original_language,
+            'target_language' => $target_language,
+            'file_name' => $file_name,
+            'translated_file_name' => $translated_file_name,
+            'status' => $status,
+          ))
+          ->condition('eid', $res->eid)
+          ->execute();
+        // Update entity translation info for fields method.
+        if (in_array($res->bundle, $field_method_types)) {
+          $entity_load = entity_load_single('node', $res->rid);
+          $handler = smartling_entity_translation_get_handler('node', $entity_load);
+          $translations = $handler->getTranslations();
+
+          // Initialize translations if they are empty.
+          if (empty($translations->original)) {
+            $handler->initTranslations();
+            smartling_entity_translation_save($handler, $entity_load);
+            $translations = $handler->getTranslations();
+          }
+
+          $entity_translation = array(
+            'entity_type' => 'node',
+            'entity_id' => $res->rid,
+            'translate' => '0',
+            'status' => $entity_load->status,
+            'language' => $target_language,
+            'uid' => $res->submitter,
+            'changed' => $res->submission_date,
+          );
+
+          if (isset($translations->data[$target_language])) {
+            $handler->setTranslation($entity_translation);
+          }
+          else {
+            // Add the new translation.
+            $entity_translation += array(
+              'source' => $translations->original,
+              'created' => $entity_load->created,
+            );
+            $handler->setTranslation($entity_translation);
+          }
+          smartling_entity_translation_save($handler, $entity_load);
+        }
+      }
+      else {
+        // Delete if node not load.
+        db_delete('smartling_entity_data')->condition('eid', $res->eid)->execute();
       }
     }
     $sandbox['#finished'] = (empty($sandbox['user_count'])) ? 1 : $sandbox['user_from'] / $sandbox['user_count'];
