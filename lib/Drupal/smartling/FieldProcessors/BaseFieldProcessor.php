@@ -79,7 +79,7 @@ abstract class BaseFieldProcessor {
    * Converts drupal field format to smartling data.
    *
    * @return array
-   *   Drupal field structure ready to be put into drupal content entity.
+   *   Drupal field structure under language key ready to be put into drupal content entity.
    */
   abstract public function getSmartlingContent();
 
@@ -87,7 +87,7 @@ abstract class BaseFieldProcessor {
    * Converts smartling data field format to drupal.
    *
    * @return array
-   *   Drupal field structure ready to be put into smartling entity.
+   *   Drupal field structure under language key ready to be put into smartling entity.
    */
   abstract public function getDrupalContent();
 
@@ -97,7 +97,7 @@ abstract class BaseFieldProcessor {
    * @param \DomXpath $xpath
    *
    * @return array
-   *   Drupal field structure ready to be put into smartling entity.
+   *   Drupal field structure under language key ready to be put into smartling entity.
    */
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 

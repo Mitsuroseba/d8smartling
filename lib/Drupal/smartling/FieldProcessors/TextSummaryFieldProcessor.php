@@ -32,8 +32,8 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     $data = $this->entity->{$this->fieldName};
 
     foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
-      $data[$this->language][$delta]['value'] = $value['body'];
-      $data[$this->language][$delta]['summary'] = $value['summary'];
+      $data[$delta]['value'] = $value['body'];
+      $data[$delta]['summary'] = $value['summary'];
     }
 
     return $data;
@@ -58,8 +58,8 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
       $bodyField = $xpath->query('//string[@id="' . $this->fieldName . '-body-' . $i . '"][1]')->item(0);
       $summaryField = $xpath->query('//string[@id="' . $this->fieldName . '-summary-' . $i . '"][1]')->item(0);
 
-      $data[$this->language][$i]['value'] = $this->processXMLContent((string) $bodyField->nodeValue);
-      $data[$this->language][$i]['summary'] = $this->processXMLContent((string) $summaryField->nodeValue);
+      $data[$i]['value'] = $this->processXMLContent((string) $bodyField->nodeValue);
+      $data[$i]['summary'] = $this->processXMLContent((string) $summaryField->nodeValue);
     }
 
     return $data;

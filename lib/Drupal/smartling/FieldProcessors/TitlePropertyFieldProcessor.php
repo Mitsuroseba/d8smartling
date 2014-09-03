@@ -13,12 +13,6 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
    * {@inheritdoc}
    */
   public function getSmartlingContent() {
-//    $data = array();
-
-//    if (!empty($this->entity->title)) {
-//      $data[0] = $this->entity->label();
-//    }
-
     return array(entity_label($this->entityType, $this->entity));
   }
 

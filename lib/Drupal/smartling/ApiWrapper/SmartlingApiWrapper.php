@@ -58,7 +58,7 @@ class SmartlingApiWrapper {
   /**
    * Set Smartling API.
    *
-   * @param SmartlingAPI $api
+   * @param \SmartlingAPI $api
    *   Smartling API.
    */
   public function setApi(\SmartlingAPI $api) {
@@ -131,8 +131,6 @@ class SmartlingApiWrapper {
   /**
    * Get status.
    *
-   * @param object $args
-   *   Arguments.
    * @param object $entity
    *   Smartling transaction entity.
    * @param string $link_to_entity

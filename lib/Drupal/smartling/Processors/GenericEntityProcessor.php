@@ -70,6 +70,11 @@ class GenericEntityProcessor {
   /**
    * @var string
    */
+  protected $targetFieldLanguage;
+
+  /**
+   * @var string
+   */
   protected $drupalOriginalLocale;
 
   /**
@@ -127,6 +132,8 @@ class GenericEntityProcessor {
     $this->contentEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
     $this->drupalEntityType = $this->entity->entity_type;
     $this->ifFieldMethod = smartling_fields_method($this->contentEntity->type);
+
+    $this->targetFieldLanguage = $this->ifFieldMethod ? $this->drupalTargetLocale : LANGUAGE_NONE;
 
     $this->log = $log;
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
@@ -261,13 +268,13 @@ class GenericEntityProcessor {
     if (!$this->isOriginalEntityPrepared) {
       $this->contentEntity = entity_load_single($this->drupalEntityType, $this->entity->rid);
       $this->isOriginalEntityPrepared = TRUE;
-    }
 
-    if ($this->ifFieldMethod) {
-      foreach ($this->getTransletableFields() as $field_name) {
-        if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]) && empty($this->contentEntity->{$field_name}[$this->drupalTargetLocale])) {
-          $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity);
-          $this->contentEntity->{$field_name}[$this->drupalTargetLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
+      if ($this->ifFieldMethod) {
+        foreach ($this->getTransletableFields() as $field_name) {
+          if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]) && empty($this->contentEntity->{$field_name}[$this->drupalTargetLocale])) {
+            $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity);
+            $this->contentEntity->{$field_name}[$this->drupalTargetLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
+          }
         }
       }
     }
@@ -327,7 +334,7 @@ class GenericEntityProcessor {
       /* @var $fieldProcessor BaseFieldProcessor */
       $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity);
 
-      $this->contentEntity->{$field_name} = $fieldProcessor->getDrupalContent();
+      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->getDrupalContent();
     }
 
     $this->saveDrupalEntity();
@@ -354,7 +361,7 @@ class GenericEntityProcessor {
 
       // @TODO test if format could be set automatically.
       $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity);
-      $this->contentEntity->{$field_name} = $fieldProcessor->fetchDataFromXML($xpath);
+      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->fetchDataFromXML($xpath);
     }
 
     $this->saveDrupalEntity();
@@ -369,8 +376,6 @@ class GenericEntityProcessor {
 
     $xml = new \DOMDocument();
     $xml->load($file_path);
-
-    $
 
     // Update smartling entity.
     $this->importSmartlingXMLToSmartlingEntity($xml);
@@ -423,6 +428,7 @@ class GenericEntityProcessor {
 
   /**
    * Clone fields values to new entity during creating new translations
+   * @todo remove it.
    */
   public function fillFieldFromOriginalLanguage() {
     $this->prepareDrupalEntity();
@@ -436,7 +442,7 @@ class GenericEntityProcessor {
         if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->drupalEntityType) && isset($this->contentEntity->{$field['field_name']})) {
           $need_save = TRUE;
           $original_lang = entity_language($this->drupalEntityType, $this->contentEntity);
-          $this->contentEntity->{$field['field_name']}[$this->drupalTargetLocale] = $this->contentEntity->{$field['field_name']}[$original_lang];
+          $this->contentEntity->{$field['field_name']}[$this->targetFieldLanguage] = $this->contentEntity->{$field['field_name']}[$original_lang];
         }
       }
       if ($need_save) {

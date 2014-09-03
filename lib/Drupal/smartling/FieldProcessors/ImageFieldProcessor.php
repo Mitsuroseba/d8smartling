@@ -33,9 +33,9 @@ class ImageFieldProcessor extends BaseFieldProcessor {
     $data = $this->entity->{$this->fieldName};
 
     foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
-      $data[$this->language][$delta]['alt'] = $value['alt-img'];
-      $data[$this->language][$delta]['title'] = $value['title-img'];
-      $data[$this->language][$delta]['fid'] = $value['fid-img'];
+      $data[$delta]['alt'] = $value['alt-img'];
+      $data[$delta]['title'] = $value['title-img'];
+      $data[$delta]['fid'] = $value['fid-img'];
     }
 
     return $data;
@@ -65,9 +65,9 @@ class ImageFieldProcessor extends BaseFieldProcessor {
       $file_img = file_load($fid);
 
       if ($file_img) {
-        $data[$this->language][$i] = (array) $file_img;
-        $data[$this->language][$i]['alt'] = $this->processXMLContent((string) $altField->nodeValue);
-        $data[$this->language][$i]['title'] = $this->processXMLContent((string) $titleField->nodeValue);
+        $data[$i] = (array) $file_img;
+        $data[$i]['alt'] = $this->processXMLContent((string) $altField->nodeValue);
+        $data[$i]['title'] = $this->processXMLContent((string) $titleField->nodeValue);
       }
     }
 

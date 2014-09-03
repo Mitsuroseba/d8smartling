@@ -15,8 +15,6 @@ class NodeProcessor extends GenericEntityProcessor {
    * @todo remove procedural code.
    */
   public function prepareDrupalEntity() {
-    $this->contentEntity = node_load($this->entity->rid);
-
     if (smartling_nodes_method($this->entity->bundle)) {
       // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
@@ -54,6 +52,10 @@ class NodeProcessor extends GenericEntityProcessor {
 
         node_object_prepare($node);
         node_save($node);
+
+        // Update reference to drupal content entity.
+        $this->contentEntity = $node;
+        $this->entity->rid = $node->nid;
       }
     }
   }
