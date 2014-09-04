@@ -490,6 +490,7 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
     $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string '));
+    $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
 
     $data = $xml->createElement('data');
 
