@@ -175,8 +175,8 @@ class SmartlingApiWrapper {
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@d_locale' => $smartling_entity->target_language,
-          '@code' => $status_result->response->code,
-          '@message' => $status_result->response->messages[0],
+          '@code' => isset($status_result->response->code) ? $status_result->response->code : '-',
+          '@message' => isset($status_result->response->messages[0]) ? $status_result->response->messages[0] : '-',
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)

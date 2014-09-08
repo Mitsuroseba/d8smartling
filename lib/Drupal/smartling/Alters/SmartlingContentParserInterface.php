@@ -5,8 +5,6 @@
  * Interface IContentParserSmartlingInterface.
  */
 
-namespace Drupal\smartling\Alters;
-
 /**
  * Parses the translated content for the needed parts (like link addresses etc).
  *
@@ -25,7 +23,7 @@ interface SmartlingContentParserInterface {
   /**
    * Parses string content after the translation is made.
    *
-   * @param array $content
+   * @param mixed $content
    *   Context array.
    * @param string $lang
    *   Locale in drupal format (ru, en).
@@ -34,5 +32,5 @@ interface SmartlingContentParserInterface {
    * @param object $entity
    *   Entity object.
    */
-  public function parse(array $content, $lang, $field_name, $entity);
+  public function parse($content, $lang, $field_name, $entity);
 }

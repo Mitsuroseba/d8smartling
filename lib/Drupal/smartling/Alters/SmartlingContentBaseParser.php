@@ -5,10 +5,6 @@
  * Smartling content base parser.
  */
 
-namespace Drupal\smartling\Alters;
-
-use Drupal\smartling\Alters\SmartlingContentParserInterface;
-
 /**
  * Abstract class SmartlingContentBaseParser.
  */

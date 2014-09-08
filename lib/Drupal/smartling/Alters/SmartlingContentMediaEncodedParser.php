@@ -5,10 +5,6 @@
  * Class SmartlingContentMediaEncodedParser.
  */
 
-namespace Drupal\smartling\Alters;
-
-use Drupal\smartling\Alters\SmartlingContentBaseParser;
-
 /*
  * A parser for the Drupal media module and its jsons inside text fields.
  * For example: [[{&quot;fid&quot;:&quot;466&quot;,&quot;view_mode&quot;:&quot;
