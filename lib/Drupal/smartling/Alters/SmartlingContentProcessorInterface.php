@@ -5,8 +5,6 @@
  * Interface IContentProcessorSmartlingInterface.
  */
 
-namespace Drupal\smartling\Alters;
-
 /*
  * Content Processor interface. It's implementations allow to change
  * translated content. For example, to

@@ -5,10 +5,6 @@
  * Class SmartlingContentMediaEncodedProcessor.
  */
 
-namespace Drupal\smartling\Alters;
-
-use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
-
 /**
  * Demo url processor. No real value here for now.
  */
@@ -60,12 +56,6 @@ class SmartlingContentMediaEncodedProcessor implements SmartlingContentProcessor
     if (empty($file)) {
       return;
     }
-    $new_file = $this->getFileByName($lang . '_' . $file->filename);
-
-    if ($new_file) {
-      $media_content = json_decode(htmlspecialchars_decode($item[1]));
-      $media_content[0][0]->fid = $new_file[0]->fid;
-      $item[1] = htmlspecialchars(json_encode($media_content));
-    }
+    $item[1] = htmlspecialchars_decode($item[1]);
   }
 }
