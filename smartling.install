@@ -306,7 +306,16 @@ function smartling_update_7100(&$sandbox) {
   // Multi-part update.
   if (!isset($sandbox['user_from'])) {
     // Move smartling node settings.
-    variable_set('smartling_node_fields_settings', variable_get('smartling_translate_fields', array()));
+    $fields_settings = variable_get('smartling_translate_fields', array());
+    foreach ($fields_settings as $type => $fields) {
+      foreach ($fields as $field) {
+        if ($field == 'node_title') {
+          unset($fields_settings[$type][$field]);
+          $fields_settings[$type]['title_property_field'] = 'title_property_field';
+        }
+      }
+    }
+    variable_set('smartling_node_fields_settings', $fields_settings);
     variable_del('smartling_translate_fields');
 
     // Add new fields.
@@ -488,9 +497,6 @@ function smartling_update_7100(&$sandbox) {
         $content_hash = md5(serialize($content_array));
         $original_language = $node->language;
         $target_language = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
-        if (is_null($target_language)) {
-          $target_language = $res->target_language;
-        }
 
         // Update file_name and translated_file_name for new version.
         if (!empty($res->file_name)) {
@@ -518,18 +524,18 @@ function smartling_update_7100(&$sandbox) {
         }
 
         db_update('smartling_entity_data')
-          ->fields(array(
-            'content_hash' => $content_hash,
-            'entity_type' => 'node',
-            'original_language' => $original_language,
-            'target_language' => $target_language,
-            'file_name' => $file_name,
-            'translated_file_name' => $translated_file_name,
-            'status' => $status,
-            'content_hash' => $content_hash,
-          ))
-          ->condition('eid', $res->eid)
-          ->execute();
+            ->fields(array(
+              'content_hash' => $content_hash,
+              'entity_type' => 'node',
+              'original_language' => $original_language,
+              'target_language' => $target_language,
+              'file_name' => $file_name,
+              'translated_file_name' => $translated_file_name,
+              'status' => $status,
+              'content_hash' => $content_hash,
+            ))
+            ->condition('eid', $res->eid)
+            ->execute();
         // Update entity translation info for fields method.
         if (in_array($res->bundle, $field_method_types)) {
           $entity_load = entity_load_single('node', $res->rid);
