@@ -28,27 +28,11 @@ function smartling_admin_configuration_view() {
     ),
   );
 
-  $account_info = drupal_get_form('smartling_admin_account_info_settings_form');
-  $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form');
-  $taxonomy_translation_settings = drupal_get_form('smartling_admin_taxonomy_translation_settings_form');
-  $comments_translation_settings = drupal_get_form('smartling_admin_comments_translation_settings_form');
-  $users_translation_settings = drupal_get_form('smartling_admin_users_translation_settings_form');
-  $log_info = drupal_get_form('smartling_admin_log_info_settings_form');
+  $settings_forms = module_invoke_all('smartling_settings_form_info');
 
-  $output['smartling'][] = smartling_wrap_in_fieldset($account_info, t('Account info'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, t('Content types and fields'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($taxonomy_translation_settings, t('Taxonomy vocabularies and fields'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($comments_translation_settings, t('Comment fields'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($users_translation_settings, t('User fields'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($log_info, t('Smartling log'));
-
-  if (module_exists('smartling_load_test')) {
-    $dev_settings = drupal_get_form('smartling_admin_dev_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, t('Dev settings'));
-  }
-  if (module_exists('smartling_reference')) {
-    $reference_settings = drupal_get_form('smartling_admin_reference_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($reference_settings, t('References settings'));
+  foreach ($settings_forms as $machine_name => $title) {
+    $form = drupal_get_form($machine_name);
+    $output['smartling'][] = smartling_wrap_in_fieldset($form, $title);
   }
 
   if (!empty($_fix_field_settings) && is_array($_fix_field_settings)) {

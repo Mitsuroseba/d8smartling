@@ -17,7 +17,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     if (!empty($this->entity->{$this->fieldName}[$this->language])) {
       foreach ($this->entity->{$this->fieldName}[$this->language] as $delta => $value) {
-        $data[$delta] = $value['value'];
+        $fid = (int)$value['value'];
+        $data[$delta] = field_collection_item_load($fid);
       }
     }
 
