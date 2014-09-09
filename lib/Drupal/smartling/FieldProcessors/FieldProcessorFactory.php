@@ -34,7 +34,7 @@ class FieldProcessorFactory {
     'title_property' => 'TitlePropertyFieldProcessor',
     'title_property_field' => 'TitlePropertyFieldProcessor',
     'description_property_field' => 'DescriptionPropertyFieldProcessor',
-    'name_property_field' => 'TitlePropertyFieldProcessor',
+    'name_property_field' => 'NamePropertyFieldProcessor',
 
     'field_collection' => 'FieldCollectionFieldProcessor',
   );

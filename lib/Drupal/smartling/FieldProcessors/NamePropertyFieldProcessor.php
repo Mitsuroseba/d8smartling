@@ -7,9 +7,9 @@
 
 namespace Drupal\smartling\FieldProcessors;
 
-class DescriptionPropertyFieldProcessor extends TitlePropertyFieldProcessor {
+class NamePropertyFieldProcessor extends TitlePropertyFieldProcessor {
 
-  protected $propertyName = 'description';
+  protected $propertyName = 'name';
 
   /**
    * {@inheritdoc}
@@ -24,7 +24,7 @@ class DescriptionPropertyFieldProcessor extends TitlePropertyFieldProcessor {
   public function getDrupalContent() {
     $data = $this->entity->{$this->propertyName};
 
-    foreach ($this->smartling_entity[$this->propertyName] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
       $data = $value;
     }
 

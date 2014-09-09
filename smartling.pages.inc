@@ -57,7 +57,7 @@ function smartling_manual_management_form_submit($form, $form_state) {
   if ($form_state['values']['operation'] == 'upload') {
     $smartling_data = smartling_entity_load_by_conditions(array(
       'rid' => $wrapper->getIdentifier(),
-      'target_language' => $form_state['values']['language'],
+      'target_language' => $target_language,
     ));
 
     if (!$smartling_data) {
@@ -79,7 +79,7 @@ function smartling_manual_management_form_submit($form, $form_state) {
   elseif ($form_state['values']['operation'] == 'download') {
     $smartling_data = smartling_entity_load_by_conditions(array(
       'rid' => $wrapper->getIdentifier(),
-      'target_language' => $form_state['values']['language'],
+      'target_language' => $target_language,
     ));
 
     smartling_queue_download_update_translated_item_process($smartling_data->eid);

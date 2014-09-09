@@ -101,6 +101,10 @@ abstract class BaseFieldProcessor {
    */
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
+  public function setDrupalContentFromXML($xpath) {
+    $this->entity->{$this->fieldName}[$this->language] = $this->fetchDataFromXML($xpath);
+  }
+
   /**
    * Prepare default field data for translatable field before applying new translation.
    *

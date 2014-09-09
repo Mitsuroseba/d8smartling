@@ -531,6 +531,8 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
  *
  * @return DOMNode
  *   Return localize object.
+ *
+ * @todo rewrite this bunch of hardcode.
  */
 function smartling_build_localize($dom, $title = '', array $strings = array(), $index = '', $no = FALSE) {
   $element = ($no !== FALSE) ? 'nolocalize' . $index : 'localize' . $index;
@@ -541,9 +543,14 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
   $localize->appendChild($localize_attr);
 
   foreach ($strings as $field_name => $field_value) {
+    // Fix for property field to make them works as other fields structures.
+    if (is_string($field_value)) {
+      $field_value = array($field_value);
+    }
+
     if (is_array($field_value) && !empty($field_value)) {
       // Fields body-summary or image or text.
-      if (!is_string($field_value[0]) && isset($field_value[0]['body'])) {
+      if (!empty($field_value[0]['body'])) {
         // Field body-summary.
         $quantity = count($field_value);
         foreach ($field_value as $key => $value) {
@@ -572,7 +579,7 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
           $localize->appendChild($string);
         }
       }
-      elseif (!is_string($field_value[0]) && isset($field_value[0]['alt-img'])) {
+      elseif (!empty($field_value[0]) && isset($field_value[0]['alt-img'])) {
         // Field image.
         $quantity = count($field_value);
         foreach ($field_value as $key => $value) {
@@ -609,7 +616,54 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
           $localize->appendChild($string);
         }
       }
-      elseif (is_string($field_value[0])) {
+      elseif (is_array($field_value[0])) {
+        $quantity = count($field_value);
+        $string = $dom->createElement('string');
+        foreach ($field_value as $key => $value) {
+          foreach ($value as $item_key => $item) {
+            $string_val = $dom->createTextNode($item);
+            $string_attr = $dom->createAttribute('id');
+            $string_attr->value = $field_name . '-' . $item_key . '-' . $key;
+            $string->appendChild($string_attr);
+            $string->appendChild($string_val);
+            $string_attr = $dom->createAttribute('quantity');
+            $string_attr->value = $quantity;
+            $string->appendChild($string_attr);
+          }
+//          $string = $dom->createElement('string');
+//          $string_val = $dom->createTextNode($value['alt-img']);
+//          $string_attr = $dom->createAttribute('id');
+//          $string_attr->value = $field_name . '-alt-img-' . $key;
+//          $string->appendChild($string_attr);
+//          $string->appendChild($string_val);
+//          // Set quantity.
+//          $string_attr = $dom->createAttribute('quantity');
+//          $string_attr->value = $quantity;
+//          $string->appendChild($string_attr);
+//          // Set image fid.
+//          $string_attr = $dom->createAttribute('fid');
+//          $string_attr->value = $value['fid-img'];
+//          $string->appendChild($string_attr);
+//          $localize->appendChild($string);
+//
+//          $string = $dom->createElement('string');
+//          $string_val = $dom->createTextNode($value['title-img']);
+//          $string_attr = $dom->createAttribute('id');
+//          $string_attr->value = $field_name . '-title-img-' . $key;
+//          $string->appendChild($string_attr);
+//          $string->appendChild($string_val);
+//          // Set quantity.
+//          $string_attr = $dom->createAttribute('quantity');
+//          $string_attr->value = $quantity;
+//          $string->appendChild($string_attr);
+//          // Set image fid.
+//          $string_attr = $dom->createAttribute('fid');
+//          $string_attr->value = $value['fid-img'];
+//          $string->appendChild($string_attr);
+//          $localize->appendChild($string);
+        }
+      }
+      else {
         // Field text.
         $quantity = count($field_value);
         foreach ($field_value as $key => $value) {

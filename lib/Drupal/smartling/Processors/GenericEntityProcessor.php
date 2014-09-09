@@ -229,6 +229,7 @@ class GenericEntityProcessor {
    */
   public function saveDrupalEntity() {
 //    entity_save($this->drupalEntityType, $this->contentEntity);
+    $this->contentEntityWrapper->set($this->contentEntity);
     $this->contentEntityWrapper->save();
   }
 
@@ -326,7 +327,7 @@ class GenericEntityProcessor {
       // Add the new translation.
       $entity_translation += array(
         'source' => $translations->original,
-        'created' => !empty($entity->created) ? $entity->create : REQUEST_TIME,
+        'created' => !empty($entity->created) ? $entity->created : REQUEST_TIME,
       );
       $handler->setTranslation($entity_translation);
     }
@@ -372,7 +373,8 @@ class GenericEntityProcessor {
 
       // @TODO test if format could be set automatically.
       $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity);
-      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->fetchDataFromXML($xpath);
+//      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->fetchDataFromXML($xpath);
+      $fieldProcessor->setDrupalContentFromXML($xpath);
     }
 
     $this->saveDrupalEntity();
