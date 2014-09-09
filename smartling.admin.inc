@@ -1378,6 +1378,237 @@ function smartling_admin_users_translation_settings_form_submit(array $form, arr
   $form_state['redirect'] = $redirect;
 }
 
+function smartling_admin_field_collection_settings_form(array $form, array &$form_state) {
+  $instances = field_info_instances();
+  $field_types = field_info_field_types();
+  $bundles = field_info_bundles();
+  $header = array(t('Field name'), t('Used in'), array('data' => t('Operations'), 'colspan' => '2'));
+  $rows = array();
+  foreach ($instances as $entity_type => $type_bundles) {
+    foreach ($type_bundles as $bundle => $bundle_instances) {
+      foreach ($bundle_instances as $field_name => $instance) {
+        $field = field_info_field($field_name);
+        if ($field['type'] == 'field_collection') {
+          $admin_path = _field_ui_bundle_admin_path($entity_type, $bundle);
+          $rows[$field_name]['class'] = $field['locked'] ? array('menu-disabled') : array('');
+
+          $rows[$field_name]['data'][0] = $field['locked'] ? t('@field_name (Locked)', array('@field_name' => $field_name)) : $field_name;
+          $rows[$field_name]['data'][1][] = l($bundles[$entity_type][$bundle]['label'], $admin_path . '/fields');
+        }
+      }
+    }
+  }
+  foreach ($rows as $field_name => $cell) {
+    $rows[$field_name]['data'][1] = implode(', ', $cell['data'][1]);
+
+    $field_name_url_str = strtr($field_name, array('_' => '-'));
+    $rows[$field_name]['data'][2] = l(t('manage fields'), 'admin/structure/field-collections/' . $field_name_url_str . '/fields');
+    $rows[$field_name]['data'][3] = l(t('manage display'), 'admin/structure/field-collections/' . $field_name_url_str . '/display');
+  }
+  if (empty($rows)) {
+    $output = t('No field collections have been defined yet. To do so attach a field collection field to any entity.');
+  }
+  else {
+    // Sort rows by field name.
+    ksort($rows);
+    $output = theme('table', array('header' => $header, 'rows' => $rows));
+  }
+  return array('hafanana' => array('#type' => 'markup', '#markup' => $output));
+
+
+
+
+
+  $raw_types = node_type_get_types();
+  $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
+
+  // What types of fields DO we translate?
+  $translatable_field_types = smartling_get_translatable_field_types();
+
+  $form['node_translation'] = array(
+    'actions' => array(
+      '#type' => 'actions',
+    ),
+  );
+
+  $form['node_translation']['title'] = array(
+    '#type' => 'item',
+    '#title' => t('Which content types do you want to translate?'),
+  );
+
+  $rows = array();
+  global $_fix_field_settings;
+
+
+  foreach ($instances as $entity_type => $type_bundles) {
+    foreach ($type_bundles as $bundle => $bundle_instances) {
+      foreach ($bundle_instances as $field_name => $instance) {
+//        $field = field_info_field($field_name);
+//        if ($field['type'] == 'field_collection') {
+//          $admin_path = _field_ui_bundle_admin_path($entity_type, $bundle);
+//          $rows[$field_name]['class'] = $field['locked'] ? array('menu-disabled') : array('');
+//
+//          $rows[$field_name]['data'][0] = $field['locked'] ? t('@field_name (Locked)', array('@field_name' => $field_name)) : $field_name;
+//          $rows[$field_name]['data'][1][] = l($bundles[$entity_type][$bundle]['label'], $admin_path . '/fields');
+//        }
+
+        if (smartling_supported_type('node', $bundle)) {
+          $fr_tt['from'] = array(
+            '#type' => 'item',
+            '#title' => t('Fields method'),
+          );
+          if (smartling_nodes_method($bundle)) {
+            $fr_tt['from']['#title'] = t('Nodes method');
+          }
+
+          $fr_fields = array();
+
+          foreach (field_info_instances('node', $bundle) as $field) {
+            $field_label = $field['label'];
+            $field_machine_name = $field['field_name'];
+            $field_type = $field['widget']['type'];
+            if (array_search($field_type, $translatable_field_types)) {
+              $fr_fields[$field_machine_name] = array(
+                '#type' => 'checkbox',
+                '#title' => check_plain($field_label),
+                '#attributes' => array(
+                  'id' => array('edit-form-item-' . $bundle . '-separator-' . $field_machine_name),
+                  'name' => $bundle . '_SEPARATOR_' . $field_machine_name,
+                  'class' => array('field'),
+                ),
+                '#id' => 'edit-form-item-' . $bundle . '-separator-' . $field_machine_name,
+              );
+
+              $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$bundle][$field_machine_name])) ? TRUE : FALSE;
+
+              if ($is_in_conf) {
+                $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
+                // Error in field settings.
+                if (smartling_nodes_method($bundle) && smartling_field_is_translatable_by_field_name($field_machine_name, 'node') && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
+                  $_fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
+                }
+              }
+            }
+          }
+
+          if (!isset($fr_fields['title_field']) && smartling_fields_method($bundle)) {
+            $fr_fields['title_field'] = array(
+              '#type' => 'checkbox',
+              '#title' => t('Title (Note: field will be created.)'),
+              '#attributes' => array(
+                'id' => array('edit-form-item-' . $bundle . '-separator-title_field'),
+                'name' => 'title_swap_' . $bundle,
+                'class' => array('field'),
+              ),
+            );
+
+            $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$bundle]['title_field'])) ? TRUE : FALSE;
+            if ($is_in_conf) {
+              $fr_fields['title_field']['#attributes']['checked'] = 'checked';
+            }
+          }
+          // Fix double title after change translate method.
+          if (!isset($fr_fields['title_field'])) {
+            // Fake field title ($node->title) for nodes method.
+            if (smartling_nodes_method($bundle)) {
+              $field_machine_name = 'title_property_field';
+              $fr_fields[$field_machine_name] = array(
+                '#type' => 'checkbox',
+                '#title' => t('Title'),
+                '#attributes' => array(
+                  'id' => array('edit-form-item-' . $bundle . '-separator-title_property_field' . $field_machine_name),
+                  'name' => $bundle . '_SEPARATOR_' . $field_machine_name,
+                  'class' => array('field'),
+                ),
+                '#id' => 'edit-form-item-' . $bundle . '-separator-' . $field_machine_name,
+              );
+
+              $is_in_conf = (!empty($node_translate_fields) && isset($node_translate_fields[$bundle][$field_machine_name])) ? TRUE : FALSE;
+              if ($is_in_conf) {
+                $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
+              }
+            }
+          }
+        }
+        else {
+          $options = array(
+            0 => t('- Select Method -'),
+            2 => t('Nodes method'),
+            1 => t('Fields method'),
+          );
+
+          $fr_tt['method'][$bundle] = array(
+            '#type' => 'select',
+            '#title' => t('Translation Type'),
+            '#title_display' => 'invisible',
+            '#options' => $options,
+            '#required' => FALSE,
+            '#default_value' => 0,
+            '#attributes' => array(
+              'id' => array('edit-form-item-' . $bundle . '-TT-' . $bundle),
+              'name' => $bundle . '_TT_' . $bundle,
+              'class' => array('content-type'),
+            ),
+          );
+
+          $fr_fields = array();
+        }
+
+        $rows[$bundle] = array(
+          array(
+            'data' => check_plain($bundle),
+            'width' => '20%',
+          ),
+          array(
+            'data' => drupal_render($fr_tt),
+            'width' => '20%',
+          ),
+          array(
+            'data' => drupal_render($fr_fields),
+            'width' => '60%',
+          ),
+        );
+        unset($fr_tt);
+        unset($fr_fields);
+
+
+      }
+    }
+  }
+
+
+  $header = array(t('Content Type'), t('Translation Type'), t('Fields'));
+
+  $variables = array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('class' => array('smartling-content-settings-table')),
+  );
+
+  $form['node_translation']['types'] = array(
+    '#type' => 'markup',
+    '#markup' => theme('table', $variables),
+  );
+
+  foreach (array_keys($node_translate_fields) as $content_type) {
+    $form['node_translation']['types']['#default_value'][$content_type] = 1;
+  }
+
+  $form['node_translation']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#submit'][] = 'smartling_admin_node_translation_settings_form_submit';
+
+  return $form;
+
+}
+
+function smartling_admin_field_collection_settings_form_submit(array $form, array &$form_state) {
+
+}
+
 /**
  * Wrap form in fieldset.
  *
