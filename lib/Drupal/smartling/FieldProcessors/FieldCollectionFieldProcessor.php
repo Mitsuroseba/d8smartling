@@ -9,33 +9,39 @@ namespace Drupal\smartling\FieldProcessors;
 
 class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
+
+  /**
+   * Wrapper for Smartling settings storage.
+   *
+   * @todo avoid procedural code and inject storage to keep DI pattern.
+   *
+   * @return array()
+   */
+  protected function getTransletableFields() {
+    //return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
+    return array('field_text1', 'field_some2');
+  }
+
   /**
    * {@inheritdoc}
    */
   public function getSmartlingContent() {
     $data = array();
 
-
+    //return $entity_current_translatable_content;
     if (!empty($this->entity->{$this->fieldName}[$this->language])) {
       foreach ($this->entity->{$this->fieldName}[$this->language] as $delta => $value) {
         $fid = (int)$value['value'];
         $entity = field_collection_item_load($fid);
 
-        $wrapper = entity_metadata_wrapper('field_collection', $entity);
-        $smartling_entity = smartling_entity_load_by_conditions(array(
-          'rid' => $wrapper->getIdentifier(),
-          'target_language' => $this->language,
-        ));
+        foreach ($this->getTransletableFields() as $field_name) {
+          /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
+          $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $entity, $entity->entity_type, $this->smartling_entity);
 
-        if (!$smartling_entity) {
-          // @todo verify that entity has language property.
-          $smartling_entity = smartling_create_from_entity($entity, 'field_collection', $entity->langcode, $this->language);
+          if ($fieldProcessor) {
+            $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();
+          }
         }
-        //$smartling_entity = smartling_create_from_entity($entity, $entity->type, $entity->language, $this->language);
-        $processor = smartling_get_entity_processor($smartling_entity);
-        $data[$delta] = $processor->exportContentToTranslation();
-
-
       }
     }
 
