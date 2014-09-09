@@ -72,11 +72,6 @@ function smartling_queue_send_to_translate_process($eid) {
   if ($smartling_entity && smartling_is_configured()) {
     $entity_type = $smartling_entity->entity_type;
 
-    // Check filename length.
-    if (!smartling_check_filename_length($smartling_entity->content_entity->title, $entity_type, $smartling_entity->rid)) {
-      return NULL;
-    }
-
 //    $entity_data_array = array();
     // @todo why do we need internal loops?
 //    foreach ($smartling_entity->d_locales as $d_locale) {

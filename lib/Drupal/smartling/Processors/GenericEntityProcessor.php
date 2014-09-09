@@ -40,6 +40,13 @@ class GenericEntityProcessor {
   public $contentEntity;
 
   /**
+   * Abstracted wrapper for drupal content entity.
+   *
+   * @var \EntityDrupalWrapper
+   */
+  public $contentEntityWrapper;
+
+  /**
    * List of drupal content entity fields that could be translated.
    *
    * @var array
@@ -131,7 +138,8 @@ class GenericEntityProcessor {
 
     $this->contentEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
     $this->drupalEntityType = $this->entity->entity_type;
-    $this->ifFieldMethod = smartling_fields_method($this->contentEntity->type);
+    $this->contentEntityWrapper = entity_metadata_wrapper($this->drupalEntityType, $this->contentEntity);
+    $this->ifFieldMethod = smartling_fields_method($this->contentEntityWrapper->getBundle());
 
     $this->targetFieldLanguage = $this->ifFieldMethod ? $this->drupalTargetLocale : LANGUAGE_NONE;
 
@@ -220,7 +228,8 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function saveDrupalEntity() {
-    entity_save($this->drupalEntityType, $this->contentEntity);
+//    entity_save($this->drupalEntityType, $this->contentEntity);
+    $this->contentEntityWrapper->save();
   }
 
   /**
@@ -266,11 +275,13 @@ class GenericEntityProcessor {
    */
   public function prepareDrupalEntity() {
     if (!$this->isOriginalEntityPrepared) {
-      $this->contentEntity = entity_load_single($this->drupalEntityType, $this->entity->rid);
       $this->isOriginalEntityPrepared = TRUE;
 
       if ($this->ifFieldMethod) {
         foreach ($this->getTransletableFields() as $field_name) {
+          // Still use entity object itself because entity wrapper hardcodes
+          // language and disallow to fetch values from translated fields.
+          // However all entities work with entities in the same way.
           if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]) && empty($this->contentEntity->{$field_name}[$this->drupalTargetLocale])) {
             $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity);
             $this->contentEntity->{$field_name}[$this->drupalTargetLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
@@ -302,10 +313,10 @@ class GenericEntityProcessor {
       'entity_type' => $this->drupalEntityType,
       'entity_id' => $this->entity->rid,
       'translate' => '0',
-      'status' => $entity->status,
+      'status' => !empty($entity->status) ? $entity->status : 1,
       'language' => $this->drupalTargetLocale,
       'uid' => $this->entity->submitter,
-      'changed' => $this->entity->submission_date,
+      'changed' => REQUEST_TIME,
     );
 
     if (isset($translations->data[$this->drupalTargetLocale])) {
@@ -315,7 +326,7 @@ class GenericEntityProcessor {
       // Add the new translation.
       $entity_translation += array(
         'source' => $translations->original,
-        'created' => $entity->created,
+        'created' => !empty($entity->created) ? $entity->create : REQUEST_TIME,
       );
       $handler->setTranslation($entity_translation);
     }
@@ -389,7 +400,6 @@ class GenericEntityProcessor {
   }
 
   public function exportContentToTranslation() {
-    $this->prepareDrupalEntity();
     $entity_current_translatable_content = array();
 
     foreach ($this->getTransletableFields() as $field_name) {
@@ -412,7 +422,7 @@ class GenericEntityProcessor {
    * @return string
    */
   public function buildXmlFileName() {
-    return strtolower(trim(preg_replace('#\W+#', '_', $this->contentEntity->title), '_')) . '_' . $this->entity->entity_type . '_' . $this->entity->rid . '.xml';
+    return strtolower(trim(preg_replace('#\W+#', '_', $this->contentEntityWrapper->label()), '_')) . '_' . $this->contentEntityWrapper->type() . '_' . $this->contentEntityWrapper->getIdentifier() . '.xml';
   }
 
   /**
@@ -431,30 +441,25 @@ class GenericEntityProcessor {
    * @todo remove it.
    */
   public function fillFieldFromOriginalLanguage() {
-    $this->prepareDrupalEntity();
-
     if ($this->ifFieldMethod) {
-      $field_info_instances = field_info_instances($this->drupalEntityType, $this->contentEntity->bundle);
+      $field_info_instances = field_info_instances($this->drupalEntityType, $this->contentEntityWrapper->getBundle());
       $fields = $this->getTransletableFields();
       $need_save = FALSE;
       // @todo finish converting.
       foreach ($field_info_instances as $field) {
         if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->drupalEntityType) && isset($this->contentEntity->{$field['field_name']})) {
           $need_save = TRUE;
-          $original_lang = entity_language($this->drupalEntityType, $this->contentEntity);
+          $original_lang = $this->contentEntityWrapper->language();
           $this->contentEntity->{$field['field_name']}[$this->targetFieldLanguage] = $this->contentEntity->{$field['field_name']}[$original_lang];
         }
       }
       if ($need_save) {
-        $function_name = $this->drupalEntityType . '_save';
-        $function_name($this->contentEntity);
+        $this->contentEntityWrapper->save();
       }
     }
   }
 
   public function sendToUploadQueue() {
-    $this->prepareDrupalEntity();
-
     global $user;
     $this->entity->translated_file_name = FALSE;
     $this->entity->submitter = $user->uid;

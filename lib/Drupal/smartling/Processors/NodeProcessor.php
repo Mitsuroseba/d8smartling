@@ -15,7 +15,8 @@ class NodeProcessor extends GenericEntityProcessor {
    * @todo remove procedural code.
    */
   public function prepareDrupalEntity() {
-    if (smartling_nodes_method($this->entity->bundle)) {
+    if (!$this->isOriginalEntityPrepared && smartling_nodes_method($this->entity->bundle)) {
+      $this->isOriginalEntityPrepared = TRUE;
       // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
       $tnid = $this->contentEntity->tnid ?: $this->contentEntity->nid;
@@ -50,6 +51,8 @@ class NodeProcessor extends GenericEntityProcessor {
           }
         }
 
+        $node->translation_source = $this->contentEntity;
+
         node_object_prepare($node);
         node_save($node);
 
@@ -64,9 +67,9 @@ class NodeProcessor extends GenericEntityProcessor {
    * {@inheritdoc}
    */
   public function updateDrupalTranslation() {
-    if (smartling_nodes_method($this->entity->bundle)) {
-      return;
-    }
+//    if (smartling_nodes_method($this->entity->bundle)) {
+//      return;
+//    }
 
     parent::updateDrupalTranslation();
   }
