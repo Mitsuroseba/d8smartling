@@ -15,8 +15,8 @@ class TextFieldProcessor extends BaseFieldProcessor {
   public function getSmartlingContent() {
     $data = array();
 
-    if (!empty($this->entity->{$this->fieldName}[$this->language])) {
-      foreach ($this->entity->{$this->fieldName}[$this->language] as $delta => $value) {
+    if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
+      foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
         $data[$delta] = $value['value'];
       }
     }
@@ -30,7 +30,7 @@ class TextFieldProcessor extends BaseFieldProcessor {
   public function getDrupalContent() {
     $data = $this->entity->{$this->fieldName};
 
-    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
       $data[$delta]['value'] = $value;
     }
 

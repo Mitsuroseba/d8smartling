@@ -24,7 +24,7 @@ class NamePropertyFieldProcessor extends TitlePropertyFieldProcessor {
   public function getDrupalContent() {
     $data = $this->entity->{$this->propertyName};
 
-    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
       $data = $value;
     }
 

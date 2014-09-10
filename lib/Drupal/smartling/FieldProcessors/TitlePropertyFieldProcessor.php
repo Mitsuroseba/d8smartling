@@ -22,7 +22,7 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
   public function getDrupalContent() {
     $data = $this->entity->{$this->fieldName};
 
-    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
       $data = $value;
     }
 
@@ -43,7 +43,7 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     for ($i = 0; $i < $quantity; $i++) {
       $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
         ->item(0);
-      $data[$this->language][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
+      $data[$this->sourceLanguage][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
     }
 
     return $data;

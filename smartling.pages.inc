@@ -57,6 +57,7 @@ function smartling_manual_management_form_submit($form, $form_state) {
   if ($form_state['values']['operation'] == 'upload') {
     $smartling_data = smartling_entity_load_by_conditions(array(
       'rid' => $wrapper->getIdentifier(),
+      'entity_type' => $entity_type,
       'target_language' => $target_language,
     ));
 
@@ -79,6 +80,7 @@ function smartling_manual_management_form_submit($form, $form_state) {
   elseif ($form_state['values']['operation'] == 'download') {
     $smartling_data = smartling_entity_load_by_conditions(array(
       'rid' => $wrapper->getIdentifier(),
+      'entity_type' => $entity_type,
       'target_language' => $target_language,
     ));
 

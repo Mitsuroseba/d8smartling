@@ -29,14 +29,14 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $data = array();
 
     //return $entity_current_translatable_content;
-    if (!empty($this->entity->{$this->fieldName}[$this->language])) {
-      foreach ($this->entity->{$this->fieldName}[$this->language] as $delta => $value) {
+    if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
+      foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
         $fid = (int)$value['value'];
         $entity = field_collection_item_load($fid);
 
         foreach ($this->getTransletableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-          $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $entity, 'field_collection_item', $this->smartling_entity);
+          $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
 
           if ($fieldProcessor) {
             $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();
@@ -54,7 +54,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   public function getDrupalContent() {
     $data = $this->entity->{$this->fieldName};
 
-    foreach ($this->smartling_entity[$this->fieldName][$this->language] as $delta => $value) {
+    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
       $data = $value;
     }
 

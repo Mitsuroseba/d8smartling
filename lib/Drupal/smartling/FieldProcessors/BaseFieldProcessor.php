@@ -16,15 +16,17 @@ abstract class BaseFieldProcessor {
 
   protected $entityType;
   protected $entity;
-  protected $language;
+  protected $sourceLanguage;
+  protected $targetLanguage;
   protected $fieldName;
 
   protected $smartling_entity;
 
-  public function __construct($entity, $entity_type, $language, $field_name, $smartling_data = NULL) {
+  public function __construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
-    $this->language = $language;
+    $this->sourceLanguage = $source_language;
+    $this->targetLanguage = $target_language;
     $this->fieldName = $field_name;
     $this->smartling_entity = $smartling_data;
 
@@ -68,7 +70,7 @@ abstract class BaseFieldProcessor {
 
       if (!empty($processors_objs)) {
         $parser = new $parser($processors_objs);
-        $value = $parser->parse($value, $this->language, $this->fieldName, $this->entity);
+        $value = $parser->parse($value, $this->sourceLanguage, $this->fieldName, $this->entity);
       }
     }
 
@@ -102,7 +104,7 @@ abstract class BaseFieldProcessor {
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
   public function setDrupalContentFromXML($xpath) {
-    $this->entity->{$this->fieldName}[$this->language] = $this->fetchDataFromXML($xpath);
+    $this->entity->{$this->fieldName}[$this->targetLanguage] = $this->fetchDataFromXML($xpath);
   }
 
   /**
