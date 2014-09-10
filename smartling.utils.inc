@@ -616,7 +616,38 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
           $localize->appendChild($string);
         }
       }
-      elseif (is_array($field_value[0])) {
+      elseif (is_array(current($field_value)) && is_array(current(current($field_value)))) {
+        $collection = $dom->createElement('field_collection');
+        $attr = $dom->createAttribute('id');
+        $attr->value = $field_name;
+        $collection->appendChild($attr);
+
+        foreach($field_value as $eid => $field_collection) {
+          $quantity = count($field_collection);
+          $string = $dom->createElement('string');
+          foreach ($field_collection as $key => $value) {
+            foreach ($value as $item_key => $item) {
+              $string_attr = $dom->createAttribute('eid');
+              $string_attr->value = $eid;
+              $string->appendChild($string_attr);
+
+              $string_attr = $dom->createAttribute('id');
+              $string_attr->value = $key . '-' . $item_key;
+              $string->appendChild($string_attr);
+
+              $string_val = $dom->createTextNode($item);
+              $string->appendChild($string_val);
+
+              $string_attr = $dom->createAttribute('quantity');
+              $string_attr->value = $quantity;
+              $string->appendChild($string_attr);
+            }
+          }
+          $collection->appendChild($string);
+        }
+        $localize->appendChild($collection);
+      }
+      elseif (is_array(current($field_value))) {
         $quantity = count($field_value);
         $string = $dom->createElement('string');
         foreach ($field_value as $key => $value) {
@@ -630,37 +661,6 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
             $string_attr->value = $quantity;
             $string->appendChild($string_attr);
           }
-//          $string = $dom->createElement('string');
-//          $string_val = $dom->createTextNode($value['alt-img']);
-//          $string_attr = $dom->createAttribute('id');
-//          $string_attr->value = $field_name . '-alt-img-' . $key;
-//          $string->appendChild($string_attr);
-//          $string->appendChild($string_val);
-//          // Set quantity.
-//          $string_attr = $dom->createAttribute('quantity');
-//          $string_attr->value = $quantity;
-//          $string->appendChild($string_attr);
-//          // Set image fid.
-//          $string_attr = $dom->createAttribute('fid');
-//          $string_attr->value = $value['fid-img'];
-//          $string->appendChild($string_attr);
-//          $localize->appendChild($string);
-//
-//          $string = $dom->createElement('string');
-//          $string_val = $dom->createTextNode($value['title-img']);
-//          $string_attr = $dom->createAttribute('id');
-//          $string_attr->value = $field_name . '-title-img-' . $key;
-//          $string->appendChild($string_attr);
-//          $string->appendChild($string_val);
-//          // Set quantity.
-//          $string_attr = $dom->createAttribute('quantity');
-//          $string_attr->value = $quantity;
-//          $string->appendChild($string_attr);
-//          // Set image fid.
-//          $string_attr = $dom->createAttribute('fid');
-//          $string_attr->value = $value['fid-img'];
-//          $string->appendChild($string_attr);
-//          $localize->appendChild($string);
         }
       }
       else {
