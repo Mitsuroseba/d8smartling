@@ -20,6 +20,16 @@ use Drupal\smartling\Processors\GenericEntityProcessor;
 class EntityProcessorFactory {
 
   /**
+   * @var array
+   *   entity_type => ProcessorClass
+   */
+  protected $processorMapping;
+
+  public function __construct($processor_mapping) {
+    $this->processorMapping = $processor_mapping;
+  }
+
+  /**
    * Creates GenericEntityProcessor instance based on entity type.
    *
    * Also caches instances statically to work with nested usages.
@@ -28,35 +38,22 @@ class EntityProcessorFactory {
    *
    * @return GenericEntityProcessor
    */
-  public static function getProcessor($smartling_entity) {
+  public function getProcessor($smartling_entity) {
     $log = smartling_log_get_handler();
+    $smartling_api = drupal_container()->get('smartling.api_wrapper');
+    $field_processor_factory = drupal_container()->get('smartling.field_processor_factory');
     $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
 
     if (!empty($static_storage[$smartling_entity->eid])) {
       return $static_storage[$smartling_entity->eid];
     }
 
-    switch ($smartling_entity->entity_type) {
-      case 'node':
-        $static_storage[$smartling_entity->eid] = new NodeProcessor($smartling_entity, $log);
-        return $static_storage[$smartling_entity->eid];
-        break;
+    // @Todo avoid hardcoding 'generic' key.
+    $processor_class = isset($this->processorMapping[$smartling_entity->entity_type]) ? $this->processorMapping[$smartling_entity->entity_type] : $this->processorMapping['generic'];
 
-      case 'taxonomy_term':
-        $static_storage[$smartling_entity->eid] = new TaxonomyTermProcessor($smartling_entity, $log);
-        return $static_storage[$smartling_entity->eid];
-        break;
+    $static_storage[$smartling_entity->eid] = new $processor_class($smartling_entity, $field_processor_factory, $smartling_api, $log);
 
-      case 'field_collection':
-        $static_storage[$smartling_entity->eid] = new FieldCollectionProcessor($smartling_entity, $log);
-        return $static_storage[$smartling_entity->eid];
-        break;
-
-      default:
-        $static_storage[$smartling_entity->eid] = new GenericEntityProcessor($smartling_entity, $log);
-        return $static_storage[$smartling_entity->eid];
-        break;
-    }
+    return $static_storage[$smartling_entity->eid];
   }
 
 }

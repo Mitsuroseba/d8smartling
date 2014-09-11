@@ -36,7 +36,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
         foreach ($this->getTransletableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-          $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
+          $fieldProcessor = drupal_container()->get('smartling.field_processor_factory')->getProcessor($field_name, $entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
 
           if ($fieldProcessor) {
             $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();

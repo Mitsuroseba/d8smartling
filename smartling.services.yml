@@ -8,11 +8,30 @@ services:
     class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
     arguments:          [@smartling.settings, @smartling.log]
 
+  smartling.field_processor_factory:
+    class:              Drupal\smartling\FieldProcessorFactory
+    arguments:          [%field_processors%]
+
+  smartling.entity_processor_factory:
+    class:              Drupal\smartling\EntityProcessorFactory
+    arguments:          [%entity_processors%]
+
 parameters:
-  field_processors_mapping:
-    text:                 Drupal\smartling\FieldProcessors\TextFieldProcessor
-    text_long:            Drupal\smartling\FieldProcessors\TextFieldProcessor
-    text_with_summary:    Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
-    image:                Drupal\smartling\FieldProcessors\ImageFieldProcessor
-    title_property:       Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
-    title_property_field: Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
+  entity_processors:
+    node:                   Drupal\smartling\Processors\NodeProcessor
+    taxonomy_term:          Drupal\smartling\Processors\TaxonomyTermProcessor
+    generic:                Drupal\smartling\Processors\GenericEntityProcessor
+
+  field_processors:
+    real:
+      text:                 Drupal\smartling\FieldProcessors\TextFieldProcessor
+      text_long:            Drupal\smartling\FieldProcessors\TextFieldProcessor
+      text_with_summary:    Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
+      image:                Drupal\smartling\FieldProcessors\ImageFieldProcessor
+      field_collection:     Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
+
+    fake:
+      title_property:       Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
+      title_property_field: Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
+      description_property_field: Drupal\smartling\FieldProcessors\DescriptionPropertyFieldProcessor
+      name_property_field:  Drupal\smartling\FieldProcessors\NamePropertyFieldProcessor

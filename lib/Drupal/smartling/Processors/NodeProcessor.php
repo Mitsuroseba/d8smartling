@@ -23,6 +23,8 @@ class NodeProcessor extends GenericEntityProcessor {
       $translations = translation_node_get_translations($tnid);
       if (isset($translations[$this->drupalTargetLocale])) {
         $this->entity->rid = $translations[$this->drupalTargetLocale]->nid;
+        $this->contentEntity = node_load($this->entity->rid);
+        $this->contentEntityWrapper->set($this->contentEntity);
       } else {
         // If node not exist, need clone.
         $node = clone $this->contentEntity;

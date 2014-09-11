@@ -765,7 +765,7 @@ function smartling_admin_taxonomy_translation_settings_form(array $form, array &
           if ($is_in_conf) {
             $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
             // Error in field settings.
-            if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name) && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
+            if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name, 'taxonomy_term') && isset($term_translate_fields[$vocabulary->machine_name][$field['field_name']]) && !in_array($field_machine_name, $_fix_field_settings) && !smartling_is_title_module_field($field_machine_name)) {
               $_fix_field_settings[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
             }
           }

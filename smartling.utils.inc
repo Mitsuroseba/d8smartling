@@ -434,8 +434,7 @@ function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $tra
 }
 
 function smartling_get_entity_processor($smartling_entity) {
-  // @TODO move it to EntityProcessorFactory.
-  return EntityProcessorFactory::getProcessor($smartling_entity);
+  return drupal_container()->get('smartling.entity_processor_factory')->getProcessor($smartling_entity);
 }
 
 /**
@@ -1044,7 +1043,7 @@ function smartling_settings_get_handler() {
 /**
  * Get log handler.
  *
- * @return object
+ * @return Drupal\smartling\Log\SmartlingLog
  *   Return handler object.
  */
 function smartling_log_get_handler() {
