@@ -1,6 +1,7 @@
 services:
   smartling.settings:
     class:              Drupal\smartling\Settings\SmartlingSettingsHandler
+
   smartling.log:
     class:              Drupal\smartling\Log\SmartlingLog
 
@@ -10,11 +11,11 @@ services:
 
   smartling.field_processor_factory:
     class:              Drupal\smartling\FieldProcessorFactory
-    arguments:          [%field_processors%]
+    arguments:          [%field_processors%, @smartling.log, @smartling.api_wrapper]
 
   smartling.entity_processor_factory:
     class:              Drupal\smartling\EntityProcessorFactory
-    arguments:          [%entity_processors%]
+    arguments:          [%entity_processors%, @smartling.field_processor_factory, @smartling.log, @smartling.api_wrapper]
 
 parameters:
   entity_processors:

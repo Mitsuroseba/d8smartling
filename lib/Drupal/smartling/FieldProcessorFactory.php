@@ -9,7 +9,9 @@
 
 namespace Drupal\smartling;
 
+use Drupal\smartling\ApiWrapper\SmartlingApiWrapper;
 use Drupal\smartling\FieldProcessors\BaseFieldProcessor;
+use Drupal\smartling\Log\SmartlingLog;
 
 /**
  * Factory that creates field processor instances and contains mapping.
@@ -20,7 +22,12 @@ class FieldProcessorFactory {
 
   protected $fieldMapping;
 
-  public function __construct($field_mapping_new) {
+  /**
+   * @param array $field_mapping_new
+   * @param SmartlingLog $logger
+   * @param SmartlingApiWrapper $smartling_api
+   */
+  public function __construct($field_mapping_new, $logger, $smartling_api) {
     $this->fieldMapping = $field_mapping_new;
   }
 

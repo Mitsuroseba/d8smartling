@@ -7,9 +7,8 @@
 
 namespace Drupal\smartling;
 
-use Drupal\smartling\Processors\NodeProcessor;
-use Drupal\smartling\Processors\TaxonomyTermProcessor;
-use Drupal\smartling\Processors\FieldCollectionProcessor;
+use Drupal\smartling\ApiWrapper\SmartlingApiWrapper;
+use Drupal\smartling\Log\SmartlingLog;
 use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
@@ -25,8 +24,32 @@ class EntityProcessorFactory {
    */
   protected $processorMapping;
 
-  public function __construct($processor_mapping) {
+  /**
+   * @var SmartlingLog
+   */
+  protected $logger;
+
+  /**
+   * @var SmartlingApiWrapper
+   */
+  protected $smartlingAPI;
+
+  /**
+   * @var FieldProcessorFactory
+   */
+  protected $fieldProcessorFactory;
+
+  /**
+   * @param array $processor_mapping
+   * @param FieldProcessorFactory $field_processor_factory
+   * @param SmartlingLog $logger
+   * @param SmartlingApiWrapper $smartling_api
+   */
+  public function __construct($processor_mapping, $field_processor_factory, $logger, $smartling_api) {
     $this->processorMapping = $processor_mapping;
+    $this->logger = $logger;
+    $this->smartlingAPI = $smartling_api;
+    $this->fieldProcessorFactory = $field_processor_factory;
   }
 
   /**
@@ -39,9 +62,6 @@ class EntityProcessorFactory {
    * @return GenericEntityProcessor
    */
   public function getProcessor($smartling_entity) {
-    $log = smartling_log_get_handler();
-    $smartling_api = drupal_container()->get('smartling.api_wrapper');
-    $field_processor_factory = drupal_container()->get('smartling.field_processor_factory');
     $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
 
     if (!empty($static_storage[$smartling_entity->eid])) {
@@ -51,7 +71,7 @@ class EntityProcessorFactory {
     // @Todo avoid hardcoding 'generic' key.
     $processor_class = isset($this->processorMapping[$smartling_entity->entity_type]) ? $this->processorMapping[$smartling_entity->entity_type] : $this->processorMapping['generic'];
 
-    $static_storage[$smartling_entity->eid] = new $processor_class($smartling_entity, $field_processor_factory, $smartling_api, $log);
+    $static_storage[$smartling_entity->eid] = new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
 
     return $static_storage[$smartling_entity->eid];
   }
