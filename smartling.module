@@ -5,6 +5,16 @@
  * The Smartling module file.
  */
 
+use Drupal\smartling\Alters\SmartlingContentParserInterface;
+use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
+use Drupal\smartling\Alters\SmartlingContentBaseParser;
+use Drupal\smartling\Alters\SmartlingContentImageUrlParser;
+use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
+use Drupal\smartling\Alters\SmartlingContentMediaEncodedParser;
+use Drupal\smartling\Alters\SmartlingContentMediaEncodedProcessor;
+use Drupal\smartling\Alters\SmartlingContentMediaParser;
+use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
+
 define('SMARTLING_FIELDS_METHOD_KEY', '4');
 define('SMARTLING_NODES_METHOD_KEY', '2');
 
@@ -80,6 +90,7 @@ function smartling_flush_caches() {
 function smartling_register() {
   // Activates the class loader.
   $loader = drupal_classloader();
+  $loader->registerNamespace('Drupal\smartling\Alters', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Log', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Settings', __DIR__ . '/lib');
 }
@@ -1321,4 +1332,54 @@ function smartling_smartling_data_processor_info() {
     'SmartlingContentMediaParser' => array('SmartlingContentMediaProcessor'),
     'SmartlingContentMediaEncodedParser' => array('SmartlingContentMediaEncodedProcessor'),
   );
+}
+
+/**
+ * Returns modified content after it was processed by Smartling alter functions.
+ *
+ * Internally function retrieves a string of content with some
+ * context where this string came from for translation,
+ * invokes hook_smartling_data_processor_info and processes it.
+ *
+ * @param string $content
+ *   Content.
+ * @param string $lang
+ *   Language.
+ * @param string $field_name
+ *   Field name.
+ * @param object $entity
+ *   Entity object.
+ * @param bool $reset
+ *   Reset.
+ *
+ * @return string
+ *   Return content.
+ */
+function smartling_process_content($content, $lang, $field_name, $entity, $reset = FALSE) {
+
+  $handlers = & drupal_static(__FUNCTION__);
+  if (!isset($actions) || $reset) {
+    $handlers = module_invoke_all('smartling_data_processor_info');
+    drupal_alter('smartling_data_processor_info', $handlers);
+  }
+
+  foreach ($handlers as $parser => $processors) {
+    if (!class_exists('Drupal\\smartling\\Alters\\' . $parser)) {
+      continue;
+    }
+
+    $processors_objs = array();
+    foreach ($processors as $proc) {
+      if (class_exists($proc) && in_array('SmartlingContentProcessorInterface', class_implements($proc))) {
+        $processors_objs[] = new $proc();
+      }
+    }
+
+    if (!empty($processors_objs)) {
+      $parser = new $parser($processors_objs);
+      $content = $parser->parse($content, $lang, $field_name, $entity);
+    }
+  }
+
+  return $content;
 }

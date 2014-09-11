@@ -5,6 +5,10 @@
  * Class SmartlingContentImageUrlProcessor.
  */
 
+namespace Drupal\smartling\Alters;
+
+use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
+
 if (!function_exists('http_build_url')) {
   require_once dirname(__FILE__) . '/http_build_url_function.php';
 }
@@ -17,9 +21,9 @@ class SmartlingContentImageUrlProcessor implements SmartlingContentProcessorInte
   /**
    * Process.
    *
-   * @param mixed $item
+   * @param string $item
    *   Item.
-   * @param mixed $context
+   * @param array $context
    *   Context.
    * @param string $lang
    *   Locale in drupal format (ru, en).
@@ -28,7 +32,7 @@ class SmartlingContentImageUrlProcessor implements SmartlingContentProcessorInte
    * @param object $entity
    *   Entity object.
    */
-  public function process(&$item, $context, $lang, $field_name, $entity) {
+  public function process(&$item, array $context, $lang, $field_name, $entity) {
     if (!$context['external'] || $item[1] != 'href') {
       return;
     }
