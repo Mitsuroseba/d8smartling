@@ -5,6 +5,16 @@
  * The Smartling module file.
  */
 
+use Drupal\smartling\Alters\SmartlingContentParserInterface;
+use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
+use Drupal\smartling\Alters\SmartlingContentBaseParser;
+use Drupal\smartling\Alters\SmartlingContentImageUrlParser;
+use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
+use Drupal\smartling\Alters\SmartlingContentMediaEncodedParser;
+use Drupal\smartling\Alters\SmartlingContentMediaEncodedProcessor;
+use Drupal\smartling\Alters\SmartlingContentMediaParser;
+use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
+
 define('SMARTLING_FIELDS_METHOD_KEY', '4');
 define('SMARTLING_NODES_METHOD_KEY', '2');
 
@@ -81,6 +91,7 @@ function smartling_flush_caches() {
 function smartling_register() {
   // Activates the class loader.
   $loader = drupal_classloader();
+  $loader->registerNamespace('Drupal\smartling\Alters', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Log', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Settings', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Processors', __DIR__ . '/lib');
@@ -1348,7 +1359,7 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
   }
 
   foreach ($handlers as $parser => $processors) {
-    if (!class_exists($parser)) {
+    if (!class_exists('Drupal\\smartling\\Alters\\' . $parser)) {
       continue;
     }
 
