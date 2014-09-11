@@ -35,20 +35,7 @@ class NodeProcessor extends GenericEntityProcessor {
 
         $node_fields = field_info_instances('node', $this->contentEntity->type);
         foreach ($node_fields as $field) {
-          $field_info = field_info_field($field['field_name']);
-          if (($field_info['type'] == 'taxonomy_term_reference') && ($field_info['translatable'] == '1')) {
-            foreach ($this->contentEntity->{$field['field_name']} as $items) {
-              foreach ($items as $index => $item) {
-                $term = taxonomy_term_load($this->contentEntity->{$field['field_name']}[$this->contentEntity->language][$index]['tid']);
-                if ($translation = i18n_taxonomy_term_get_translation($term, $this->drupalTargetLocale)) {
-                  $node->{$field['field_name']}[$this->drupalTargetLocale][$index] = array('taxonomy_term' => $translation, 'tid' => $translation->tid,);
-                }
-                $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
-              }
-            }
-          } else {
-            $node->{$field['field_name']} = $this->contentEntity->{$field['field_name']};
-          }
+          $node->{$field['field_name']} = $this->contentEntity->{$field['field_name']};
         }
 
         $node->translation_source = $this->contentEntity;
@@ -61,17 +48,6 @@ class NodeProcessor extends GenericEntityProcessor {
         $this->entity->rid = $node->nid;
       }
     }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function updateDrupalTranslation() {
-//    if (smartling_nodes_method($this->entity->bundle)) {
-//      return;
-//    }
-
-    parent::updateDrupalTranslation();
   }
 
 }

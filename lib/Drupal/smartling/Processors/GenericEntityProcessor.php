@@ -147,8 +147,6 @@ class GenericEntityProcessor {
     $this->smartlingAPI = drupal_container()->get('smartling.api_wrapper');
   }
 
-  public function ifFieldsMethod
-
   /**
    * Fetch translation status from Smartling server.
    *
@@ -218,7 +216,6 @@ class GenericEntityProcessor {
 
   /**
    * Wrapper for smartling data entity saving.
-   *
    */
   public function saveSmartlingEntity() {
     smartling_entity_data_save($this->entity);
@@ -230,7 +227,6 @@ class GenericEntityProcessor {
    * @todo move this logic to original entity Proxy object.
    */
   public function saveDrupalEntity() {
-//    entity_save($this->drupalEntityType, $this->contentEntity);
     $this->contentEntityWrapper->set($this->contentEntity);
     $this->contentEntityWrapper->save();
   }
@@ -281,7 +277,7 @@ class GenericEntityProcessor {
       $this->isOriginalEntityPrepared = TRUE;
 
       if ($this->ifFieldMethod) {
-        foreach ($this->getTransletableFields() as $field_name) {
+        foreach ($this->getTranslatableFields() as $field_name) {
           // Still use entity object itself because entity wrapper hardcodes
           // language and disallow to fetch values from translated fields.
           // However all entities work with entities in the same way.
@@ -297,7 +293,6 @@ class GenericEntityProcessor {
   /**
    * Implements entity_translation logic to update translation data in Drupal.
    *
-   * Should be used after ::importSmartlingTranslationToOriginalEntity()
    * @todo remove procedural code and use entities from properties.
    */
   public function updateDrupalTranslation() {
@@ -337,24 +332,6 @@ class GenericEntityProcessor {
   }
 
   /**
-   * Moves translations from smartling entity to drupal content entity.
-   *
-   * @see smartling_copy_translations_from_xml_to_fields().
-   */
-  public function importSmartlingTranslationToOriginalEntity() {
-    $this->prepareDrupalEntity();
-
-    foreach ($this->getTransletableFields() as $field_name) {
-      /* @var $fieldProcessor BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
-
-      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->getDrupalContent();
-    }
-
-    $this->saveDrupalEntity();
-  }
-
-  /**
    * Updates smartling data entity from given xml parsed object.
    *
    * @param $xml \DomNode
@@ -363,19 +340,9 @@ class GenericEntityProcessor {
     $this->prepareDrupalEntity();
     $xpath = new DomXpath($xml);
 
-    foreach ($this->getTransletableFields() as $field_name) {
-      // Get language key for field translatable type.
-      // @todo handle entity/field translation types in field processors.
-      if (smartling_field_is_translatable_by_field_name($field_name, $this->drupalEntityType)) {
-        $language_key = $this->drupalTargetLocale;
-      }
-      else {
-        $language_key = LANGUAGE_NONE;
-      }
-
+    foreach ($this->getTranslatableFields() as $field_name) {
       // @TODO test if format could be set automatically.
       $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
-//      $this->contentEntity->{$field_name}[$this->targetFieldLanguage] = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($xpath);
     }
 
@@ -395,18 +362,14 @@ class GenericEntityProcessor {
     // Update smartling entity.
     $this->importSmartlingXMLToSmartlingEntity($xml);
 
-    // Update original entity from smartling.
-//    $this->importSmartlingTranslationToOriginalEntity();
-
     // Update translations information.
     $this->updateDrupalTranslation();
-
   }
 
   public function exportContentToTranslation() {
     $entity_current_translatable_content = array();
 
-    foreach ($this->getTransletableFields() as $field_name) {
+    foreach ($this->getTranslatableFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
       $this->fields[$field_name] = $fieldProcessor = FieldProcessorFactory::getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
 
@@ -436,31 +399,8 @@ class GenericEntityProcessor {
    *
    * @return array()
    */
-  public function getTransletableFields() {
+  public function getTranslatableFields() {
     return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
-  }
-
-  /**
-   * Clone fields values to new entity during creating new translations
-   * @todo remove it.
-   */
-  public function fillFieldFromOriginalLanguage() {
-    if ($this->ifFieldMethod) {
-      $field_info_instances = field_info_instances($this->drupalEntityType, $this->contentEntityWrapper->getBundle());
-      $fields = $this->getTransletableFields();
-      $need_save = FALSE;
-      // @todo finish converting.
-      foreach ($field_info_instances as $field) {
-        if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $this->drupalEntityType) && isset($this->contentEntity->{$field['field_name']})) {
-          $need_save = TRUE;
-          $original_lang = $this->contentEntityWrapper->language();
-          $this->contentEntity->{$field['field_name']}[$this->targetFieldLanguage] = $this->contentEntity->{$field['field_name']}[$original_lang];
-        }
-      }
-      if ($need_save) {
-        $this->contentEntityWrapper->save();
-      }
-    }
   }
 
   public function sendToUploadQueue() {

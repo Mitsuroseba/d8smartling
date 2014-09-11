@@ -91,7 +91,4 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
     }
   }
 
-  public function updateDrupalTranslation() {
-    parent::updateDrupalTranslation();
-  }
 }

@@ -88,6 +88,8 @@ abstract class BaseFieldProcessor {
   /**
    * Converts smartling data field format to drupal.
    *
+   * @deprecated will be remove as unused method.
+   *
    * @return array
    *   Drupal field structure under language key ready to be put into smartling entity.
    */
