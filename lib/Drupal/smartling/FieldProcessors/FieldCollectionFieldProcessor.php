@@ -62,7 +62,36 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   public function fetchDataFromXML(\DomXpath $xpath) {
+    //@todo fetch format from xml as well.
+    $result = array();
+    $data = $xpath->query('//field_collection[@id="' . $this->fieldName . '"]')
+      ->item(0);
+    //echo $xpath->document;
 
+    if (!$data) {
+      return NULL;
+    }
+
+    $item = $data->firstChild;
+    //$this->fetchDataFromXML($item);
+    do {
+      if ($item->tagName == 'string') {
+        $eid = $item->attributes->getNamedItem('eid');
+        $field = $item->attributes->getNamedItem('id');
+        $delta = $item->attributes->getNamedItem('delta');
+
+        $result[$eid->value][$field->value][$delta->value] = $item->nodeValue;
+      }
+    } while ($item = $item->nextSibling);
+
+//    $quantity = $quantity_value->getAttribute('quantity');
+
+//    for ($i = 0; $i < $quantity; $i++) {
+//      $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
+//        ->item(0);
+//      $data[$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
+//    }
+
+    return $result;
   }
-
 }

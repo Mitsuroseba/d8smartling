@@ -631,7 +631,11 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
               $string->appendChild($string_attr);
 
               $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $key . '-' . $item_key;
+              $string_attr->value = $key;
+              $string->appendChild($string_attr);
+
+              $string_attr = $dom->createAttribute('delta');
+              $string_attr->value = $item_key;
               $string->appendChild($string_attr);
 
               $string_val = $dom->createTextNode($item);
