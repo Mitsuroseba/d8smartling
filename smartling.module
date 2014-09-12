@@ -41,22 +41,11 @@ include_once 'smartling.utils.inc';
 include_once 'smartling.processing.inc';
 include_once 'includes/smartling.workers.inc';
 include_once 'includes/smartling.entity.inc';
-include_once 'includes/smartling_translation.handler.inc';
-include_once 'includes/smartling.entityController.inc';
 include_once 'views/smartling.views.inc';
-include_once 'views/smartling_handler_field_target_language.inc';
-include_once 'views/smartling_handler_field_locale_info.inc';
-include_once 'views/smartling_handler_field_smartling_title.inc';
-include_once 'views/smartling_handler_field_smartling_operations.inc';
-include_once 'views/smartling_handler_filter_entity_status.inc';
 include_once 'entities/smartling.taxonomy.inc';
 include_once 'entities/smartling.node.inc';
 include_once 'entities/smartling.comments.inc';
 include_once 'entities/smartling.user.inc';
-// @todo Register Drupal php library and include it in a proper way.
-include_once 'api/lib/SmartlingAPI.php';
-include_once 'api/lib/HttpClient.php';
-include_once 'api/lib/FileUploadParameterBuilder.php';
 
 include_once 'smartling.demo_content.php';
 
