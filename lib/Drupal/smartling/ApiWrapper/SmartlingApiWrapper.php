@@ -102,6 +102,14 @@ class SmartlingApiWrapper {
     if (isset($download_result->response->code)) {
       $download_result = json_decode($download_result);
 
+      $code = '';
+      $messages = array();
+      if (isset($download_result->response)) {
+        $code =  isset($download_result->response->code) ? $download_result->response->code : array();
+        $messages = isset($download_result->response->messages) ? $download_result->response->messages : array();
+      }
+
+
       $this->logger->setMessage('smartling_queue_download_update_translated_item_process try to download file:<br/>
       Project Id: @project_id <br/>
       Action: download <br/>
@@ -112,8 +120,8 @@ class SmartlingApiWrapper {
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@s_locale' => $s_locale,
-          '@code' => $download_result->response->code,
-          '@message' => $download_result->response->messages[0],
+          '@code' => $code,
+          '@message' => implode(' || ', $messages),
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
@@ -158,11 +166,30 @@ class SmartlingApiWrapper {
 
     $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
     // Try to retrieve file status.
-    $status_result = $this->api->getStatus($file_name_unic, $s_locale);
-    $status_result = json_decode($status_result);
+    $json = $this->api->getStatus($file_name_unic, $s_locale);
+    $status_result = json_decode($json);
+
+    if ($status_result === NULL) {
+      $this->logger->setMessage('File status commend: downloaded json is broken. JSON: @json')
+        ->setVariables(array(
+          '@json' => $json,
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->execute();
+      return $error_result;
+    }
 
     // This is a get status.
     if (($this->api->getCodeStatus() != 'SUCCESS') || !isset($status_result->response->data)) {
+      $code = '';
+      $messages = array();
+      if (isset($status_result->response)) {
+        $code =  isset($status_result->response->code) ? $status_result->response->code : array();
+        $messages = isset($status_result->response->messages) ? $status_result->response->messages : array();
+      }
+
+
       $this->logger->setMessage('Smartling checks status for @entity_type id - @rid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
@@ -175,8 +202,8 @@ class SmartlingApiWrapper {
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@d_locale' => $smartling_entity->target_language,
-          '@code' => isset($status_result->response->code) ? $status_result->response->code : '-',
-          '@message' => isset($status_result->response->messages[0]) ? $status_result->response->messages[0] : '-',
+          '@code' => $code,
+          '@message' => implode(' || ', $messages),
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
@@ -293,6 +320,14 @@ class SmartlingApiWrapper {
       foreach ($upload_params as $param_name => $value) {
         $upload_params[$param_name] = $param_name . ' => ' . $value;
       }
+
+      $code = '';
+      $messages = array();
+      if (isset($upload_result->response)) {
+        $code =  isset($upload_result->response->code) ? $upload_result->response->code : array();
+        $messages = isset($upload_result->response->messages) ? $upload_result->response->messages : array();
+      }
+
       $this->logger->setMessage('Smartling failed to upload xml file: <br/>
           Project Id: @project_id <br/>
           Action: upload <br/>
@@ -302,8 +337,8 @@ class SmartlingApiWrapper {
         ->setVariables(array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_path,
-          '@code' => $upload_result->response->code,
-          '@message' => $upload_result->response->messages[0],
+          '@code' => $code,
+          '@message' => implode(' || ', $messages),
           '@upload_params' => implode(' | ', $upload_params),
         ))
         ->setConsiderLog(FALSE)
