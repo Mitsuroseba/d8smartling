@@ -13,7 +13,14 @@ require_once dirname(__FILE__) . '/../credentials.php';
 class SmartlingWebTestCase extends DrupalWebTestCase {
 
   /**
-   * SetUp.
+   * Drupal user with admin permissions.
+   *
+   * @var stdClass
+   */
+  protected $privileged_user;
+
+  /**
+   * {@inheritdoc}
    */
   public function setUp() {
     // Enable Smartling modules.
@@ -45,12 +52,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     // Authorizing user.
     $this->drupalLogin($this->privileged_user);
 
-    // Add predefined language.
-    $edit = array(
-      'langcode' => 'ru',
-    );
-    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
-    $this->assertText('ru', 'Language added successfully.');
+    // Add predefined Russian language.
+    locale_add_language('ru');
   }
 
   /**

@@ -10,10 +10,7 @@
  */
 class SmartlingTitleFieldTest extends SmartlingWebTestCase {
   /**
-   * Test info.
-   *
-   * @return array
-   *   Return test info.
+   * {@inheritdoc}
    */
   public static function getInfo() {
     return array(
