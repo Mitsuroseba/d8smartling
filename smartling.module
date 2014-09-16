@@ -676,13 +676,13 @@ function smartling_cron_alter(&$hooks) {
     $hooks['smartling_cron']['scheduler']['crontab']['rules'][0] = '0 * * * *';
   }
   if (isset($hooks['queue_smartling_upload'])) {
-    $hooks['queue_smartling_upload']['scheduler']['crontab']['rules'][0] = '* * * * *';
+    $hooks['queue_smartling_upload']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
   if (isset($hooks['queue_smartling_check_status'])) {
-    $hooks['queue_smartling_check_status']['scheduler']['crontab']['rules'][0] = '* * * * *';
+    $hooks['queue_smartling_check_status']['scheduler']['simple']['rules'][0] = '0+@ */3 * * *';
   }
   if (isset($hooks['queue_smartling_download'])) {
-    $hooks['queue_smartling_download']['scheduler']['crontab']['rules'][0] = '* * * * *';
+    $hooks['queue_smartling_download']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
 }
 
