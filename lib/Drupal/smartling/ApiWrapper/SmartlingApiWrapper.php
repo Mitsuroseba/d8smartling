@@ -194,7 +194,6 @@ class SmartlingApiWrapper {
         $messages = isset($status_result->response->messages) ? $status_result->response->messages : array();
       }
 
-
       $this->logger->setMessage('Smartling checks status for @entity_type id - @rid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
@@ -323,7 +322,6 @@ class SmartlingApiWrapper {
           '@code' => $code,
           '@message' => implode(' || ', $messages),
           '@upload_params' => implode(' | ', $upload_params),
-
         ))
         ->setConsiderLog(FALSE)
         ->setSeverity(WATCHDOG_ERROR)
