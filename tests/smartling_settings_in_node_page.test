@@ -30,7 +30,7 @@ class SmartlingSettingsInNodePageTest extends SmartlingWebTestCase {
   public function testCorrectSmartlingSettingsInNodePage() {
 
     // Add one random node page type.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
 
     // Set correct account settings.
     $this->smartlingSetCorrectSettings();

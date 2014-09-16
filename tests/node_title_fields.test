@@ -29,7 +29,7 @@ class SmartlingNodeTitleFieldsTest extends SmartlingWebTestCase {
    */
   public function testCorrectCopyNodeTitle() {
     // Add one random node page type.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
     // Set correct account settings.
     $this->smartlingSetCorrectSettings();
 

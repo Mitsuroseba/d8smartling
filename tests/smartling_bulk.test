@@ -29,7 +29,7 @@ class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
    */
   public function testBulkSubmit() {
     // Add one random node page type.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
 
     // Set correct account settings.
     $this->smartlingSetCorrectSettings();

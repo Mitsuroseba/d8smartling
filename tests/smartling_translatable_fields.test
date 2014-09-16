@@ -36,7 +36,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 0);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 0);
     // Create new node.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
     // Set node values.
     $node = node_load(1);
     $node->field_translatable_data[LANGUAGE_NONE][0]['value'] = 'Translatable data field text';
@@ -73,7 +73,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 1);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 0);
     // Create new node.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
     // Set node values.
     $node = node_load(1);
     $node->field_translatable_data['en'][0]['value'] = 'Translatable data field text';
@@ -108,7 +108,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_translatable_data'), 1);
     $this->assertEqual($this->smartlingGetTranslatableFieldSettings('field_not_translatable_data'), 1);
     // Create new node.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
     // Set node values.
     $node = node_load(1);
     $node->field_translatable_data['en'][0]['value'] = 'Translatable data field text';

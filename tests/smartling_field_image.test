@@ -51,7 +51,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
       'language' => 'ru',
     );
     $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
-    $this->smartlingCreateNode('article', $settings);
+    $this->drupalCreateNode('article', $settings);
     // Set node values.
     $this->smartlingAddImageToField(1, 'field_image');
 
@@ -111,7 +111,7 @@ EOT;
       'language' => 'ru',
     );
     $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
-    $this->smartlingCreateNode('article', $settings);
+    $this->drupalCreateNode('article', $settings);
     // Set node values.
     $this->smartlingAddImageToField(1, 'field_image', 'ru');
 

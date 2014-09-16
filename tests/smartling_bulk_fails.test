@@ -29,7 +29,7 @@ class SmartlingBulkSubmitNoSelectedNodeFailsTest extends SmartlingWebTestCase {
    */
   public function testNoSelectedNodeFailsBulkSubmit() {
     // Add one random node page type.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
 
     $edit = array();
     $this->drupalPost('admin/content/smartling-content', $edit, t('Translate'));
@@ -62,7 +62,7 @@ class SmartlingBulkSubmitNoSelectedLanguageFailsTest extends SmartlingWebTestCas
    */
   public function testNoSelectedLanguageFailsBulkSubmit() {
     // Add one random node of page type.
-    $this->smartlingCreateNode();
+    $this->drupalCreateNode();
 
     $this->drupalGet('admin/content/smartling-content');
     $edit = array(

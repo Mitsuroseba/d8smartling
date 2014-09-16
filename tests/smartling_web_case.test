@@ -57,43 +57,6 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Create node.
-   *
-   * @param string $type
-   *   Node type.
-   * @param array $settings
-   *   Node settings.
-   */
-  public function smartlingCreateNode($type = 'page', array $settings = array()) {
-    // Create initial node.
-    $this->random_node_title = $this->randomName(8);
-    $base_settings = array(
-      'title' => $this->random_node_title,
-      'comment' => 0,
-      'changed' => REQUEST_TIME,
-      'moderate' => 0,
-      'promote' => 0,
-      'revision' => 1,
-      'log' => '',
-      'status' => 1,
-      'sticky' => 0,
-      'type' => $type,
-      'revisions' => NULL,
-      'language' => 'en',
-    );
-
-    $base_settings['body'][$base_settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
-
-    if (empty($settings)) {
-      $this->drupalCreateNode($base_settings);
-    }
-    else {
-      $settings['type'] = $type;
-      $this->drupalCreateNode($settings);
-    }
-  }
-
-  /**
    * Smartling set correct settings.
    */
   public function smartlingSetCorrectSettings() {
