@@ -6,59 +6,53 @@
  */
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_BASE_FORM_ID_alter().
  */
-function smartling_form_alter(&$form, &$form_state, $form_id) {
-  $active_node_type = node_type_get_types();
-  foreach ($active_node_type as $node_type => $value) {
-
-    if (smartling_fields_method($node_type) && ($form_id == 'comment_node_' . $node_type . '_form')) {
-      if (smartling_supported_type($form['#entity_type'], $form['#bundle'])) {
-        $comment = $form['#entity'];
-        if (!empty($comment->cid)) {
-          if (($comment->language != LANGUAGE_NONE)) {
-            $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
-            break;
-          }
-          else {
-            $form['smartling'] = array(
-              '#title' => t('Smartling management'),
-              '#type' => 'fieldset',
-              '#collapsible' => TRUE,
-              '#collapsed' => TRUE,
-              '#weight' => 100,
-              '#group' => 'additional_settings',
-              '#attributes' => array('id' => array('smartling_fieldset')),
-              '#attached' => array(
-                'css' => array(
-                  drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
-                    'type' => 'file',
-                  ),
+function smartling_form_comment_form_alter(&$form, $form_state) {
+  if (smartling_supported_type($form['#entity_type'], $form['#bundle']) && smartling_fields_method(str_ireplace('comment_node_', '', $form['#bundle']))) {
+    $comment = $form['#entity'];
+    if (!empty($comment->cid)) {
+      if (smartling_translate_fields_is_set($form['#bundle'], 'comment')) {
+        if (($comment->language != LANGUAGE_NONE)) {
+          $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
+        }
+        else {
+          $form['smartling'] = array(
+            '#title' => t('Smartling management'),
+            '#type' => 'fieldset',
+            '#collapsible' => TRUE,
+            '#collapsed' => TRUE,
+            '#weight' => 100,
+            '#group' => 'additional_settings',
+            '#attributes' => array('id' => array('smartling_fieldset')),
+            '#attached' => array(
+              'css' => array(
+                drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
+                  'type' => 'file',
                 ),
               ),
-              '#modal' => TRUE,
-            );
+            ),
+            '#modal' => TRUE,
+          );
 
-            $form['smartling']['content'] = array(
-              '#type' => 'container',
-            );
+          $form['smartling']['content'] = array(
+            '#type' => 'container',
+          );
 
-            $form['smartling']['content']['lang'] = array(
-              '#type' => 'item',
-              '#title' => '',
-              '#markup' => t('This entity is as to be Language Neutral.'),
-            );
-          }
+          $form['smartling']['content']['lang'] = array(
+            '#type' => 'item',
+            '#title' => '',
+            '#markup' => t('This entity is as to be Language Neutral.'),
+          );
         }
       }
-      else {
-        drupal_set_message(t('Add translatable field to comment or <a href="@url?destination=@current_path">Enable translation</a> for comment_body field to use Smartling translate.',
-          array(
-            '@current_path' => current_path(),
-            '@url' => url('admin/config/regional/entity_translation/translatable/comment_body'),
-          )), 'info');
-      }
     }
+  }
+  else {
+    drupal_set_message(t('Add translatable field to comment or <a href="@url?destination=@current_path">Enable translation</a> for comment_body field to use Smartling translate.', array(
+      '@current_path' => current_path(),
+      '@url' => url('admin/config/regional/entity_translation/translatable/comment_body'),
+        )), 'info');
   }
 }
 
