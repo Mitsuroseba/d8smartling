@@ -442,10 +442,9 @@ function smartling_image_field_processing($entity_wrapper, $field_name, $xpath, 
     if ($file_img) {
       $alt_string = (string) $alt_obj->nodeValue;
       $title_string = (string) $title_obj->nodeValue;
-      $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img + array(
-        'alt' => $alt_string,
-        'title' => $title_string,
-      );
+      $file_img->alt = $alt_string;
+      $file_img->title = $title_string;
+      $entity_wrapper->{$field_name}[$language_key][$i] = (array) $file_img;
     }
   }
   return $entity_wrapper;
