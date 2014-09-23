@@ -349,6 +349,7 @@ class GenericEntityProcessor {
    */
   public function importSmartlingXMLToSmartlingEntity(\DOMNode $xml) {
     $this->prepareDrupalEntity();
+
     $xpath = new DomXpath($xml);
 
     foreach ($this->getTranslatableFields() as $field_name) {

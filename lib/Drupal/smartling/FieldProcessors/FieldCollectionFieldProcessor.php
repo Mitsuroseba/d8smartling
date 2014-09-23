@@ -94,4 +94,35 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     return $result;
   }
+
+  public function prepareBeforeDownload(array $fieldData) {
+    return $fieldData;
+  }
+
+  public function setDrupalContentFromXML($xpath) {
+
+    $content = $this->fetchDataFromXML($xpath);
+
+    $new_values = array();
+    $old_values = $this->entity->{$this->fieldName}[$this->targetLanguage];
+    foreach($old_values as $k => $id) {
+      $val = next($content);
+      $new_values[$k] = $this->saveContentToEntity($id, $val);
+    }
+    $this->entity->{$this->fieldName}[$this->targetLanguage] = $content;
+  }
+
+  protected function saveContentToEntity($id, $value) {
+    $entity = field_collection_item_load($id);
+
+    foreach($value as $field_name => $val) {
+      $entity->{$field_name}[$entity->language] = $val;
+    }
+
+    //field_collection_item_save($entity);
+    return $id;
+  }
+
 }
+
+
