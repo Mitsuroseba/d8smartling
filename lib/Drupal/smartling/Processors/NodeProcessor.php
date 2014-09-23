@@ -40,6 +40,16 @@ class NodeProcessor extends GenericEntityProcessor {
           $node->{$field['field_name']} = $this->contentEntity->{$field['field_name']};
         }
 
+        foreach ($this->getTranslatableFields() as $field_name) {
+          // Still use entity object itself because entity wrapper hardcodes
+          // language and disallow to fetch values from translated fields.
+          // However all entities work with entities in the same way.
+          if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale])) {
+            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
+            $node->{$field_name}[$this->drupalOriginalLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
+          }
+        }
+
         $node->translation_source = $this->contentEntity;
 
         node_object_prepare($node);
