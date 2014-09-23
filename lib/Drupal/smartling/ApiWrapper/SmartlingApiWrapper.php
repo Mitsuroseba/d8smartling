@@ -4,15 +4,32 @@
  * @file
  * Smartling settings handler.
  */
+
 namespace Drupal\smartling\ApiWrapper;
+
+use Drupal\smartling\ApiWrapperInterface;
+use Drupal\smartling\Log\SmartlingLog;
+use Drupal\smartling\Settings\SmartlingSettingsHandler;
+use SmartlingAPI;
 
 /**
  * Class SmartlingApiWrapper.
  */
-class SmartlingApiWrapper {
+class SmartlingApiWrapper implements ApiWrapperInterface {
 
+  /**
+   * @var SmartlingSettingsHandler
+   */
   protected $settingsHandler;
+
+  /**
+   * @var SmartlingLog
+   */
   protected $logger;
+
+  /**
+   * @var SmartlingAPI
+   */
   protected $api;
 
   /**
@@ -47,34 +64,26 @@ class SmartlingApiWrapper {
 
   /**
    * Initialize.
+   *
+   * @param SmartlingSettingsHandler $settings_handler
+   * @param SmartlingLog $logger
    */
-  public function __construct($settings_handler, $logger) {
+  public function __construct(SmartlingSettingsHandler $settings_handler, SmartlingLog $logger) {
     $this->settingsHandler = $settings_handler;
     $this->logger = $logger;
 
-    $this->setApi(new \SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
+    $this->setApi(new SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
   }
 
   /**
-   * Set Smartling API.
-   *
-   * @param \SmartlingAPI $api
-   *   Smartling API.
+   * {@inheritdoc}
    */
   public function setApi(\SmartlingAPI $api) {
     $this->api = $api;
   }
 
   /**
-   * Download file from service.
-   *
-   * @param object $entity
-   *   Smartling transaction entity.
-   * @param string $link_to_entity
-   *   Link to entity.
-   *
-   * @return \DOMDocument
-   *   Return xml dom from downloaded file.
+   * {@inheritdoc}
    */
   public function downloadFile($entity, $link_to_entity) {
     $entity_type = $entity->entity_type;
@@ -135,17 +144,8 @@ class SmartlingApiWrapper {
     return $download_result;
   }
 
-
   /**
-   * Get status.
-   *
-   * @param object $entity
-   *   Smartling transaction entity.
-   * @param string $link_to_entity
-   *   Link to entity.
-   *
-   * @return array|null
-   *   Return status.
+   * {@inheritdoc}
    */
   public function getStatus($entity, $link_to_entity) {
     $error_result = NULL;
@@ -243,7 +243,7 @@ class SmartlingApiWrapper {
   }
 
   /**
-   * Test connect.
+   * {@inheritdoc}
    */
   public function testConnection($locales) {
     $result = array();
@@ -261,6 +261,9 @@ class SmartlingApiWrapper {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function uploadFile($file_path, $file_name_unic, $locales) {
     $locales_to_approve = array();
     foreach ($locales as $locale) {
@@ -330,4 +333,5 @@ class SmartlingApiWrapper {
 
     return SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
   }
+
 }

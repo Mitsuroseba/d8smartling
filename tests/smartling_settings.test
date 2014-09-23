@@ -31,8 +31,8 @@ class SmartlingSettingsAccountInfoSaveTest extends SmartlingWebTestCase {
    */
   public function testCorrectSmartlingAccountSettings() {
     // Add predefined languages.
-    $this->smartlingAddSiteLanguage('zh-hans');
-    $this->smartlingAddSiteLanguage('fr');
+    locale_add_language('zh-hans');
+    locale_add_language('fr');
 
     // Set correct settings for this test.
     $edit = array(
@@ -48,7 +48,6 @@ class SmartlingSettingsAccountInfoSaveTest extends SmartlingWebTestCase {
 
     $smartling_locales_convert_array = smartling_settings_get_handler()->getLocalesConvertArray();
     $must_be_array = array('zh-hans' => 'zh-CN', 'ru' => 'ru-RU');
-    $this->verbose(print_r($smartling_locales_convert_array, TRUE));
     $this->assertEqual($smartling_locales_convert_array, $must_be_array);
   }
 

@@ -9,6 +9,10 @@ services:
     class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
     arguments:          [@smartling.settings, @smartling.log]
 
+  smartling.mock_api_wrapper:
+    class:              Drupal\smartling\ApiWrapper\MockApiWrapper
+    arguments:          [@smartling.settings, @smartling.log]
+
   smartling.field_processor_factory:
     class:              Drupal\smartling\FieldProcessorFactory
     arguments:          [%field_processors%, @smartling.log, @smartling.api_wrapper]

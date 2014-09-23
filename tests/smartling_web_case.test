@@ -60,25 +60,13 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    * Smartling set correct settings.
    */
   public function smartlingSetCorrectSettings() {
-    // Set file public path for tests.
-    variable_set('file_public_path', 'sites/default/files');
-    // Add default private path.
-    variable_set('file_private_path', 'sites/default/files/private');
-
-    $file_methods = array('file_public_path', 'file_private_path');
-    foreach ($file_methods as $file_method) {
-      $directory = variable_get($file_method);
-      if (!is_dir($directory) || !is_writable($directory)) {
-        drupal_mkdir($directory);
-        drupal_chmod($directory);
-      }
-    }
-
+    // @todo remove hardcoded constants and try to avoid post request and use direct api.
     $edit = array(
       "target_locales[ru]" => 'ru',
       "project_id" => SMARTLING_TEST_PROJECT_ID,
       "smartling_key" => SMARTLING_TEST_KEY,
       "target_locales_text_key_ru" => 'ru-RU',
+      "callback_url_use" => FALSE,
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
     $this->assertText(t('Account settings saved.'));
@@ -135,11 +123,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    */
   public function smartlingSetRetrievalType($type = 'published') {
     if (!empty($type)) {
-      $edit = array(
-        "production_retrieval_type" => (string) $type,
-      );
-      $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
-      $this->assertText(t('Account settings saved.'));
+      $smartling_settings = smartling_settings_get_handler();
+      $smartling_settings->setRetrievalType($type);
     }
   }
 
@@ -152,18 +137,28 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    *   Field machine name.
    */
   public function smartlingAddTextFieldToNode($node_type = 'page', $field_machine_name = '') {
-    // Add field to CT.
-    $edit = array(
-      "fields[_add_new_field][label]" => (string) $field_machine_name,
-      "fields[_add_new_field][weight]" => '-2',
-      "fields[_add_new_field][field_name]" => (string) $field_machine_name,
-      "fields[_add_new_field][type]" => 'text',
-      "fields[_add_new_field][widget_type]" => 'text_textfield',
+//    // Add field to CT.
+//    $edit = array(
+//      "fields[_add_new_field][label]" => (string) $field_machine_name,
+//      "fields[_add_new_field][weight]" => '-2',
+//      "fields[_add_new_field][field_name]" => (string) $field_machine_name,
+//      "fields[_add_new_field][type]" => 'text',
+//      "fields[_add_new_field][widget_type]" => 'text_textfield',
+//    );
+//    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
+//    $this->drupalPost(NULL, array(), t('Save field settings'));
+//    $this->drupalPost(NULL, array(), t('Save settings'));
+//    $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
+
+    $field = array('field_name' => $field_machine_name, 'type' => 'text');
+    field_create_field($this->$field);
+
+    $instance = array(
+      'field_name' => $field_machine_name,
+      'entity_type' => 'node',
+      'bundle' => $node_type,
     );
-    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields', $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save field settings'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
-    $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
+    field_create_instance($instance);
   }
 
   /**
@@ -210,18 +205,22 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   /**
    * Enable title and alt parameter for image field.
    *
-   * @param string $node_type
+   * @param string $bundle
    *   Node type/bundle.
    * @param string $field_machine_name
    *   Field machine name.
    */
-  public function smartlingEnableTitleAltForImageField($node_type, $field_machine_name) {
-    $edit = array(
-      "instance[settings][alt_field]" => 1,
-      "instance[settings][title_field]" => 1,
-    );
-    $this->drupalPost('admin/structure/types/manage/' . $node_type . '/fields/' . $field_machine_name, $edit, t('Save settings'));
-    $this->assertText(t('Saved'));
+  public function smartlingEnableTitleAltForImageField($bundle, $field_machine_name, $entity_type = 'node') {
+//    $edit = array(
+//      "instance[settings][alt_field]" => 1,
+//      "instance[settings][title_field]" => 1,
+//    );
+//    $this->drupalPost('admin/structure/types/manage/' . $bundle . '/fields/' . $field_machine_name, $edit, t('Save settings'));
+//    $this->assertText(t('Saved'));
+    $instance = field_read_instance($entity_type, $field_machine_name, $bundle);
+    $instance['settings']['alt_field'] = 1;
+    $instance['settings']['title_field'] = 1;
+    field_update_instance($instance);
   }
 
   /**
@@ -261,21 +260,6 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       $message = t('Test failed');
       $this->error($message);
     }
-  }
-
-  /**
-   * Add language to site.
-   *
-   * @param string $lang
-   *   Locale in drupal format (ru, en).
-   */
-  public function smartlingAddSiteLanguage($lang = 'ru') {
-    // Add predefined languages.
-    $edit = array(
-      'langcode' => $lang,
-    );
-    $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
-    $this->assertText($lang, 'Language added successfully.');
   }
 
   /**
@@ -383,6 +367,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
    *   Field name.
    * @param bool $swap
    *   TRUE if this swap field. (title module) (FALSE by default).
+   *
+   * @todo improve api because it's not obvious enough and do not use drupal post for settings!
    */
   public function smartlingSetFieldSettings($node_type, $field_name, $swap = FALSE) {
     // Set fields for page CT.

@@ -410,6 +410,7 @@ class GenericEntityProcessor {
    * @return array()
    */
   public function getTranslatableFields() {
+    // @todo Inject via DIC.
     return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
   }
 
