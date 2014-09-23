@@ -47,6 +47,10 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
         $link = l(t('!title', array('!title' => $entity->subject)), $path);
         break;
 
+      case 'smartling_interface_entity':
+        $link = t('!title', array('!title' => $entity->textgroup_name));
+        break;
+
       default:
         $link = '-';
         break;

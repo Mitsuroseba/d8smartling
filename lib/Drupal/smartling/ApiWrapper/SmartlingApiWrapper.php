@@ -349,3 +349,71 @@ class SmartlingApiWrapper {
     return SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
   }
 }
+
+  /**
+   * Download (.po) file from service.
+   *
+   * @param object $smartling_entity
+   *   Smartling transaction entity.
+   *
+   * @return \DOMDocument
+   *   Return xml dom from downloaded file.
+   */
+  public function downloadPoFile($smartling_entity) {
+    $smartling_entity_type = $smartling_entity->entity_type;
+    $d_locale = $smartling_entity->target_language;
+    $file_name_unic = $smartling_entity->file_name;
+    $file_path = $this->settingsHandler->getDir($smartling_entity->file_name);
+
+    $retrieval_type = $this->settingsHandler->variableGet('smartling_retrieval_type', 'published');
+    $download_param = array(
+      'retrievalType' => $retrieval_type,
+    );
+
+    $this->logger->setMessage('Smartling start download .po file for @entity_type id - @rid, locale - @locale.')
+      ->setVariables(array(
+        '@entity_type' => $smartling_entity_type,
+        '@rid' => $smartling_entity->rid,
+        '@locale' => $smartling_entity->target_language,
+      ))
+      ->setLink(l(t('View file'), $file_path))
+      ->execute();
+
+    $s_locale = $this->convertLocaleDrupalToSmartling($d_locale);
+    // Try to download file.
+    $download_result = $this->api->downloadFile($file_name_unic, $s_locale, $download_param);
+
+    if (isset($download_result->response->code)) {
+      $download_result = json_decode($download_result);
+
+      $code = '';
+      $messages = array();
+      if (isset($download_result->response)) {
+        $code =  isset($download_result->response->code) ? $download_result->response->code : array();
+        $messages = isset($download_result->response->messages) ? $download_result->response->messages : array();
+      }
+
+      $this->logger->setMessage('smartling_queue_download_update_translated_item_process try to download file:<br/>
+      Project Id: @project_id <br/>
+      Action: download <br/>
+      URI: @file_uri <br/>
+      Locale: @s_locale <br/>
+      Error: response code -> @code and message -> @message')
+        ->setVariables(array(
+          '@project_id' => $this->settingsHandler->getProjectId(),
+          '@file_uri' => $file_name_unic,
+          '@s_locale' => $s_locale,
+          '@code' => $code,
+          '@message' => implode(' || ', $messages),
+        ))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->execute();
+      drupal_set_message(t('Download .po file: @message', array('@message' => $messages)), 'warning');
+
+      return FALSE;
+    }
+
+    return $download_result;
+  }
+}
