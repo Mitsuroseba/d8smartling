@@ -96,6 +96,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   public function prepareBeforeDownload(array $fieldData) {
+    foreach($fieldData as $delta => $value) {
+      $id = $value['value'];
+      $entity = field_collection_item_load($id);
+
+      
+    }
+
     return $fieldData;
   }
 
