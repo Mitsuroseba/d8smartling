@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- smartling.translate_paths = data/localize/string -->
 <!-- smartling.string_format_paths = html : data/localize/string -->
+<!-- smartling.placeholder_format_custom = (@|%|!)[\w-]+ -->
 <data><localize title="1"><string id="body-body-0" quantity="1">Lorem Ipsum Body Text</string><string id="body-summary-0" quantity="1"></string><string id="title_property_field-0" quantity="1">Node title Lorem Ipsum</string></localize></data>

@@ -91,18 +91,28 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     // Set title field for article CT.
     $this->smartlingSetFieldSettings('page', 'title_property_field');
     $this->smartlingSetFieldSettings('page', 'body');
-
+    smartling_settings_get_handler()->dbSync();
     $smartling_data = smartling_create_from_entity($node, 'node', $node->language, 'ru');
     smartling_queue_send_to_translate_process($smartling_data->eid);
 
-    $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower($node->title) . '_node_' . $node->nid . '.xml'));
+    // @todo use API function for path building.
+    $translation_file_path = DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '.xml';
 
+    $this->assertTrue(file_exists($translation_file_path));
+
+    if (file_exists($translation_file_path)) {
+      $translation_file = file_get_contents($translation_file_path);
+      $assertion_file = file_get_contents(__DIR__ . '/xml_sources/node_upload__upload.xml');
+      $this->assertEqual($translation_file, $assertion_file);
+    }
     // @todo validate xml structure and content.
 
     smartling_queue_download_update_translated_item_process($smartling_data->eid);
 
-    $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower($node->title) . '_node_' . $node->nid . '_ru.xml'));
+    $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_ru.xml'));
 
+
+    drupal_static_reset('translation_node_get_translations');
     $translations = translation_node_get_translations(($node->tnid ?: $node->nid));
 
     $this->assertTrue(isset($translations['ru']));
