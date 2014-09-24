@@ -95,39 +95,69 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return $result;
   }
 
-  public function prepareBeforeDownload(array $fieldData) {
-    foreach($fieldData as $delta => $value) {
-      $id = $value['value'];
-      $entity = field_collection_item_load($id);
 
-      
+  protected function clone_fc_items($entity_type, &$entity, $fc_field, $language = LANGUAGE_NONE){
+    $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
+    $old_fc_items = $entity_wrapper->{$fc_field}->value();
+    if (!is_array($old_fc_items)) {
+      $old_fc_items = array($old_fc_items);
     }
+    $field_info_instances = field_info_instances();
+    $field_names = element_children($field_info_instances['field_collection_item'][$fc_field]);
+    unset($entity->{$fc_field}[$language]);
+    $result = array();
+    foreach ($old_fc_items as $old_fc_item) {
+      $old_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $old_fc_item);
+      $new_fc_item = entity_create('field_collection_item', array('field_name' => $fc_field));
+      $new_fc_item->setHostEntity($entity_type, $entity);
+      $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
+      foreach ($field_names as $field_name) {
+        //if (is_array($old_fc_item->{$field_name})){
+        if (!empty($old_fc_item->{$field_name})){
+          $new_fc_item->{$field_name} = $old_fc_item->{$field_name};
+        }
+        //}
+      }
+      $new_fc_item_wrapper->save();
+      $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
+      //Now check if any of the fields in the newly cloned fc item is a field collection and recursively call this function to properly clone it.
+      foreach ($field_names as $field_name) {
+        if (!empty($new_fc_item->{$field_name})){
+          $field_info = field_info_field($field_name);
+          if ($field_info['type'] == 'field_collection'){
+            clone_fc_items('field_collection_item',$new_fc_item, $field_name,$language);
+          }
+        }
+      }
+    }
+    return $result;
+  }
 
-    return $fieldData;
+  public function prepareBeforeDownload(array $fieldData) {
+    return $this->clone_fc_items($this->entityType, $this->entity, $this->fieldName);
   }
 
   public function setDrupalContentFromXML($xpath) {
 
     $content = $this->fetchDataFromXML($xpath);
 
-    $new_values = array();
-    $old_values = $this->entity->{$this->fieldName}[$this->targetLanguage];
-    foreach($old_values as $k => $id) {
-      $val = next($content);
-      $new_values[$k] = $this->saveContentToEntity($id, $val);
+    foreach($content as $id => $val) {
+      $this->saveContentToEntity($id, $val);
     }
-    $this->entity->{$this->fieldName}[$this->targetLanguage] = $content;
+    //$this->entity->{$this->fieldName}[$this->targetLanguage] = $content;
   }
 
   protected function saveContentToEntity($id, $value) {
     $entity = field_collection_item_load($id);
+    $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
 
     foreach($value as $field_name => $val) {
-      $entity->{$field_name}[$entity->language] = $val;
+ //     $val[0] .= 'hi ';
+        $wrapper->{$field_name}->set($val);
     }
-
+    $wrapper->save();
     //field_collection_item_save($entity);
-    return $id;
+    //return $id;
   }
 
 }
