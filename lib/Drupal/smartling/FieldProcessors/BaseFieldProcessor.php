@@ -126,4 +126,7 @@ abstract class BaseFieldProcessor {
     return $fieldData;
   }
 
+  public function cleanBeforeClone($field_name, $entity) {
+    return NULL;
+  }
 }

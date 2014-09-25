@@ -43,8 +43,25 @@ class NodeProcessor extends GenericEntityProcessor {
 
         $node->translation_source = $this->contentEntity;
 
+        $field_values = array();
+        foreach ($this->getTranslatableFields() as $field_name) {
+          if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
+            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
+            $field_values[$field_name] = $fieldProcessor->cleanBeforeClone($field_name, $node);
+          }
+        }
+
+//        $collect = $node->field_collection1;
+//        unset($node->field_collection1);
+
         node_object_prepare($node);
         node_save($node);
+//        $node->field_collection1 = $collect;
+        foreach ($this->getTranslatableFields() as $field_name) {
+          if (!empty($field_values[$field_name])) {
+            $node->{$field_name} = $field_values[$field_name];
+          }
+        }
 
         foreach ($this->getTranslatableFields() as $field_name) {
           // Run all translatable fields through prepareBeforeDownload
@@ -54,12 +71,11 @@ class NodeProcessor extends GenericEntityProcessor {
             // @TODO get rid of harcoded language.
             $node->{$field_name}[LANGUAGE_NONE] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
           }
-
         }
 
         // Second saving is done for Field Collection field support
         // that need host entity id.
-        node_save($node);
+        //node_save($node);
 
         // Update reference to drupal content entity.
         $this->contentEntity = $node;

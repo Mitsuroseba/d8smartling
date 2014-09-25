@@ -107,7 +107,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     unset($entity->{$fc_field}[$language]);
     $result = array();
     foreach ($old_fc_items as $old_fc_item) {
-      $old_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $old_fc_item);
+      //$old_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $old_fc_item);
       $new_fc_item = entity_create('field_collection_item', array('field_name' => $fc_field));
       $new_fc_item->setHostEntity($entity_type, $entity);
       $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
@@ -119,6 +119,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         //}
       }
       $new_fc_item_wrapper->save();
+      //entity_save($entity_type, $entity);
+     // field_attach_update($entity_type, $entity);
       $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
       //Now check if any of the fields in the newly cloned fc item is a field collection and recursively call this function to properly clone it.
       foreach ($field_names as $field_name) {
@@ -141,10 +143,11 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $content = $this->fetchDataFromXML($xpath);
 
-    foreach($content as $id => $val) {
-      $this->saveContentToEntity($id, $val);
+    $id = current($this->entity->{$this->fieldName}[LANGUAGE_NONE]);
+    foreach($content as $val) {
+      $this->saveContentToEntity($id['value'], $val);
+      $id = next($this->entity->{$this->fieldName}[LANGUAGE_NONE]);
     }
-    //$this->entity->{$this->fieldName}[$this->targetLanguage] = $content;
   }
 
   protected function saveContentToEntity($id, $value) {
@@ -152,14 +155,16 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
 
     foreach($value as $field_name => $val) {
- //     $val[0] .= 'hi ';
         $wrapper->{$field_name}->set($val);
     }
     $wrapper->save();
-    //field_collection_item_save($entity);
-    //return $id;
   }
 
+  public function cleanBeforeClone($field_name, $entity) {
+    $val = $entity->{$field_name};
+    unset($entity->{$field_name});
+    return $val;
+  }
 }
 
 
