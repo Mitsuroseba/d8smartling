@@ -108,7 +108,7 @@ function smartling_queue_send_to_translate_process($args) {
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, $args->d_locales);
+      $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, 'xml', $args->d_locales);
 
       foreach ($entity_data_array as $entity) {
         smartling_set_translation_status($entity, $result_status);
