@@ -98,7 +98,7 @@ function smartling_interface_translation_do_translate_action($entity, array $con
   if ($uri) {
     // Init api object.
     $api = drupal_container()->get('smartling.api_wrapper');
-    $result_status = $api->uploadPoFile(drupal_realpath($file_path), $file_name_unic, $context['translate_to_langs']);
+    $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, 'gettext', $context['translate_to_langs']);
     if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
       foreach ($context['translate_to_langs'] as $locale) {
         $entity_data = smartling_entity_load_by_conditions(array(
@@ -224,10 +224,9 @@ function smartling_interface_translation_submission_import($mode, $eid) {
       global $user;
       $langcode = $entity_data->target_language;
       $group = $entity_data->bundle;
-      $file_name = $entity_data->file_name;
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $download_result = $api->downloadPoFile($entity_data);
+      $download_result = $api->downloadFile($entity_data);
       if ($download_result !== FALSE) {
         $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
         $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
