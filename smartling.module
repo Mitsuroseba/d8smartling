@@ -673,15 +673,18 @@ function smartling_cron() {
 function smartling_cron_alter(&$hooks) {
   if (isset($hooks['smartling_cron'])) {
     $hooks['smartling_cron']['title'] = t('Add items to "smartling_check_status" queue.');
-    $hooks['smartling_cron']['scheduler']['crontab']['rules'][0] = '0 * * * *';
+    $hooks['smartling_cron']['scheduler']['simple']['rules'][0] = '0+@ */3 * * *';
   }
   if (isset($hooks['queue_smartling_upload'])) {
+    $hooks['queue_smartling_upload']['title'] = t('Upload files with original content.');
     $hooks['queue_smartling_upload']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
   if (isset($hooks['queue_smartling_check_status'])) {
-    $hooks['queue_smartling_check_status']['scheduler']['simple']['rules'][0] = '0+@ */3 * * *';
+    $hooks['queue_smartling_check_status']['title'] = t('Check translation progress of files.');
+    $hooks['queue_smartling_check_status']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
   if (isset($hooks['queue_smartling_download'])) {
+    $hooks['queue_smartling_download']['title'] = t('Download files with translations.');
     $hooks['queue_smartling_download']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
 }
