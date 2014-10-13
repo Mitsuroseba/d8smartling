@@ -18,8 +18,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
    * @return array()
    */
   protected function getTransletableFields() {
-    //return smartling_settings_get_handler()->getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
-    return array('field_text1', 'field_some2');
+    return smartling_settings_get_handler()->fieldCollectionGetFieldsSettingsByBundle($this->fieldName);//getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
+    //return array('field_text1', 'field_some2');
   }
 
   /**
@@ -143,10 +143,15 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $content = $this->fetchDataFromXML($xpath);
 
-    $id = current($this->entity->{$this->fieldName}[LANGUAGE_NONE]);
+    $values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
+    if (empty($values)) {
+      return;
+    }
+
+    $id = current($values);
     foreach($content as $val) {
       $this->saveContentToEntity($id['value'], $val);
-      $id = next($this->entity->{$this->fieldName}[LANGUAGE_NONE]);
+      $id = next($values);
     }
   }
 

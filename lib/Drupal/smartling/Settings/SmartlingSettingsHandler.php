@@ -26,6 +26,7 @@ class SmartlingSettingsHandler {
   protected $commentFieldsSettings;
   protected $taxonomyTermFieldsSettings;
   protected $userFieldsSettings;
+  protected $fieldCollectionFieldsSettings;
 
   /**
    * Initialize.
@@ -47,6 +48,7 @@ class SmartlingSettingsHandler {
     $this->commentFieldsSettings = $this->variableGet('smartling_comment_fields_settings', array());
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
+    $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
   }
 
   /**
@@ -69,6 +71,7 @@ class SmartlingSettingsHandler {
     $this->commentFieldsSettings = $this->variableGet('smartling_comment_fields_settings', array());
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
+    $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
   }
 
   /**
@@ -362,6 +365,53 @@ class SmartlingSettingsHandler {
   public function userGetFieldsSettingsByBundle($bundle) {
     return (isset($this->userFieldsSettings[$bundle])) ? $this->userFieldsSettings[$bundle] : array();
   }
+
+
+
+  /**
+   * Set smartling fields settings for node entity.
+   *
+   * @param array $node_fields_settings
+   *   Smartling fields settings for node entity.
+   */
+  public function fieldCollectionSetFieldsSettings(array $field_collection_fields_settings) {
+    if (!empty($field_collection_fields_settings)) {
+      $this->fieldCollectionFieldsSettings = $field_collection_fields_settings;
+      $this->variableSet('smartling_field_collection_fields_settings', $field_collection_fields_settings);
+    }
+    else {
+      $this->fieldCollectionFieldsSettings = array();
+      $this->variableDel('smartling_field_collection_fields_settings');
+    }
+  }
+
+  /**
+   * Get smartling fields settings array for node.
+   *
+   * @return array
+   *   Return smartling fields settings array for node entity.
+   */
+  public function fieldCollectionGetFieldsSettings() {
+    return $this->fieldCollectionFieldsSettings;
+  }
+
+
+  /**
+   * Get smartling fields settings array for node by bundle.
+   *
+   * @param string $bundle
+   *   Entity bundle.
+   *
+   * @return array
+   *   Return smartling fields settings array.
+   */
+  public function fieldCollectionGetFieldsSettingsByBundle($bundle) {
+    return (isset($this->fieldCollectionFieldsSettings[$bundle])) ? $this->fieldCollectionFieldsSettings[$bundle] : array();
+  }
+
+
+
+
 
   /**
    * Add multiple fields to smartling settings.
