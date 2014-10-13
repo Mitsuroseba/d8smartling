@@ -18,8 +18,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
    * @return array()
    */
   protected function getTransletableFields() {
-    return smartling_settings_get_handler()->fieldCollectionGetFieldsSettingsByBundle($this->fieldName);//getFieldsSettings($this->entity->entity_type, $this->entity->bundle);
-    //return array('field_text1', 'field_some2');
+    return smartling_settings_get_handler()->fieldCollectionGetFieldsSettingsByBundle($this->fieldName);
   }
 
   /**
@@ -66,14 +65,12 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $result = array();
     $data = $xpath->query('//field_collection[@id="' . $this->fieldName . '"]')
       ->item(0);
-    //echo $xpath->document;
 
     if (!$data) {
       return NULL;
     }
 
     $item = $data->firstChild;
-    //$this->fetchDataFromXML($item);
     do {
       if ($item->tagName == 'string') {
         $eid = $item->attributes->getNamedItem('eid');
@@ -83,14 +80,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         $result[$eid->value][$field->value][$delta->value] = $item->nodeValue;
       }
     } while ($item = $item->nextSibling);
-
-//    $quantity = $quantity_value->getAttribute('quantity');
-
-//    for ($i = 0; $i < $quantity; $i++) {
-//      $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
-//        ->item(0);
-//      $data[$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
-//    }
 
     return $result;
   }
@@ -112,14 +101,11 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
       $new_fc_item->setHostEntity($entity_type, $entity);
       $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
       foreach ($field_names as $field_name) {
-        //if (is_array($old_fc_item->{$field_name})){
         if (!empty($old_fc_item->{$field_name})){
           $new_fc_item->{$field_name} = $old_fc_item->{$field_name};
         }
-        //}
       }
       $new_fc_item_wrapper->save();
-      //entity_save($entity_type, $entity);
      // field_attach_update($entity_type, $entity);
       $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
       //Now check if any of the fields in the newly cloned fc item is a field collection and recursively call this function to properly clone it.
