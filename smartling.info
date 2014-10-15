@@ -52,3 +52,4 @@ files[] = tests/smartling_image_url_parser.test
 files[] = tests/smartling_text_field_with_summary_processing.test
 files[] = tests/smartling_title_field.test
 files[] = tests/smartling_translate_term.test
+files[] = tests/smartling_field_collection_item.test

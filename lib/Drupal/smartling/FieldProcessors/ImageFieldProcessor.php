@@ -26,21 +26,6 @@ class ImageFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDrupalContent() {
-    $data = $this->entity->{$this->fieldName};
-
-    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
-      $data[$delta]['alt'] = $value['alt-img'];
-      $data[$delta]['title'] = $value['title-img'];
-      $data[$delta]['fid'] = $value['fid-img'];
-    }
-
-    return $data;
-  }
-
   //@todo fetch format from xml as well.
   /**
    * {@inheritdoc}

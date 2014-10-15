@@ -86,16 +86,6 @@ abstract class BaseFieldProcessor {
   abstract public function getSmartlingContent();
 
   /**
-   * Converts smartling data field format to drupal.
-   *
-   * @deprecated will be remove as unused method.
-   *
-   * @return array
-   *   Drupal field structure under language key ready to be put into smartling entity.
-   */
-  abstract public function getDrupalContent();
-
-  /**
    * Fetch translation data from xml based on structure for particular field.
    *
    * @param \DomXpath $xpath

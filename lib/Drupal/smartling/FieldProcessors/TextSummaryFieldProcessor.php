@@ -25,19 +25,6 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDrupalContent() {
-    $data = $this->entity->{$this->fieldName};
-
-    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
-      $data[$delta]['value'] = $value['body'];
-      $data[$delta]['summary'] = $value['summary'];
-    }
-
-    return $data;
-  }
 
   //@todo fetch format from xml as well.
   /**

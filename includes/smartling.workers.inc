@@ -14,29 +14,6 @@ function smartling_queue_download_update_translated_item_process($eid) {
     $processor = smartling_get_entity_processor($smartling_entity);
     $processor->downloadTranslation();
     $processor->updateEntityFromXML();
-//    $entity_type = $smartling_entity->entity_type;
-//    $d_locale = $smartling_entity->target_language;
-//    $rid = $smartling_entity->rid;
-//    $file_name = $smartling_entity->file_name;
-//
-//    $file_name = substr($file_name, 0, strlen($file_name) - 4);
-//    $translated_filename = smartling_clean_filename($file_name . '_' . $d_locale . '.xml', TRUE);
-//
-//    // Init api object.
-//    $api = drupal_container()->get('smartling.api_wrapper');
-//
-//    $download_result = $api->downloadFile($smartling_entity);
-//
-//    if ($download_result !== FALSE) {
-//      // This is a $download_result
-//      $xml = new DOMDocument();
-//      $xml->loadXML($download_result);
-//
-//      $save = smartling_save_xml($xml, $rid, $d_locale, $translated_filename, TRUE, $entity_type);
-//      if (is_object($save)) {
-//        smartling_update_translated_fields($smartling_entity);
-//      }
-//    }
   }
 }
 
@@ -71,32 +48,6 @@ function smartling_queue_send_to_translate_process($eid) {
 
   if ($smartling_entity && smartling_is_configured()) {
     $entity_type = $smartling_entity->entity_type;
-
-//    $entity_data_array = array();
-    // @todo why do we need internal loops?
-//    foreach ($smartling_entity->d_locales as $d_locale) {
-//      $entity_data = smartling_entity_load_by_conditions(array(
-//        'rid' => $smartling_entity->rid,
-//        'entity_type' => $entity_type,
-//        'target_language' => $d_locale,
-//      ));
-//
-//      if ($entity_data == FALSE) {
-//        $entity_data = smartling_entity_data_create();
-//        $entity_data->rid = $smartling_entity->rid;
-//        $entity_data->entity_type = $smartling_entity->entity_type;
-//        $entity_data->bundle = $smartling_entity->bundle;
-//        $entity_data->submission_date = time();
-//      }
-//
-//      $entity_data->original_language = $smartling_entity->original_language;
-//      $entity_data->target_language = $d_locale;
-//      $entity_data->translated_file_name = FALSE;
-//      $entity_data->submitter = $smartling_entity->submitter;
-//      $entity_data->progress = 0;
-//      smartling_entity_data_save($entity_data);
-//      $entity_data_array[] = $entity_data;
-//    }
 
     $processor = smartling_get_entity_processor($smartling_entity);
     $content_to_translate = $processor->exportContentToTranslation();

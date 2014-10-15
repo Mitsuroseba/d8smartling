@@ -449,47 +449,13 @@ function smartling_get_entity_processor($smartling_entity) {
  *   Return filename or FALSE.
  */
 function smartling_build_xml($file_name, $content_to_translate, $rid) {
-//  $log = smartling_log_get_handler();
-//
-//  /* @var $smartling_entity SmartlingEntityData */
-//  $smartling_entity = smartling_entity_load_by_conditions(array(
-//    'rid' => $rid,
-//    'entity_type' => $entity_type,
-//    'target_language' => $d_locale,
-//  ));
-//  $processor = smartling_get_entity_processor($smartling_entity, $log);
-//  $content_to_translate = $processor->exportContentToTranslation();
-
-//  $content_to_translate = array();
-//  switch ($entity_type) {
-//    case 'node':
-//      $content_to_translate = smartling_node_content_to_translate($rid);
-//      break;
-//
-//    case 'taxonomy_term':
-//      $content_to_translate = smartling_taxonomy_term_content_to_translate($rid);
-//      break;
-//
-//    case 'comment':
-//      $content_to_translate = smartling_comment_content_to_translate($rid);
-//      break;
-//
-//    case 'user':
-//      $content_to_translate = smartling_user_content_to_translate($rid);
-//      break;
-//
-//    default:
-//      $file_name = FALSE;
-//      break;
-//  }
-
   $xml = FALSE;
 
   if (!empty($content_to_translate)) {
     $xml = new DOMDocument('1.0', 'UTF-8');
 
-    $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string '));
-    $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string '));
+    $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string '));
+    $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string, html : data/localize/field_collection/string '));
     $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
 
     $data = $xml->createElement('data');
@@ -497,17 +463,6 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
     $data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
     $xml->appendChild($data);
   }
-//  else {
-//    smartling_entity_delete_all_by_conditions(array(
-//      'rid' => $rid,
-//      'entity_type' => $entity_type,
-//    ));
-//    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
-//      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
-//      ->setSeverity(WATCHDOG_WARNING)
-//      ->execute();
-//    $file_name = FALSE;
-//  }
 
   return $xml;
 }
@@ -623,10 +578,11 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
         $collection->appendChild($attr);
 
         foreach($field_value as $eid => $field_collection) {
-          $quantity = count($field_collection);
-          $string = $dom->createElement('string');
           foreach ($field_collection as $key => $value) {
+            $quantity = count($value);
             foreach ($value as $item_key => $item) {
+              $string = $dom->createElement('string');
+
               $string_attr = $dom->createAttribute('eid');
               $string_attr->value = $eid;
               $string->appendChild($string_attr);
@@ -645,9 +601,10 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
               $string_attr = $dom->createAttribute('quantity');
               $string_attr->value = $quantity;
               $string->appendChild($string_attr);
+
+              $collection->appendChild($string);
             }
           }
-          $collection->appendChild($string);
         }
         $localize->appendChild($collection);
       }

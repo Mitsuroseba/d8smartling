@@ -21,6 +21,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return smartling_settings_get_handler()->fieldCollectionGetFieldsSettingsByBundle($this->fieldName);
   }
 
+  protected function fieldCollectionItemLoad($id) {
+    return field_collection_item_load($id);
+  }
+
+  protected function getProcessor($field_name, $entity, $smartling_entity, $targetLanguage) {
+    return drupal_container()->get('smartling.field_processor_factory')->getProcessor($field_name, $entity, 'field_collection_item', $smartling_entity, $targetLanguage);
+  }
   /**
    * {@inheritdoc}
    */
@@ -31,30 +38,17 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
         $fid = (int)$value['value'];
-        $entity = field_collection_item_load($fid);
+        $entity = $this->fieldCollectionItemLoad($fid);
 
         foreach ($this->getTransletableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-          $fieldProcessor = drupal_container()->get('smartling.field_processor_factory')->getProcessor($field_name, $entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
+          $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage);
 
           if ($fieldProcessor) {
             $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();
           }
         }
       }
-    }
-
-    return $data;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDrupalContent() {
-    $data = $this->entity->{$this->fieldName};
-
-    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
-      $data = $value;
     }
 
     return $data;
@@ -76,6 +70,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         $eid = $item->attributes->getNamedItem('eid');
         $field = $item->attributes->getNamedItem('id');
         $delta = $item->attributes->getNamedItem('delta');
+        //$quantity = $item->attributes->getNamedItem('quantity');
 
         $result[$eid->value][$field->value][$delta->value] = $item->nodeValue;
       }
@@ -142,18 +137,31 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   protected function saveContentToEntity($id, $value) {
-    $entity = field_collection_item_load($id);
+    $entity = $this->fieldCollectionItemLoad($id);
     $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
 
+    if (empty($wrapper)) {
+      return;
+    }
+
     foreach($value as $field_name => $val) {
+      $field_info = field_info_field($field_name);
+      if ($field_info['cardinality'] == 1) {
+        $wrapper->{$field_name}->set(current($val));
+      }
+      else {
         $wrapper->{$field_name}->set($val);
+      }
     }
     $wrapper->save();
   }
 
   public function cleanBeforeClone($field_name, $entity) {
-    $val = $entity->{$field_name};
-    unset($entity->{$field_name});
+    $val = '';
+    if (isset($entity->{$field_name})) {
+      $val = $entity->{$field_name};
+      unset($entity->{$field_name});
+    }
     return $val;
   }
 }

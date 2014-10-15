@@ -18,19 +18,6 @@ class DescriptionPropertyFieldProcessor extends TitlePropertyFieldProcessor {
     return $this->entity->{$this->propertyName};
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDrupalContent() {
-    $data = $this->entity->{$this->propertyName};
-
-    foreach ($this->smartling_entity[$this->propertyName] as $delta => $value) {
-      $data = $value;
-    }
-
-    return $data;
-  }
-
   public function fetchDataFromXML(\DomXpath $xpath) {
     $quantity_value = $xpath->query('//string[@id="' . $this->fieldName . '-0' . '"][1]')
       ->item(0);

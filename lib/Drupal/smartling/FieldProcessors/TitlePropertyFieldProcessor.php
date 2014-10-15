@@ -16,18 +16,6 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     return array(entity_label($this->entityType, $this->entity));
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getDrupalContent() {
-    $data = $this->entity->{$this->fieldName};
-
-    foreach ($this->smartling_entity[$this->fieldName][$this->sourceLanguage] as $delta => $value) {
-      $data = $value;
-    }
-
-    return $data;
-  }
 
   public function fetchDataFromXML(\DomXpath $xpath) {
     $data = array();
