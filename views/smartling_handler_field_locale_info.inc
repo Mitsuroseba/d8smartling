@@ -32,6 +32,9 @@ class SmartlingHandlerFieldLocaleInfo extends views_handler_field {
     elseif (isset($values->uid)) {
       $result = smartling_entity_load_all_by_conditions(array('rid' => $values->uid, 'entity_type' => 'user'));
     }
+    elseif (isset($values->smartling_interface_entity_textgroup)) {
+      $result = smartling_entity_load_all_by_conditions(array('entity_type' => 'smartling_interface_entity', 'bundle' => $values->smartling_interface_entity_textgroup));
+    }
     else {
       $result = FALSE;
     }

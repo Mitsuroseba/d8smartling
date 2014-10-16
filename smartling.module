@@ -46,7 +46,6 @@ include_once 'entities/smartling.taxonomy.inc';
 include_once 'entities/smartling.node.inc';
 include_once 'entities/smartling.comments.inc';
 include_once 'entities/smartling.user.inc';
-
 include_once 'smartling.demo_content.php';
 
 /**
@@ -698,15 +697,18 @@ function smartling_cron() {
 function smartling_cron_alter(&$hooks) {
   if (isset($hooks['smartling_cron'])) {
     $hooks['smartling_cron']['title'] = t('Add items to "smartling_check_status" queue.');
-    $hooks['smartling_cron']['scheduler']['crontab']['rules'][0] = '0 * * * *';
+    $hooks['smartling_cron']['scheduler']['simple']['rules'][0] = '0+@ */3 * * *';
   }
   if (isset($hooks['queue_smartling_upload'])) {
+    $hooks['queue_smartling_upload']['title'] = t('Upload files with original content.');
     $hooks['queue_smartling_upload']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
   if (isset($hooks['queue_smartling_check_status'])) {
-    $hooks['queue_smartling_check_status']['scheduler']['simple']['rules'][0] = '0+@ */3 * * *';
+    $hooks['queue_smartling_check_status']['title'] = t('Check translation progress of files.');
+    $hooks['queue_smartling_check_status']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
   if (isset($hooks['queue_smartling_download'])) {
+    $hooks['queue_smartling_download']['title'] = t('Download files with translations.');
     $hooks['queue_smartling_download']['scheduler']['simple']['rules'][0] = '* * * * *';
   }
 }
@@ -745,6 +747,7 @@ function smartling_entity_load($entities, $type) {
 
         foreach ($sm_settings->{$sm_settings->getByBundleMethodName($type)}($bundle) as $field_name) {
 
+          if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
           if (smartling_field_is_translatable_by_field_name($field_name, $type) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
             // If field have und value and don't have need value.
             $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];

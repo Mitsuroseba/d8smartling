@@ -72,6 +72,9 @@ logit info "Generate demo content"
 drush_e cron -y
 logit info "Prepare env for running tests"
 drush_e en simpletest -y
+echo -e "\n \$conf['file_public_path'] = 'sites/default/files';" >> ./sites/default/settings.php
+echo -e "\n \$conf['file_private_path'] = 'sites/default/files/private';" >> ./sites/default/settings.php
+
 logit info "Copy credentials from Home folder"
 USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
 cp $USER_HOME/credentials.php ./sites/all/modules/custom/smartling

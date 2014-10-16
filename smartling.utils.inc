@@ -468,6 +468,21 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
     $data = $xml->createElement('data');
 
     $data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
+// @todo Verify how many child has $data. If zero, then write to log and stop upload
+// This logic was lost in OOP branch
+//  {
+//    smartling_entity_delete_all_by_conditions(array(
+//      'rid' => $rid,
+//      'entity_type' => $entity_type,
+//    ));
+//    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
+//      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+//      ->setSeverity(WATCHDOG_WARNING)
+//      ->execute();
+//    $file_name = FALSE;
+//  }
+
+
     $xml->appendChild($data);
   }
 
@@ -747,7 +762,7 @@ function smartling_download_file($entity_data) {
 function smartling_get_progress_status($entity_data) {
   if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
     $api = drupal_container()->get('smartling.api_wrapper');
-    $result = $api->getStatus($entity_data, '');
+    $result = $api->getStatus($entity_data);
 
     if (!empty($result)) {
       return $result['entity_data']->progress;
@@ -967,6 +982,9 @@ function smartling_get_original_entity($rid, $entity_type) {
 function smartling_get_field_format($original_entity, $field_name, $language_key_format, $i = 0) {
   if (isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
     return $original_entity->{$field_name}[$language_key_format][$i]['format'];
+  }
+  else {
+    return NULL;
   }
 }
 

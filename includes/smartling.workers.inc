@@ -28,8 +28,7 @@ function smartling_queue_check_status_process($eid) {
     $result = $api->getStatus($smartling_entity);
 
     if (!empty($result)) {
-      if ($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) {
-
+      if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($args->entity_type != 'smartling_interface_entity')) {
         $smartling_queue = DrupalQueue::get('smartling_download');
         $smartling_queue->createQueue();
         $smartling_queue->createItem($eid);
@@ -63,7 +62,7 @@ function smartling_queue_send_to_translate_process($eid) {
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile($file_path, $file_name_unic, array($smartling_entity->target_language));
+      $result_status = $api->uploadFile($file_path, $file_name_unic, 'xml', array($smartling_entity->target_language));
 
       $processor->setProgressStatus($result_status);
 
