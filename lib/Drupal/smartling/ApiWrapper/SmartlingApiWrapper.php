@@ -146,7 +146,10 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
 
   /**
    * {@inheritdoc}
-   */
+   * @todo Remove $link_to_entity from parameters and generate link on a fly from $entity. 
+   * Apply this fix to all functions with $link_to_entity
+   * We already have functions like linkToContent()
+  */
   public function getStatus($entity, $link_to_entity) {
     $error_result = NULL;
 
@@ -167,7 +170,6 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
 
     $file_name = $entity->file_name;
     $file_name_unic = $entity->file_name;
-    $file_uri = smartling_clean_filename($this->settingsHandler->getDir() . '/' . $file_name, TRUE);
 
     $s_locale = $this->convertLocaleDrupalToSmartling($entity->target_language);
     // Try to retrieve file status.
@@ -225,7 +227,6 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
         '@as' => $status_result->response->data->approvedStringCount,
         '@cs' => $status_result->response->data->completedStringCount,
       ))
-      ->setLink(l(t('View file'), $file_uri))
       ->execute();
 
     // If true, file translated.

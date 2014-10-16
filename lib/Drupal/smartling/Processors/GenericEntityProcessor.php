@@ -77,6 +77,7 @@ class GenericEntityProcessor {
 
   /**
    * @var string
+   * @todo Rename suffix Language to Locale to make consistent with other properties
    */
   protected $targetFieldLanguage;
 
@@ -262,6 +263,9 @@ class GenericEntityProcessor {
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);
 
+    // @todo Generating file name and saving on disk we need only for debugging purpose.
+    // Try to simplify code and move all logic into smartling_save_xml
+    // Also maybe use $file_name = $this->buildXmlFileName();
     $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
     $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 

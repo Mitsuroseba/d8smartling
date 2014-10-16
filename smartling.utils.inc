@@ -105,6 +105,8 @@ function smartling_entity_has_translatable_field($entity_type, $bundle) {
  *
  * @return bool
  *   Return TRUE if this node type set in nodes method translate.
+ *
+ * @todo Should be part of Settings class
  */
 function smartling_nodes_method($type) {
   $nodes_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_NODES_METHOD_KEY;
@@ -119,6 +121,8 @@ function smartling_nodes_method($type) {
  *
  * @return bool
  *   Return TRUE if this node type set in fields method translate.
+ *
+ * @todo Should be part of Settings class
  */
 function smartling_fields_method($type) {
   $fields_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_FIELDS_METHOD_KEY;
@@ -370,6 +374,9 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
 }
 
 /**
+ * @todo Add new 'Debug' option to smartling settings and save files to disk only if debugging is enabled
+ * Otherwise skip saving. Other function must not require a phisical file on a disk
+ *
  * Save xml document.
  *
  * @param object $xml_doc

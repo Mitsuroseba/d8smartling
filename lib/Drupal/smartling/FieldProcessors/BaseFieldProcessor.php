@@ -21,7 +21,9 @@ abstract class BaseFieldProcessor {
   protected $fieldName;
 
   protected $smartling_entity;
-
+  
+  // @todo Can we get entity_type from entity? 
+  // @todo We can get target_language from smartling_data
   public function __construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
@@ -116,6 +118,8 @@ abstract class BaseFieldProcessor {
     return $fieldData;
   }
 
+  // @todo This is processor for single field. And it already knows its name and has reference to entity
+  // Pls remove both parameters
   public function cleanBeforeClone($field_name, $entity) {
     return NULL;
   }

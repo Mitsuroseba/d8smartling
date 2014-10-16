@@ -26,7 +26,6 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
   }
 
 
-  //@todo fetch format from xml as well.
   /**
    * {@inheritdoc}
    */
@@ -47,6 +46,8 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
 
       $data[$i]['value'] = $this->processXMLContent((string) $bodyField->nodeValue);
       $data[$i]['summary'] = $this->processXMLContent((string) $summaryField->nodeValue);
+      // @todo Copy fromat from the original field while xml file doesn't contain format
+      // Otherwise you will get bug imediatelly with FullHtml fields
     }
 
     return $data;
