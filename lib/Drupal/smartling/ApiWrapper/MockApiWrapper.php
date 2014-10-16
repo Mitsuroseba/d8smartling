@@ -86,7 +86,7 @@ class MockApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function downloadFile($entity, $link_to_entity) {
+  public function downloadFile($entity) {
     if (!empty($this->filesForDownload)) {
       $file_path = array_shift($this->filesForDownload);
 
@@ -101,7 +101,7 @@ class MockApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function getStatus($entity, $link_to_entity) {
+  public function getStatus($entity) {
     if (!empty($this->progresses)) {
       $progress = array_shift($this->progresses);
 
@@ -141,7 +141,7 @@ class MockApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function uploadFile($file_path, $file_name_unic, $locales) {
+  public function uploadFile($file_path, $file_name_unic, $file_type, $locales) {
     if (!empty($this->filesForUpload)) {
       $file_path = array_shift($this->filesForUpload);
 

@@ -309,7 +309,18 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       if ($d_locale !== 0) {
         $langs[] = $d_locale;
       }
+
       $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $form['#entity']);
+
+
+      $log->setMessage('Smartling start force download translated file for node id - @nid, locale - @locales')
+        ->setVariables(array(
+          '@nid' => $entity_wrapper->getIdentifier(),
+          '@locales' => implode('; ', $langs),
+        ))
+        // @todo remove hardcoded link. We have function linkToContent()
+        ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
+        ->execute();
 
       $entity_data = smartling_entity_load_by_conditions(array(
         'rid' => $entity_wrapper->getIdentifier(),
@@ -323,7 +334,7 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
             '@nid' => $entity_wrapper->getIdentifier(),
             '@language' => $d_locale,
           ))
-          // @todo remove hardcoded link.
+          // @todo remove hardcoded link. We have function linkToContent()
           ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
           ->execute();
         drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
@@ -747,7 +758,6 @@ function smartling_entity_load($entities, $type) {
 
         foreach ($sm_settings->{$sm_settings->getByBundleMethodName($type)}($bundle) as $field_name) {
 
-          if (smartling_field_is_translatable_by_field_name($field_name) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
           if (smartling_field_is_translatable_by_field_name($field_name, $type) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
             // If field have und value and don't have need value.
             $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];

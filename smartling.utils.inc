@@ -880,6 +880,7 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
  *   Entity type.
  *
  * @deprecated
+ * @todo Looks like we have similar function in GenericEntityProcessor.linkToContent()
  *
  * @return string
  *   Return link to entity.

@@ -166,7 +166,7 @@ class GenericEntityProcessor {
    */
   public function getProgressStatus() {
     if (!empty($this->entity->file_name)) {
-      $result = $this->smartlingAPI->getStatus($this->entity, $this->linkToContent());
+      $result = $this->smartlingAPI->getStatus($this->entity);
 
       if (!empty($result)) {
         return $result['entity_data']->progress;
@@ -258,7 +258,7 @@ class GenericEntityProcessor {
    * Downloads translation data from Smartling server.
    */
   public function downloadTranslation() {
-    $download_result = $this->smartlingAPI->downloadFile($this->entity, $this->linkToContent());
+    $download_result = $this->smartlingAPI->downloadFile($this->entity);
     // This is a download result.
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);

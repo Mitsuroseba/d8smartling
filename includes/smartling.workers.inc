@@ -73,5 +73,11 @@ function smartling_queue_send_to_translate_process($eid) {
         }
       }
     }
+    // @todo We lost this functionality in OOP branch, but it was introduced in 2.x. Must be restored
+    // else {
+    //   foreach ($entity_data_array as $entity) {
+    //     smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
+    //   }
+    // }
   }
 }
