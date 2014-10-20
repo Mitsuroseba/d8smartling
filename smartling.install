@@ -119,11 +119,14 @@ function smartling_enable() {
     variable_set('entity_translation_settings_user__user', $entity_translation_settings);
 
     // Entity translation types and other settings.
-    $entity_translation_entity_types = array(
-      'node' => 'node',
-      'taxonomy_term' => 'taxonomy_term',
-      'comment' => 'comment',
-      'user' => 'user',
+    $entity_translation_entity_types = variable_get('entity_translation_entity_types', array());
+    $entity_translation_entity_types = array_merge($entity_translation_entity_types, 
+      array(
+        'node' => 'node',
+        'taxonomy_term' => 'taxonomy_term',
+        'comment' => 'comment',
+        'user' => 'user',
+      )
     );
 
     variable_set('entity_translation_entity_types', $entity_translation_entity_types);
