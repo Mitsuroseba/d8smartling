@@ -68,10 +68,7 @@ function smartling_create_comments_to_nodes() {
   field_update_field($field);
 
   $nodes = node_load_multiple(array(), array(
-    'type' => array(
-      'article',
-      'travel',
-    ),
+    'type' => 'travel', //array('article', 'travel',),
   ));
   foreach ($nodes as $node) {
     $load_node = node_load($node->vid);

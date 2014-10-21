@@ -1,0 +1,33 @@
+<?php
+
+function smartling_field_collection_content_demo_enable() {
+  global $user;
+  $node = new stdClass();
+  $node->title = "Field collection test";
+  $node->type = "collection_test";
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = 'en'; // Or e.g. 'en' if locale is enabled
+  $node->uid = 1;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; // 0 = comments disabled, 1 = read only, 2 = read/write
+  // Term reference (taxonomy) field
+  $node->field_body[$node->language][]['value'] = 'Hello world';
+
+  $node = node_submit($node); // Prepare node for saving
+  node_save($node);
+
+
+
+
+
+//  $fc_item = entity_create('field_collection_item', array('field_name' => 'field_collection1'));
+//  $fc_item->setHostEntity('node', $node);
+//  $fc_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
+//  $fc_wrapper->field_text1->set('my_text_file.txt');
+//  $txt_file_content = "A whole bunch of content.";
+//  $fc_wrapper->field_some2->set(array($txt_file_content));
+//  $fc_wrapper->save(TRUE);
+//  node_save($node);
+
+}
