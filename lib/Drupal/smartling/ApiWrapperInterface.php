@@ -65,6 +65,6 @@ interface ApiWrapperInterface {
    * @return string
    *   SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE | SMARTLING_STATUS_EVENT_FAILED_UPLOAD
    */
-  public function uploadFile($file_path, $file_name_unic, $file_type, $locales);
+  public function uploadFile($file_path, $file_name_unic, $file_type, array $locales);
 
 }
