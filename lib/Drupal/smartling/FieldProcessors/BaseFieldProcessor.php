@@ -120,7 +120,7 @@ abstract class BaseFieldProcessor {
 
   // @todo This is processor for single field. And it already knows its name and has reference to entity
   // Pls remove both parameters
-  public function cleanBeforeClone($field_name, $entity) {
+  public function cleanBeforeClone($entity) {
     return NULL;
   }
 }

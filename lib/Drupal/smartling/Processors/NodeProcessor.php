@@ -47,16 +47,16 @@ class NodeProcessor extends GenericEntityProcessor {
         foreach ($this->getTranslatableFields() as $field_name) {
           if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
             $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
-            $field_values[$field_name] = $fieldProcessor->cleanBeforeClone($field_name, $node);
+            $val = $fieldProcessor->cleanBeforeClone($node);
+            if (!empty($val)) {
+              $field_values[$field_name] = $val;
+            }
           }
         }
 
-//        $collect = $node->field_collection1;
-//        unset($node->field_collection1);
-
         node_object_prepare($node);
         node_save($node);
-//        $node->field_collection1 = $collect;
+
         foreach ($this->getTranslatableFields() as $field_name) {
           if (!empty($field_values[$field_name])) {
             $node->{$field_name} = $field_values[$field_name];

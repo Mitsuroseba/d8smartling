@@ -103,11 +103,11 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
 
   public function testCleanBeforeCloneStandard() {
     $entity = new stdClass();
-    $entity->field1 = 'asd';
+    $entity->field_collection1 = 'asd';
     $entity->field2 = 'qwe';
 
     $obj = new MockedFieldCollectionFieldProcessor();
-    $test_res = $obj->cleanBeforeClone('field1', $entity);
+    $test_res = $obj->cleanBeforeClone($entity);
 
     $this->assertEqual('asd', $test_res);
   }
@@ -117,7 +117,7 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
     $entity->field2 = 'qwe';
 
     $obj = new MockedFieldCollectionFieldProcessor();
-    $test_res = $obj->cleanBeforeClone('field1', $entity);
+    $test_res = $obj->cleanBeforeClone($entity);
 
     $this->assertEqual('', $test_res);
   }

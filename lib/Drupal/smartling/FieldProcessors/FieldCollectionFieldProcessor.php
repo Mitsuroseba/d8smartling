@@ -156,8 +156,9 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $wrapper->save();
   }
 
-  public function cleanBeforeClone($field_name, $entity) {
+  public function cleanBeforeClone($entity) {
     $val = '';
+    $field_name = $this->fieldName;
     if (isset($entity->{$field_name})) {
       $val = $entity->{$field_name};
       unset($entity->{$field_name});
