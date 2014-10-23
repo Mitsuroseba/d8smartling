@@ -19,6 +19,7 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
         $data[$delta]['body'] = $value['value'];
         $data[$delta]['summary'] = $value['summary'];
+        $data[$delta]['format'] = $value['format'];
       }
     }
 
@@ -39,6 +40,7 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     }
 
     $quantity = $quantity_value->getAttribute('quantity');
+    $format = $quantity_value->getAttribute('format');
 
     for ($i = 0; $i < $quantity; $i++) {
       $bodyField = $xpath->query('//string[@id="' . $this->fieldName . '-body-' . $i . '"][1]')->item(0);
@@ -46,6 +48,7 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
 
       $data[$i]['value'] = $this->processXMLContent((string) $bodyField->nodeValue);
       $data[$i]['summary'] = $this->processXMLContent((string) $summaryField->nodeValue);
+      $data[$i]['format'] = $format;
       // @todo Copy fromat from the original field while xml file doesn't contain format
       // Otherwise you will get bug imediatelly with FullHtml fields
     }

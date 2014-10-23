@@ -543,6 +543,14 @@ function smartling_build_localize($dom, $title = '', array $strings = array(), $
           $string->appendChild($string_attr);
           $localize->appendChild($string);
 
+          // Set format.
+          if (isset($value['format'])) {
+            $string_attr = $dom->createAttribute('format');
+            $string_attr->value = $value['format'];
+            $string->appendChild($string_attr);
+            $localize->appendChild($string);
+          }
+
           $string = $dom->createElement('string');
           $string_val = $dom->createTextNode($value['summary']);
           $string_attr = $dom->createAttribute('id');
