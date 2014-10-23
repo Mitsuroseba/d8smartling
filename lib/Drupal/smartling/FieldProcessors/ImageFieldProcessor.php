@@ -59,4 +59,41 @@ class ImageFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  public function putDataToXML($xml, $localize, $data) {
+    $quantity = count($data);
+    foreach ($data as $key => $value) {
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value['alt-img']);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-alt-img-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      // Set image fid.
+      $string_attr = $xml->createAttribute('fid');
+      $string_attr->value = $value['fid-img'];
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value['title-img']);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-title-img-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      // Set image fid.
+      $string_attr = $xml->createAttribute('fid');
+      $string_attr->value = $value['fid-img'];
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+    }
+  }
+
 }

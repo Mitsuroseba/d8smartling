@@ -55,4 +55,42 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
 
     return $data;
   }
+
+  public function putDataToXML($xml, $localize, $data) {
+    // Field body-summary.
+    $quantity = count($data);
+    foreach ($data as $key => $value) {
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value['body']);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-body-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+
+      // Set format.
+      if (isset($value['format'])) {
+        $string_attr = $xml->createAttribute('format');
+        $string_attr->value = $value['format'];
+        $string->appendChild($string_attr);
+        $localize->appendChild($string);
+      }
+
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value['summary']);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-summary-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+    }
+  }
 }

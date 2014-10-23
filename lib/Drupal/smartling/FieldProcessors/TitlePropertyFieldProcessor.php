@@ -37,4 +37,21 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  public function putDataToXML($xml, $localize, $data) {
+    $quantity = count($data);
+    foreach ($data as $key => $value) {
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+    }
+  }
+
 }

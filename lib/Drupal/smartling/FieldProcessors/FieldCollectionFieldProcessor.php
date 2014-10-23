@@ -165,6 +165,44 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     }
     return $val;
   }
+
+  public function putDataToXML($xml, $localize, $data) {
+    $collection = $xml->createElement('field_collection');
+    $attr = $xml->createAttribute('id');
+    $attr->value = $this->fieldName;
+    $collection->appendChild($attr);
+
+    foreach($data as $eid => $field_collection) {
+      foreach ($field_collection as $key => $value) {
+        $quantity = count($value);
+        foreach ($value as $item_key => $item) {
+          $string = $xml->createElement('string');
+
+          $string_attr = $xml->createAttribute('eid');
+          $string_attr->value = $eid;
+          $string->appendChild($string_attr);
+
+          $string_attr = $xml->createAttribute('id');
+          $string_attr->value = $key;
+          $string->appendChild($string_attr);
+
+          $string_attr = $xml->createAttribute('delta');
+          $string_attr->value = $item_key;
+          $string->appendChild($string_attr);
+
+          $string_val = $xml->createTextNode($item);
+          $string->appendChild($string_val);
+
+          $string_attr = $xml->createAttribute('quantity');
+          $string_attr->value = $quantity;
+          $string->appendChild($string_attr);
+
+          $collection->appendChild($string);
+          $localize->appendChild($collection);
+        }
+      }
+    }
+  }
 }
 
 

@@ -97,6 +97,24 @@ abstract class BaseFieldProcessor {
    */
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
+  public function putDataToXML($xml, $localize, $data) {
+    $quantity = count($data);
+    $string = $xml->createElement('string');
+    foreach ($data as $key => $value) {
+      foreach ($value as $item_key => $item) {
+        $string_val = $xml->createTextNode($item);
+        $string_attr = $xml->createAttribute('id');
+        $string_attr->value = $this->fieldName . '-' . $item_key . '-' . $key;
+        $string->appendChild($string_attr);
+        $string->appendChild($string_val);
+        $string_attr = $xml->createAttribute('quantity');
+        $string_attr->value = $quantity;
+        $string->appendChild($string_attr);
+        $localize->appendChild($string);
+      }
+    }
+  }
+
   public function setDrupalContentFromXML($xpath) {
     $this->entity->{$this->fieldName}[$this->targetLanguage] = $this->fetchDataFromXML($xpath);
   }

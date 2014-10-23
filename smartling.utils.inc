@@ -455,19 +455,24 @@ function smartling_get_entity_processor($smartling_entity) {
  * @return string|bool
  *   Return filename or FALSE.
  */
-function smartling_build_xml($file_name, $content_to_translate, $rid) {
+function smartling_build_xml($processor, $rid) {
   $xml = FALSE;
 
-  if (!empty($content_to_translate)) {
-    $xml = new DOMDocument('1.0', 'UTF-8');
 
-    $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string '));
-    $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string, html : data/localize/field_collection/string '));
-    $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
 
-    $data = $xml->createElement('data');
+  $xml = new DOMDocument('1.0', 'UTF-8');
 
-    $data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
+  $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string '));
+  $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string, html : data/localize/field_collection/string '));
+  $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
+
+  $data = $xml->createElement('data');
+
+  $localize = $processor->exportContentToTranslation($xml, $rid);
+
+  //$data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
+  $data->appendChild($localize);
+
 // @todo Verify how many child has $data. If zero, then write to log and stop upload
 // This logic was lost in OOP branch
 //  {
@@ -483,8 +488,8 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
 //  }
 
 
-    $xml->appendChild($data);
-  }
+  $xml->appendChild($data);
+
 
   return $xml;
 }
@@ -511,171 +516,33 @@ function smartling_build_xml($file_name, $content_to_translate, $rid) {
  *
  * @todo rewrite this bunch of hardcode.
  */
-function smartling_build_localize($dom, $title = '', array $strings = array(), $index = '', $no = FALSE) {
-  $element = ($no !== FALSE) ? 'nolocalize' . $index : 'localize' . $index;
-
-  $localize = $dom->createElement($element);
-  $localize_attr = $dom->createAttribute('title');
-  $localize_attr->value = $title;
-  $localize->appendChild($localize_attr);
-
-  foreach ($strings as $field_name => $field_value) {
-    // Fix for property field to make them works as other fields structures.
-    if (is_string($field_value)) {
-      $field_value = array($field_value);
-    }
-
-    if (is_array($field_value) && !empty($field_value)) {
-      // Fields body-summary or image or text.
-      if (!empty($field_value[0]['body'])) {
-        // Field body-summary.
-        $quantity = count($field_value);
-        foreach ($field_value as $key => $value) {
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($value['body']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-body-' . $key;
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set quantity.
-          $string_attr = $dom->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
-          $localize->appendChild($string);
-
-          // Set format.
-          if (isset($value['format'])) {
-            $string_attr = $dom->createAttribute('format');
-            $string_attr->value = $value['format'];
-            $string->appendChild($string_attr);
-            $localize->appendChild($string);
-          }
-
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($value['summary']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-summary-' . $key;
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set quantity.
-          $string_attr = $dom->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
-          $localize->appendChild($string);
-        }
-      }
-      elseif (!empty($field_value[0]) && isset($field_value[0]['alt-img'])) {
-        // Field image.
-        $quantity = count($field_value);
-        foreach ($field_value as $key => $value) {
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($value['alt-img']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-alt-img-' . $key;
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set quantity.
-          $string_attr = $dom->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
-          // Set image fid.
-          $string_attr = $dom->createAttribute('fid');
-          $string_attr->value = $value['fid-img'];
-          $string->appendChild($string_attr);
-          $localize->appendChild($string);
-
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($value['title-img']);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-title-img-' . $key;
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set quantity.
-          $string_attr = $dom->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
-          // Set image fid.
-          $string_attr = $dom->createAttribute('fid');
-          $string_attr->value = $value['fid-img'];
-          $string->appendChild($string_attr);
-          $localize->appendChild($string);
-        }
-      }
-      elseif (is_array(current($field_value)) && is_array(current(current($field_value)))) {
-        $collection = $dom->createElement('field_collection');
-        $attr = $dom->createAttribute('id');
-        $attr->value = $field_name;
-        $collection->appendChild($attr);
-
-        foreach($field_value as $eid => $field_collection) {
-          foreach ($field_collection as $key => $value) {
-            $quantity = count($value);
-            foreach ($value as $item_key => $item) {
-              $string = $dom->createElement('string');
-
-              $string_attr = $dom->createAttribute('eid');
-              $string_attr->value = $eid;
-              $string->appendChild($string_attr);
-
-              $string_attr = $dom->createAttribute('id');
-              $string_attr->value = $key;
-              $string->appendChild($string_attr);
-
-              $string_attr = $dom->createAttribute('delta');
-              $string_attr->value = $item_key;
-              $string->appendChild($string_attr);
-
-              $string_val = $dom->createTextNode($item);
-              $string->appendChild($string_val);
-
-              $string_attr = $dom->createAttribute('quantity');
-              $string_attr->value = $quantity;
-              $string->appendChild($string_attr);
-
-              $collection->appendChild($string);
-            }
-          }
-        }
-        $localize->appendChild($collection);
-      }
-      elseif (is_array(current($field_value))) {
-        $quantity = count($field_value);
-        $string = $dom->createElement('string');
-        foreach ($field_value as $key => $value) {
-          foreach ($value as $item_key => $item) {
-            $string_val = $dom->createTextNode($item);
-            $string_attr = $dom->createAttribute('id');
-            $string_attr->value = $field_name . '-' . $item_key . '-' . $key;
-            $string->appendChild($string_attr);
-            $string->appendChild($string_val);
-            $string_attr = $dom->createAttribute('quantity');
-            $string_attr->value = $quantity;
-            $string->appendChild($string_attr);
-          }
-        }
-      }
-      else {
-        // Field text.
-        $quantity = count($field_value);
-        foreach ($field_value as $key => $value) {
-          $string = $dom->createElement('string');
-          $string_val = $dom->createTextNode($value);
-          $string_attr = $dom->createAttribute('id');
-          $string_attr->value = $field_name . '-' . $key;
-          $string->appendChild($string_attr);
-          $string->appendChild($string_val);
-          // Set quantity.
-          $string_attr = $dom->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
-          $localize->appendChild($string);
-        }
-      }
-    }
-  }
-
-  return $localize;
-}
+//function smartling_build_localize($dom, $title = '', array $strings = array(), $index = '', $no = FALSE) {
+//  $element = ($no !== FALSE) ? 'nolocalize' . $index : 'localize' . $index;
+//
+//  $localize = $dom->createElement($element);
+//  $localize_attr = $dom->createAttribute('title');
+//  $localize_attr->value = $title;
+//  $localize->appendChild($localize_attr);
+//
+//  foreach ($strings as $field_name => $field_value) {
+//    // Fix for property field to make them works as other fields structures.
+//    if (is_string($field_value)) {
+//      $field_value = array($field_value);
+//    }
+//
+//    if (is_array($field_value) && !empty($field_value)) {
+//
+//      if (!empty($field_value[0]) && isset($field_value[0]['alt-img'])) {
+//        // Field image.
+//
+//
+//      }
+//
+//    }
+//  }
+//
+//  return $localize;
+//}
 
 /**
  * Download translate for entity.

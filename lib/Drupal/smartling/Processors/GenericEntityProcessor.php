@@ -382,18 +382,22 @@ class GenericEntityProcessor {
     $this->updateDrupalTranslation();
   }
 
-  public function exportContentToTranslation() {
-    $entity_current_translatable_content = array();
+  public function exportContentToTranslation($xml, $rid) {
+    $localize = $xml->createElement('localize');
+    $localize_attr = $xml->createAttribute('title');
+    $localize_attr->value = $rid;
+    $localize->appendChild($localize_attr);
 
     foreach ($this->getTranslatableFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
       $this->fields[$field_name] = $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
       if ($fieldProcessor) {
-        $entity_current_translatable_content[$field_name] = $fieldProcessor->getSmartlingContent();
+        $data = $fieldProcessor->getSmartlingContent();
+        $fieldProcessor->putDataToXML($xml, $localize, $data);
       }
     }
 
-    return $entity_current_translatable_content;
+    return $localize;
   }
 
   /**
