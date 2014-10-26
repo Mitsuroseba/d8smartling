@@ -122,7 +122,7 @@ class MockApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function testConnection($locales) {
+  public function testConnection(array $locales) {
     $result = array();
 
     if (!empty($this->connectionTests)) {
@@ -141,7 +141,7 @@ class MockApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function uploadFile($file_path, $file_name_unic, $file_type, $locales) {
+  public function uploadFile($file_path, $file_name_unic, $file_type, array $locales) {
     if (!empty($this->filesForUpload)) {
       $file_path = array_shift($this->filesForUpload);
 

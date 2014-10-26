@@ -261,7 +261,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
   /**
    * {@inheritdoc}
    */
-  public function testConnection($locales) {
+  public function testConnection(array $locales) {
     $result = array();
 
     foreach ($locales as $key => $locale) {

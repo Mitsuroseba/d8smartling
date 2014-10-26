@@ -48,7 +48,7 @@ interface ApiWrapperInterface {
    * @return array
    *   If connections were successful for each locale.
    */
-  public function testConnection($locales);
+  public function testConnection(array $locales);
 
   /**
    * Upload local file to Smartling for translation.
