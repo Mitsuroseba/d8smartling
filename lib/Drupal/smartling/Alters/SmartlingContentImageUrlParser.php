@@ -13,7 +13,7 @@ use Drupal\smartling\Alters\SmartlingContentBaseParser;
  * SmartlingImageUrlParser.
  */
 class SmartlingContentImageUrlParser extends SmartlingContentBaseParser {
-  protected $regexp = '~\s+(href|src|action|longdesc)="([^"]+)~i';
+  protected $regexp = '~\s+(href|src|action|longdesc)=[\'"]([^\'"]+)~i';
 
   /**
    * Wrapper method for retrieving global params.

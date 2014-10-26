@@ -33,12 +33,12 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
   protected $api;
 
   /**
-   * This functions convert locale format. Example: 'en' => 'en-US'.
+   * This function converts Drupal locale to Smartling locale.
    *
    * @param string $locale
    *   Locale string in some format: 'en' or 'en-US'.
    * @param bool $reverse
-   *   If TRUE, convert format: 'en-US' => 'en'. FALSE by default.
+   *   If TRUE, converts Smartling locale to Drupal. FALSE by default.
    *
    * @return string|null
    *   Return locale or NULL.
@@ -50,6 +50,12 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
         return $locales[$locale];
       }
       else {
+        $this->logger->setMessage('Cannot convert drupal locale @locale to smartling locale')
+          ->setVariables(array(
+            '@locale' => $locale))
+          ->setConsiderLog(FALSE)
+          ->setSeverity(WATCHDOG_ERROR)
+          ->execute();        
         return NULL;
       }
     }
@@ -59,6 +65,13 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           return $key;
         }
       }
+      $this->logger->setMessage('Cannot convert smartling locale @locale to drupal locale')
+        ->setVariables(array(
+          '@locale' => $locale))
+        ->setConsiderLog(FALSE)
+        ->setSeverity(WATCHDOG_ERROR)
+        ->execute();        
+      return NULL;
     }
   }
 
@@ -125,11 +138,13 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       Project Id: @project_id <br/>
       Action: download <br/>
       URI: @file_uri <br/>
-      Locale: @s_locale <br/>
+      Drupal Locale: @d_locale <br/>
+      Smartling Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message')
         ->setVariables(array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
+          '@d_locale' => $d_locale,
           '@s_locale' => $s_locale,
           '@code' => $code,
           '@message' => implode(' || ', $messages),
@@ -198,7 +213,8 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       Project Id: @project_id <br/>
       Action: status <br/>
       URI: @file_uri <br/>
-      Locale: @d_locale <br/>
+      Drupal Locale: @d_locale <br/>
+      Samrtling Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message')
         ->setVariables(array(
           '@entity_type' => $smartling_entity->entity_type,
@@ -206,6 +222,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@d_locale' => $smartling_entity->target_language,
+          '@s_locale' => $s_locale,
           '@code' => $code,
           '@message' => implode(' || ', $messages),
         ))
@@ -284,11 +301,11 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $upload_params = new \FileUploadParameterBuilder();
     $upload_params->setFileUri($file_name_unic)
       ->setFileType($file_type)
-      ->setApproved(0);
+      ->setApproved(0)
+      ->setOverwriteApprovedLocales(0);
 
     if ($this->settingsHandler->getAutoAuthorizeContent()) {
-      $upload_params->setLocalesToApprove($locales_to_approve)
-        ->setOverwriteApprovedLocales(0);
+      $upload_params->setLocalesToApprove($locales_to_approve);
     }
     if ($this->settingsHandler->getCallbackUrlUse()) {
       $upload_params->setCallbackUrl($this->settingsHandler->getCallbackUrl());
@@ -303,7 +320,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       $this->logger->setMessage('Smartling uploaded @file_name for locales: @locales')
         ->setVariables(array(
           '@file_name' => $file_name_unic,
-          '@locales' => implode('; ', $locales_to_approve),
+          '@locales' => implode('; ', $locales),
         ))
         ->setLink(l(t('View file'), $file_path))
         ->execute();
@@ -326,11 +343,15 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
+          Drupal Locale: @d_locale <br/>
+          Samrtling Locale: @s_locale <br/>
           Error: response code -> @code and message -> @message
           Upload params: @upload_params')
         ->setVariables(array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_path,
+          '@d_locale' => implode('; ', $locales),
+          '@s_locale' => implode('; ', $locales_to_approve),
           '@code' => $code,
           '@message' => implode(' || ', $messages),
           '@upload_params' => implode(' | ', $upload_params),

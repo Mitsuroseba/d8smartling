@@ -1320,17 +1320,6 @@ function smartling_push_callback() {
 }
 
 /**
- * Implements hook_smartling_data_processor_info().
- */
-function smartling_smartling_data_processor_info() {
-  return array(
-    'SmartlingContentImageUrlParser' => array('SmartlingContentImageUrlProcessor'),
-    'SmartlingContentMediaParser' => array('SmartlingContentMediaProcessor'),
-    'SmartlingContentMediaEncodedParser' => array('SmartlingContentMediaEncodedProcessor'),
-  );
-}
-
-/**
  * Returns modified content after it was processed by Smartling alter functions.
  *
  * Internally function retrieves a string of content with some
