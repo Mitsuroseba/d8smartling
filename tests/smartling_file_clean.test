@@ -8,7 +8,7 @@
 /**
  * SmartlingFileCleanTest.
  */
-class SmartlingFileCleanTest extends DrupalWebTestCase {
+class SmartlingFileCleanTest extends DrupalUnitTestCase {
 
   /**
    * Test info.
@@ -20,7 +20,7 @@ class SmartlingFileCleanTest extends DrupalWebTestCase {
     return array(
       'name' => 'Smartling clean file',
       'description' => 'Test Smartling file cleaning to avoid path traversal',
-      'group' => 'Smartling',
+      'group' => 'Smartling UnitTests',
     );
   }
 
