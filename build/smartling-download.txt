@@ -69,11 +69,11 @@ $GIT checkout $TAG
 #[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
 logit info "Done"
 
-logit info "Download API SDK source from repo"
-$GIT clone https://github.com/Smartling/api-sdk-php.git api
-RESULT=$?
-[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
-logit info "Done"
+#logit info "Download API SDK source from repo"
+#$GIT clone https://github.com/Smartling/api-sdk-php.git api
+#RESULT=$?
+#[ $RESULT -ne 0 ] && { logit err "Git error $RESULT. Exiting"; exit $RESULT; }
+#logit info "Done"
 
 logit info "Archiving"
 rm -Rf api/.git/
