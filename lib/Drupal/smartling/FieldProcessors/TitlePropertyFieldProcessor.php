@@ -16,6 +16,9 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     return array(entity_label($this->entityType, $this->entity));
   }
 
+  public function setDrupalContentFromXML($xpath) {
+    $this->entity->title = $this->fetchDataFromXML($xpath);
+  }
 
   public function fetchDataFromXML(\DomXpath $xpath) {
     $data = array();
@@ -31,7 +34,8 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     for ($i = 0; $i < $quantity; $i++) {
       $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
         ->item(0);
-      $data[$this->sourceLanguage][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
+      $data = $this->processXMLContent((string) $field->nodeValue);
+      //$data[$this->sourceLanguage][$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
     }
 
     return $data;
