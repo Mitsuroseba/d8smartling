@@ -310,10 +310,10 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $form['#entity']);
 
 
-      $log->setMessage('Smartling start force download translated file for node id - @nid, locale - @locales')
+      $log->setMessage('Smartling start force download translated file for node id - @nid, locale - @locale')
         ->setVariables(array(
           '@nid' => $entity_wrapper->getIdentifier(),
-          '@locales' => $d_locale,
+          '@locale' => $d_locale,
         ))
         // @todo remove hardcoded link. We have function linkToContent()
         ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
@@ -326,10 +326,10 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       ));
 
       if (!$entity_data) {
-        $log->setMessage('Smartling FAIL force download translated file for node id - @nid, language - @language')
+        $log->setMessage('Smartling FAIL force download translated file for node id - @nid, locale - @locale')
           ->setVariables(array(
             '@nid' => $entity_wrapper->getIdentifier(),
-            '@language' => $d_locale,
+            '@locale' => $d_locale,
           ))
           // @todo remove hardcoded link. We have function linkToContent()
           ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
