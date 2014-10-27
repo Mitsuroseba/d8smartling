@@ -36,7 +36,7 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
 
   $form['workflow']['language_content_type']['#description'] .= ' ' . $details;
   $form['#submit'][] = 'smartling_multilanguage_support_node_type_submit';
-  $form['#validate'][] = 'smartling_multilanguage_support_node_type_validate';
+  //$form['#validate'][] = 'smartling_multilanguage_support_node_type_validate';
 }
 
 /**
@@ -47,14 +47,14 @@ function smartling_form_node_type_form_alter(&$form, &$form_state) {
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_multilanguage_support_node_type_validate(array &$form, array &$form_state) {
-  if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {
-    if (!smartling_is_configured()) {
-      drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
-      form_set_error('workflow');
-    }
-  }
-}
+//function smartling_multilanguage_support_node_type_validate(array &$form, array &$form_state) {
+//  if ($form_state['values']['language_content_type'] == SMARTLING_FIELDS_METHOD_KEY || $form_state['values']['language_content_type'] == SMARTLING_NODES_METHOD_KEY) {
+//    if (!smartling_is_configured()) {
+//      drupal_set_message(t('Please follow the page <a href="@url">"Smartling settings"</a> to setup Smartling configuration.', array('@url' => url('admin/config/regional/smartling'))), 'warning');
+//      form_set_error('workflow');
+//    }
+//  }
+//}
 
 /**
  * Smartling multilingual support form for node types - Form Submit.
