@@ -196,19 +196,19 @@ function smartling_permission() {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state) {
-
-  $form['enabled']['entity_translation_entity_types']['node']['#disabled'] = TRUE;
-  $form['enabled']['entity_translation_entity_types']['taxonomy_term']['#disabled'] = TRUE;
-  $form['enabled']['entity_translation_entity_types']['comment']['#disabled'] = TRUE;
-  $form['enabled']['entity_translation_entity_types']['user']['#disabled'] = TRUE;
-
-  $form['smartling'] = array(
-    '#type' => 'item',
-    '#title' => t('Some settings should be disabled when using Smartling.'),
-    '#weight' => -100,
-  );
-}
+//function smartling_form_entity_translation_admin_form_alter(&$form, &$form_state) {
+//
+//  $form['enabled']['entity_translation_entity_types']['node']['#disabled'] = TRUE;
+//  $form['enabled']['entity_translation_entity_types']['taxonomy_term']['#disabled'] = TRUE;
+//  $form['enabled']['entity_translation_entity_types']['comment']['#disabled'] = TRUE;
+//  $form['enabled']['entity_translation_entity_types']['user']['#disabled'] = TRUE;
+//
+//  $form['smartling'] = array(
+//    '#type' => 'item',
+//    '#title' => t('Some settings should be disabled when using Smartling.'),
+//    '#weight' => -100,
+//  );
+//}
 
 /**
  * Implements hook_form_FORM_ID_alter().
