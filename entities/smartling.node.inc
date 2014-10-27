@@ -336,15 +336,17 @@ function smartling_get_node_settings_form_submit(array $form, array &$form_state
   $smartling_queue->createQueue();
 
   /* @var $entity_wrapper \EntityDrupalWrapper */
-  $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $node);
+  $entity_type = $form['#entity_type'];
+  $entity_wrapper = entity_metadata_wrapper($entity_type, $node);
 
   foreach ($form_state['values']['target'] as $target_language) {
     if ($target_language) {
-      $smartling_entity = smartling_entity_load_by_conditions(array(
+      $conditions = array(
         'rid' => $entity_wrapper->getIdentifier(),
-        'entity_type' => $entity_wrapper->getBundle(),
+        'entity_type' => $entity_type, //$entity_wrapper->getBundle(),
         'target_language' => $target_language,
-      ));
+      );
+      $smartling_entity = smartling_entity_load_by_conditions($conditions);
 
       if (!$smartling_entity) {
         $smartling_entity = smartling_create_from_entity($node, $entity_wrapper->type(), $entity_wrapper->language->value(), $target_language);
