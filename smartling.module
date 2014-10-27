@@ -302,12 +302,9 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
   $log = smartling_log_get_handler();
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
-    global $user;
-    $langs = array();
-
     foreach ($form_state['values']['target'] as $d_locale) {
-      if ($d_locale !== 0) {
-        $langs[] = $d_locale;
+      if ($d_locale === 0) {
+        continue;
       }
 
       $entity_wrapper = entity_metadata_wrapper($form['#entity_type'], $form['#entity']);
@@ -316,7 +313,7 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       $log->setMessage('Smartling start force download translated file for node id - @nid, locale - @locales')
         ->setVariables(array(
           '@nid' => $entity_wrapper->getIdentifier(),
-          '@locales' => implode('; ', $langs),
+          '@locales' => $d_locale,
         ))
         // @todo remove hardcoded link. We have function linkToContent()
         ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
