@@ -580,7 +580,7 @@ function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL)
         $save = smartling_save_xml($xml, $entity_data, $translated_file_name, TRUE);
 
         // If result is saved.
-        if (is_object($save)) {
+        if ($save) {
           smartling_update_translated_fields($entity_data);
           $entity_data->progress = $progress;
           smartling_entity_data_save($entity_data);

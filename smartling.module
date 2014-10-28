@@ -156,13 +156,16 @@ function smartling_download_translate_simple_callback() {
  *
  * @param int $rid
  *   Related id.
- * @param string $d_locale
- *   Locale in drupal format (ru, en).
- * @param object $entity_data
- *   Smartling transaction entity.
+ * @param int $eid
+ *   smartling_entity ID.
  */
-function smartling_download_translate_form_submission_form($rid, $d_locale = '', $entity_data = NULL) {
-  smartling_download_translate($rid, $d_locale, $entity_data);
+function smartling_download_translate_form_submission_form($rid, $eid = 0) {
+  if (!smartling_is_configured() || empty($eid)) {
+    return;
+  }
+
+  smartling_queue_download_update_translated_item_process($eid);
+
   // TODO : Make a wrapper for unset + drupal_goto
   unset($_GET['destination']);
   drupal_goto('admin/content/smartling/report-in-progress');
@@ -1001,9 +1004,10 @@ function smartling_do_translate_action($entity, array $context) {
               smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             }
           }
+          $smartling_queue->createItem($entity_data->eid);
         }
 
-        $smartling_queue->createItem($entity_data->eid);
+//        $smartling_queue->createItem($entity_data->eid);
       }
       else {
         drupal_set_message(t('Not support type or Smartling configuration problem for content type - @type.', array('@type' => $entity->type)), 'warning');
