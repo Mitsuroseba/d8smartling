@@ -11,6 +11,7 @@ function smartling_manual_management_form($form, $form_state) {
       'comment' => 'Comment',
       'taxonomy_term' => 'Taxonomy term',
       'user' => 'User',
+      'fieldable_panels_pane' => 'Fieldable panels pane',
     ),
     '#required' => TRUE,
     '#default_value' => 'node',
