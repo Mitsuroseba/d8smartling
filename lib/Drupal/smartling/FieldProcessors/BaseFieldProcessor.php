@@ -115,8 +115,8 @@ abstract class BaseFieldProcessor {
     }
   }
 
-  public function setDrupalContentFromXML($xpath) {
-    $this->entity->{$this->fieldName}[$this->targetLanguage] = $this->fetchDataFromXML($xpath);
+  public function setDrupalContentFromXML($fieldValue) {
+    $this->entity->{$this->fieldName}[$this->targetLanguage] = $fieldValue;
   }
 
   /**

@@ -120,9 +120,9 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return $this->clone_fc_items($this->entityType, $this->entity, $this->fieldName);
   }
 
-  public function setDrupalContentFromXML($xpath) {
+  public function setDrupalContentFromXML($fieldValue) {
 
-    $content = $this->fetchDataFromXML($xpath);
+    $content = $fieldValue;
 
     $values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
     if (empty($values)) {
@@ -138,22 +138,16 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
   protected function saveContentToEntity($id, $value) {
     $entity = $this->fieldCollectionItemLoad($id);
-    $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
 
-    if (empty($wrapper)) {
-      return;
+    $fieldProcessorFactory = drupal_container()->get('smartling.field_processor_factory');
+    foreach ($value as $field_name => $fieldValue) {
+      $smartling_entity = clone $this->entity;
+      // @TODO test if format could be set automatically.
+      $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_entity, LANGUAGE_NONE);
+      $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
 
-    foreach($value as $field_name => $val) {
-      $field_info = field_info_field($field_name);
-      if ($field_info['cardinality'] == 1) {
-        $wrapper->{$field_name}->set(current($val));
-      }
-      else {
-        $wrapper->{$field_name}->set($val);
-      }
-    }
-    $wrapper->save();
+    entity_save('field_collection_item', $entity);
   }
 
   public function cleanBeforeClone($entity) {
@@ -204,5 +198,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     }
   }
 }
+
 
 

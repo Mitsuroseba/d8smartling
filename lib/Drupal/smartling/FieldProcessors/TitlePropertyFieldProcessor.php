@@ -16,8 +16,8 @@ class TitlePropertyFieldProcessor extends BaseFieldProcessor {
     return array(entity_label($this->entityType, $this->entity));
   }
 
-  public function setDrupalContentFromXML($xpath) {
-    $this->entity->title = $this->fetchDataFromXML($xpath);
+  public function setDrupalContentFromXML($fieldValue) {
+    $this->entity->title = $fieldValue;
   }
 
   public function fetchDataFromXML(\DomXpath $xpath) {

@@ -31,8 +31,8 @@ class DescriptionPropertyFieldProcessor extends TitlePropertyFieldProcessor {
     return $this->processXMLContent((string) $field->nodeValue);
   }
 
-  public function setDrupalContentFromXML($xpath) {
-    $this->entity->{$this->propertyName} = $this->fetchDataFromXML($xpath);
+  public function setDrupalContentFromXML($fieldValue) {
+    $this->entity->{$this->propertyName} = $fieldValue;
   }
 
 }

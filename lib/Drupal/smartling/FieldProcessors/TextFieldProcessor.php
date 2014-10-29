@@ -67,4 +67,22 @@ class TextFieldProcessor extends BaseFieldProcessor {
       $localize->appendChild($string);
     }
   }
+
+  public function setDrupalContentFromXML($fieldValue) {
+    if (is_array($fieldValue)) {
+      $elem = current($fieldValue);
+      if (isset($elem['value'])) {
+        $this->entity->{$this->fieldName}[$this->targetLanguage] = $fieldValue;
+      }
+      else {
+        foreach ($fieldValue as $delta => $val) {
+          $this->entity->{$this->fieldName}[$this->targetLanguage][$delta] = array('value' => $fieldValue);
+        }
+      }
+    }
+    else {
+      $this->entity->{$this->fieldName}[$this->targetLanguage] = aray(array('value' => $fieldValue));
+    }
+
+  }
 }

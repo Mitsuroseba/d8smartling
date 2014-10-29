@@ -359,7 +359,8 @@ class GenericEntityProcessor {
     foreach ($this->getTranslatableFields() as $field_name) {
       // @TODO test if format could be set automatically.
       $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
-      $fieldProcessor->setDrupalContentFromXML($xpath);
+      $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
+      $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
 
     $this->saveDrupalEntity();
