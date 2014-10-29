@@ -21,13 +21,13 @@ function smartling_field_collection_content_demo_enable() {
 
 
 
-//  $fc_item = entity_create('field_collection_item', array('field_name' => 'field_collection1'));
-//  $fc_item->setHostEntity('node', $node);
-//  $fc_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
-//  $fc_wrapper->field_text1->set('my_text_file.txt');
-//  $txt_file_content = "A whole bunch of content.";
-//  $fc_wrapper->field_some2->set(array($txt_file_content));
-//  $fc_wrapper->save(TRUE);
-//  node_save($node);
+  $fc_item = entity_create('field_collection_item', array('field_name' => 'field_collection1'));
+  $fc_item->setHostEntity('node', $node);
+  $fc_wrapper = entity_metadata_wrapper('field_collection_item', $fc_item);
+  $fc_wrapper->field_text1->value->set('my_text_file.txt');
+  $txt_file_content = "A whole bunch of content.";
+  $fc_wrapper->field_some2->set(array($txt_file_content));
+  $fc_wrapper->save(TRUE);
+  node_save($node);
 
 }
