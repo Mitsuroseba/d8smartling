@@ -1,7 +1,2 @@
 <?php
-/**
- * @file
- * Code for the Smartling field collection content demo feature.
- */
 
-include_once 'smartling_field_collection_content_demo.features.inc';

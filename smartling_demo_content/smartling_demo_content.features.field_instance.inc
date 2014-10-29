@@ -1,8 +1,7 @@
 <?php
-
 /**
  * @file
- * Smartling demo content features field instance.
+ * smartling_demo_content.features.field_instance.inc
  */
 
 /**
@@ -10,6 +9,76 @@
  */
 function smartling_demo_content_field_default_field_instances() {
   $field_instances = array();
+
+  // Exported field_instance: 'field_collection_item-field_collection1-field_some2'
+  $field_instances['field_collection_item-field_collection1-field_some2'] = array(
+    'bundle' => 'field_collection1',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_some2',
+    'label' => 'some2',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance: 'field_collection_item-field_collection1-field_text1'
+  $field_instances['field_collection_item-field_collection1-field_text1'] = array(
+    'bundle' => 'field_collection1',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'field_collection_item',
+    'field_name' => 'field_text1',
+    'label' => 'text1',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 1,
+    ),
+  );
 
   // Exported field_instance: 'node-article-body'
   $field_instances['node-article-body'] = array(
@@ -41,6 +110,7 @@ function smartling_demo_content_field_default_field_instances() {
     'required' => FALSE,
     'settings' => array(
       'display_summary' => TRUE,
+      'entity_translation_sync' => FALSE,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
@@ -89,6 +159,7 @@ function smartling_demo_content_field_default_field_instances() {
     'settings' => array(
       'alt_field' => TRUE,
       'default_image' => 0,
+      'entity_translation_sync' => FALSE,
       'file_directory' => 'field/image',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
@@ -135,6 +206,7 @@ function smartling_demo_content_field_default_field_instances() {
     'label' => 'Tags',
     'required' => FALSE,
     'settings' => array(
+      'entity_translation_sync' => FALSE,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -145,6 +217,95 @@ function smartling_demo_content_field_default_field_instances() {
       ),
       'type' => 'taxonomy_autocomplete',
       'weight' => -4,
+    ),
+  );
+
+  // Exported field_instance: 'node-collection_test-body'
+  $field_instances['node-collection_test-body'] = array(
+    'bundle' => 'collection_test',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'trim_length' => 600,
+        ),
+        'type' => 'text_summary_or_trimmed',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'body',
+    'label' => 'Body',
+    'required' => FALSE,
+    'settings' => array(
+      'display_summary' => TRUE,
+      'entity_translation_sync' => FALSE,
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 20,
+        'summary_rows' => 5,
+      ),
+      'type' => 'text_textarea_with_summary',
+      'weight' => -4,
+    ),
+  );
+
+  // Exported field_instance: 'node-collection_test-field_collection1'
+  $field_instances['node-collection_test-field_collection1'] = array(
+    'bundle' => 'collection_test',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'field_collection',
+        'settings' => array(
+          'add' => 'Add',
+          'delete' => 'Delete',
+          'description' => TRUE,
+          'edit' => 'Edit',
+          'view_mode' => 'full',
+        ),
+        'type' => 'field_collection_view',
+        'weight' => 1,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_collection1',
+    'label' => 'collection1',
+    'required' => 0,
+    'settings' => array(
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'field_collection',
+      'settings' => array(),
+      'type' => 'field_collection_embed',
+      'weight' => -2,
     ),
   );
 
@@ -178,6 +339,7 @@ function smartling_demo_content_field_default_field_instances() {
     'required' => FALSE,
     'settings' => array(
       'display_summary' => TRUE,
+      'entity_translation_sync' => FALSE,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
@@ -222,6 +384,7 @@ function smartling_demo_content_field_default_field_instances() {
     'settings' => array(
       'alt_field' => 0,
       'default_image' => 0,
+      'entity_translation_sync' => FALSE,
       'file_directory' => '',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
@@ -268,6 +431,7 @@ function smartling_demo_content_field_default_field_instances() {
     'label' => 'Image description',
     'required' => 1,
     'settings' => array(
+      'entity_translation_sync' => FALSE,
       'text_processing' => 0,
       'user_register_form' => FALSE,
     ),
@@ -282,6 +446,50 @@ function smartling_demo_content_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-travel-field_taxonomy_field'
+  $field_instances['node-travel-field_taxonomy_field'] = array(
+    'bundle' => 'travel',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_taxonomy_field',
+    'label' => 'Travel Taxonomy',
+    'required' => FALSE,
+    'settings' => array(
+      'allowed_values' => array(
+        0 => array(
+          'vocabulary' => array(
+            0 => 'travel',
+          ),
+        ),
+      ),
+      'entity_translation_sync' => FALSE,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 4,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Body');
@@ -289,7 +497,11 @@ function smartling_demo_content_field_default_field_instances() {
   t('Image');
   t('Image description');
   t('Tags');
+  t('Travel Taxonomy');
   t('Upload an image to go with this article.');
+  t('collection1');
+  t('some2');
+  t('text1');
 
   return $field_instances;
 }

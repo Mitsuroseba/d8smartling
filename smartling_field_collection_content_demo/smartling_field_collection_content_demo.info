@@ -1,20 +1,8 @@
-name = Smartling field collection content demo
-description = A module that is used to test the integration between "field_collection" and "smartling" modules
+name = Smartling field collection demo content
+description = Posts a demo content for field colection
 core = 7.x
 package = smartling
 version = 7.x-1.0-beta1
 project = smartling_field_collection_content_demo
-dependencies[] = features
-dependencies[] = field_collection
 dependencies[] = smartling_demo_content
-dependencies[] = text
-features[features_api][] = api:2
-features[field_base][] = field_collection1
-features[field_base][] = field_some2
-features[field_base][] = field_text1
-features[field_instance][] = field_collection_item-field_collection1-field_some2
-features[field_instance][] = field_collection_item-field_collection1-field_text1
-features[field_instance][] = node-collection_test-body
-features[field_instance][] = node-collection_test-field_collection1
-features[node][] = collection_test
-features_exclude[field_base][body] = body
+
