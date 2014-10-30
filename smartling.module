@@ -935,6 +935,7 @@ function smartling_do_translate_action($entity, array $context) {
     case 'node':
       $link = smartling_get_link_to_entity($entity->nid, $entity_type);
       if (smartling_supported_type($entity_type, $entity->type) && smartling_translate_fields_is_set($entity->type, $entity_type)) {
+        $queued_eids = array();
         foreach ($context['translate_to_langs'] as $d_locale) {
           $d_locale_original = entity_language($entity_type, $entity);
 
@@ -1004,9 +1005,11 @@ function smartling_do_translate_action($entity, array $context) {
               smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             }
           }
-          $smartling_queue->createItem($entity_data->eid);
+          $queued_eids[] = $entity_data->eid;
         }
-
+        if (!empty($queued_eids)) {
+          $smartling_queue->createItem($queued_eids);
+        }
 //        $smartling_queue->createItem($entity_data->eid);
       }
       else {
@@ -1037,6 +1040,7 @@ function smartling_do_translate_action($entity, array $context) {
 
         $d_locale_original = $language_default;
 
+        $queued_eids = array();
         foreach ($context['translate_to_langs'] as $d_locale) {
           if ($language_default !== $d_locale) {
 
@@ -1064,10 +1068,11 @@ function smartling_do_translate_action($entity, array $context) {
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             $d_locales[] = $d_locale;
           }
+          $queued_eids[] = $entity_data->eid;
         }
-
-        // Create queue item.
-        $smartling_queue->createItem($entity_data->eid);
+        if (!empty($queued_eids)) {
+          $smartling_queue->createItem($queued_eids);
+        }
       }
       else {
         drupal_set_message(t('Not support vocabulary - @vocabulary.', array('@vocabulary' => $entity->vocabulary_machine_name)), 'warning');
@@ -1086,6 +1091,7 @@ function smartling_do_translate_action($entity, array $context) {
 
       if (smartling_supported_type($entity_type, $entity->node_type) && smartling_translate_fields_is_set($entity->node_type, $entity_type)) {
         $d_locale_original = $entity->translations->original;
+        $queued_eids = array();
         foreach ($context['translate_to_langs'] as $d_locale) {
           if ($d_locale_original !== $d_locale) {
             $entity_data = smartling_entity_load_by_conditions(array(
@@ -1112,9 +1118,11 @@ function smartling_do_translate_action($entity, array $context) {
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             $d_locales[] = $d_locale;
           }
+          $queued_eids[] = $entity_data->eid;
         }
-
-        $smartling_queue->createItem($entity_data->eid);
+        if (!empty($queued_eids)) {
+          $smartling_queue->createItem($queued_eids);
+        }
       }
       else {
         drupal_set_message(t('Not support comment - @comment.', array('@comment' => $entity->node_type)), 'warning');
@@ -1133,6 +1141,7 @@ function smartling_do_translate_action($entity, array $context) {
       $d_locale_original = $entity->translations->original;
 
       if (smartling_supported_type($entity_type, 'user') && smartling_translate_fields_is_set('user', $entity_type)) {
+        $queued_eids = array();
         foreach ($context['translate_to_langs'] as $d_locale) {
 
           if ($d_locale_original !== $d_locale) {
@@ -1160,9 +1169,11 @@ function smartling_do_translate_action($entity, array $context) {
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             $d_locales[] = $d_locale;
           }
+          $queued_eids[] = $entity_data->eid;
         }
-
-        $smartling_queue->createItem($entity_data->eid);
+        if (!empty($queued_eids)) {
+          $smartling_queue->createItem($queued_eids);
+        }
       }
       else {
         drupal_set_message(t('Users do not translatable fields.'), 'warning');

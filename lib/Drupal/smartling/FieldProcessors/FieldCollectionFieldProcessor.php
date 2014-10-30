@@ -124,15 +124,15 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $content = $fieldValue;
 
-    $values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
+    //$values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
     if (empty($values)) {
       return;
     }
 
-    $id = current($values);
-    foreach($content as $val) {
-      $this->saveContentToEntity($id['value'], $val);
-      $id = next($values);
+    //$id = current($values);
+    foreach($content as $id => $val) {
+      $this->saveContentToEntity($id, $val);
+      //$id = next($values);
     }
   }
 

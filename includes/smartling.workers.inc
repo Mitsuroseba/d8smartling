@@ -42,8 +42,21 @@ function smartling_queue_check_status_process($eid) {
 /**
  * Worker callback defined in hook_cron_queue_info().
  */
-function smartling_queue_send_to_translate_process($eid) {
-  $smartling_entity = entity_load_single('smartling_entity_data', $eid);
+function smartling_queue_send_to_translate_process($eids) {
+  if (!is_array($eids)) {
+    $eids = array($eids);
+  }
+
+  $target_locales = array();
+  $entity_data_array = array();
+
+  foreach($eids as $eid) {
+    $smartling_entity = entity_load_single('smartling_entity_data', $eid);
+    $target_locales[] = $smartling_entity->target_language;
+    $entity_data_array[] = $smartling_entity;
+  }
+
+  //$smartling_entity = entity_load_single('smartling_entity_data', $eid);
 
   if ($smartling_entity && smartling_is_configured()) {
     $entity_type = $smartling_entity->entity_type;
@@ -53,7 +66,10 @@ function smartling_queue_send_to_translate_process($eid) {
     $xml = smartling_build_xml($processor, $smartling_entity->rid);
     $success = FALSE;
     if ($xml instanceof DOMNode) {
-      $success = smartling_save_xml($xml, $smartling_entity, $file_name, FALSE);
+      $success = TRUE;
+      foreach ($entity_data_array as $entity) {
+        $success = (smartling_save_xml($xml, $entity, $file_name, FALSE))?$success:FALSE;
+      }
     }
 
     if ($success) {
@@ -62,9 +78,13 @@ function smartling_queue_send_to_translate_process($eid) {
 
       // Init api object.
       $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile($file_path, $file_name_unic, 'xml', array($smartling_entity->target_language));
+      $result_status = $api->uploadFile($file_path, $file_name_unic, 'xml', $target_locales);
 
-      $processor->setProgressStatus($result_status);
+      //$processor->setProgressStatus($result_status);
+      foreach ($entity_data_array as $entity) {
+        $proc = smartling_get_entity_processor($entity);
+        $proc->setProgressStatus($result_status);
+      }
 
       if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
         if (module_exists('rules') && ($entity_type == 'node')) {
@@ -73,11 +93,11 @@ function smartling_queue_send_to_translate_process($eid) {
         }
       }
     }
-    // @todo We lost this functionality in OOP branch, but it was introduced in 2.x. Must be restored
-    // else {
-    //   foreach ($entity_data_array as $entity) {
-    //     smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
-    //   }
-    // }
+    //@todo We lost this functionality in OOP branch, but it was introduced in 2.x. Must be restored
+    else {
+      foreach ($entity_data_array as $entity) {
+        smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
+      }
+    }
   }
 }

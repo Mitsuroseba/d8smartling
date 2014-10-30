@@ -76,7 +76,7 @@ class TextFieldProcessor extends BaseFieldProcessor {
       }
       else {
         foreach ($fieldValue as $delta => $val) {
-          $this->entity->{$this->fieldName}[$this->targetLanguage][$delta] = array('value' => $fieldValue);
+          $this->entity->{$this->fieldName}[$this->targetLanguage][$delta] = array('value' => $val);
         }
       }
     }
