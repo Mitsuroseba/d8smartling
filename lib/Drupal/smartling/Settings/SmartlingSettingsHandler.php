@@ -199,6 +199,8 @@ class SmartlingSettingsHandler {
         break;
 
       default:
+        $fields = $this->variableGet('smartling_' . $entity_type . '_fields_settings');
+        $fields = $fields[$bundle];
         break;
     }
 

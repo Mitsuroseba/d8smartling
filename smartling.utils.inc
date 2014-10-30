@@ -65,6 +65,11 @@ function smartling_supported_type($entity_type, $bundle) {
       $smartling_supported_explicitly = smartling_entity_has_translatable_field($entity_type, $bundle);
       break;
 
+    //@todo: implement normal check for this type of entity
+    case 'fieldable_panels_pane':
+      $smartling_supported_explicitly = TRUE;//smartling_entity_has_translatable_field($entity_type, $bundle);
+      break;
+
     default:
       $smartling_supported_explicitly = FALSE;
       break;
