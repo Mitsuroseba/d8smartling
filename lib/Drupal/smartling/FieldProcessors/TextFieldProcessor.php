@@ -81,7 +81,7 @@ class TextFieldProcessor extends BaseFieldProcessor {
       }
     }
     else {
-      $this->entity->{$this->fieldName}[$this->targetLanguage] = aray(array('value' => $fieldValue));
+      $this->entity->{$this->fieldName}[$this->targetLanguage] = array(array('value' => $fieldValue));
     }
 
   }

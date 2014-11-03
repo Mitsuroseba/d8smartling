@@ -34,10 +34,9 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   public function getSmartlingContent() {
     $data = array();
 
-    //return $entity_current_translatable_content;
     if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
-        $fid = (int)$value['value'];
+        $fid = (int) $value['value'];
         $entity = $this->fieldCollectionItemLoad($fid);
 
         foreach ($this->getTransletableFields() as $field_name) {
@@ -160,39 +159,44 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return $val;
   }
 
-  public function putDataToXML($xml, $localize, $data) {
+  public function putDataToXML($xml, $localize, $data, $fieldName = NULL) {
     $collection = $xml->createElement('field_collection');
     $attr = $xml->createAttribute('id');
-    $attr->value = $this->fieldName;
+    $attr->value = !empty($fieldName) ? $fieldName : $this->fieldName;
     $collection->appendChild($attr);
 
     foreach($data as $eid => $field_collection) {
       foreach ($field_collection as $key => $value) {
         $quantity = count($value);
         foreach ($value as $item_key => $item) {
-          $string = $xml->createElement('string');
+          if (is_array($item)) {
+            $this->putDataToXML($xml, $collection, array($item_key => $item), $key);
+          }
+          else {
+            $string = $xml->createElement('string');
 
-          $string_attr = $xml->createAttribute('eid');
-          $string_attr->value = $eid;
-          $string->appendChild($string_attr);
+            $string_attr = $xml->createAttribute('eid');
+            $string_attr->value = $eid;
+            $string->appendChild($string_attr);
 
-          $string_attr = $xml->createAttribute('id');
-          $string_attr->value = $key;
-          $string->appendChild($string_attr);
+            $string_attr = $xml->createAttribute('id');
+            $string_attr->value = $key;
+            $string->appendChild($string_attr);
 
-          $string_attr = $xml->createAttribute('delta');
-          $string_attr->value = $item_key;
-          $string->appendChild($string_attr);
+            $string_attr = $xml->createAttribute('delta');
+            $string_attr->value = $item_key;
+            $string->appendChild($string_attr);
 
-          $string_val = $xml->createTextNode($item);
-          $string->appendChild($string_val);
+            $string_val = $xml->createTextNode($item);
+            $string->appendChild($string_val);
 
-          $string_attr = $xml->createAttribute('quantity');
-          $string_attr->value = $quantity;
-          $string->appendChild($string_attr);
+            $string_attr = $xml->createAttribute('quantity');
+            $string_attr->value = $quantity;
+            $string->appendChild($string_attr);
 
-          $collection->appendChild($string);
-          $localize->appendChild($collection);
+            $collection->appendChild($string);
+            $localize->appendChild($collection);
+          }
         }
       }
     }

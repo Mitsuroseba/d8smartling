@@ -248,7 +248,12 @@ class HttpClient {
 
             if ($this->_needUploadFile || $this->_needUploadContent){
                 if ($this->_needUploadFile && file_exists(realpath($data[$this->_fileKey]))){
-                    $data['file'] = '@' . realpath($data['file']);
+                    if (!class_exists('CURLFile')) {
+                        $data['file'] = '@' . realpath($data['file']);
+                    }
+                    else {
+                        $data['file'] = new CURLFile(realpath($data['file']));
+                    }
                 }
 
                 if ($this->_needUploadContent && ($data[$this->_fileKey] !== '')){
