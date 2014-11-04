@@ -141,4 +141,10 @@ abstract class BaseFieldProcessor {
   public function cleanBeforeClone($entity) {
     return NULL;
   }
+
+  public static function isFieldOfType($field_name, $field_type) {
+    $field = field_info_field($field_name);
+
+    return isset($field) && $field['type'] == $field_type;
+  }
 }

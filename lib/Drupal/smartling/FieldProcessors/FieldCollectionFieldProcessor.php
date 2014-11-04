@@ -165,41 +165,55 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $attr->value = !empty($fieldName) ? $fieldName : $this->fieldName;
     $collection->appendChild($attr);
 
-    foreach($data as $eid => $field_collection) {
-      foreach ($field_collection as $key => $value) {
+    foreach ($data as $entity_id => $field_collection) {
+      foreach ($field_collection as $field_name => $value) {
         $quantity = count($value);
-        foreach ($value as $item_key => $item) {
+        foreach ($value as $delta => $item) {
+          // If field value is an array and value key is valid field name
+          // then process it as nested field collection.
           if (is_array($item)) {
-            $this->putDataToXML($xml, $collection, array($item_key => $item), $key);
+            if (static::isFieldOfType($field_name, 'field_collection')) {
+              $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
+            }
+            else {
+              foreach ($item as $sub_item) {
+                $collection->appendChild($this->buildSingleStringTag($xml, $entity_id, $field_name, $delta, $quantity, $sub_item));
+              }
+            }
           }
           else {
-            $string = $xml->createElement('string');
-
-            $string_attr = $xml->createAttribute('eid');
-            $string_attr->value = $eid;
-            $string->appendChild($string_attr);
-
-            $string_attr = $xml->createAttribute('id');
-            $string_attr->value = $key;
-            $string->appendChild($string_attr);
-
-            $string_attr = $xml->createAttribute('delta');
-            $string_attr->value = $item_key;
-            $string->appendChild($string_attr);
-
-            $string_val = $xml->createTextNode($item);
-            $string->appendChild($string_val);
-
-            $string_attr = $xml->createAttribute('quantity');
-            $string_attr->value = $quantity;
-            $string->appendChild($string_attr);
-
-            $collection->appendChild($string);
-            $localize->appendChild($collection);
+            $collection->appendChild($this->buildSingleStringTag($xml, $entity_id, $field_name, $delta, $quantity, $item));
           }
+
+          $localize->appendChild($collection);
         }
       }
     }
+  }
+
+  protected function buildSingleStringTag($xml, $entity_id, $field_name, $delta, $quantity, $value) {
+    $string = $xml->createElement('string');
+
+    $string_attr = $xml->createAttribute('eid');
+    $string_attr->value = $entity_id;
+    $string->appendChild($string_attr);
+
+    $string_attr = $xml->createAttribute('id');
+    $string_attr->value = $field_name;
+    $string->appendChild($string_attr);
+
+    $string_attr = $xml->createAttribute('delta');
+    $string_attr->value = $delta;
+    $string->appendChild($string_attr);
+
+    $string_val = $xml->createTextNode($value);
+    $string->appendChild($string_val);
+
+    $string_attr = $xml->createAttribute('quantity');
+    $string_attr->value = $quantity;
+    $string->appendChild($string_attr);
+
+    return $string;
   }
 }
 
