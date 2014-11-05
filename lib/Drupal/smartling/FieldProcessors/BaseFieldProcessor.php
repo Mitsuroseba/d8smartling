@@ -147,4 +147,27 @@ abstract class BaseFieldProcessor {
 
     return isset($field) && $field['type'] == $field_type;
   }
+
+  /**
+   * @param \DOMDocument $xml
+   * @param string $field_name
+   * @param string|integer $delta
+   * @param string|integer $quantity
+   * @param string $value
+   * @param array $extra_attributes
+   * @return \DOMElement
+   */
+  protected function buildXMLString($xml, $field_name, $delta, $quantity, $value, $extra_attributes = array()) {
+    $string = $xml->createElement('string', $value);
+    $string->setAttribute('id', $field_name);
+    $string->setAttribute('delta', $delta);
+    $string->setAttribute('quantity', $quantity);
+
+    foreach ($extra_attributes as $attribute_name => $attribute_value) {
+      $string->setAttribute($attribute_name, $attribute_value);
+    }
+
+    return $string;
+  }
+
 }

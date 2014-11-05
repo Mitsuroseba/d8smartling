@@ -7,8 +7,19 @@
 
 namespace Drupal\smartling\FieldProcessors;
 
+use Drupal\smartling\FieldProcessorFactory;
+
 class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
+  protected $fieldFactor;
+
+  public function __construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language) {
+    parent::__construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language);
+
+    $this->fieldFactor = drupal_container()->get('smartling.field_processor_factory');
+
+    return $this;
+  }
 
   /**
    * Wrapper for Smartling settings storage.
@@ -167,22 +178,15 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     foreach ($data as $entity_id => $field_collection) {
       foreach ($field_collection as $field_name => $value) {
-        $quantity = count($value);
         foreach ($value as $delta => $item) {
           // If field value is an array and value key is valid field name
           // then process it as nested field collection.
-          if (is_array($item)) {
-            if (static::isFieldOfType($field_name, 'field_collection')) {
-              $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
-            }
-            else {
-              foreach ($item as $sub_item) {
-                $collection->appendChild($this->buildSingleStringTag($xml, $entity_id, $field_name, $delta, $quantity, $sub_item));
-              }
-            }
+          if (is_array($item) && static::isFieldOfType($field_name, 'field_collection')) {
+            $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
           }
           else {
-            $collection->appendChild($this->buildSingleStringTag($xml, $entity_id, $field_name, $delta, $quantity, $item));
+            $fieldProcessor = $this->fieldFactor->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_entity, $this->targetLanguage);
+            $fieldProcessor->putDataToXml($xml, $collection, array($delta => $item));
           }
 
           $localize->appendChild($collection);

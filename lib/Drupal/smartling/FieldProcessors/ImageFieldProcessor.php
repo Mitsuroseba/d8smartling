@@ -45,7 +45,6 @@ class ImageFieldProcessor extends BaseFieldProcessor {
       $altField = $xpath->query('//string[@id="' . $this->fieldName . '-alt-img-' . $i . '"][1]')->item(0);
       $titleField = $xpath->query('//string[@id="' . $this->fieldName . '-title-img-' . $i . '"][1]')->item(0);
 
-
       $fid = $altField->getAttribute('fid');
       $file_img = file_load($fid);
 
@@ -62,37 +61,16 @@ class ImageFieldProcessor extends BaseFieldProcessor {
   public function putDataToXML($xml, $localize, $data) {
     $quantity = count($data);
     foreach ($data as $key => $value) {
-      $string = $xml->createElement('string');
-      $string_val = $xml->createTextNode($value['alt-img']);
-      $string_attr = $xml->createAttribute('id');
-      $string_attr->value = $this->fieldName . '-alt-img-' . $key;
-      $string->appendChild($string_attr);
-      $string->appendChild($string_val);
-      // Set quantity.
-      $string_attr = $xml->createAttribute('quantity');
-      $string_attr->value = $quantity;
-      $string->appendChild($string_attr);
-      // Set image fid.
-      $string_attr = $xml->createAttribute('fid');
-      $string_attr->value = $value['fid-img'];
-      $string->appendChild($string_attr);
-      $localize->appendChild($string);
+      $extra_attributes = array('fid' => $value['fid-img']);
 
-      $string = $xml->createElement('string');
-      $string_val = $xml->createTextNode($value['title-img']);
-      $string_attr = $xml->createAttribute('id');
-      $string_attr->value = $this->fieldName . '-title-img-' . $key;
-      $string->appendChild($string_attr);
-      $string->appendChild($string_val);
-      // Set quantity.
-      $string_attr = $xml->createAttribute('quantity');
-      $string_attr->value = $quantity;
-      $string->appendChild($string_attr);
-      // Set image fid.
-      $string_attr = $xml->createAttribute('fid');
-      $string_attr->value = $value['fid-img'];
-      $string->appendChild($string_attr);
-      $localize->appendChild($string);
+      $alt_field_name = $this->fieldName . '-alt-img-' . $key;
+      $alt_string = $this->buildXMLString($xml, $alt_field_name, $key, $quantity, $value['alt-img'], $extra_attributes);
+
+      $title_field_name = $this->fieldName . '-title-img-' . $key;
+      $title_string = $this->buildXMLString($xml, $title_field_name, $key, $quantity, $value['title-img'], $extra_attributes);
+
+      $localize->appendChild($alt_string);
+      $localize->appendChild($title_string);
     }
   }
 

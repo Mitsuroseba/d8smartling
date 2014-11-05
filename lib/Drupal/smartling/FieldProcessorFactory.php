@@ -43,6 +43,8 @@ class FieldProcessorFactory {
    * @return BaseFieldProcessor
    */
   public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language) {
+    $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
+
     $field_info = field_info_field($field_name);
 
     if ($field_info) {
@@ -76,7 +78,7 @@ class FieldProcessorFactory {
 
     $source_language = (smartling_field_is_translatable_by_field_name($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
 
-    return new $class_name(
+    $field_class = new $class_name(
       $entity,
       $entity_type,
       $field_name,
@@ -84,91 +86,8 @@ class FieldProcessorFactory {
       $source_language,
       $target_language
     );
+
+    return $field_class;
   }
 
-//  /**
-//   * Mapping field_type => FieldProcessor.
-//   *
-//   * @var array
-//   */
-//  protected static $fields_mapping = array(
-//    'text' => 'TextFieldProcessor',
-//    'text_long' => 'TextFieldProcessor',
-//
-//    'text_with_summary' => 'TextSummaryFieldProcessor',
-//
-//    'image' => 'ImageFieldProcessor',
-//
-//    'title_property' => 'TitlePropertyFieldProcessor',
-//    'title_property_field' => 'TitlePropertyFieldProcessor',
-//    'description_property_field' => 'DescriptionPropertyFieldProcessor',
-//    'name_property_field' => 'NamePropertyFieldProcessor',
-//
-//    'field_collection' => 'FieldCollectionFieldProcessor',
-//  );
-//
-//  /**
-//   * List of fake fields which should be processed in the separate way.
-//   *
-//   * @var array
-//   */
-//  protected static $fake_fields = array(
-//    'title_property_field',
-//    'name_property_field',
-//    'description_property_field',
-//  );
-//
-//  /**
-//   * @param $field_name string
-//   *   Field's machine name.
-//   * @param $entity \stdClass
-//   *   Drupal content entity.
-//   *
-//   * @return BaseFieldProcessor
-//   *
-//   * @todo remove procedural code or at least put into the separate method
-//   * to allow unit testing.
-//   */
-//  public static function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language) {
-//    $field_info = field_info_field($field_name);
-//
-//    if ($field_info) {
-//      $type = $field_info['type'];
-//    }
-//    elseif (in_array($field_name, self::$fake_fields)) {
-//      $type = $field_name;
-//    }
-//    else {
-//      $log = smartling_log_get_handler();
-//      $log->setMessage("Smartling found unexisted field - @field_name")
-//        ->setVariables(array('@field_name' => $field_name))
-//        ->setConsiderLog(FALSE)
-//        ->execute();
-//
-//      return FALSE;
-//    }
-//
-//    if (empty(self::$fields_mapping[$type])) {
-//      $log = smartling_log_get_handler();
-//      $log->setMessage("Smartling didn't process content of field - @field_name")
-//        ->setVariables(array('@field_name' => $field_name))
-//        ->setConsiderLog(FALSE)
-//        ->execute();
-//
-//      return FALSE;
-//    }
-//
-//    $source_language = (smartling_field_is_translatable_by_field_name($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
-//
-//    $class_name = self::$namespace . self::$fields_mapping[$type];
-//
-//    return new $class_name(
-//      $entity,
-//      $entity_type,
-//      $field_name,
-//      $smartling_entity,
-//      $source_language,
-//      $target_language
-//    );
-//  }
 }
