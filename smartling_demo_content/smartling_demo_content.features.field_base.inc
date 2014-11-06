@@ -44,7 +44,7 @@ function smartling_demo_content_field_default_field_bases() {
   // Exported field_base: 'field_collection1'
   $field_bases['field_collection1'] = array(
     'active' => 1,
-    'cardinality' => 2,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_collection1',
@@ -129,13 +129,13 @@ function smartling_demo_content_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_some2'
-  $field_bases['field_some2'] = array(
+  // Exported field_base: 'field_article'
+  $field_bases['field_article'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_some2',
+    'field_name' => 'field_article',
     'foreign keys' => array(
       'format' => array(
         'columns' => array(
@@ -230,13 +230,13 @@ function smartling_demo_content_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_text1'
-  $field_bases['field_text1'] = array(
+  // Exported field_base: 'field_abstract'
+  $field_bases['field_abstract'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_text1',
+    'field_name' => 'field_abstract',
     'foreign keys' => array(
       'format' => array(
         'columns' => array(
@@ -256,7 +256,7 @@ function smartling_demo_content_field_default_field_bases() {
       'entity_translation_sync' => FALSE,
     ),
     'translatable' => 0,
-    'type' => 'text_long',
+    'type' => 'text',
   );
 
   return $field_bases;

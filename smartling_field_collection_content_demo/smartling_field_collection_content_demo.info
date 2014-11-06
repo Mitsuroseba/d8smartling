@@ -2,7 +2,7 @@ name = Smartling field collection demo content
 description = Posts a demo content for field colection
 core = 7.x
 package = smartling
-version = 7.x-1.0-beta1
 project = smartling_field_collection_content_demo
 dependencies[] = smartling_demo_content
+dependencies[] = field_collection
 

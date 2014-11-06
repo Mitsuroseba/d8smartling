@@ -11,7 +11,7 @@ function smartling_demo_content_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance: 'field_collection_item-field_collection1-field_some2'
-  $field_instances['field_collection_item-field_collection1-field_some2'] = array(
+  $field_instances['field_collection_item-field_collection1-field_article'] = array(
     'bundle' => 'field_collection1',
     'default_value' => NULL,
     'deleted' => 0,
@@ -26,8 +26,8 @@ function smartling_demo_content_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'field_collection_item',
-    'field_name' => 'field_some2',
-    'label' => 'some2',
+    'field_name' => 'field_article',
+    'label' => 'article',
     'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
@@ -45,8 +45,8 @@ function smartling_demo_content_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_collection1-field_text1'
-  $field_instances['field_collection_item-field_collection1-field_text1'] = array(
+  // Exported field_instance: 'field_collection_item-field_collection1-field_abstract'
+  $field_instances['field_collection_item-field_collection1-field_abstract'] = array(
     'bundle' => 'field_collection1',
     'default_value' => NULL,
     'deleted' => 0,
@@ -61,8 +61,8 @@ function smartling_demo_content_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'field_collection_item',
-    'field_name' => 'field_text1',
-    'label' => 'text1',
+    'field_name' => 'field_abstract',
+    'label' => 'abstract',
     'required' => 0,
     'settings' => array(
       'entity_translation_sync' => FALSE,
@@ -75,7 +75,7 @@ function smartling_demo_content_field_default_field_instances() {
       'settings' => array(
         'rows' => 5,
       ),
-      'type' => 'text_textarea',
+      'type' => 'text_textfield',
       'weight' => 1,
     ),
   );
@@ -500,8 +500,8 @@ function smartling_demo_content_field_default_field_instances() {
   t('Travel Taxonomy');
   t('Upload an image to go with this article.');
   t('collection1');
-  t('some2');
-  t('text1');
+  t('article');
+  t('abstract');
 
   return $field_instances;
 }
