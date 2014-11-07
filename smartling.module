@@ -1427,14 +1427,15 @@ function smartling_create_from_entity($drupal_entity, $entity_type, $origin_lang
 function smartling_smartling_settings_form_info() {
   $forms = array(
     'smartling_admin_account_info_settings_form' => t('Account info'),
-    'smartling_admin_node_translation_settings_form' => t('Content types and fields'),
-    'smartling_admin_users_translation_settings_form' => t('User fields'),
+    'smartling_admin_node_translation_settings_form' => t('Nodes settings'),
+    'smartling_admin_entities_translation_settings_form' => t('Entities settings'),
+    //'smartling_admin_users_translation_settings_form' => t('User fields'),
     'smartling_admin_log_info_settings_form' => t('Smartling log'),
   );
 
-  if (module_exists('comment')) {
+  /*if (module_exists('comment')) {
     $forms['smartling_admin_comments_translation_settings_form'] = t('Comment fields');
-  }
+  }*/
 
   if (module_exists('taxonomy')) {
     $forms['smartling_admin_taxonomy_translation_settings_form'] = t('Taxonomy vocabularies and fields');
@@ -1446,9 +1447,9 @@ function smartling_smartling_settings_form_info() {
   if (module_exists('smartling_reference')) {
     $forms['smartling_admin_reference_settings_form'] = t('References settings');
   }
-  if (module_exists('field_collection')) {
+  /*if (module_exists('field_collection')) {
     $forms['smartling_admin_field_collection_settings_form'] = t('Field Collection settings');
-  }
+  }*/
 
   return $forms;
 }

@@ -28,35 +28,11 @@ function smartling_admin_configuration_view() {
     ),
   );
 
-  $account_info = drupal_get_form('smartling_admin_account_info_settings_form');
-  $output['smartling'][] = smartling_wrap_in_fieldset($account_info, t('Account info'));
+  $settings_forms = module_invoke_all('smartling_settings_form_info');
 
-  $node_translation_settings = drupal_get_form('smartling_admin_node_translation_settings_form');
-  $output['smartling'][] = smartling_wrap_in_fieldset($node_translation_settings, t('Content types and fields'));
-
-  if (module_exists('taxonomy')) {
-    $taxonomy_translation_settings = drupal_get_form('smartling_admin_taxonomy_translation_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($taxonomy_translation_settings, t('Taxonomy vocabularies and fields'));
-  }
-
-  if (module_exists('comment')) {
-    $comments_translation_settings = drupal_get_form('smartling_admin_comments_translation_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($comments_translation_settings, t('Comment fields'));
-  }
-
-  $users_translation_settings = drupal_get_form('smartling_admin_users_translation_settings_form');
-  $log_info = drupal_get_form('smartling_admin_log_info_settings_form');
-
-  $output['smartling'][] = smartling_wrap_in_fieldset($users_translation_settings, t('User fields'));
-  $output['smartling'][] = smartling_wrap_in_fieldset($log_info, t('Smartling log'));
-
-  if (module_exists('smartling_load_test')) {
-    $dev_settings = drupal_get_form('smartling_admin_dev_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($dev_settings, t('Dev settings'));
-  }
-  if (module_exists('smartling_reference')) {
-    $reference_settings = drupal_get_form('smartling_admin_reference_settings_form');
-    $output['smartling'][] = smartling_wrap_in_fieldset($reference_settings, t('References settings'));
+  foreach ($settings_forms as $machine_name => $title) {
+    $form = drupal_get_form($machine_name);
+    $output['smartling'][] = smartling_wrap_in_fieldset($form, $title);
   }
 
   if (!empty($_fix_field_settings) && is_array($_fix_field_settings)) {
@@ -424,6 +400,199 @@ function smartling_admin_log_info_settings_form_submit(array $form, array &$form
 }
 
 /**
+ * Wrapper for most kind of entities.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ *
+ * @return array
+ *   Return FAPI array for smartling entity fields settings.
+ */
+function smartling_admin_entities_translation_settings_form(array $form, array &$form_state) {
+  $entity_rows = smartling_admin_entities_crawler();
+  //$user_ = drupal_get_form('smartling_admin_user_translation_settings_form');
+
+  $header = array(t('Entity Type'), t('Fields'));
+  //$rows = array(array(t('User'), drupal_render($user_)));
+
+  $variables = array(
+    'header' => $header,
+    'rows' => $entity_rows,
+    'attributes' => array('class' => array('smartling-content-settings-table')),
+  );
+
+  $form['entity_translation']['types'] = array(
+    '#type' => 'markup',
+    '#markup' => theme('table', $variables),
+  );
+
+  $form['entity_translation']['actions'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['#submit'][] = 'smartling_admin_entities_translation_settings_form_submit';
+
+  return $form;
+}
+
+/**
+ * Custom submit handler for entities wrapper form.
+ *
+ * @see smartling_admin_entities_translation_settings_form()
+ */
+function smartling_admin_entities_translation_settings_form_submit(array $form, array &$form_state) {
+  $input = $form_state['input'];
+  $entities = entity_get_info();
+  $translate = array();
+
+  // Obtain what fields instances are marked for translation.
+  foreach ($input as $key => $value) {
+    // Look for Selected Content Types and Fields.
+    if (FALSE !== strpos($key, '_SEPARATOR_')) {
+      // And only if set to translate.
+      if ($value != 0) {
+        $parts = explode('_SEPARATOR_', $key);
+        $content_type = $parts[0];
+        $content_field = $parts[1];
+
+        $translate[$content_type][$content_field] = $content_field;
+      }
+    }
+  }
+
+  // Define parent bundle for those fields.
+  $_translate = array();
+  $machine_names = array_keys($translate);
+  foreach ($entities as $entity => $definition) {
+    $bundles = array_keys($definition['bundles']);
+
+    foreach ($machine_names as $name) {
+      if (in_array($name, $bundles)) {
+        $_translate[$entity][$name] = $translate[$name];
+      }
+    }
+  }
+
+  // Reset default state, since all disabled checkboxes will be ignored
+  // and therefore, not updated.
+  smartling_settings_get_handler()->{'userSetFieldsSettings'}(array());
+  smartling_settings_get_handler()->{'commentSetFieldsSettings'}(array());
+  smartling_settings_get_handler()->{'fieldCollectionSetFieldsSettings'}(array());
+
+  // Save the settings, considering entity bundle, to know which
+  // update method to be called.
+  foreach ($_translate as $k => $v) {
+    $method = NULL;
+    switch ($k) {
+      case 'user':
+        $method = 'user';
+        break;
+      case 'comment':
+        $method = 'comment';
+        break;
+      case 'field_collection_item':
+        $method = 'fieldCollection';
+        break;
+    }
+
+    if ($method) {
+      smartling_settings_get_handler()->{$method . 'SetFieldsSettings'}($v);
+    }
+  }
+}
+
+/**
+ * Aggregate various types of entities and their fields.
+ *
+ * @return array
+ *   Set of rows ready to be placed into table form element.
+ *   First element is the entity name, second - checkboxes for each
+ *   translatable fields for this entity.
+ */
+function smartling_admin_entities_crawler() {
+  // Entities we do not want to parse.
+  $exclude = array(
+    'node',
+    'taxonomy_term',
+    'taxonomy_vocabulary',
+    'i18n_translation',
+    'smartling_interface_entity',
+    'file',
+    'smartling_entity_data',
+  );
+
+  $translatable_field_types = smartling_get_translatable_field_types();
+  $entities = entity_get_info();
+  $rows = array();
+
+  // Loop thru each entity type.
+  foreach ($entities as $name => $definition) {
+    if (in_array($name, $exclude)) {
+      continue;
+    }
+
+    $bundles = array_keys($definition['bundles']);
+    // Loop thru each entity bundle.
+    foreach ($bundles as $bundle) {
+      $field_instances = field_info_instances($name, $bundle);
+
+      // Loop thru each field instance of the bundle.
+      foreach ($field_instances as $field) {
+        $field_label = $field['label'];
+        $field_machine_name = $field['field_name'];
+        $field_type = $field['widget']['type'];
+
+        if (array_search($field_type, $translatable_field_types)) {
+          $key = $bundle . '_SEPARATOR_' . $field_machine_name;
+          $fr_fields[$key] = array(
+            '#type' => 'checkbox',
+            '#title' => check_plain($field_label),
+            '#attributes' => array(
+              'id' => array('edit-form-item-' . $bundle . '-separator-' . $field_machine_name),
+              'name' => $bundle . '_SEPARATOR_' . $field_machine_name,
+              'class' => array('field'),
+            ),
+            '#id' => 'edit-form-item-' . $bundle . '-separator-' . $field_machine_name,
+          );
+
+
+          $method = NULL;
+          switch ($name) {
+            case 'user':
+              $method = 'user';
+              break;
+            case 'comment':
+              $method = 'comment';
+              break;
+            case 'field_collection_item':
+              $method = 'fieldCollection';
+              break;
+          }
+
+          if ($method) {
+            $translate_fields = smartling_settings_get_handler()->{$method . 'GetFieldsSettings'}();
+
+            $is_in_conf = !empty($translate_fields) && isset($translate_fields[$bundle][$field_machine_name]);
+
+            if ($is_in_conf) {
+              $fr_fields[$key]['#attributes']['checked'] = 'checked';
+            }
+          }
+        }
+      }
+
+      $rows[] = array($bundle, drupal_render($fr_fields));
+      $fr_fields = NULL;
+    }
+  }
+
+  return $rows;
+}
+
+/**
  * Form for smartling node fields settings.
  *
  * @param array $form
@@ -575,7 +744,7 @@ function smartling_admin_node_translation_settings_form(array $form, array &$for
     unset($fr_fields);
   }
 
-  $header = array(t('Content Type'), t('Translation Type'), t('Fields'));
+  $header = array(t('Entity Type'), t('Translation Type'), t('Fields'));
 
   $variables = array(
     'header' => $header,
@@ -1044,7 +1213,7 @@ function smartling_admin_taxonomy_translation_settings_form_submit(array $form, 
  * @return array
  *   Return FAPI array for smartling comments fields settings.
  */
-function smartling_admin_comments_translation_settings_form(array $form, array &$form_state) {
+/*function smartling_admin_comments_translation_settings_form(array $form, array &$form_state) {
   $raw_types = node_type_get_types();
   $comment_translate_fields = smartling_settings_get_handler()->commentGetFieldsSettings();
 
@@ -1156,7 +1325,7 @@ function smartling_admin_comments_translation_settings_form(array $form, array &
   $form['#submit'][] = 'smartling_admin_comments_translation_settings_form_submit';
 
   return $form;
-}
+}*/
 
 /**
  * Comments Translation Settings - Form Submit.
@@ -1262,30 +1431,10 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
  * @return array
  *   Return FAPI array for smartling user fields settings.
  */
-function smartling_admin_users_translation_settings_form(array $form, array &$form_state) {
+/*function smartling_admin_user_translation_settings_form(array $form, array &$form_state) {
   $user_translate_fields = smartling_settings_get_handler()->userGetFieldsSettings();
-
-  // What types of fields DO we translate?
   $translatable_field_types = smartling_get_translatable_field_types();
-
-  $form['users_translation'] = array(
-    'actions' => array(
-      '#type' => 'actions',
-    ),
-  );
-
-  $form['users_translation']['title'] = array(
-    '#type' => 'item',
-    '#title' => t('Which user do you want to translate?'),
-  );
-
-  $rows = array();
   $bundle = 'user';
-  $fr_fields = array();
-  $fr_tt['from'] = array(
-    '#type' => 'item',
-    '#title' => t('Fields method'),
-  );
 
   foreach (field_info_instances('user', $bundle) as $field) {
     $field_label = $field['label'];
@@ -1293,7 +1442,7 @@ function smartling_admin_users_translation_settings_form(array $form, array &$fo
     $field_type = $field['widget']['type'];
 
     if (array_search($field_type, $translatable_field_types)) {
-      $fr_fields[$field_machine_name] = array(
+      $form[$field_machine_name] = array(
         '#type' => 'checkbox',
         '#title' => check_plain($field_label),
         '#attributes' => array(
@@ -1307,50 +1456,13 @@ function smartling_admin_users_translation_settings_form(array $form, array &$fo
       $is_in_conf = (!empty($user_translate_fields) && isset($user_translate_fields[$bundle][$field_machine_name])) ? TRUE : FALSE;
 
       if ($is_in_conf) {
-        $fr_fields[$field_machine_name]['#attributes']['checked'] = 'checked';
+        $form[$field_machine_name]['#attributes']['checked'] = 'checked';
       }
     }
   }
 
-  $rows[$bundle] = array(
-    array(
-      'data' => drupal_render($fr_tt),
-      'width' => '20%',
-    ),
-    array(
-      'data' => drupal_render($fr_fields),
-      'width' => '80%',
-    ),
-  );
-  unset($fr_tt);
-  unset($fr_fields);
-
-  $header = array(t('Translation Type'), t('Fields'));
-
-  $variables = array(
-    'header' => $header,
-    'rows' => $rows,
-    'attributes' => array('class' => array('smartling-content-settings-table')),
-  );
-
-  $form['users_translation']['types'] = array(
-    '#type' => 'markup',
-    '#markup' => theme('table', $variables),
-  );
-
-  foreach (array_keys($user_translate_fields) as $content_type) {
-    $form['users_translation']['types']['#default_value'][$content_type] = 1;
-  }
-
-  $form['users_translation']['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-  );
-
-  $form['#submit'][] = 'smartling_admin_users_translation_settings_form_submit';
-
   return $form;
-}
+}*/
 
 /**
  * Users Translation Settings - Form Submit.
@@ -1402,7 +1514,7 @@ function smartling_admin_users_translation_settings_form_submit(array $form, arr
   $form_state['redirect'] = $redirect;
 }
 
-function smartling_admin_field_collection_settings_form(array $form, array &$form_state) {
+/*function smartling_admin_field_collection_settings_form(array $form, array &$form_state) {
   $instances = field_info_instances();
 
   $raw_types = node_type_get_types();
@@ -1557,7 +1669,7 @@ function smartling_admin_field_collection_settings_form(array $form, array &$for
 
   return $form;
 
-}
+}*/
 
 function smartling_admin_field_collection_settings_form_submit(array $form, array &$form_state) {
   $smartling_settings = smartling_settings_get_handler();
