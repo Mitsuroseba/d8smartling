@@ -466,14 +466,25 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
       }
     }
 
-    if (FALSE !== strpos($key, 'subject_swap_')) {
+    if (FALSE !== strpos($key, '_swap_')) {
       // And only if set to swap.
       if ($value != 0) {
-        $machine_name = substr($key, strlen('subject_swap_'));
-        // Do the actual replacement.
-        $entity_type = 'comment';
-        $bundle = $machine_name;
-        $legacy_field = 'subject';
+        // @todo
+        // This is too ambiguous and hard-coded.
+        $swap_chunks = explode('_swap_', $key);
+        $legacy_field = $swap_chunks[0];
+        $bundle = $swap_chunks[1];
+
+        switch ($legacy_field) {
+          case 'title':
+            $entity_type = 'fieldable_panels_pane';
+            $resulting_field = 'title_field';
+            break;
+          case 'subject':
+            $entity_type = 'comment';
+            $resulting_field = 'subject_field';
+            break;
+        }
 
         // Use the Title module to migrate the content.
         if (title_field_replacement_toggle($entity_type, $bundle, $legacy_field)) {
@@ -486,9 +497,9 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
             ),
           );
           // Add in config.
-          $translate[$machine_name]['subject_field'] = 'subject_field';
+          $translate[$bundle][$resulting_field] = $resulting_field;
 
-          $field = field_info_field('subject_field');
+          $field = field_info_field($resulting_field);
           $field['translatable'] = 1;
           $operations[] = array('field_update_field', array($field));
         }
@@ -517,6 +528,7 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
   smartling_settings_get_handler()->{'userSetFieldsSettings'}(array());
   smartling_settings_get_handler()->{'commentSetFieldsSettings'}(array());
   smartling_settings_get_handler()->{'fieldCollectionSetFieldsSettings'}(array());
+  smartling_settings_get_handler()->{'fieldablePanelPanesSetFieldsSettings'}(array());
 
   // Save the settings, considering entity bundle, to know which
   // update method to be called.
@@ -531,6 +543,9 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
         break;
       case 'field_collection_item':
         $method = 'fieldCollection';
+        break;
+      case 'fieldable_panels_pane':
+        $method = 'fieldablePanelPanes';
         break;
     }
 
@@ -619,7 +634,7 @@ function smartling_admin_entities_translation_crawler() {
           // Comments subject field need special treatment. i.e. some fields
           // replaced instead of standard ones.
           $comment_key = $bundle . '_SEPARATOR_' . 'subject_field';
-
+          $fpp_key = $bundle . '_SEPARATOR_' . 'title_field';
           if ($name == 'comment' && !isset($fr_fields[$comment_key])) {
             $fr_fields[$comment_key] = array(
               '#type' => 'checkbox',
@@ -627,6 +642,17 @@ function smartling_admin_entities_translation_crawler() {
               '#attributes' => array(
                 'id' => array('edit-form-item-' . $bundle . '-separator-subject'),
                 'name' => 'subject_swap_' . $bundle,
+                'class' => array('field'),
+              ),
+            );
+          }
+          else if ($name == 'fieldable_panels_pane' && !isset($fr_fields[$fpp_key])) {
+            $fr_fields[$fpp_key] = array(
+              '#type' => 'checkbox',
+              '#title' => t('Title (Note: field will be created.)'),
+              '#attributes' => array(
+                'id' => array('edit-form-item-' . $bundle . '-separator-title'),
+                'name' => 'title_swap_' . $bundle,
                 'class' => array('field'),
               ),
             );
@@ -642,6 +668,9 @@ function smartling_admin_entities_translation_crawler() {
               break;
             case 'field_collection_item':
               $method = 'fieldCollection';
+              break;
+            case 'fieldable_panels_pane':
+              $method = 'fieldablePanelPanes';
               break;
           }
 
