@@ -411,7 +411,7 @@ function smartling_admin_log_info_settings_form_submit(array $form, array &$form
  *   Return FAPI array for smartling entity fields settings.
  */
 function smartling_admin_entities_translation_settings_form(array $form, array &$form_state) {
-  $entity_rows = smartling_admin_entities_crawler();
+  $entity_rows = smartling_admin_entities_translation_crawler();
   //$user_ = drupal_get_form('smartling_admin_user_translation_settings_form');
 
   $header = array(t('Entity Type'), t('Fields'));
@@ -459,6 +459,39 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
         $content_field = $parts[1];
 
         $translate[$content_type][$content_field] = $content_field;
+
+        $field = field_info_field($content_field);
+        $field['translatable'] = 1;
+        field_update_field($field);
+      }
+    }
+
+    if (FALSE !== strpos($key, 'subject_swap_')) {
+      // And only if set to swap.
+      if ($value != 0) {
+        $machine_name = substr($key, strlen('subject_swap_'));
+        // Do the actual replacement.
+        $entity_type = 'comment';
+        $bundle = $machine_name;
+        $legacy_field = 'subject';
+
+        // Use the Title module to migrate the content.
+        if (title_field_replacement_toggle($entity_type, $bundle, $legacy_field)) {
+          $operations[] = array(
+            'title_field_replacement_batch',
+            array(
+              $entity_type,
+              $bundle,
+              $legacy_field,
+            ),
+          );
+          // Add in config.
+          $translate[$machine_name]['subject_field'] = 'subject_field';
+
+          $field = field_info_field('subject_field');
+          $field['translatable'] = 1;
+          $operations[] = array('field_update_field', array($field));
+        }
       }
     }
   }
@@ -478,6 +511,9 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
 
   // Reset default state, since all disabled checkboxes will be ignored
   // and therefore, not updated.
+  // @todo
+  // This is to be refactored, since it's annoying to add a line for each
+  // entity processor.
   smartling_settings_get_handler()->{'userSetFieldsSettings'}(array());
   smartling_settings_get_handler()->{'commentSetFieldsSettings'}(array());
   smartling_settings_get_handler()->{'fieldCollectionSetFieldsSettings'}(array());
@@ -502,6 +538,28 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
       smartling_settings_get_handler()->{$method . 'SetFieldsSettings'}($v);
     }
   }
+
+  drupal_set_message(t('Entities settings updated.'));
+
+  $log = smartling_log_get_handler();
+  $log->setMessage('Smartling entities and fields have been updated.')
+    ->setConsiderLog(FALSE)
+    ->execute();
+
+  if (!empty($operations)) {
+    $batch = array(
+      'title' => t('Preparing content'),
+      'operations' => $operations,
+    );
+
+    $redirect = url('admin/config/regional/smartling', array(
+      'absolute' => TRUE,
+      'fragment' => 'smartling-comment-fields',
+    ));
+
+    batch_set($batch);
+    batch_process($redirect);
+  }
 }
 
 /**
@@ -512,7 +570,7 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
  *   First element is the entity name, second - checkboxes for each
  *   translatable fields for this entity.
  */
-function smartling_admin_entities_crawler() {
+function smartling_admin_entities_translation_crawler() {
   // Entities we do not want to parse.
   $exclude = array(
     'node',
@@ -545,7 +603,7 @@ function smartling_admin_entities_crawler() {
         $field_machine_name = $field['field_name'];
         $field_type = $field['widget']['type'];
 
-        if (array_search($field_type, $translatable_field_types)) {
+        if (in_array($field_type, $translatable_field_types)) {
           $key = $bundle . '_SEPARATOR_' . $field_machine_name;
           $fr_fields[$key] = array(
             '#type' => 'checkbox',
@@ -558,6 +616,21 @@ function smartling_admin_entities_crawler() {
             '#id' => 'edit-form-item-' . $bundle . '-separator-' . $field_machine_name,
           );
 
+          // Comments subject field need special treatment. i.e. some fields
+          // replaced instead of standard ones.
+          $comment_key = $bundle . '_SEPARATOR_' . 'subject_field';
+
+          if ($name == 'comment' && !isset($fr_fields[$comment_key])) {
+            $fr_fields[$comment_key] = array(
+              '#type' => 'checkbox',
+              '#title' => t('Subject (Note: field will be created.)'),
+              '#attributes' => array(
+                'id' => array('edit-form-item-' . $bundle . '-separator-subject'),
+                'name' => 'subject_swap_' . $bundle,
+                'class' => array('field'),
+              ),
+            );
+          }
 
           $method = NULL;
           switch ($name) {
@@ -1213,8 +1286,8 @@ function smartling_admin_taxonomy_translation_settings_form_submit(array $form, 
  * @return array
  *   Return FAPI array for smartling comments fields settings.
  */
-/*function smartling_admin_comments_translation_settings_form(array $form, array &$form_state) {
-  $raw_types = node_type_get_types();
+function smartling_admin_comments_translation_settings_form(array $form, array &$form_state) {
+  /*$raw_types = node_type_get_types();
   $comment_translate_fields = smartling_settings_get_handler()->commentGetFieldsSettings();
 
   // What types of fields DO we translate?
@@ -1324,8 +1397,8 @@ function smartling_admin_taxonomy_translation_settings_form_submit(array $form, 
 
   $form['#submit'][] = 'smartling_admin_comments_translation_settings_form_submit';
 
-  return $form;
-}*/
+  return $form;*/
+}
 
 /**
  * Comments Translation Settings - Form Submit.
@@ -1336,7 +1409,7 @@ function smartling_admin_taxonomy_translation_settings_form_submit(array $form, 
  *   FAPI array.
  */
 function smartling_admin_comments_translation_settings_form_submit(array $form, array &$form_state) {
-  $log = smartling_log_get_handler();
+  /*$log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1417,7 +1490,7 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
   }
   else {
     $form_state['redirect'] = $redirect;
-  }
+  }*/
 }
 
 /**
@@ -1431,8 +1504,8 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
  * @return array
  *   Return FAPI array for smartling user fields settings.
  */
-/*function smartling_admin_user_translation_settings_form(array $form, array &$form_state) {
-  $user_translate_fields = smartling_settings_get_handler()->userGetFieldsSettings();
+function smartling_admin_user_translation_settings_form(array $form, array &$form_state) {
+  /*$user_translate_fields = smartling_settings_get_handler()->userGetFieldsSettings();
   $translatable_field_types = smartling_get_translatable_field_types();
   $bundle = 'user';
 
@@ -1461,8 +1534,8 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
     }
   }
 
-  return $form;
-}*/
+  return $form;*/
+}
 
 /**
  * Users Translation Settings - Form Submit.
@@ -1473,7 +1546,7 @@ function smartling_admin_comments_translation_settings_form_submit(array $form, 
  *   FAPI array.
  */
 function smartling_admin_users_translation_settings_form_submit(array $form, array &$form_state) {
-  $log = smartling_log_get_handler();
+  /*$log = smartling_log_get_handler();
   // This is needed for the setup because of the field/node method selector.
   system_settings_form_submit($form, $form_state);
 
@@ -1511,7 +1584,7 @@ function smartling_admin_users_translation_settings_form_submit(array $form, arr
     'absolute' => TRUE,
     'fragment' => 'smartling-user-fields',
   ));
-  $form_state['redirect'] = $redirect;
+  $form_state['redirect'] = $redirect;*/
 }
 
 /*function smartling_admin_field_collection_settings_form(array $form, array &$form_state) {
