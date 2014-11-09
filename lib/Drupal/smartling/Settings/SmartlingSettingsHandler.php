@@ -27,6 +27,7 @@ class SmartlingSettingsHandler {
   protected $taxonomyTermFieldsSettings;
   protected $userFieldsSettings;
   protected $fieldCollectionFieldsSettings;
+  protected $fieldablePanelPanesFieldsSettings;
 
   /**
    * Initialize.
@@ -49,6 +50,7 @@ class SmartlingSettingsHandler {
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
     $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
+    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panel_panes_fields_settings', array());
   }
 
   /**
@@ -72,6 +74,7 @@ class SmartlingSettingsHandler {
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
     $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
+    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panel_panes_settings', array());
   }
 
   /**
@@ -395,6 +398,33 @@ class SmartlingSettingsHandler {
    */
   public function fieldCollectionGetFieldsSettings() {
     return $this->fieldCollectionFieldsSettings;
+  }
+
+  /**
+   * Set smartling fields settings for fieldable panels pane entity.
+   *
+   * @param array $fieldable_panel_panes_fields_settings
+   *   Smartling fields settings for fieldable panels pane entity.
+   */
+  public function fieldablePanelPanesSetFieldsSettings(array $fieldable_panel_panes_fields_settings) {
+    if (!empty($fieldable_panel_panes_fields_settings)) {
+      $this->fieldablePanelPanesFieldsSettings = $fieldable_panel_panes_fields_settings;
+      $this->variableSet('smartling_fieldable_panel_panes_fields_settings', $fieldable_panel_panes_fields_settings);
+    }
+    else {
+      $this->fieldablePanelPanesFieldsSettings = array();
+      $this->variableDel('smartling_fieldable_panel_panes_fields_settings');
+    }
+  }
+
+  /**
+   * Get smartling fields settings array for fieldable panels pane.
+   *
+   * @return array
+   *   Return smartling fields settings array for fieldable panels pane entity.
+   */
+  public function fieldablePanelPanesGetFieldsSettings() {
+    return $this->fieldablePanelPanesFieldsSettings;
   }
 
 
