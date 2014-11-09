@@ -1433,10 +1433,6 @@ function smartling_smartling_settings_form_info() {
     'smartling_admin_log_info_settings_form' => t('Smartling log'),
   );
 
-  /*if (module_exists('comment')) {
-    $forms['smartling_admin_comments_translation_settings_form'] = t('Comment fields');
-  }*/
-
   if (module_exists('taxonomy')) {
     $forms['smartling_admin_taxonomy_translation_settings_form'] = t('Taxonomy vocabularies and fields');
   }
@@ -1447,9 +1443,6 @@ function smartling_smartling_settings_form_info() {
   if (module_exists('smartling_reference')) {
     $forms['smartling_admin_reference_settings_form'] = t('References settings');
   }
-  /*if (module_exists('field_collection')) {
-    $forms['smartling_admin_field_collection_settings_form'] = t('Field Collection settings');
-  }*/
 
   return $forms;
 }
