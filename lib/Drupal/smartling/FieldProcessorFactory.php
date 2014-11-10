@@ -34,15 +34,16 @@ class FieldProcessorFactory {
   /**
    * Factory method for FieldProcessor instances.
    *
-   * @param string$field_name
+   * @param string $field_name
    * @param \stdClass $entity
    * @param string $entity_type
    * @param \stdClass $smartling_entity
    * @param string $target_language
+   * @param null|string $source_language
    *
    * @return BaseFieldProcessor
    */
-  public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language) {
+  public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language, $source_language = NULL) {
     $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
 
     $field_info = field_info_field($field_name);
@@ -76,7 +77,7 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    $source_language = (smartling_field_is_translatable_by_field_name($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE;
+    $source_language = ($source_language ?: ((smartling_field_is_translatable_by_field_name($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE));
 
     $field_class = new $class_name(
       $entity,
