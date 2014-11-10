@@ -50,7 +50,7 @@ class SmartlingSettingsHandler {
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
     $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
-    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panel_panes_fields_settings', array());
+    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panels_pane_fields_settings', array());
   }
 
   /**
@@ -74,7 +74,7 @@ class SmartlingSettingsHandler {
     $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
     $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
     $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
-    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panel_panes_settings', array());
+    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panels_pane_fields_settings', array());
   }
 
   /**
@@ -409,11 +409,11 @@ class SmartlingSettingsHandler {
   public function fieldablePanelPanesSetFieldsSettings(array $fieldable_panel_panes_fields_settings) {
     if (!empty($fieldable_panel_panes_fields_settings)) {
       $this->fieldablePanelPanesFieldsSettings = $fieldable_panel_panes_fields_settings;
-      $this->variableSet('smartling_fieldable_panel_panes_fields_settings', $fieldable_panel_panes_fields_settings);
+      $this->variableSet('smartling_fieldable_panels_pane_fields_settings', $fieldable_panel_panes_fields_settings);
     }
     else {
       $this->fieldablePanelPanesFieldsSettings = array();
-      $this->variableDel('smartling_fieldable_panel_panes_fields_settings');
+      $this->variableDel('smartling_fieldable_panels_pane_fields_settings');
     }
   }
 
