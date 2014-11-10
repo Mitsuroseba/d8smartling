@@ -1010,11 +1010,10 @@ function smartling_do_translate_action($entity, array $context) {
         if (!empty($queued_eids)) {
           $smartling_queue->createItem($queued_eids);
         }
-//        $smartling_queue->createItem($entity_data->eid);
       }
       else {
-        drupal_set_message(t('Not support type or Smartling configuration problem for content type - @type.', array('@type' => $entity->type)), 'warning');
-        $log->setMessage('Not support type or Smartling configuration problem for content type - @type.')
+        drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $entity->type)), 'warning');
+        $log->setMessage("Type '@type' is not supported or it's not configured in Smartling.")
           ->setVariables(array('@type' => $entity->type))
           ->setConsiderLog(FALSE)
           ->setSeverity(WATCHDOG_ERROR)
@@ -1075,9 +1074,9 @@ function smartling_do_translate_action($entity, array $context) {
         }
       }
       else {
-        drupal_set_message(t('Not support vocabulary - @vocabulary.', array('@vocabulary' => $entity->vocabulary_machine_name)), 'warning');
-        $log->setMessage('Not support vocabulary - @vocabulary.')
-          ->setVariables(array('@vocabulary' => $entity->vocabulary_machine_name))
+        drupal_set_message(t("Taxonomy '@taxonomy' is not supported.", array('@taxonomy' => $entity->vocabulary_machine_name)), 'warning');
+        $log->setMessage("Taxonomy '@taxonomy' is not supported.")
+          ->setVariables(array('@taxonomy' => $entity->vocabulary_machine_name))
           ->setConsiderLog(FALSE)
           ->setSeverity(WATCHDOG_ERROR)
           ->setLink($link)
@@ -1125,8 +1124,8 @@ function smartling_do_translate_action($entity, array $context) {
         }
       }
       else {
-        drupal_set_message(t('Not support comment - @comment.', array('@comment' => $entity->node_type)), 'warning');
-        $log->setMessage('Not support comment - @comment.')
+        drupal_set_message(t("Comment '@comment' is not supported.", array('@comment' => $entity->node_type)), 'warning');
+        $log->setMessage("Comment '@comment' is not supported.")
           ->setVariables(array('@comment' => $entity->node_type))
           ->setConsiderLog(FALSE)
           ->setSeverity(WATCHDOG_ERROR)
@@ -1176,8 +1175,8 @@ function smartling_do_translate_action($entity, array $context) {
         }
       }
       else {
-        drupal_set_message(t('Users do not translatable fields.'), 'warning');
-        $log->setMessage('Users do not translatable fields.')
+        drupal_set_message(t("Users don't contain translatable fields"), 'warning');
+        $log->setMessage("Users don't contain translatable fields")
           ->setConsiderLog(FALSE)
           ->setSeverity(WATCHDOG_ERROR)
           ->setLink($link)
