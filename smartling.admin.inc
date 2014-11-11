@@ -435,6 +435,7 @@ function smartling_admin_entities_translation_settings_form(array $form, array &
 
   $form['#submit'][] = 'smartling_admin_entities_translation_settings_form_submit';
 
+
   return $form;
 }
 
@@ -561,19 +562,22 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
     ->setConsiderLog(FALSE)
     ->execute();
 
+  $redirect = url('admin/config/regional/smartling', array(
+    'absolute' => TRUE,
+    'fragment' => 'smartling-entities-settings',
+  ));
+
   if (!empty($operations)) {
     $batch = array(
       'title' => t('Preparing content'),
       'operations' => $operations,
     );
 
-    $redirect = url('admin/config/regional/smartling', array(
-      'absolute' => TRUE,
-      'fragment' => 'smartling-comment-fields',
-    ));
-
     batch_set($batch);
     batch_process($redirect);
+  }
+  else {
+    $form_state['redirect'] = $redirect;
   }
 }
 
@@ -965,7 +969,7 @@ function smartling_admin_node_translation_settings_form_submit(array $form, arra
 
   $redirect = url('admin/config/regional/smartling', array(
     'absolute' => TRUE,
-    'fragment' => 'smartling-content-types-and-fields',
+    'fragment' => 'smartling-nodes-settings',
   ));
 
   if (count($operations) >= 1) {
