@@ -349,9 +349,9 @@ class GenericEntityProcessor {
   /**
    * Updates smartling data entity from given xml parsed object.
    *
-   * @param $xml \DomNode
+   * @param $xml \DOMDocument
    */
-  public function importSmartlingXMLToSmartlingEntity(\DOMNode $xml) {
+  public function importSmartlingXMLToSmartlingEntity(\DOMDocument $xml) {
     $this->prepareDrupalEntity();
 
     $xpath = new DomXpath($xml);

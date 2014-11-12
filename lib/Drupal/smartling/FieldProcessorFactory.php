@@ -44,8 +44,6 @@ class FieldProcessorFactory {
    * @return BaseFieldProcessor
    */
   public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language, $source_language = NULL) {
-    $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
-
     $field_info = field_info_field($field_name);
 
     if ($field_info) {

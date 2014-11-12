@@ -11,12 +11,12 @@ use Drupal\smartling\FieldProcessorFactory;
 
 class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
-  protected $fieldFactor;
+  protected $fieldFactory;
 
   public function __construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language) {
     parent::__construct($entity, $entity_type, $field_name, $smartling_data, $source_language, $target_language);
 
-    $this->fieldFactor = drupal_container()->get('smartling.field_processor_factory');
+    $this->fieldFactory = drupal_container()->get('smartling.field_processor_factory');
 
     return $this;
   }
@@ -64,29 +64,88 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
+  protected function getTranslatableFields() {
+    // @todo Inject via DIC.
+    return smartling_settings_get_handler()->getFieldsSettings('field_collection', $this->entity->field_name);
+  }
+
+  protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
+    $point = null;
+    foreach ($this->getTranslatableFields() as $field_name) {
+      // @TODO test if format could be set automatically.
+      $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
+      $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
+      $fieldProcessor->setDrupalContentFromXML($fieldValue);
+    }
+
+    unset($fieldProcessor);
+    entity_save('field_collection_item', $this->entity);
+  }
+
   public function fetchDataFromXML(\DomXpath $xpath) {
     //@todo fetch format from xml as well.
     $result = array();
-    $data = $xpath->query('//field_collection[@id="' . $this->fieldName . '"]')
-      ->item(0);
+    $data = $xpath->query('/data/localize/field_collection[@id="' . $this->fieldName . '"]');
 
-    if (!$data) {
-      return NULL;
+    if (!$data->length) {
+      $data = $xpath->query('//field_collection[@id="' . $this->fieldName . '"]');
+
+      if (!$data->length) {
+        return FALSE;
+      }
     }
 
-    $item = $data->firstChild;
-    do {
-      if ($item->tagName == 'string') {
-        $eid = $item->attributes->getNamedItem('eid');
-        $field = $item->attributes->getNamedItem('id');
-        $delta = $item->attributes->getNamedItem('delta');
-        //$quantity = $item->attributes->getNamedItem('quantity');
+    $delta = 0;
+    foreach ($data as $field_collection_tag) {
+      $eid = $this->entity->{$this->fieldName}[$this->targetLanguage][$delta]['value'];
+      $parentEntity = clone $this->entity;
+      $this->entity = field_collection_item_load($eid);
+      $this->entity = entity_load_single('field_collection_item', $eid);
+      $host_entity = $this->entity->hostEntity();
+      $doc = new \DOMDocument();
+      $nested_item = $field_collection_tag->cloneNode(TRUE);
+      $doc->appendChild($doc->importNode($nested_item, TRUE));
+      $nested_xpath = new \DomXpath($doc);
+      $this->importSmartlingXMLToFieldCollectionEntity($nested_xpath);
+      $delta++;
+      $this->entity = $parentEntity;
+    }
 
-        $result[$eid->value][$field->value][$delta->value] = $item->nodeValue;
-      }
-    } while ($item = $item->nextSibling);
+//    $item = $data->firstChild;
+//    $delta = 0;
+//    $eid = $data->attributes->getNamedItem('eid')->value;
+//    $eid = $this->entity->{$this->fieldName}[$this->sourceLanguage][$delta]['value'];
+//    do {
+//      $this->entity = field_collection_item_load($eid);
+//      $doc = new \DOMDocument();
+//      $nested_item = $item->cloneNode(TRUE);
+//      $doc->appendChild($doc->importNode($nested_item, TRUE));
+//      $nested_xpath = new \DomXpath($doc);
+//      $this->importSmartlingXMLToFieldCollectionEntity($nested_xpath);
+////      if ($item->tagName == 'string') {
+////        $field = $item->attributes->getNamedItem('id')->value;
+////        $string_delta = $item->attributes->getNamedItem('delta')->value;
+////        $result[$eid][$field][$string_delta] = $item->nodeValue;
+////      }
+////      elseif ($item->tagName == 'field_collection') {
+//////        $eid = $item->attributes->getNamedItem('eid')->value;
+////        $field = $item->attributes->getNamedItem('id')->value;
+////        // Ugly DOM* PHP API requires DOMDocument here.
+////        $doc = new \DOMDocument();
+////        $nested_item = $item->cloneNode(TRUE);
+////        $doc->appendChild($doc->importNode($nested_item, TRUE));
+////        $nested_xpath = new \DomXpath($doc);
+////        $entity = $this->fieldCollectionItemLoad($eid);
+////        $smartling_entity = clone $this->smartling_entity;
+////        $fieldProcessor = $this->fieldFactory->getProcessor($field, $entity, 'field_collection', $smartling_entity, $this->targetLanguage);
+////        $result[$eid][$field][$delta] = $fieldProcessor->fetchDataFromXML($nested_xpath);
+////        unset($fieldProcessor);
+////        $delta++;
+////      }
+//      $delta++;
+//    } while ($item = $item->nextSibling);
 
-    return $result;
+    return array(array('value' => $eid));
   }
 
 
@@ -118,7 +177,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         if (!empty($new_fc_item->{$field_name})){
           $field_info = field_info_field($field_name);
           if ($field_info['type'] == 'field_collection'){
-            clone_fc_items('field_collection_item',$new_fc_item, $field_name,$language);
+            $this->clone_fc_items('field_collection_item', $new_fc_item, $field_name, $language);
           }
         }
       }
@@ -131,13 +190,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   public function setDrupalContentFromXML($fieldValue) {
-
+    return;
     $content = $fieldValue;
 
-    //$values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
-    if (empty($values)) {
-      return;
-    }
+//    //$values = $this->entity->{$this->fieldName}[LANGUAGE_NONE];
+//    if (empty($values)) {
+//      return;
+//    }
 
     //$id = current($values);
     foreach($content as $id => $val) {
@@ -151,12 +210,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $fieldProcessorFactory = drupal_container()->get('smartling.field_processor_factory');
     foreach ($value as $field_name => $fieldValue) {
-      $smartling_entity = clone $this->entity;
-      // @TODO test if format could be set automatically.
+      $smartling_entity = clone $this->smartling_entity;
       $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_entity, LANGUAGE_NONE);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
+      unset($fieldProcessor);
     }
 
+    unset($fieldProcessorFactory);
     entity_save('field_collection_item', $entity);
   }
 
@@ -171,12 +231,15 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   public function putDataToXML($xml, $localize, $data, $fieldName = NULL) {
-    $collection = $xml->createElement('field_collection');
-    $attr = $xml->createAttribute('id');
-    $attr->value = !empty($fieldName) ? $fieldName : $this->fieldName;
-    $collection->appendChild($attr);
-
     foreach ($data as $entity_id => $field_collection) {
+      $collection = $xml->createElement('field_collection');
+      $attr = $xml->createAttribute('id');
+      $attr->value = !empty($fieldName) ? $fieldName : $this->fieldName;
+      $collection->appendChild($attr);
+      $attr = $xml->createAttribute('eid');
+      $attr->value = $entity_id;
+      $collection->appendChild($attr);
+
       foreach ($field_collection as $field_name => $value) {
         foreach ($value as $delta => $item) {
           // If field value is an array and value key is valid field name
@@ -185,7 +248,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
             $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
           }
           else {
-            $fieldProcessor = $this->fieldFactor->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_entity, $this->targetLanguage);
+            $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_entity, $this->targetLanguage);
             $fieldProcessor->putDataToXml($xml, $collection, array($delta => $item));
           }
 
