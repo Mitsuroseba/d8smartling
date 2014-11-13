@@ -1093,7 +1093,11 @@ function smartling_reports_views_default_views() {
     t('Status'),
     t('Page'),
   );
-  $export['smartling_bulk_submit_comments'] = $view;
+  // @todo
+  // Quick'n'dirty.
+  if (module_exists('comment')) {
+    $export['smartling_bulk_submit_comments'] = $view;
+  }
 
   $view = new view();
   $view->name = 'smartling_bulk_submit_taxonomy_terms';
