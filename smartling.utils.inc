@@ -130,7 +130,7 @@ function smartling_nodes_method($type) {
  * @todo Should be part of Settings class
  */
 function smartling_fields_method($type) {
-  $fields_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_FIELDS_METHOD_KEY;
+  $fields_method = variable_get('language_content_type_' . $type, NULL) != SMARTLING_NODES_METHOD_KEY;
   return $fields_method;
 }
 
