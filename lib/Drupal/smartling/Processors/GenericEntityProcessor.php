@@ -259,6 +259,11 @@ class GenericEntityProcessor {
    */
   public function downloadTranslation() {
     $download_result = $this->smartlingAPI->downloadFile($this->entity);
+
+    libxml_use_internal_errors(true);
+    if (FALSE === simplexml_load_string($download_result)) {
+      return;
+    }
     // This is a download result.
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);
@@ -278,6 +283,8 @@ class GenericEntityProcessor {
       $this->setProgressStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
       $this->updateDrupalTranslation();
     }
+
+    return $isSuccessfulSave;
   }
 
   /**

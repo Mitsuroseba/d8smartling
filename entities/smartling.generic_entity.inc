@@ -230,6 +230,7 @@ function smartling_get_entity_settings_form_submit(array $form, array &$form_sta
     $smartling_queue = DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
+    $eids = array();
     foreach ($form_state['values']['target'] as $d_locale) {
       if ($d_locale !== 0 && ($d_locale_original !== $d_locale)) {
         $entity_data = smartling_entity_load_by_conditions(array(
@@ -256,10 +257,11 @@ function smartling_get_entity_settings_form_submit(array $form, array &$form_sta
 
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
         $langs[] = $d_locale;
+        $eids[]  = $entity_data->eid;
       }
     }
 
-    $smartling_queue->createItem($entity_data->eid);
+    $smartling_queue->createItem($eids);
     $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale')
       ->setVariables(array(
         '@id' => $id,
