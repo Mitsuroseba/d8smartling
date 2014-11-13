@@ -203,7 +203,7 @@ class SmartlingSettingsHandler {
 
       default:
         $fields = $this->variableGet('smartling_' . $entity_type . '_fields_settings');
-        $fields = $fields[$bundle];
+        $fields = (!empty($bundle))?$fields[$bundle]:$fields;
         break;
     }
 

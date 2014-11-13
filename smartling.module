@@ -46,6 +46,7 @@ include_once 'entities/smartling.taxonomy.inc';
 include_once 'entities/smartling.node.inc';
 include_once 'entities/smartling.comments.inc';
 include_once 'entities/smartling.user.inc';
+include_once 'entities/smartling.generic_entity.inc';
 include_once 'smartling.demo_content.php';
 
 /**
