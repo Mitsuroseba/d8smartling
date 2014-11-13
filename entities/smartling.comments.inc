@@ -238,7 +238,7 @@ function smartling_get_comment_settings_form_submit(array $form, array &$form_st
       }
     }
 
-    $smartling_queue->createItem($entity_data);
+    $smartling_queue->createItem($entity_data->eid);
     $log->setMessage('Add smartling queue task for comment cid - @cid, locale - @locale')
       ->setVariables(array(
         '@cid' => $comment->cid,

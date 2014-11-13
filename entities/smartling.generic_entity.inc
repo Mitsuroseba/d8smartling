@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Functions for comment entity.
+ * Functions for entity.
  */
 function smartling_language_neutral_form_element() {
   $form['smartling'] = array(
@@ -71,7 +71,7 @@ function smartling_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Comment smartling form.
+ * Entity smartling form.
  *
  * @param array $form
  *   FAPI array.
@@ -79,7 +79,7 @@ function smartling_form_alter(&$form, $form_state, $form_id) {
  *   FAPI array.
  *
  * @return array
- *   Return FAPI array for Comment smartling form.
+ *   Return FAPI array for Entity smartling form.
  */
 function smartling_get_entity_settings_form(array $form, array &$form_state) {
   if (!isset($form_state['confirm_delete']) || $form_state['confirm_delete'] !== TRUE) {
@@ -177,7 +177,7 @@ function smartling_get_entity_settings_form(array $form, array &$form_state) {
     $form['smartling']['submit_to_translate'] = array(
       '#type' => 'submit',
       '#value' => 'Send to Smartling',
-      '#submit' => array('smartling_get_comment_settings_form_submit'),
+      '#submit' => array('smartling_get_entity_settings_form_submit'),
       '#states' => array(
         'invisible' => array(
           // Hide the button if term is language neutral.
@@ -205,80 +205,86 @@ function smartling_get_entity_settings_form(array $form, array &$form_state) {
   return $form;
 }
 
-///**
-// * Comment smartling form - Form Submit.
-// *
-// * @param array $form
-// *   FAPI array.
-// * @param array $form_state
-// *   FAPI array.
-// */
-//function smartling_get_comment_settings_form_submit(array $form, array &$form_state) {
-//  $log = smartling_log_get_handler();
-//  $comment = comment_form_submit_build_comment($form, $form_state);
-//  $d_locale_original = $comment->translations->original;
-//  $langs = array();
-//  $link = smartling_get_link_to_entity($comment->cid, $form['#entity_type']);
-//
-//  if (count(array_filter($form_state['values']['target'])) !== 0) {
-//    global $user;
-//
-//    $smartling_queue = DrupalQueue::get('smartling_upload');
-//    $smartling_queue->createQueue();
-//
-//    foreach ($form_state['values']['target'] as $d_locale) {
-//      if ($d_locale !== 0 && ($d_locale_original !== $d_locale)) {
-//        $entity_data = smartling_entity_load_by_conditions(array(
-//          'rid' => $comment->cid,
-//          'entity_type' => $form['#entity_type'],
-//          'target_language' => $d_locale,
-//        ));
-//
-//        if ($entity_data == FALSE) {
-//          // @todo: use smartling_create_from_entity().
-//          $entity_data = smartling_entity_data_create();
-//          $entity_data->rid = $comment->cid;
-//          $entity_data->entity_type = $form['#entity_type'];
-//          $entity_data->bundle = $form['#bundle'];
-//          $entity_data->original_language = $d_locale_original;
-//          $entity_data->target_language = $d_locale;
-//          $entity_data->progress = 0;
-//        }
-//
-//        $entity_data->translated_file_name = FALSE;
-//        $entity_data->submitter = $user->uid;
-//        $entity_data->submission_date = time();
-//        smartling_entity_data_save($entity_data);
-//
-//        smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-//        $langs[] = $d_locale;
-//      }
-//    }
-//
-//    $smartling_queue->createItem($entity_data);
-//    $log->setMessage('Add smartling queue task for comment cid - @cid, locale - @locale')
-//      ->setVariables(array(
-//        '@cid' => $comment->cid,
-//        '@locale' => implode('; ', $langs),
-//      ))
-//      ->setLink($link)
-//      ->execute();
-//
-//    $langs = implode(', ', $langs);
-//    drupal_set_message(t('The comment "@title" has been sent to Smartling for translation to "@langs".', array(
-//      '@title' => $comment->subject,
-//      '@langs' => $langs,
-//    )));
-//  }
-//
-//  if (isset($_GET['destination'])) {
-//    unset($_GET['destination']);
-//  }
-//  // For not change comment status to red when send comment and change content.
-//  $comment->send_to_smartling = TRUE;
-//  comment_save($comment);
-//  $log->setMessage('Updated comment %comment.')
-//    ->setVariables(array('%comment' => $comment->subject))
-//    ->setLink($link)
-//    ->execute();
-//}
+/**
+ * Entity smartling form - Form Submit.
+ *
+ * @param array $form
+ *   FAPI array.
+ * @param array $form_state
+ *   FAPI array.
+ */
+function smartling_get_entity_settings_form_submit(array $form, array &$form_state) {
+  $log = smartling_log_get_handler();
+  $entity = $form['#entity'];
+  $entity_type = $form['#entity_type'];
+  $wp = entity_metadata_wrapper($entity_type, $entity);
+  $id = $wp->getIdentifier();
+  //$comment = comment_form_submit_build_comment($form, $form_state);
+  $d_locale_original = $entity->translations->original;
+  $langs = array();
+  $link = smartling_get_link_to_entity($id, $entity_type);
+
+  if (count(array_filter($form_state['values']['target'])) !== 0) {
+    global $user;
+
+    $smartling_queue = DrupalQueue::get('smartling_upload');
+    $smartling_queue->createQueue();
+
+    foreach ($form_state['values']['target'] as $d_locale) {
+      if ($d_locale !== 0 && ($d_locale_original !== $d_locale)) {
+        $entity_data = smartling_entity_load_by_conditions(array(
+          'rid' => $id,
+          'entity_type' => $entity_type,
+          'target_language' => $d_locale,
+        ));
+
+        if ($entity_data == FALSE) {
+          // @todo: use smartling_create_from_entity().
+          $entity_data = smartling_entity_data_create();
+          $entity_data->rid = $id;
+          $entity_data->entity_type = $entity_type;
+          $entity_data->bundle = $form['#bundle'];
+          $entity_data->original_language = $d_locale_original;
+          $entity_data->target_language = $d_locale;
+          $entity_data->progress = 0;
+        }
+
+        $entity_data->translated_file_name = FALSE;
+        $entity_data->submitter = $user->uid;
+        $entity_data->submission_date = time();
+        smartling_entity_data_save($entity_data);
+
+        smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+        $langs[] = $d_locale;
+      }
+    }
+
+    $smartling_queue->createItem($entity_data->eid);
+    $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale')
+      ->setVariables(array(
+        '@id' => $id,
+        '@locale' => implode('; ', $langs),
+      ))
+      ->setLink($link)
+      ->execute();
+
+    $langs = implode(', ', $langs);
+    drupal_set_message(t('The @entity_type "@title" has been sent to Smartling for translation to "@langs".', array(
+      '@entity_type' => $entity_type,
+      '@title' => $entity->title,
+      '@langs' => $langs,
+    )));
+  }
+
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+  }
+  // For not change entity status to red when send comment and change content.
+  $entity->send_to_smartling = TRUE;
+  entity_save($entity_type, $entity);
+  $log->setMessage('Updated %entity_type %entity.')
+    ->setVariables(array('%entity_type' => $entity_type))
+    ->setVariables(array('%entity' => $entity->title))
+    ->setLink($link)
+    ->execute();
+}
