@@ -66,7 +66,7 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
         break;
 
       default:
-        $output = '-';
+        $output = l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
         break;
     }
     return $output;

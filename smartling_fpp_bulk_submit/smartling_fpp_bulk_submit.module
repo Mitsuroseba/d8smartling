@@ -5,18 +5,3 @@
  */
 
 include_once 'smartling_fpp_bulk_submit.features.inc';
-
-function smartling_fpp_bulk_submit_views_data_alter(&$data) {
-  $data['fieldable_panels_panes']['smartling_entity_data'] = array(
-    'group' => t('Smartling'),
-    'title' => t('Smartling Entity'),
-    'help' => t('Fieldable Panels Pane relationship.'),
-    'relationship' => array(
-      'base' => 'smartling_entity_data',
-      'base field' => 'rid',
-      'relationship field' => 'fpid',
-      'handler' => 'views_handler_relationship',
-      'label' => t('Smartling related ID'),
-    ),
-  );
-}

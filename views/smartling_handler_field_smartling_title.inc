@@ -55,12 +55,16 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
         $link = t('!title', array('!title' => $entity->textgroup_name));
         break;
 
-      case 'fieldable_panels_pane':
-        $link = t('!title', array('!title' => $entity->title));
-        break;
-
       default:
-        $link = '-';
+        $title = $entity_type . ' ' . $rid;
+        if (isset($entity->title)) {
+          $title = $entity->title;
+        }
+        elseif ($entity->name) {
+          $title = $entity->name;
+        }
+
+        $link = t('!title', array('!title' => $title));
         break;
     }
     return $link;
