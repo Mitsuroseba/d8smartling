@@ -60,6 +60,11 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
             . l(t('Import (owerwrite mode)'), 'smartling/import-interface/' . LOCALE_IMPORT_OVERWRITE . '/' . $eid, $options2);
         break;
 
+      case 'fieldable_panels_pane':
+        $output = l(t('Edit'), 'admin/structure/fieldable-panels-panes/view/' . $rid . '/edit') . ' | '
+          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        break;
+
       default:
         $output = '-';
         break;

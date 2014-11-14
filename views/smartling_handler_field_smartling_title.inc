@@ -27,7 +27,11 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
     $function_load = $entity_type . '_load';
     if (function_exists($function_load)) {
       $entity = $function_load($rid);
+    } else {
+      $entity = entity_load($entity_type, array($rid));
+      $entity = $entity[$rid];
     }
+
     if (function_exists($function_uri)) {
       $uri = $function_uri($entity);
       $path = $uri['path'];
@@ -49,6 +53,10 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
 
       case 'smartling_interface_entity':
         $link = t('!title', array('!title' => $entity->textgroup_name));
+        break;
+
+      case 'fieldable_panels_pane':
+        $link = t('!title', array('!title' => $entity->title));
         break;
 
       default:
