@@ -62,6 +62,10 @@ rm -rf sites/all/modules/custom/smartling
 logit info "Installing Connector module"
 $UNZIP $MODULE -d ./sites/all/modules/custom
 logit info "Enabling Connector module"
+# field collection is required by smartling_demo_content
+drush_e dl entityform field_collection -y
+drush_e en field_collection -y
+
 drush_e en smartling smartling_reports -y
 drush_e en smartling_interface_translation smartling_demo_content -y
 drush_e en smartling_field_collection_content_demo -y
