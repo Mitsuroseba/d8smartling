@@ -43,7 +43,7 @@ class TextFieldProcessor extends BaseFieldProcessor {
       $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
         ->item(0);
       $data[$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
-      // @todo Copy fromat from the original field while xml file doesn't contain format
+      // @todo Copy format from the original field while xml file doesn't contain format
       // Otherwise you will get bug imediatelly with FullHtml fields
     }
 
