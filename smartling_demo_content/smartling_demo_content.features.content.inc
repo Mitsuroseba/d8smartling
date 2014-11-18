@@ -135,6 +135,16 @@ This winter, don\'t feel like you have to fly to Venezuela to get your baseball 
         ),
       ),
     ),
+    'field_taxonomy_field' => array(
+      'und' => array(
+        0 => array(
+          'tid' => 3,
+        ),
+        1 => array(
+          'tid' => 4,
+        ),
+      ),
+    ),
   );
 
   $content['caribbean_port'] = (object) array(
@@ -246,6 +256,16 @@ Can\'t decide which activity you most want to do? Don\'t worry — most Caribbea
           'value' => 'Swimming with stingrays is a magical experience. Your knowledgeable guide will teach you the safe way to interact with the gentle creatures and then you’ll be able to swim beside them and touch them.',
           'format' => NULL,
           'safe_value' => 'Swimming with stingrays is a magical experience. Your knowledgeable guide will teach you the safe way to interact with the gentle creatures and then you’ll be able to swim beside them and touch them.',
+        ),
+      ),
+    ),
+    'field_taxonomy_field' => array(
+      'und' => array(
+        0 => array(
+          'tid' => 3,
+        ),
+        1 => array(
+          'tid' => 2,
         ),
       ),
     ),
@@ -660,6 +680,13 @@ This somber cemetery pays homage to fallen soldiers and other national heroes, i
           'value' => 'The Oise-Aisne American Cemetery and Memorial in France was created for World War I victims who were not repatriated.',
           'format' => NULL,
           'safe_value' => 'The Oise-Aisne American Cemetery and Memorial in France was created for World War I victims who were not repatriated.',
+        ),
+      ),
+    ),
+    'field_taxonomy_field' => array(
+      'und' => array(
+        0 => array(
+          'tid' => 2,
         ),
       ),
     ),
