@@ -100,7 +100,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
       $eid = $this->entity->{$this->fieldName}[$this->targetLanguage][$delta]['value'];
       $parentEntity = clone $this->entity;
       $this->entity = field_collection_item_load($eid);
-      $this->entity = entity_load_single('field_collection_item', $eid);
+    //  $this->entity = entity_load_single('field_collection_item', $eid);
       $host_entity = $this->entity->hostEntity();
       $doc = new \DOMDocument();
       $nested_item = $field_collection_tag->cloneNode(TRUE);
@@ -155,6 +155,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     if (!is_array($old_fc_items)) {
       $old_fc_items = array($old_fc_items);
     }
+    if (empty($old_fc_items)) {
+      foreach ($entity->{$fc_field}[$language] as $item_key => $item_value) {
+        $fc_item = field_collection_item_load($item_value['value']);
+          $old_fc_items[$item_key] = $fc_item;
+      }
+    }
+
     $field_info_instances = field_info_instances();
     $field_names = element_children($field_info_instances['field_collection_item'][$fc_field]);
     unset($entity->{$fc_field}[$language]);
@@ -162,16 +169,17 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     foreach ($old_fc_items as $old_fc_item) {
       //$old_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $old_fc_item);
       $new_fc_item = entity_create('field_collection_item', array('field_name' => $fc_field));
-      $new_fc_item->setHostEntity($entity_type, $entity);
-      $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
+      $new_fc_item->setHostEntity($entity_type, $entity, $language);
       foreach ($field_names as $field_name) {
         if (!empty($old_fc_item->{$field_name})){
           $new_fc_item->{$field_name} = $old_fc_item->{$field_name};
         }
       }
-      $new_fc_item_wrapper->save();
-     // field_attach_update($entity_type, $entity);
-      $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
+        $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
+        $new_fc_item_wrapper->save();
+        // field_attach_update($entity_type, $entity);
+        $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
+
       //Now check if any of the fields in the newly cloned fc item is a field collection and recursively call this function to properly clone it.
       foreach ($field_names as $field_name) {
         if (!empty($new_fc_item->{$field_name})){
@@ -181,7 +189,10 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
           }
         }
       }
+        $new_fc_item = field_collection_item_load( $new_fc_item_wrapper->getIdentifier());
+
     }
+
     return $result;
   }
 

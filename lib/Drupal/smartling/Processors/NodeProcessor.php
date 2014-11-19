@@ -68,11 +68,11 @@ class NodeProcessor extends GenericEntityProcessor {
           // to make sure that all related logic was triggered.
           if (!empty($this->contentEntity->{$field_name}[LANGUAGE_NONE])) {
             $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
-            // @TODO get rid of harcoded language.
-            $node->{$field_name}[LANGUAGE_NONE] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
+            // @TODO get rid of hardcoded language.
+              $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
           }
         }
-
+        $node = node_load($node->nid);
         // Second saving is done for Field Collection field support
         // that need host entity id.
         //node_save($node);
