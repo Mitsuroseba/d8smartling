@@ -17,7 +17,8 @@ class TextFieldProcessor extends BaseFieldProcessor {
 
     if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
-        $data[$delta] = $value['value'];
+        $data[$delta]['value'] = $value['value'];
+        $data[$delta]['format'] = $value['format'];
       }
     }
 
@@ -42,7 +43,9 @@ class TextFieldProcessor extends BaseFieldProcessor {
     for ($i = 0; $i < $quantity; $i++) {
       $field = $xpath->query('//string[@id="' . $this->fieldName . '-' . $i . '"][1]')
         ->item(0);
+      $format = $field->getAttribute('format');
       $data[$i]['value'] = $this->processXMLContent((string) $field->nodeValue);
+      $data[$i]['format'] = (string) $format;
       // @todo Copy format from the original field while xml file doesn't contain format
       // Otherwise you will get bug imediatelly with FullHtml fields
     }
@@ -54,7 +57,30 @@ class TextFieldProcessor extends BaseFieldProcessor {
     // Field text.
     $quantity = count($data);
     foreach ($data as $key => $value) {
-      $string = $this->buildXMLString($xml, $this->fieldName . '-' . $key, $key, $quantity, $value);
+      $string = $xml->createElement('string');
+      $string_val = $xml->createTextNode($value['value']);
+      $string_attr = $xml->createAttribute('id');
+      $string_attr->value = $this->fieldName . '-' . $key;
+      $string->appendChild($string_attr);
+      $string->appendChild($string_val);
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
+      $localize->appendChild($string);
+
+      // Set format.
+      if (isset($value['format'])) {
+        $string_attr = $xml->createAttribute('format');
+        $string_attr->value = $value['format'];
+        $string->appendChild($string_attr);
+        $localize->appendChild($string);
+      }
+
+      // Set quantity.
+      $string_attr = $xml->createAttribute('quantity');
+      $string_attr->value = $quantity;
+      $string->appendChild($string_attr);
       $localize->appendChild($string);
     }
   }
