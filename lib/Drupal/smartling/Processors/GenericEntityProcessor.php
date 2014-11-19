@@ -275,16 +275,16 @@ class GenericEntityProcessor {
     $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccessfulSave = smartling_save_xml($xml, $this->entity, $translated_file_name, TRUE);
+    $isSuccess = smartling_save_xml($xml, $this->entity, $translated_file_name, TRUE);
 
     // If result is saved.
     // @todo finish converting.
-    if ($isSuccessfulSave) {
+    if ($isSuccess) {
       $this->setProgressStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
-      $this->updateDrupalTranslation();
+      $isSuccess = $this->updateDrupalTranslation();
     }
 
-    return $isSuccessfulSave;
+    return $isSuccess;
   }
 
   /**
@@ -325,7 +325,10 @@ class GenericEntityProcessor {
     // Initialize translations if they are empty.
     if (empty($translations->original)) {
       $handler->initTranslations();
-      smartling_entity_translation_save($handler, $entity);
+      $handler->saveTranslations();
+      // Update the wrapped entity.
+      $handler->setEntity($entity);
+      $handler->smartlingEntityTranslationFieldAttach();
       $translations = $handler->getTranslations();
     }
 
@@ -350,7 +353,12 @@ class GenericEntityProcessor {
       );
       $handler->setTranslation($entity_translation);
     }
-    smartling_entity_translation_save($handler, $entity);
+    $handler->saveTranslations();
+    // Update the wrapped entity.
+    $handler->setEntity($entity);
+    $handler->smartlingEntityTranslationFieldAttach();
+
+    return TRUE;
   }
 
   /**
@@ -387,7 +395,7 @@ class GenericEntityProcessor {
     $this->importSmartlingXMLToSmartlingEntity($xml);
 
     // Update translations information.
-    $this->updateDrupalTranslation();
+    return $this->updateDrupalTranslation();
   }
 
   public function exportContentToTranslation($xml, $rid) {

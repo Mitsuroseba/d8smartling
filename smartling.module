@@ -304,6 +304,7 @@ function smartling_field_settings_update_submit(array $form, array &$form_state)
  */
 function smartling_download_translate_form_submit(array $form, array &$form_state) {
   $log = smartling_log_get_handler();
+  $status = FALSE;
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
     foreach ($form_state['values']['target'] as $d_locale) {
@@ -345,7 +346,7 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
       $processor = smartling_get_entity_processor($entity_data);
       // @todo implement chain interface.
       if ($processor->downloadTranslation()) {
-        $processor->updateEntityFromXML();
+        $status = $processor->updateEntityFromXML();
       }
     }
 
@@ -645,6 +646,14 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
 //        break;
 //    }
   }
+
+  if ($status) {
+    drupal_set_message(t('The translation was successfully downloaded.'));
+  }
+  else {
+    drupal_set_message(t('Ooops, something went wrong while we tried to download/apply the translation. Please see the logs.'), 'error');
+  }
+
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
     drupal_goto(current_path());
@@ -1301,6 +1310,10 @@ function smartling_do_translate_action_validate(array $form, array &$form_state)
  *   Return array with languages to translate.
  */
 function smartling_do_translate_action_submit(array $form, array $form_state) {
+  if (!smartling_is_configured()) {
+    return;
+  }
+
   $count_op = count($form_state['selection']);
   $log = smartling_log_get_handler();
   $log->setMessage(format_plural($count_op, 'Smartling Bulk Submit - add 1 entity to queue', 'Smartling Bulk Submit - add @count entities to queue'))

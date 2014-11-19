@@ -927,21 +927,6 @@ function smartling_log_get_handler() {
 }
 
 /**
- * Save entity translation.
- *
- * @param object $handler
- *   Handler.
- * @param object $entity
- *   Entity.
- */
-function smartling_entity_translation_save($handler, $entity) {
-  $handler->saveTranslations();
-  // Update the wrapped entity.
-  $handler->setEntity($entity);
-  $handler->smartlingEntityTranslationFieldAttach();
-}
-
-/**
  * Check filename length.
  *
  * @param string $title

@@ -550,7 +550,10 @@ function smartling_update_7100(&$sandbox) {
           // Initialize translations if they are empty.
           if (empty($translations->original)) {
             $handler->initTranslations();
-            smartling_entity_translation_save($handler, $entity_load);
+            $handler->saveTranslations();
+            // Update the wrapped entity.
+            $handler->setEntity($entity_load);
+            $handler->smartlingEntityTranslationFieldAttach();
             $translations = $handler->getTranslations();
           }
 
@@ -575,7 +578,10 @@ function smartling_update_7100(&$sandbox) {
             );
             $handler->setTranslation($entity_translation);
           }
-          smartling_entity_translation_save($handler, $entity_load);
+          $handler->saveTranslations();
+          // Update the wrapped entity.
+          $handler->setEntity($entity_load);
+          $handler->smartlingEntityTranslationFieldAttach();
         }
       }
       else {
