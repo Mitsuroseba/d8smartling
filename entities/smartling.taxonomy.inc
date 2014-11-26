@@ -248,6 +248,11 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
     $tid = $original_term->tid;
   }
 
+  if (intval($tid) == 0) {
+    drupal_set_message(t('Original entity was not found. Please check if your current entity is "language neutral", that shouldn\'t be the case.'));
+    return;
+  }
+
   $langs = array();
   $link = smartling_get_link_to_entity($term->tid, $form['#entity_type']);
 
