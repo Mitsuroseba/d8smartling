@@ -1,0 +1,22 @@
+<?php
+
+function smartling_content_utils_action_info() {
+  return array(
+    'smartling_content_utils_my_custom_action' => array(
+      'type' => 'node',
+      'label' => t('Search and replace text in a field'),
+      'behavior' => array('changes_property'),
+      'configurable' => FALSE,
+      'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+function smartling_content_utils_my_custom_action(&$node, $context) {
+  $message = t('Node title is %title. Sincerely, %hero', array(
+    '%title' => $node->title,
+    '%hero' => $context['hero'],
+  ));
+  drupal_set_message($message);
+}
