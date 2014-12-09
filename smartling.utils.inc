@@ -442,12 +442,14 @@ function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $tra
     return TRUE;
   }
   else {
-    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid')
-      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid))
+    $error = error_get_last();
+
+    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir; error: @error.')
+      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory, '@error' => $error['message']))
       ->setConsiderLog(FALSE)
       ->setSeverity(WATCHDOG_ERROR)
       ->execute();
-    drupal_set_message(t('File was not saved because of some errors.'), 'error');
+    drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
     return FALSE;
   }
 }
