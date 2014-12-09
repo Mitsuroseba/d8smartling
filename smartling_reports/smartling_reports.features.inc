@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Smartling reports features inc.
+ * smartling_reports.features.inc
  */
 
 /**

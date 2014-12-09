@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Smartling reports views default inc.
+ * smartling_reports.views_default.inc
  */
 
 /**
@@ -24,7 +24,8 @@ function smartling_reports_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Completed Submissions';
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -371,11 +372,10 @@ function smartling_reports_views_default_views() {
     t('Submitter name'),
     t('Submission date'),
     t('Progress'),
-    t('%'),
+    t(' %'),
     t('Download'),
     t('OPERATIONS'),
     t('Entity_type'),
-    t(','),
     t('Submissions in Progress'),
   );
   $export['smartlig_report'] = $view;
@@ -395,6 +395,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['title'] = 'Smartling Bulk Submit';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -782,6 +783,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['title'] = 'Smartling Bulk Submit Comments';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -1082,6 +1084,8 @@ function smartling_reports_views_default_views() {
     t('Content'),
     t('Smartling related ID'),
     t('Comment'),
+    t('- Choose an operation -'),
+    t('Translate'),
     t('Title'),
     t('Type'),
     t('Approved'),
@@ -1093,6 +1097,7 @@ function smartling_reports_views_default_views() {
     t('Status'),
     t('Page'),
   );
+  
   // @todo
   // Quick'n'dirty.
   if (module_exists('comment')) {
@@ -1114,6 +1119,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['title'] = 'Smartling Bulk Submit Taxonomy terms';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -1293,6 +1299,8 @@ function smartling_reports_views_default_views() {
     t('last »'),
     t('Smartling related ID'),
     t('Taxonomy term'),
+    t('- Choose an operation -'),
+    t('Translate'),
     t('Name'),
     t('Vocabulary Name'),
     t('Locales'),
@@ -1317,7 +1325,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['title'] = 'Smartling Bulk Submit Users';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'access user profiles';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -1568,6 +1576,8 @@ function smartling_reports_views_default_views() {
     t('last »'),
     t('Smartling related ID'),
     t('User'),
+    t('- Choose an operation -'),
+    t('Translate'),
     t('Name'),
     t('Active'),
     t('Roles'),
