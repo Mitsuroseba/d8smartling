@@ -1097,7 +1097,7 @@ function smartling_reports_views_default_views() {
     t('Status'),
     t('Page'),
   );
-  
+
   // @todo
   // Quick'n'dirty.
   if (module_exists('comment')) {
