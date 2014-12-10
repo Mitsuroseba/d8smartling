@@ -258,6 +258,11 @@ class GenericEntityProcessor {
    * Downloads translation data from Smartling server.
    */
   public function downloadTranslation() {
+    $progress = $this->getProgressStatus();
+    if ($progress === FALSE) {
+      return;
+    }
+
     $download_result = $this->smartlingAPI->downloadFile($this->entity);
 
     libxml_use_internal_errors(true);
@@ -281,6 +286,8 @@ class GenericEntityProcessor {
     // @todo finish converting.
     if ($isSuccess) {
       $this->setProgressStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
+      $this->entity->progress = $progress;
+      smartling_entity_data_save($this->entity);
       $isSuccess = $this->updateDrupalTranslation();
     }
 

@@ -13,8 +13,10 @@ function smartling_queue_download_update_translated_item_process($eid) {
   $smartling_entity = entity_load_single('smartling_entity_data', $eid);
   if ($smartling_entity && smartling_is_configured() && smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
     $processor = smartling_get_entity_processor($smartling_entity);
-    $processor->downloadTranslation();
-    $status = $processor->updateEntityFromXML();
+    if ($processor->downloadTranslation()) {
+      $status = $processor->updateEntityFromXML();
+    }
+
   }
 
   if ($status) {

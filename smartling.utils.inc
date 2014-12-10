@@ -442,10 +442,8 @@ function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $tra
     return TRUE;
   }
   else {
-    $error = error_get_last();
-
-    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir; error: @error.')
-      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory, '@error' => $error['message']))
+    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.')
+      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory))
       ->setConsiderLog(FALSE)
       ->setSeverity(WATCHDOG_ERROR)
       ->execute();
@@ -504,56 +502,6 @@ function smartling_build_xml($processor, $rid) {
 
   return $xml;
 }
-
-/**
- * Build localize object.
- *
- * @param object $dom
- *   Dom object.
- * @param string $title
- *   This param set value of attribute title.
- * @param array $strings
- *   This is array of strings to be create.
- * @param string $index
- *   This is index of localize or nolocalize tag.
- *   Such as localize2 or nolocalize3.
- *   Is empty string by default.
- * @param bool $no
- *   If TRUE tag -> nolocalize, if FALSE tag -> localize.
- *   Tag localize use by default.
- *
- * @return DOMNode
- *   Return localize object.
- *
- * @todo rewrite this bunch of hardcode.
- */
-//function smartling_build_localize($dom, $title = '', array $strings = array(), $index = '', $no = FALSE) {
-//  $element = ($no !== FALSE) ? 'nolocalize' . $index : 'localize' . $index;
-//
-//  $localize = $dom->createElement($element);
-//  $localize_attr = $dom->createAttribute('title');
-//  $localize_attr->value = $title;
-//  $localize->appendChild($localize_attr);
-//
-//  foreach ($strings as $field_name => $field_value) {
-//    // Fix for property field to make them works as other fields structures.
-//    if (is_string($field_value)) {
-//      $field_value = array($field_value);
-//    }
-//
-//    if (is_array($field_value) && !empty($field_value)) {
-//
-//      if (!empty($field_value[0]) && isset($field_value[0]['alt-img'])) {
-//        // Field image.
-//
-//
-//      }
-//
-//    }
-//  }
-//
-//  return $localize;
-//}
 
 /**
  * Download translate for entity.
