@@ -279,6 +279,7 @@ function smartling_schema() {
  */
 function smartling_requirements($phase) {
   $requirements = array();
+  $t = get_t();
 
   if ($phase == 'update') {
     $module_list = array();
@@ -290,12 +291,25 @@ function smartling_requirements($phase) {
     }
 
     if (!empty($module_list)) {
-      $requirements['smartling']['title'] = get_t('Dependencies error');
-      $requirements['smartling']['value'] = get_t('Enable modules @modules', array('@modules' => implode(', ', $module_list)));
+      $requirements['smartling']['title'] = $t('Dependencies error');
+      $requirements['smartling']['value'] = $t('Enable modules @modules', array('@modules' => implode(', ', $module_list)));
       $requirements['smartling']['severity'] = REQUIREMENT_WARNING;
-      $requirements['smartling']['description'] = get_t('Please enable modules');
-      return $requirements;
+      $requirements['smartling']['description'] = $t('Please enable modules');
     }
+  }
+
+  if ($phase == 'runtime') {
+    $directory = smartling_get_dir();
+    if (file_prepare_directory($directory)) {
+      $requirements['smartling']['value'] = $t('Private file system for Smartling is successfully configured.');
+      $requirements['smartling']['severity'] = REQUIREMENT_OK;
+    }
+    else {
+      $requirements['smartling']['description'] = $t('Smartling needs permissions to write to Drupals private file system in order to save temporary files that will be sent to the server.');
+      $requirements['smartling']['severity'] = REQUIREMENT_ERROR;
+      $requirements['smartling']['value'] = $t('Please configure the private filesystem for Smartling.');
+    }
+    $requirements['smartling']['title'] = $t('Smartling private filesystem');
   }
   // We must always return array, the installer doesn't use module_invoke_all().
   return $requirements;
