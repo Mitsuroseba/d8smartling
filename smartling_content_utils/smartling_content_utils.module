@@ -7,10 +7,18 @@ function smartling_content_utils_action_info() {
       'label' => t('Search and replace text in a field'),
       'behavior' => array('changes_property'),
       'configurable' => FALSE,
-      'vbo_configurable' => TRUE,
+      //'vbo_configurable' => TRUE,
       'triggers' => array('any'),
     ),
   );
+}
+
+function smartling_content_utils_my_custom_action_form() {
+  return array();
+}
+
+function smartling_content_utils_my_custom_action_form_submit() {
+  return TRUE;
 }
 
 function smartling_content_utils_my_custom_action(&$node, $context) {
@@ -21,16 +29,8 @@ function smartling_content_utils_my_custom_action(&$node, $context) {
   drupal_set_message($message);
 }
 
-function update_node_language() {
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')->addMetaData('account', user_load(1));
-  $result = $query->execute();
-  $nids = array_keys($result['node']);
-  $n = count($nids);
-
-  foreach($nids as $i => $nid) { // go through ALL nodes
-    $node = node_load($nid); // load the node
-    $type = $node->type; // get the content type
+function update_node_language($node) {
+    //$type = $node->type; // get the content type
     $field_langs = field_language('node', $node); // get the language of each field
     foreach($field_langs as $field => $lang) { // go through ALL field of this node
       if ($lang != LANGUAGE_NONE) { // if the field is in the wrong language
@@ -42,6 +42,5 @@ function update_node_language() {
       }
     }
     $node->language = LANGUAGE_NONE; // set the node language to neutral
-    node_save($node); // commit changes
-  }
+    //node_save($node); // commit changes
 }
