@@ -7,7 +7,7 @@
 /**
  * Implements hook_views_default_views().
  */
-function nodes_preparation_for_translation_views_default_views() {
+function smartling_content_utils_views_default_views() {
   $export = array();
 
   $view = new view();
