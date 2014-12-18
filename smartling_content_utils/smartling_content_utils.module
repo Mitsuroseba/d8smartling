@@ -112,7 +112,7 @@ function smartling_content_utils_update_to_node_translate_method($node, $default
     return TRUE;
   }
 
-  if (!in_array($default_language, $field_langs)) {
+  if (!in_array($default_language, $field_langs) && !in_array(LANGUAGE_NONE, $field_langs)) {
     return FALSE;
   }
 
@@ -139,7 +139,7 @@ function smartling_content_utils_update_to_fields_translate_method($node, $defau
     return TRUE;
   }
 
-  if (!in_array(LANGUAGE_NONE, $field_langs)) {
+  if (!in_array($default_language, $field_langs) && !in_array(LANGUAGE_NONE, $field_langs)) {
     return FALSE;
   }
 
