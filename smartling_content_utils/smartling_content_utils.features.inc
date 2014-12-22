@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * nodes_preparation_for_translation.features.inc
+ * smartling_content_utils.features.inc
  */
 
 /**

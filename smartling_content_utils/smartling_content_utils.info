@@ -7,7 +7,6 @@ dependencies[] = smartling
 dependencies[] = views
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
-features[views_view][] = smartling_content_utils
+features[views_view][] = smartling_nodes_preparation_for_translation
 features_exclude[dependencies][ctools] = ctools
-
 files[] = tests/smartling_utils.test
