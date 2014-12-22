@@ -57,6 +57,11 @@ function smartling_content_utils_translate_prepare_action(&$node, $context) {
 }
 
 /*
+ * Legend:
+ * def - default language
+ * <no def> - node doesn't contain fields with default language
+ * OK - no conversion required
+ *
  * Conversion table
  *
  * -----------------------------------------------------------------------------
@@ -65,9 +70,9 @@ function smartling_content_utils_translate_prepare_action(&$node, $context) {
  * -----------------------------------------------------------------------------
  *    UND     |     UND     |   def    |   UND     |   def    |    def
  * -----------------------------------------------------------------------------
- *    def     | def/es/it/fr|   def    |   UND     |          |
+ *    def     | def/es/it/fr|   def    |   UND     |   OK     |    OK
  * -----------------------------------------------------------------------------
- *  def/es/it |     UND     |          |           |   def    |    def
+ *  def/es/it |     UND     |    OK    |   OK      |   def    |    def
  * -----------------------------------------------------------------------------
  *     def    |  <no def>   |        error         |       error
  * -----------------------------------------------------------------------------
