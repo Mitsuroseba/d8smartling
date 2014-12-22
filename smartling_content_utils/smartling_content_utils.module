@@ -25,7 +25,7 @@ function smartling_content_utils_translate_prepare_action_form() {
 
   $form['confirm'] = array(
     '#type' => 'checkbox',
-    '#title' => t('I confirm that I understand that this action is irrevertible. And that I habe a backup for my data (DB).'),
+    '#title' => t('I confirm that I understand that this action is irrevertible. And that I have a backup for my data (DB).'),
   );
 
   return $form;
@@ -46,17 +46,10 @@ function smartling_content_utils_translate_prepare_action_submit($form, $form_st
 }
 
 function smartling_content_utils_translate_prepare_action(&$node, $context) {
-//  $message = t('Node title is %title. Sincerely, %hero', array(
-//    '%title' => $node->title,
-//    '%hero' => $context['hero'],
-//  ));
-//  drupal_set_message($message);
   $default_lang = language_default()->language;
 
   if ((($node->nid == $node->tnid) || ($node->tnid == 0)) && in_array($node->language, array(LANGUAGE_NONE, $default_lang))) {
-    if (smartling_nodes_method($node->type)) {
-      smartling_content_utils_translate_router($node, 'node', $default_lang);
-    }
+    smartling_content_utils_translate_router($node, 'node', $default_lang);
   }
   else {
     //todo: Add logging here
@@ -78,46 +71,36 @@ function smartling_content_utils_translate_prepare_action(&$node, $context) {
  * -----------------------------------------------------------------------------
  *     def    |  <no def>   |        error         |       error
  * -----------------------------------------------------------------------------
+ *
+ * *def - default language of the site. Usually it's english.
  */
 function smartling_content_utils_translate_router($entity, $type, $default_lang) {
-  $field_langs = field_language($type, $entity);
-  //$field_lang = reset ($field_langs);
-
-  if (($entity->language == LANGUAGE_NONE) && in_array(LANGUAGE_NONE, $field_langs)) {
-    if (smartling_nodes_method($entity->type)) {
-      smartling_content_utils_update_to_node_translate_method($entity, $default_lang);
-    }
-    else {
-      smartling_content_utils_update_to_fields_translate_method($entity, $default_lang);
-    }
+  if (!smartling_supported_type($type, $entity->type)) {
+    return;
   }
+  $allowed_fields = smartling_settings_get_handler()->getFieldsSettings($type, $entity->type);
 
-  if (($entity->language == $default_lang) && (in_array($default_lang, $field_langs)) && (smartling_nodes_method($entity->type))) {
-    smartling_content_utils_update_to_node_translate_method($entity, $default_lang);
+  if (smartling_nodes_method($entity->type)) {
+    smartling_content_utils_update_to_node_translate_method($entity, $default_lang, $allowed_fields);
   }
-
-  if (($entity->language == $default_lang) && (in_array(LANGUAGE_NONE, $field_langs)) && (!smartling_nodes_method($entity->type))) {
-    smartling_content_utils_update_to_node_translate_method($entity, $default_lang);
+  else {
+    smartling_content_utils_update_to_fields_translate_method($entity, $default_lang, $allowed_fields);
   }
-
 }
 
-function smartling_content_utils_update_to_node_translate_method($node, $default_language) {
+function smartling_content_utils_update_to_node_translate_method($node, $default_language, $allowed_fields) {
   if ($default_language == LANGUAGE_NONE) {
     return FALSE;
   }
 
   $field_langs = field_language('node', $node);
-  if ($node->language == $default_language && in_array(LANGUAGE_NONE, $field_langs)) {
-    return TRUE;
-  }
 
   if (!in_array($default_language, $field_langs) && !in_array(LANGUAGE_NONE, $field_langs)) {
     return FALSE;
   }
 
   foreach($field_langs as $field => $lang) { // go through ALL field of this node
-    if ($lang == $default_language) { // if the field is in the wrong language
+    if (($lang == $default_language) && (in_array($field, $allowed_fields))) { // if the field is in the wrong language
       $items = field_get_items('node', $node, $field, $lang); // get all field values
       if (!empty($items)) {
         $node->{$field}[LANGUAGE_NONE] = $items; // put it under language neutral
@@ -126,18 +109,14 @@ function smartling_content_utils_update_to_node_translate_method($node, $default
     }
   }
   $node->language = $default_language;//LANGUAGE_NONE; // set the node language to neutral
-  //node_save($node); // commit changes
 }
 
-function smartling_content_utils_update_to_fields_translate_method($node, $default_language) {
+function smartling_content_utils_update_to_fields_translate_method($node, $default_language, $allowed_fields) {
   if ($default_language == LANGUAGE_NONE) {
     return FALSE;
   }
 
   $field_langs = field_language('node', $node);
-  if ($node->language == $default_language && in_array($default_language, $field_langs)) {
-    return TRUE;
-  }
 
   if (!in_array($default_language, $field_langs) && !in_array(LANGUAGE_NONE, $field_langs)) {
     return FALSE;
@@ -145,7 +124,7 @@ function smartling_content_utils_update_to_fields_translate_method($node, $defau
 
   //$type = $node->type; // get the content type
   foreach($field_langs as $field => $lang) { // go through ALL field of this node
-    if ($lang == LANGUAGE_NONE) { // if the field is in the wrong language
+    if (($lang == LANGUAGE_NONE) && (in_array($field, $allowed_fields))) { // if the field is in the wrong language
       $items = field_get_items('node', $node, $field, $lang); // get all field values
       if (!empty($items)) {
         $node->{$field}[$default_language] = $items; // put it under language neutral
@@ -154,5 +133,4 @@ function smartling_content_utils_update_to_fields_translate_method($node, $defau
     }
   }
   $node->language = $default_language;//LANGUAGE_NONE; // set the node language to neutral
-  //node_save($node); // commit changes
 }

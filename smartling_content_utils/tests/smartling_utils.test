@@ -86,7 +86,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
 
     $node_res = clone $node;
 
-    smartling_content_utils_update_to_node_translate_method($node, 'en');
+    smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -101,7 +101,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
     $node_res->body[LANGUAGE_NONE] = $node_res->body['en'];
     unset($node_res->body['en']);
 
-    smartling_content_utils_update_to_node_translate_method($node, 'en');
+    smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -113,7 +113,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
 
     $node_res = clone $node;
 
-    smartling_content_utils_update_to_node_translate_method($node, 'en');
+    smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -127,7 +127,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
     $node_res->body[LANGUAGE_NONE] = $node_res->body['en'];
     unset($node_res->body['en']);
 
-    smartling_content_utils_update_to_node_translate_method($node, 'en');
+    smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -148,7 +148,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
     $node_res->body['en'] = $node_res->body[LANGUAGE_NONE];
     unset($node_res->body[LANGUAGE_NONE]);
 
-    smartling_content_utils_update_to_fields_translate_method($node, 'en');
+    smartling_content_utils_update_to_fields_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -164,7 +164,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
     $node_res = clone $node;
     $node_res->language = 'en';
 
-    smartling_content_utils_update_to_fields_translate_method($node, 'en');
+    smartling_content_utils_update_to_fields_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -181,7 +181,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
     $node_res->body['en'] = $node_res->body[LANGUAGE_NONE];
     unset($node_res->body[LANGUAGE_NONE]);
 
-    smartling_content_utils_update_to_fields_translate_method($node, 'en');
+    smartling_content_utils_update_to_fields_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
@@ -196,7 +196,7 @@ class SmartlingUtilsTest extends DrupalWebTestCase {
 
     $node_res = clone $node;
 
-    smartling_content_utils_update_to_fields_translate_method($node, 'en');
+    smartling_content_utils_update_to_fields_translate_method($node, 'en', array('body'));
 
     $this->assertEqual($node_res->body, $node->body);
     $this->assertEqual($node->language, 'en');
