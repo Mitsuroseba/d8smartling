@@ -52,9 +52,9 @@ include_once 'smartling.demo_content.php';
 /**
  * Implements hook_boot().
  */
-function smartling_boot() {
-  smartling_register();
-}
+//function smartling_boot() {
+//  smartling_register();
+//}
 
 /**
  * Implements hook_init().
