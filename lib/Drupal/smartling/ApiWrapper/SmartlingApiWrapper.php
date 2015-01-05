@@ -177,7 +177,9 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     }
 
     if ($smartling_entity->progress == 100) {
-      return $error_result;
+      return array(
+        'entity_data' => $smartling_entity,
+      );
     }
 
     $file_name = $smartling_entity->file_name;

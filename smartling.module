@@ -53,6 +53,7 @@ include_once 'smartling.demo_content.php';
 //function smartling_boot() {
 //  smartling_register();
 //}
+  //smartling_register();
  * Implements hook_init().
  */
 function smartling_init() {
