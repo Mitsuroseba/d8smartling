@@ -50,10 +50,13 @@ include_once 'entities/smartling.generic_entity.inc';
 include_once 'smartling.demo_content.php';
 
 /**
-//function smartling_boot() {
-//  smartling_register();
-//}
+ * Implements hook_boot().
+ */
+function smartling_boot() {
   //smartling_register();
+}
+
+/**
  * Implements hook_init().
  */
 function smartling_init() {
