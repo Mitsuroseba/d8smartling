@@ -101,6 +101,15 @@ function smartling_get_entity_settings_form(array $form, array &$form_state) {
       '#modal' => TRUE,
     );
 
+    if (language_default('language') != field_valid_language(NULL, FALSE)) {
+      //Otherwise if "title" module is enabled - it will spoil the title of the original node.
+      $form['smartling']['error_default_language'] = array(
+        '#type' => 'markup',
+        '#markup' => '<p>Please switch to site\'s default language in order to execute the operations. The default language is: ' . language_default('language') . '</p>',
+      );
+      return $form;
+    }
+
     $form['smartling']['content'] = array(
       '#type' => 'container',
     );

@@ -10,6 +10,11 @@
  */
 function smartling_queue_download_update_translated_item_process($eid) {
   $status = FALSE;
+  if (language_default('language') != field_valid_language(NULL, FALSE)) {
+    drupal_set_message('The download failed. Please switch to the site\'s default language: ' . language_default('language'), 'error');
+    return $status;
+  }
+
   $smartling_entity = entity_load_single('smartling_entity_data', $eid);
   if ($smartling_entity && smartling_is_configured() && smartling_supported_type($smartling_entity->entity_type, $smartling_entity->bundle)) {
     $processor = smartling_get_entity_processor($smartling_entity);
