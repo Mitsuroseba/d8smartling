@@ -646,24 +646,8 @@ function smartling_admin_entities_translation_crawler() {
             );
           }
 
-          $method = NULL;
-          switch ($name) {
-            case 'user':
-              $method = 'user';
-              break;
-            case 'comment':
-              $method = 'comment';
-              break;
-            case 'field_collection_item':
-              $method = 'fieldCollection';
-              break;
-            case 'fieldable_panels_pane':
-              $method = 'fieldablePanelPanes';
-              break;
-          }
-
-          if ($method) {
-            $translate_fields = smartling_settings_get_handler()->{$method . 'GetFieldsSettings'}();
+          if (in_array($name, array('user', 'comment', 'field_collection_item', 'fieldable_panels_pane'))) {
+            $translate_fields = smartling_settings_get_handler()->getFieldsSettings($name);
 
             $is_in_conf = !empty($translate_fields) && isset($translate_fields[$bundle][$field_machine_name]);
 

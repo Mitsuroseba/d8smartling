@@ -18,24 +18,7 @@ class SmartlingSettingsHandler {
    * Initialize.
    */
   public function __construct() {
-//    $this->apiUrl = $this->variableGet('smartling_api_url', SMARTLING_DEFAULT_API_URL);
-//    $this->callbackUrlUse = $this->variableGet('smartling_callback_url_use', TRUE);
     $this->callbackUrl = $this->getBaseUrl() . '/smartling/callback/' . $this->variableGet('cron_key', 'drupal');
-//    $this->autoAuthorizeContent = $this->variableGet('smartling_auto_authorize_content', TRUE);
-//    $this->logMode = $this->variableGet('smartling_log', 1);
-//    $this->projectId = $this->variableGet('smartling_project_id', '');
-//    $this->key = $this->variableGet('smartling_key', '');
-//    $this->retrievalType = $this->variableGet('smartling_retrieval_type', 'published');
-//
-//    $this->targetLocales = $this->variableGet('smartling_target_locales', array());
-//    $this->localesConvertArray = $this->variableGet('smartling_locales_convert_array', array());
-
-//    $this->nodeFieldsSettings = $this->variableGet('smartling_node_fields_settings', array());
-//    $this->commentFieldsSettings = $this->variableGet('smartling_comment_fields_settings', array());
-//    $this->taxonomyTermFieldsSettings = $this->variableGet('smartling_taxonomy_term_fields_settings', array());
-//    $this->userFieldsSettings = $this->variableGet('smartling_user_fields_settings', array());
-//    $this->fieldCollectionFieldsSettings = $this->variableGet('smartling_field_collection_fields_settings', array());
-//    $this->fieldablePanelPanesFieldsSettings = $this->variableGet('smartling_fieldable_panels_pane_fields_settings', array());
   }
 
   /**
@@ -407,16 +390,6 @@ class SmartlingSettingsHandler {
   public function deleteSingleBundleFromSettings($entity_type, $bundle) {
     $this->deleteMultipleBundleFromSettings($entity_type, array($bundle));
   }
-
-
-
-
-
-
-
-
-
-
 
 
   /**
