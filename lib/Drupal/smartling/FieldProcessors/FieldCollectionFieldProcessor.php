@@ -29,7 +29,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
    * @return array()
    */
   protected function getTransletableFields() {
-    return smartling_settings_get_handler()->fieldCollectionGetFieldsSettingsByBundle($this->fieldName);
+    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection', $this->fieldName);
   }
 
   protected function fieldCollectionItemLoad($id) {

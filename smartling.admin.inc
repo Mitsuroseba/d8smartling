@@ -526,32 +526,16 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
   // @todo
   // This is to be refactored, since it's annoying to add a line for each
   // entity processor.
-  smartling_settings_get_handler()->{'userSetFieldsSettings'}(array());
-  smartling_settings_get_handler()->{'commentSetFieldsSettings'}(array());
-  smartling_settings_get_handler()->{'fieldCollectionSetFieldsSettings'}(array());
-  smartling_settings_get_handler()->{'fieldablePanelPanesSetFieldsSettings'}(array());
+  smartling_settings_get_handler()->userSetFieldsSettings(array());
+  smartling_settings_get_handler()->commentSetFieldsSettings(array());
+  smartling_settings_get_handler()->setFieldsSettings('field_collection_item', array());
+  smartling_settings_get_handler()->setFieldsSettings('fieldable_panels_pane', array());
 
   // Save the settings, considering entity bundle, to know which
   // update method to be called.
   foreach ($_translate as $k => $v) {
-    $method = NULL;
-    switch ($k) {
-      case 'user':
-        $method = 'user';
-        break;
-      case 'comment':
-        $method = 'comment';
-        break;
-      case 'field_collection_item':
-        $method = 'fieldCollection';
-        break;
-      case 'fieldable_panels_pane':
-        $method = 'fieldablePanelPanes';
-        break;
-    }
-
-    if ($method) {
-      smartling_settings_get_handler()->{$method . 'SetFieldsSettings'}($v);
+    if (in_array($k, array('user', 'comment', 'field_collection_item', 'fieldable_panels_pane'))) {
+      smartling_settings_get_handler()->setFieldsSettings($k, $v);
     }
   }
 

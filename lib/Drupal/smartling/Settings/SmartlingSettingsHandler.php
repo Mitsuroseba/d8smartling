@@ -12,23 +12,7 @@ namespace Drupal\smartling\Settings;
  */
 class SmartlingSettingsHandler {
 
-//  protected $apiUrl;
-//  protected $projectId;
-//  protected $key;
-//  protected $retrievalType;
-//  protected $targetLocales;
-//  protected $localesConvertArray;
-//  protected $callbackUrlUse;
   protected $callbackUrl;
-//  protected $autoAuthorizeContent;
-//  protected $logMode;
-
-//  protected $nodeFieldsSettings;
-//  protected $commentFieldsSettings;
-//  protected $taxonomyTermFieldsSettings;
-//  protected $userFieldsSettings;
-//  protected $fieldCollectionFieldsSettings;
-//  protected $fieldablePanelPanesFieldsSettings;
 
   /**
    * Initialize.
@@ -102,90 +86,47 @@ class SmartlingSettingsHandler {
     return $base_url;
   }
 
-  /**
-   * Get property name by entity type.
-   *
-   * @param string $entity_type
-   *   Entity type.
-   *
-   * @return string
-   *   Return property name.
-   */
-  public static function getPropertyName($entity_type) {
-    if ($entity_type == 'taxonomy_term') {
-      $property_name = 'taxonomyTermFieldsSettings';
+
+  public function getFieldsSettingsByBundle($entity_type, $bundle) {
+    if (empty($bundle)) {
+      return;
     }
-    else {
-      $property_name = $entity_type . 'FieldsSettings';
+
+    $field_settings = $this->getFieldsSettings($entity_type, NULL);
+
+    if (is_array($field_settings) && isset($field_settings[$bundle])) {
+      return $field_settings[$bundle];
     }
-    return $property_name;
   }
 
-  /**
-   * Get method name by entity type.
-   *
-   * @param string $entity_type
-   *   Entity type.
-   *
-   * @return string
-   *   Return method name.
-   */
-  public static function getMethodName($entity_type) {
-    if ($entity_type == 'taxonomy_term') {
-      $method_name = 'taxonomyTermGetFieldsSettings';
-    }
-    else {
-      $method_name = $entity_type . 'GetFieldsSettings';
-    }
-    return $method_name;
-  }
-
-  /**
-   * Get ...by_bundle method name by entity type.
-   *
-   * @param string $entity_type
-   *   Entity type.
-   *
-   * @return string
-   *   Return method name.
-   */
-  public static function getByBundleMethodName($entity_type) {
-    if ($entity_type == 'taxonomy_term') {
-      $method_name = 'taxonomyTermGetFieldsSettingsByBundle';
-    }
-    else {
-      $method_name = $entity_type . 'GetFieldsSettingsByBundle';
-    }
-    return $method_name;
-  }
 
   public function getFieldsSettings($entity_type, $bundle = NULL) {
-    $fields = array();
-
-    switch ($entity_type) {
-      case 'node':
-        $fields = !empty($bundle) ? $this->nodeGetFieldsSettingsByBundle($bundle) : $this->nodeGetFieldsSettings();
-        break;
-
-      case 'user':
-        $fields = !empty($bundle) ? $this->userGetFieldsSettingsByBundle($bundle) : $this->userGetFieldsSettings();
-        break;
-
-      case 'comment':
-        $fields = !empty($bundle) ? $this->commentGetFieldsSettingsByBundle($bundle) : $this->commentGetFieldsSettings();
-        break;
-
-      case 'taxonomy_term':
-        $fields = !empty($bundle) ? $this->taxonomyTermGetFieldsSettingsByBundle($bundle) : $this->taxonomyTermGetFieldsSettings();
-        break;
-
-      default:
-        $fields = $this->variableGet('smartling_' . $entity_type . '_fields_settings');
-        $fields = (!empty($bundle))?$fields[$bundle]:$fields;
-        break;
+    if (!empty($bundle)) {
+      return $this->getFieldsSettingsByBundle($entity_type, $bundle);
     }
 
-    return $fields;
+    $fields = $this->getFieldsSettingsAll();
+
+    if (is_array($fields) && isset($fields[$entity_type])) {
+      return $fields[$entity_type];
+    }
+  }
+
+  public function getFieldsSettingsAll() {
+    return $this->variableGet('smartling_fields_settings');
+  }
+
+  public function setFieldsSettings($entity_type, array $fields_settings) {
+    $settings = $this->getFieldsSettingsAll();
+
+    if (!empty($fields_settings)) {
+      $settings[$entity_type] = $fields_settings;
+
+    }
+    else {
+      unset($settings[$entity_type]);
+    }
+    $this->variableSet('smartling_fields_settings', $settings);
   }
 
   /**
@@ -195,12 +136,7 @@ class SmartlingSettingsHandler {
    *   Smartling fields settings for node entity.
    */
   public function nodeSetFieldsSettings(array $node_fields_settings) {
-    if (!empty($node_fields_settings)) {
-      $this->variableSet('smartling_node_fields_settings', $node_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_node_fields_settings');
-    }
+    $this->setFieldsSettings('node', $node_fields_settings);
   }
 
   /**
@@ -210,9 +146,8 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array for node entity.
    */
   public function nodeGetFieldsSettings() {
-    return $this->variableGet('smartling_node_fields_settings', array());
+    return $this->getFieldsSettings('node');
   }
-
 
   /**
    * Get smartling fields settings array for node by bundle.
@@ -224,8 +159,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array.
    */
   public function nodeGetFieldsSettingsByBundle($bundle) {
-    $settings = $this->nodeGetFieldsSettings();
-    return (isset($settings[$bundle])) ? $settings[$bundle] : array();
+    return $this->getFieldsSettingsByBundle('node', $bundle);
   }
 
   /**
@@ -235,12 +169,7 @@ class SmartlingSettingsHandler {
    *   Smartling fields settings for comment entity.
    */
   public function commentSetFieldsSettings(array $comment_fields_settings) {
-    if (!empty($comment_fields_settings)) {
-      $this->variableSet('smartling_comment_fields_settings', $comment_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_comment_fields_settings');
-    }
+    $this->setFieldsSettings('comment', $comment_fields_settings);
   }
 
   /**
@@ -250,7 +179,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array for comment entity.
    */
   public function commentGetFieldsSettings() {
-    return $this->variableGet('smartling_comment_fields_settings', array());
+    return $this->getFieldsSettings('comment');
   }
 
   /**
@@ -263,8 +192,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array.
    */
   public function commentGetFieldsSettingsByBundle($bundle) {
-    $settings = $this->commentGetFieldsSettings();
-    return (isset($settings[$bundle])) ? $settings[$bundle] : array();
+    return $this->getFieldsSettingsByBundle('comment', $bundle);
   }
 
   /**
@@ -274,12 +202,7 @@ class SmartlingSettingsHandler {
    *   Smartling fields settings for taxonomy_term entity.
    */
   public function taxonomyTermSetFieldsSettings(array $taxonomy_term_fields_settings) {
-    if (!empty($taxonomy_term_fields_settings)) {
-      $this->variableSet('smartling_taxonomy_term_fields_settings', $taxonomy_term_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_taxonomy_term_fields_settings');
-    }
+    $this->setFieldsSettings('taxonomy_term', $taxonomy_term_fields_settings);
   }
 
   /**
@@ -289,7 +212,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array for taxonomy_term entity.
    */
   public function taxonomyTermGetFieldsSettings() {
-    return $this->variableGet('smartling_taxonomy_term_fields_settings', array());
+    return $this->getFieldsSettings('taxonomy_term');
   }
 
   /**
@@ -302,8 +225,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array.
    */
   public function taxonomyTermGetFieldsSettingsByBundle($bundle) {
-    $settings = $this->taxonomyTermGetFieldsSettings();
-    return (isset($settings[$bundle])) ? $settings[$bundle] : array();
+    return $this->getFieldsSettingsByBundle('taxonomy_term', $bundle);
   }
 
   /**
@@ -313,12 +235,7 @@ class SmartlingSettingsHandler {
    *   Smartling fields settings for user entity.
    */
   public function userSetFieldsSettings(array $user_fields_settings) {
-    if (!empty($user_fields_settings)) {
-      $this->variableSet('smartling_user_fields_settings', $user_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_user_fields_settings');
-    }
+    $this->setFieldsSettings('user', $user_fields_settings);
   }
 
   /**
@@ -328,7 +245,7 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array for user entity.
    */
   public function userGetFieldsSettings() {
-    return $this->variableGet('smartling_user_fields_settings', array());
+    return $this->getFieldsSettings('user');
   }
 
   /**
@@ -341,75 +258,13 @@ class SmartlingSettingsHandler {
    *   Return smartling fields settings array.
    */
   public function userGetFieldsSettingsByBundle($bundle) {
-    $settings = $this->userGetFieldsSettings();
-    return (isset($settings[$bundle])) ? $settings[$bundle] : array();
+    return $this->getFieldsSettingsByBundle('user', $bundle);
   }
 
 
 
-  /**
-   * Set smartling fields settings for node entity.
-   *
-   * @param array $node_fields_settings
-   *   Smartling fields settings for node entity.
-   */
-  public function fieldCollectionSetFieldsSettings(array $field_collection_fields_settings) {
-    if (!empty($field_collection_fields_settings)) {
-      $this->variableSet('smartling_field_collection_fields_settings', $field_collection_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_field_collection_fields_settings');
-    }
-  }
 
-  /**
-   * Get smartling fields settings array for node.
-   *
-   * @return array
-   *   Return smartling fields settings array for node entity.
-   */
-  public function fieldCollectionGetFieldsSettings() {
-    return $this->variableGet('smartling_field_collection_fields_settings', array());
-  }
 
-  /**
-   * Get smartling fields settings array for node by bundle.
-   *
-   * @param string $bundle
-   *   Entity bundle.
-   *
-   * @return array
-   *   Return smartling fields settings array.
-   */
-  public function fieldCollectionGetFieldsSettingsByBundle($bundle) {
-    $settings = $this->fieldCollectionGetFieldsSettings();
-    return (isset($settings[$bundle])) ? $settings[$bundle] : array();
-  }
-
-  /**
-   * Set smartling fields settings for fieldable panels pane entity.
-   *
-   * @param array $fieldable_panel_panes_fields_settings
-   *   Smartling fields settings for fieldable panels pane entity.
-   */
-  public function fieldablePanelPanesSetFieldsSettings(array $fieldable_panel_panes_fields_settings) {
-    if (!empty($fieldable_panel_panes_fields_settings)) {
-      $this->variableSet('smartling_fieldable_panels_pane_fields_settings', $fieldable_panel_panes_fields_settings);
-    }
-    else {
-      $this->variableDel('smartling_fieldable_panels_pane_fields_settings');
-    }
-  }
-
-  /**
-   * Get smartling fields settings array for fieldable panels pane.
-   *
-   * @return array
-   *   Return smartling fields settings array for fieldable panels pane entity.
-   */
-  public function fieldablePanelPanesGetFieldsSettings() {
-    return $this->variableGet('smartling_fieldable_panels_pane_fields_settings', array());
-  }
 
 
 
@@ -425,11 +280,11 @@ class SmartlingSettingsHandler {
    *   Field names.
    */
   public function addMultipleFieldsToSettings($entity_type, $bundle, array $field_names = array()) {
-    $name_settings = $this->getPropertyName($entity_type);
+    $settings = $this->getFieldsSettings($entity_type);
     foreach ($field_names as $field_name) {
-      $this->{$name_settings}[$bundle][$field_name] = $field_name;
+      $settings[$bundle][$field_name] = $field_name;
     }
-    $this->variableSet('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
+    $this->setFieldsSettings($entity_type, $settings);
   }
 
   /**
@@ -457,22 +312,19 @@ class SmartlingSettingsHandler {
    *   Field names.
    */
   public function deleteMultipleFieldsFromSettings($entity_type, $bundle, array $field_names = array()) {
-    $name_settings = $this->getPropertyName($entity_type);
-    foreach ($field_names as $field_name) {
-      if (isset($this->{$name_settings}[$bundle][$field_name])) {
-        unset($this->{$name_settings}[$bundle][$field_name]);
+    $settings = $this->getFieldsSettings($entity_type);
 
-        if (count($this->{$name_settings}[$bundle]) == 0) {
-          unset($this->{$name_settings}[$bundle]);
+    foreach ($field_names as $field_name) {
+      if (isset($settings[$bundle][$field_name])) {
+        unset($settings[$bundle][$field_name]);
+
+        if (count($settings[$bundle]) == 0) {
+          unset($settings[$bundle]);
         }
       }
     }
-    if ($this->{$name_settings} == array()) {
-      $this->variableDel('smartling_' . $entity_type . '_fields_settings');
-    }
-    else {
-      $this->variableSet('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
-    }
+
+    $this->setFieldsSettings($entity_type, $settings);
   }
 
   /**
@@ -498,18 +350,15 @@ class SmartlingSettingsHandler {
    *   Entity bundles.
    */
   public function deleteMultipleBundleFromSettings($entity_type, array $bundles = array()) {
-    $name_settings = $this->getPropertyName($entity_type);
+    $settings = $this->getFieldsSettings($entity_type);
+
     foreach ($bundles as $bundle) {
-      if (isset($this->{$name_settings}[$bundle])) {
-        unset($this->{$name_settings}[$bundle]);
+      if (isset($settings[$bundle])) {
+        unset($settings[$bundle]);
       }
     }
-    if ($this->{$name_settings} == array()) {
-      $this->variableDel('smartling_' . $entity_type . '_fields_settings');
-    }
-    else {
-      $this->variableSet('smartling_' . $entity_type . '_fields_settings', $this->{$name_settings});
-    }
+
+    $this->setFieldsSettings($entity_type, $settings);
   }
 
   /**
@@ -542,7 +391,7 @@ class SmartlingSettingsHandler {
    *   Return smartling API URL.
    */
   public function getApiUrl() {
-    return $this->apiUrl;
+    return $this->variableGet('smartling_api_url', SMARTLING_DEFAULT_API_URL);
   }
 
   /**
@@ -844,5 +693,4 @@ class SmartlingSettingsHandler {
   public function getCallbackUrl() {
     return $this->callbackUrl;
   }
-
 }
