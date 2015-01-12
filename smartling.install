@@ -611,3 +611,25 @@ function smartling_update_7100(&$sandbox) {
     }
   }
 }
+
+
+function smartling_update_7101(&$sandbox) {
+  $supported_entity_types = array(
+    'node' => 'smartling_node_fields_settings',
+    'comment' => 'smartling_comment_fields_settings',
+    'user' => 'smartling_user_fields_settings',
+    'taxonomy_term' => 'smartling_taxonomy_term_fields_settings',
+    'field_collection' => 'smartling_field_collection_fields_settings',
+    'fieldable_panels_pane' => 'smartling_fieldable_panels_pane_fields_settings',
+  );
+
+  $settings = array();
+  foreach ($supported_entity_types as $entity_type => $variable_name) {
+    $field_settings = variable_get($variable_name, array());
+    if (!empty($field_settings)) {
+      $settings[$entity_type] = $field_settings;
+    }
+    variable_del($variable_name);
+  }
+  variable_set('smartling_fields_settings', $settings);
+}
