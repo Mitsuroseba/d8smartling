@@ -86,6 +86,17 @@ class SmartlingSettingsHandler {
     return $base_url;
   }
 
+  /**
+   * Get smartling field settings for specific entity type and specific bundle.
+   *
+   * @param string $entity_type
+   *   Entity type for which we fetch the settings.
+   *
+   * @param string $bundle
+   *   Bundle for which we fetch the settings.
+   *
+   * @return array | NULL
+   */
 
   public function getFieldsSettingsByBundle($entity_type, $bundle) {
     if (empty($bundle)) {
@@ -99,7 +110,17 @@ class SmartlingSettingsHandler {
     }
   }
 
-
+  /**
+   * Get smartling field settings for specific entity type and specific bundle if it is set.
+   *
+   * @param string $entity_type
+   *   Entity type for which we fetch the settings.
+   *
+   * @param string $bundle
+   *   Bundle for which we fetch the settings.
+   *
+   * @return array | NULL
+   */
   public function getFieldsSettings($entity_type, $bundle = NULL) {
     if (!empty($bundle)) {
       return $this->getFieldsSettingsByBundle($entity_type, $bundle);
@@ -112,10 +133,24 @@ class SmartlingSettingsHandler {
     }
   }
 
+  /**
+   * Fetches the field settings for all the available entity types.
+   *
+   * @return array | NULL
+   */
   public function getFieldsSettingsAll() {
     return $this->variableGet('smartling_fields_settings');
   }
 
+  /**
+   * Set smartling fields settings for any entity type.
+   *
+   * @param string $entity_type
+   *   Entity type for which we set the settings.
+   *
+   * @param array $fields_settings
+   *   Smartling fields settings for entity.
+   */
   public function setFieldsSettings($entity_type, array $fields_settings) {
     $settings = $this->getFieldsSettingsAll();
 
