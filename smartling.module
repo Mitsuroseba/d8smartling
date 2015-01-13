@@ -326,11 +326,13 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
         return;
       }
 
-      $processor = smartling_get_entity_processor($entity_data);
-      // @todo implement chain interface.
-      if ($processor->downloadTranslation()) {
-        $status = $processor->updateEntityFromXML();
-      }
+      smartling_queue_download_update_translated_item_process($entity_data->eid);
+
+//      $processor = smartling_get_entity_processor($entity_data);
+//      // @todo implement chain interface.
+//      if ($processor->downloadTranslation()) {
+//        $status = $processor->updateEntityFromXML();
+//      }
     }
   }
 
@@ -490,58 +492,17 @@ function smartling_entity_load($entities, $type) {
  * Implements hook_entity_update().
  */
 function smartling_entity_update($entity, $type) {
-  switch ($type) {
-    case 'node':
-      if (smartling_supported_type($type, $entity->type)) {
-        $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
-          'rid' => $entity->nid,
-          'bundle' => $entity->type,
-        ));
-      }
-      else {
-        $smartling_entity_data = FALSE;
-      }
-      break;
 
-    case 'taxonomy_term':
-      if (smartling_supported_type($type, $entity->vocabulary_machine_name)) {
-        $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
-          'rid' => $entity->tid,
-          'bundle' => $entity->vocabulary_machine_name,
-        ));
-      }
-      else {
-        $smartling_entity_data = FALSE;
-      }
-      break;
+  $entity_wrapper = entity_metadata_wrapper($type, $entity);
+  $rid = $entity_wrapper->getIdentifier();
+  $bundle = $entity_wrapper->getBundle();
 
-    case 'comment':
-      if (smartling_supported_type($type, $entity->node_type)) {
-        $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
-          'rid' => $entity->cid,
-          'bundle' => $entity->node_type,
-        ));
-      }
-      else {
-        $smartling_entity_data = FALSE;
-      }
-      break;
-
-    case 'user':
-      if (smartling_supported_type($type, 'user')) {
-        $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
-          'rid' => $entity->uid,
-          'bundle' => 'user',
-        ));
-      }
-      else {
-        $smartling_entity_data = FALSE;
-      }
-      break;
-
-    default:
-      $smartling_entity_data = FALSE;
-      break;
+  $smartling_entity_data = FALSE;
+  if (smartling_supported_type($type, $bundle)) {
+    $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
+      'rid' => $rid,
+      'bundle' => $bundle,
+    ));
   }
 
   if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
@@ -565,19 +526,8 @@ function smartling_entity_update($entity, $type) {
  * Implements hook_entity_delete().
  */
 function smartling_entity_delete($entity, $type) {
-  $rid = 0;
-  if (isset($entity->nid)) {
-    $rid = $entity->nid;
-  }
-  elseif (isset($entity->tid)) {
-    $rid = $entity->tid;
-  }
-  elseif (isset($entity->cid)) {
-    $rid = $entity->cid;
-  }
-  elseif (isset($entity->uid)) {
-    $rid = $entity->uid;
-  }
+  $entity_wrapper = entity_metadata_wrapper($type, $entity);
+  $rid = $entity_wrapper->getIdentifier();
 
   db_delete('smartling_entity_data')
     ->condition('rid', $rid)
@@ -644,63 +594,37 @@ function smartling_do_translate_action($entity, array $context) {
                 $entity->tnid = $entity->nid;
                 node_save($entity);
               }
-
-              if ($d_locale != entity_language($entity_type, $entity)) {
-
-                $entity_data = smartling_entity_load_by_conditions(array(
-                  'rid' => $entity->nid,
-                  'entity_type' => $entity_type,
-                  'target_language' => $d_locale,
-                ));
-
-                if ($entity_data == FALSE) {
-                  $entity_data = smartling_entity_data_create();
-                  $entity_data->rid = $entity->nid;
-                  $entity_data->bundle = $entity->type;
-                  $entity_data->entity_type = $entity_type;
-                  $entity_data->original_language = $d_locale_original;
-                  $entity_data->target_language = $d_locale;
-                  $entity_data->progress = 0;
-                }
-
-                $entity_data->translated_file_name = FALSE;
-                $entity_data->submitter = $user->uid;
-                $entity_data->submission_date = time();
-                smartling_entity_data_save($entity_data);
-
-                $d_locales[] = $d_locale;
-                smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-              }
+            }
+            else {
+              continue;
             }
           }
-          elseif (smartling_fields_method($entity->type)) {
 
-            if ($d_locale != entity_language($entity_type, $entity)) {
+          if ($d_locale != entity_language($entity_type, $entity)) {
 
-              $entity_data = smartling_entity_load_by_conditions(array(
-                'rid' => $entity->nid,
-                'entity_type' => $entity_type,
-                'target_language' => $d_locale,
-              ));
+            $entity_data = smartling_entity_load_by_conditions(array(
+              'rid' => $entity->nid,
+              'entity_type' => $entity_type,
+              'target_language' => $d_locale,
+            ));
 
-              if ($entity_data == FALSE) {
-                $entity_data = smartling_entity_data_create();
-                $entity_data->rid = $entity->nid;
-                $entity_data->bundle = $entity->type;
-                $entity_data->entity_type = $entity_type;
-                $entity_data->original_language = $d_locale_original;
-                $entity_data->target_language = $d_locale;
-                $entity_data->progress = 0;
-              }
-
-              $entity_data->translated_file_name = FALSE;
-              $entity_data->submitter = $user->uid;
-              $entity_data->submission_date = time();
-              smartling_entity_data_save($entity_data);
-
-              $d_locales[] = $d_locale;
-              smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+            if ($entity_data == FALSE) {
+              $entity_data = smartling_entity_data_create();
+              $entity_data->rid = $entity->nid;
+              $entity_data->bundle = $entity->type;
+              $entity_data->entity_type = $entity_type;
+              $entity_data->original_language = $d_locale_original;
+              $entity_data->target_language = $d_locale;
+              $entity_data->progress = 0;
             }
+
+            $entity_data->translated_file_name = FALSE;
+            $entity_data->submitter = $user->uid;
+            $entity_data->submission_date = time();
+            smartling_entity_data_save($entity_data);
+
+            $d_locales[] = $d_locale;
+            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
           }
           $queued_eids[] = $entity_data->eid;
         }
@@ -788,112 +712,15 @@ function smartling_do_translate_action($entity, array $context) {
       break;
 
     case 'comment':
-      $link = smartling_get_link_to_entity($entity->cid, $entity_type);
-
-      if (smartling_supported_type($entity_type, $entity->node_type) && smartling_translate_fields_is_set($entity->node_type, $entity_type)) {
-        $d_locale_original = $entity->translations->original;
-        $queued_eids = array();
-        foreach ($context['translate_to_langs'] as $d_locale) {
-          if ($d_locale_original !== $d_locale) {
-            $entity_data = smartling_entity_load_by_conditions(array(
-              'rid' => $entity->cid,
-              'entity_type' => $entity_type,
-              'target_language' => $d_locale,
-            ));
-
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $entity->cid;
-              $entity_data->entity_type = $entity_type;
-              $entity_data->bundle = $entity->node_type;
-              $entity_data->original_language = $d_locale_original;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
-            }
-
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
-
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $d_locales[] = $d_locale;
-          }
-          $queued_eids[] = $entity_data->eid;
-        }
-        if (!empty($queued_eids)) {
-          $smartling_queue->createItem($queued_eids);
-        }
-      }
-      else {
-        drupal_set_message(t("Comment '@comment' is not supported.", array('@comment' => $entity->node_type)), 'warning');
-        $log->setMessage("Comment '@comment' is not supported.")
-          ->setVariables(array('@comment' => $entity->node_type))
-          ->setConsiderLog(FALSE)
-          ->setSeverity(WATCHDOG_ERROR)
-          ->setLink($link)
-          ->execute();
-      }
-
-      break;
-
     case 'user':
-      $link = smartling_get_link_to_entity($entity->uid, $entity_type);
-      $d_locale_original = $entity->translations->original;
-
-      if (smartling_supported_type($entity_type, 'user') && smartling_translate_fields_is_set('user', $entity_type)) {
-        $queued_eids = array();
-        foreach ($context['translate_to_langs'] as $d_locale) {
-
-          if ($d_locale_original !== $d_locale) {
-            $entity_data = smartling_entity_load_by_conditions(array(
-              'rid' => $entity->uid,
-              'entity_type' => $entity_type,
-              'target_language' => $d_locale,
-            ));
-
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $entity->uid;
-              $entity_data->entity_type = $entity_type;
-              $entity_data->bundle = 'user';
-              $entity_data->original_language = $d_locale_original;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
-            }
-
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
-
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $d_locales[] = $d_locale;
-          }
-          $queued_eids[] = $entity_data->eid;
-        }
-        if (!empty($queued_eids)) {
-          $smartling_queue->createItem($queued_eids);
-        }
-      }
-      else {
-        drupal_set_message(t("Users don't contain translatable fields"), 'warning');
-        $log->setMessage("Users don't contain translatable fields")
-          ->setConsiderLog(FALSE)
-          ->setSeverity(WATCHDOG_ERROR)
-          ->setLink($link)
-          ->execute();
-      }
-
-      break;
-
     default:
       $wp = entity_metadata_wrapper($entity_type, $entity);
       $id = $wp->getIdentifier();
+      $bundle = $wp->getBundle();
       $link = smartling_get_link_to_entity($id, $entity_type);
       $d_locale_original = $entity->translations->original;
 
-      if (smartling_supported_type($entity_type, $entity_type) && smartling_translate_fields_is_set($entity_type, $entity_type)) {
+      if (smartling_supported_type($entity_type, $bundle) && smartling_translate_fields_is_set($bundle, $entity_type)) {
         $queued_eids = array();
         foreach ($context['translate_to_langs'] as $d_locale) {
 
@@ -908,7 +735,7 @@ function smartling_do_translate_action($entity, array $context) {
               $entity_data = smartling_entity_data_create();
               $entity_data->rid = $id;
               $entity_data->entity_type = $entity_type;
-              $entity_data->bundle = $entity_type;
+              $entity_data->bundle = $bundle;
               $entity_data->original_language = $d_locale_original;
               $entity_data->target_language = $d_locale;
               $entity_data->progress = 0;
@@ -929,8 +756,8 @@ function smartling_do_translate_action($entity, array $context) {
         }
       }
       else {
-        drupal_set_message(t("Users don't contain translatable fields"), 'warning');
-        $log->setMessage("Users don't contain translatable fields")
+        drupal_set_message(t($entity_type . " doesn't contain translatable fields"), 'warning');
+        $log->setMessage($entity_type . " doesn't contain translatable fields")
           ->setConsiderLog(FALSE)
           ->setSeverity(WATCHDOG_ERROR)
           ->setLink($link)
