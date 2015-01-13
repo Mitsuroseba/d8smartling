@@ -91,6 +91,7 @@ class SmartlingSettingsHandler {
     if (is_array($field_settings) && isset($field_settings[$bundle])) {
       return $field_settings[$bundle];
     }
+    return array();
   }
 
   /**
@@ -114,6 +115,7 @@ class SmartlingSettingsHandler {
     if (is_array($fields) && isset($fields[$entity_type])) {
       return $fields[$entity_type];
     }
+    return array();
   }
 
   /**

@@ -29,7 +29,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
    * @return array()
    */
   protected function getTransletableFields() {
-    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection', $this->fieldName);
+    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection_item', $this->fieldName);
   }
 
   protected function fieldCollectionItemLoad($id) {
@@ -66,7 +66,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
   protected function getTranslatableFields() {
     // @todo Inject via DIC.
-    return smartling_settings_get_handler()->getFieldsSettings('field_collection', $this->entity->field_name);
+    return smartling_settings_get_handler()->getFieldsSettings('field_collection_item', $this->entity->field_name);
   }
 
   protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
