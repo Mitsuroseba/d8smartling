@@ -21,17 +21,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return $this;
   }
 
-  /**
-   * Wrapper for Smartling settings storage.
-   *
-   * @todo avoid procedural code and inject storage to keep DI pattern.
-   *
-   * @return array()
-   */
-  protected function getTransletableFields() {
-    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection_item', $this->fieldName);
-  }
-
   protected function fieldCollectionItemLoad($id) {
     return field_collection_item_load($id);
   }
@@ -50,7 +39,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         $fid = (int) $value['value'];
         $entity = $this->fieldCollectionItemLoad($fid);
 
-        foreach ($this->getTransletableFields() as $field_name) {
+        foreach ($this->getTranslatableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
           $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage, $this->sourceLanguage);
 
@@ -66,7 +55,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
   protected function getTranslatableFields() {
     // @todo Inject via DIC.
-    return smartling_settings_get_handler()->getFieldsSettings('field_collection_item', $this->entity->field_name);
+    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection_item', $this->entity->field_name);
   }
 
   protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {

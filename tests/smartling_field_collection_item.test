@@ -26,7 +26,7 @@ class MockedFieldCollectionFieldProcessor extends FieldCollectionFieldProcessor 
     $this->smartling_entity = array($this->fieldName => array($this->sourceLanguage => array('smartling_entity')));
   }
 
-  protected function getTransletableFields() {
+  protected function getTranslatableFields() {
     return array('field_fld1');
   }
 

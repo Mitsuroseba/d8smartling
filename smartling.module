@@ -457,7 +457,6 @@ function smartling_entity_load($entities, $type) {
         $sm_settings = smartling_settings_get_handler();
 
         foreach ($sm_settings->getFieldsSettingsByBundle($type, $bundle) as $field_name) {
-
           if (smartling_field_is_translatable_by_field_name($field_name, $type) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
             // If field have und value and don't have need value.
             $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];

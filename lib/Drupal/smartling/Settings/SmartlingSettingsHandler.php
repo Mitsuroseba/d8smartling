@@ -78,15 +78,14 @@ class SmartlingSettingsHandler {
    * @param string $bundle
    *   Bundle for which we fetch the settings.
    *
-   * @return array | NULL
+   * @return array
    */
-
   public function getFieldsSettingsByBundle($entity_type, $bundle) {
     if (empty($bundle)) {
-      return;
+      return array();
     }
 
-    $field_settings = $this->getFieldsSettings($entity_type, NULL);
+    $field_settings = $this->getFieldsSettings($entity_type);
 
     if (is_array($field_settings) && isset($field_settings[$bundle])) {
       return $field_settings[$bundle];
@@ -100,16 +99,9 @@ class SmartlingSettingsHandler {
    * @param string $entity_type
    *   Entity type for which we fetch the settings.
    *
-   * @param string $bundle
-   *   Bundle for which we fetch the settings.
-   *
-   * @return array | NULL
+   * @return array
    */
-  public function getFieldsSettings($entity_type, $bundle = NULL) {
-    if (!empty($bundle)) {
-      return $this->getFieldsSettingsByBundle($entity_type, $bundle);
-    }
-
+  public function getFieldsSettings($entity_type) {
     $fields = $this->getFieldsSettingsAll();
 
     if (is_array($fields) && isset($fields[$entity_type])) {

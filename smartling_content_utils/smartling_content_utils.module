@@ -83,7 +83,7 @@ function smartling_content_utils_translate_router($entity, $type, $default_lang)
   if (!smartling_supported_type($type, $entity->type)) {
     return;
   }
-  $allowed_fields = smartling_settings_get_handler()->getFieldsSettings($type, $entity->type);
+  $allowed_fields = smartling_settings_get_handler()->getFieldsSettingsByBundle($type, $entity->type);
 
   if (smartling_nodes_method($entity->type)) {
     smartling_content_utils_update_to_node_translate_method($entity, $default_lang, $allowed_fields);

@@ -205,7 +205,7 @@ function smartling_is_configured() {
  */
 function smartling_translate_fields_is_set($bundle, $entity_type) {
   $sm_settings = smartling_settings_get_handler();
-  $val = $sm_settings->getFieldsSettings($entity_type, $bundle);
+  $val = $sm_settings->getFieldsSettingsByBundle($entity_type, $bundle);
 
   if (empty($val)) {
     $result = FALSE;
