@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Code for the nodes preparation for translation feature.
+ */
+
+function smartling_entity_utils_action_info() {
+  return array(
+    'smartling_entity_utils_translate_prepare_action' => array(
+      'type' => 'entity',
+      'label' => t('Prepare content items for translation.'),
+      'behavior' => array('changes_property'),
+      'configurable' => FALSE,
+      'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+function smartling_entity_utils_translate_prepare_action_form() {
+  $form = array();
+
+  $form['confirm'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('I confirm that I understand that this action is irrevertible. And that I have a backup for my data (DB).'),
+  );
+
+  return $form;
+}
+
+function smartling_entity_utils_translate_prepare_action_validate($form, $form_state) {
+  if (!@$form['confirm']['#value']) {
+    form_set_error('confirm', t('Please confirm explicitly if you want to continue.'));
+  }
+
+  if (!user_access('bypass content access control')) {
+    form_set_error('confirm', t('Sorry, but you need "Bypass content access control" permissions to execute this operation. Please ask administrator to grant it to you.'));
+  }
+}
+
+function smartling_entity_utils_translate_prepare_action_submit($form, $form_state) {
+  return array();
+}
+
+function smartling_entity_utils_translate_prepare_action(&$entity, $context) {
+  $default_lang = language_default()->language;
+
+  if (in_array($entity->language, array(LANGUAGE_NONE, $default_lang))) {
+    $entity_wrapper = entity_metadata_wrapper($context['entity_type'], $entity);
+    $bundle = $entity_wrapper->getBundle();
+    smartling_entity_utils_translate_router($entity, $context['entity_type'], $bundle, $default_lang);
+  }
+  else {
+    //todo: Add logging here
+  }
+}
+
+function smartling_entity_utils_translate_router($entity, $type, $bundle, $default_lang) {
+  if (!smartling_supported_type($type, $bundle)) {
+    return;
+  }
+  $allowed_fields = smartling_settings_get_handler()->getFieldsSettingsByBundle($type, $bundle);
+
+  smartling_entity_utils_update_to_fields_translate_method($entity, $type, $default_lang, $allowed_fields);
+}
+
+function smartling_entity_utils_update_to_fields_translate_method($entity, $type, $default_language, $allowed_fields) {
+  if ($default_language == LANGUAGE_NONE) {
+    return FALSE;
+  }
+
+  $field_langs = field_language($type, $entity);
+
+  if (!in_array($default_language, $field_langs) && !in_array(LANGUAGE_NONE, $field_langs)) {
+    return FALSE;
+  }
+
+  foreach($field_langs as $field => $lang) { // go through ALL field of this node
+    if (($lang == LANGUAGE_NONE) && (in_array($field, $allowed_fields))) { // if the field is in the wrong language
+      $items = field_get_items($type, $entity, $field, $lang); // get all field values
+      if (!empty($items)) {
+        $entity->{$field}[$default_language] = $items; // put it under language neutral
+        unset($entity->{$field}[$lang]); // remove the old language
+      }
+    }
+  }
+  $entity->language = $default_language;//LANGUAGE_NONE; // set the node language to neutral
+}
