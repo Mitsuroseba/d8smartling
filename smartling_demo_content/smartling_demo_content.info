@@ -66,3 +66,7 @@ features[node][] = travel
 features[taxonomy][] = tags
 features[taxonomy][] = travel
 mtime = 1416307171
+
+
+files[] = tests/smartling_media_processor.test
+files[] = tests/smartling_image_url_processor.test

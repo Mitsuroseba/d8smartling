@@ -5,7 +5,7 @@
  * Class SmartlingContentMediaEncodedParser.
  */
 
-namespace Drupal\smartling\Alters;
+namespace Drupal\smartling_demo_content\Alters;
 
 use Drupal\smartling\Alters\SmartlingContentBaseParser;
 

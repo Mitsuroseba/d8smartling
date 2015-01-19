@@ -5,7 +5,8 @@
  * Tests for smartling.
  */
 
-use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
+require_once __DIR__ . '/../lib/Drupal/smartling_demo_content/Alters/SmartlingContentMediaProcessor.php';
+use Drupal\smartling_demo_content\Alters\SmartlingContentMediaProcessor;
 
 /**
  * SmartlingMockedMediaProcessor.

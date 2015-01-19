@@ -42,7 +42,7 @@ class MockedFieldCollectionFieldProcessor extends FieldCollectionFieldProcessor 
     return $res[$id];
   }
 
-  protected function getProcessor($field_name, $entity, $smartling_entity, $targetLanguage) {
+  protected function getProcessor($field_name, $entity, $smartling_entity, $targetLanguage, $sourceLanguage) {
     return new FakeFieldProcessorFactory();
   }
 
