@@ -65,7 +65,7 @@ abstract class BaseFieldProcessor {
 
       $processors_objs = array();
       foreach ($processors as $proc) {
-        if (class_exists($proc) && in_array('SmartlingContentProcessorInterface', class_implements($proc))) {
+        if (class_exists($proc) && in_array('Drupal\\smartling\\Alters\\SmartlingContentProcessorInterface', class_implements($proc))) {
           $processors_objs[] = new $proc();
         }
       }

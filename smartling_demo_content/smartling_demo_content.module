@@ -6,14 +6,3 @@
  */
 
 include_once 'smartling_demo_content.features.inc';
-
-/**
- * Implements hook_smartling_data_processor_info().
- */
-function smartling_demo_content_smartling_data_processor_info() {
-  return array(
-    'SmartlingContentImageUrlParser' => array('SmartlingContentImageUrlProcessor'),
-    'SmartlingContentMediaParser' => array('SmartlingContentMediaProcessor'),
-    'SmartlingContentMediaEncodedParser' => array('SmartlingContentMediaEncodedProcessor'),
-  );
-}
