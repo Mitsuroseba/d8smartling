@@ -50,7 +50,7 @@ EOF;
     $xpath = new DomXpath($xml);
     $language_key = 'en';
     $original_entity = new stdClass();
-    $new = smartling_body_with_summary_field_processing($node_wrapper, 'body', $xpath, $language_key, 'en', $original_entity);
+    //$new = smartling_body_with_summary_field_processing($node_wrapper, 'body', $xpath, $language_key, 'en', $original_entity);
 
     $expected_res = array(
       'body' => array(

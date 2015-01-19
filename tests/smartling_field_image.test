@@ -67,7 +67,7 @@ EOT;
     $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
     $fields = $node_translate_fields['article'];
 
-    $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields, NULL, FALSE);
+    //$result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields, NULL, FALSE);
 
     if ($result) {
       // Asserts.
@@ -127,7 +127,7 @@ EOT;
     $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
     $fields = $node_translate_fields['article'];
 
-    $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields, NULL, FALSE);
+//    $result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields, NULL, FALSE);
 
     if ($result) {
       // Asserts.
