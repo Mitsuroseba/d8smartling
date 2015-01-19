@@ -5,15 +5,15 @@
  * The Smartling module file.
  */
 
-use Drupal\smartling\Alters\SmartlingContentParserInterface;
-use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
-use Drupal\smartling\Alters\SmartlingContentBaseParser;
-use Drupal\smartling\Alters\SmartlingContentImageUrlParser;
-use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
-use Drupal\smartling\Alters\SmartlingContentMediaEncodedParser;
-use Drupal\smartling\Alters\SmartlingContentMediaEncodedProcessor;
-use Drupal\smartling\Alters\SmartlingContentMediaParser;
-use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
+//use Drupal\smartling\Alters\SmartlingContentParserInterface;
+//use Drupal\smartling\Alters\SmartlingContentProcessorInterface;
+//use Drupal\smartling\Alters\SmartlingContentBaseParser;
+//use Drupal\smartling\Alters\SmartlingContentImageUrlParser;
+//use Drupal\smartling\Alters\SmartlingContentImageUrlProcessor;
+//use Drupal\smartling\Alters\SmartlingContentMediaEncodedParser;
+//use Drupal\smartling\Alters\SmartlingContentMediaEncodedProcessor;
+//use Drupal\smartling\Alters\SmartlingContentMediaParser;
+//use Drupal\smartling\Alters\SmartlingContentMediaProcessor;
 
 define('SMARTLING_FIELDS_METHOD_KEY', '4');
 define('SMARTLING_NODES_METHOD_KEY', '2');
@@ -624,8 +624,9 @@ function smartling_do_translate_action($entity, array $context) {
 
             $d_locales[] = $d_locale;
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+
+            $queued_eids[] = $entity_data->eid;
           }
-          $queued_eids[] = $entity_data->eid;
         }
         if (!empty($queued_eids)) {
           $smartling_queue->createItem($queued_eids);
@@ -691,8 +692,9 @@ function smartling_do_translate_action($entity, array $context) {
 
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             $d_locales[] = $d_locale;
+
+            $queued_eids[] = $entity_data->eid;
           }
-          $queued_eids[] = $entity_data->eid;
         }
         if (!empty($queued_eids)) {
           $smartling_queue->createItem($queued_eids);
@@ -747,8 +749,9 @@ function smartling_do_translate_action($entity, array $context) {
 
             smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
             $d_locales[] = $d_locale;
+
+            $queued_eids[] = $entity_data->eid;
           }
-          $queued_eids[] = $entity_data->eid;
         }
         if (!empty($queued_eids)) {
           $smartling_queue->createItem($queued_eids);
@@ -911,6 +914,18 @@ function smartling_push_callback() {
   }
 }
 
+
+/**
+ * Implements hook_smartling_data_processor_info().
+ */
+function smartling_demo_content_smartling_data_processor_info() {
+  return array(
+    'Drupal\\smartling\\Alters\\SmartlingContentImageUrlParser' => array('Drupal\\smartling\\Alters\\SmartlingContentImageUrlProcessor'),
+    'Drupal\\smartling\\Alters\\SmartlingContentMediaParser' => array('Drupal\\smartling\\Alters\\SmartlingContentMediaProcessor'),
+    'Drupal\\smartling\\Alters\\SmartlingContentMediaEncodedParser' => array('Drupal\\smartling\\Alters\\SmartlingContentMediaEncodedProcessor'),
+  );
+}
+
 /**
  * Returns modified content after it was processed by Smartling alter functions.
  *
@@ -943,7 +958,7 @@ function smartling_process_content($content, $lang, $field_name, $entity, $reset
   }
 
   foreach ($handlers as $parser => $processors) {
-    if (!class_exists('Drupal\\smartling\\Alters\\' . $parser)) {
+    if (!class_exists($parser)) {
       continue;
     }
 
