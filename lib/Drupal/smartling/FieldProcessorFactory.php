@@ -23,12 +23,20 @@ class FieldProcessorFactory {
   protected $fieldMapping;
 
   /**
-   * @param array $field_mapping_new
+   * @param array $field_mapping
    * @param SmartlingLog $logger
    * @param SmartlingApiWrapper $smartling_api
    */
-  public function __construct($field_mapping_new, $logger, $smartling_api) {
-    $this->fieldMapping = $field_mapping_new;
+  public function __construct($field_mapping, $logger, $smartling_api) {
+    $this->alter('smartling_field_processor_mapping_info', $field_mapping);
+    $this->fieldMapping = $field_mapping;
+  }
+
+  /*
+   * A wrapper for Drupal drupal_alter function
+   */
+  protected function alter($hook_name, &$handlers) {
+    drupal_alter($hook_name, $handlers);
   }
 
   /**

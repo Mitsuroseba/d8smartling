@@ -46,10 +46,18 @@ class EntityProcessorFactory {
    * @param SmartlingApiWrapper $smartling_api
    */
   public function __construct($processor_mapping, $field_processor_factory, $logger, $smartling_api) {
+    $this->alter('smartling_entity_processor_mapping_info', $processor_mapping);
     $this->processorMapping = $processor_mapping;
     $this->logger = $logger;
     $this->smartlingAPI = $smartling_api;
     $this->fieldProcessorFactory = $field_processor_factory;
+  }
+
+  /*
+   * A wrapper for Drupal drupal_alter function
+   */
+  protected function alter($hook_name, &$handlers) {
+    drupal_alter($hook_name, $handlers);
   }
 
   /**
