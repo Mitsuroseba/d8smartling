@@ -336,12 +336,12 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
     }
   }
 
-  if ($status) {
-    drupal_set_message(t('The translation was successfully downloaded.'));
-  }
-  else {
-    drupal_set_message(t('Ooops, something went wrong while we tried to download/apply the translation. Please see the logs.'), 'error');
-  }
+//  if ($status) {
+//    drupal_set_message(t('The translation was successfully downloaded.'));
+//  }
+//  else {
+//    drupal_set_message(t('Ooops, something went wrong while we tried to download/apply the translation. Please see the logs.'), 'error');
+//  }
 
   if (isset($_GET['destination'])) {
     unset($_GET['destination']);
