@@ -107,21 +107,10 @@ function smartling_interface_translation_do_translate_action($entity, array $con
           'target_language' => $locale,
         ));
 
-        if ($entity_data == FALSE) {
-          $entity_data = smartling_entity_data_create();
-          $entity_data->rid = $entity->gid;
-          $entity_data->entity_type = $entity_type;
-          $entity_data->bundle = $entity->textgroup;
-          $entity_data->file_name = $file_name;
-          $entity_data->original_language = 'en';
-          $entity_data->target_language = $locale;
-          $entity_data->progress = 0;
+        if (empty($entity_data)) {
+          $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale);
         }
 
-        $entity_data->translated_file_name = FALSE;
-        $entity_data->submitter = $user->uid;
-        $entity_data->submission_date = time();
-        smartling_entity_data_save($entity_data);
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
       }
     }

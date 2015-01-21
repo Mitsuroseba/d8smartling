@@ -572,7 +572,6 @@ function smartling_action_info() {
 function smartling_do_translate_action($entity, array $context) {
   $entity_type = $context['entity_type'];
   $log = smartling_log_get_handler();
-  global $user;
 
   $smartling_queue = DrupalQueue::get('smartling_upload');
   $smartling_queue->createQueue();
@@ -601,31 +600,19 @@ function smartling_do_translate_action($entity, array $context) {
 
           if ($d_locale != entity_language($entity_type, $entity)) {
 
-            $entity_data = smartling_entity_load_by_conditions(array(
+            $smartling_data = smartling_entity_load_by_conditions(array(
               'rid' => $entity->nid,
               'entity_type' => $entity_type,
               'target_language' => $d_locale,
             ));
 
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $entity->nid;
-              $entity_data->bundle = $entity->type;
-              $entity_data->entity_type = $entity_type;
-              $entity_data->original_language = $d_locale_original;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
+            if ($smartling_data == FALSE) {
+              $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $d_locale);
             }
 
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
+            smartling_set_translation_status($smartling_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
 
-            $d_locales[] = $d_locale;
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-
-            $queued_eids[] = $entity_data->eid;
+            $queued_eids[] = $smartling_data->eid;
           }
         }
         if (!empty($queued_eids)) {
@@ -669,31 +656,19 @@ function smartling_do_translate_action($entity, array $context) {
         foreach ($context['translate_to_langs'] as $d_locale) {
           if ($language_default !== $d_locale) {
 
-            $entity_data = smartling_entity_load_by_conditions(array(
+            $smartling_data = smartling_entity_load_by_conditions(array(
               'rid' => $tid,
               'entity_type' => $entity_type,
               'target_language' => $d_locale,
             ));
 
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $tid;
-              $entity_data->entity_type = $entity_type;
-              $entity_data->bundle = $entity->vocabulary_machine_name;
-              $entity_data->original_language = $d_locale_original;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
+            if ($smartling_data == FALSE) {
+              $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $d_locale);
             }
 
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
+            smartling_set_translation_status($smartling_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
 
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $d_locales[] = $d_locale;
-
-            $queued_eids[] = $entity_data->eid;
+            $queued_eids[] = $smartling_data->eid;
           }
         }
         if (!empty($queued_eids)) {
@@ -726,31 +701,19 @@ function smartling_do_translate_action($entity, array $context) {
         foreach ($context['translate_to_langs'] as $d_locale) {
 
           if ($d_locale_original !== $d_locale) {
-            $entity_data = smartling_entity_load_by_conditions(array(
+            $smartling_data = smartling_entity_load_by_conditions(array(
               'rid' => $id,
               'entity_type' => $entity_type,
               'target_language' => $d_locale,
             ));
 
-            if ($entity_data == FALSE) {
-              $entity_data = smartling_entity_data_create();
-              $entity_data->rid = $id;
-              $entity_data->entity_type = $entity_type;
-              $entity_data->bundle = $bundle;
-              $entity_data->original_language = $d_locale_original;
-              $entity_data->target_language = $d_locale;
-              $entity_data->progress = 0;
+            if ($smartling_data == FALSE) {
+              $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $d_locale);
             }
 
-            $entity_data->translated_file_name = FALSE;
-            $entity_data->submitter = $user->uid;
-            $entity_data->submission_date = time();
-            smartling_entity_data_save($entity_data);
+            smartling_set_translation_status($smartling_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
 
-            smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
-            $d_locales[] = $d_locale;
-
-            $queued_eids[] = $entity_data->eid;
+            $queued_eids[] = $smartling_data->eid;
           }
         }
         if (!empty($queued_eids)) {

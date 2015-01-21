@@ -266,9 +266,6 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
   $link = smartling_get_link_to_entity($term->tid, $form['#entity_type']);
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
-
-    global $user;
-
     $smartling_queue = DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
@@ -284,21 +281,9 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
           'target_language' => $d_locale,
         ));
 
-        if ($entity_data == FALSE) {
-          // @todo: use smartling_create_from_entity().
-          $entity_data = smartling_entity_data_create();
-          $entity_data->rid = $tid;
-          $entity_data->entity_type = $form['#entity_type'];
-          $entity_data->bundle = $term->vocabulary_machine_name;
-          $entity_data->original_language = $d_locale_origin;
-          $entity_data->target_language = $d_locale;
-          $entity_data->progress = 0;
+        if (empty($entity_data)) {
+          $entity_data = smartling_create_from_entity($term, $form['#entity_type'], $d_locale_origin, $d_locale);
         }
-
-        $entity_data->translated_file_name = FALSE;
-        $entity_data->submitter = $user->uid;
-        $entity_data->submission_date = time();
-        smartling_entity_data_save($entity_data);
 
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
         $langs[] = $d_locale;
