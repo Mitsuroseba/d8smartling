@@ -249,7 +249,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $response_data = $status_result->response->data;
     $approved = $response_data->approvedStringCount;
     $completed = $response_data->completedStringCount;
-    $progress = ($approved == $completed || $approved == 0) ? 100 : (int) (($completed / $approved) * 100);
+    $progress = ($approved > 0) ? (int) (($completed / $approved) * 100) : 0;
     $smartling_entity->download = 0;
     $smartling_entity->progress = $progress;
     $smartling_entity->status = SMARTLING_STATUS_IN_TRANSLATE;
