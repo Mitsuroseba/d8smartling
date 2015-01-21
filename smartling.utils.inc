@@ -496,113 +496,6 @@ function smartling_build_xml($processor, $rid) {
 }
 
 /**
- * Download translate for entity.
- *
- * @param int $rid
- *   Related id.
- * @param string|int $d_locale
- *   Locale in drupal format (ru, en) or smartling transaction entity id.
- * @param object $entity_data
- *   Smartling transaction entity.
- */
-function smartling_download_translate($rid, $d_locale = '', $entity_data = NULL) {
-  if (smartling_is_configured()) {
-    // Load entity.
-    if (is_null($entity_data) && is_numeric($d_locale)) {
-      // Use in views report (Download).
-      $entity_data = smartling_entity_load_by_conditions(array(
-        'rid' => $rid,
-        'eid' => $d_locale,
-      ));
-      $d_locale = $entity_data->target_language;
-    }
-
-    if (($entity_data !== FALSE) && (smartling_supported_type($entity_data->entity_type, $entity_data->bundle))) {
-      $s_locale = smartling_convert_locale_drupal_to_smartling($entity_data->target_language);
-      $progress = smartling_get_progress_status($entity_data);
-
-      if ($progress !== FALSE) {
-        $xml = smartling_download_file($entity_data);
-
-        $file_name = substr($entity_data->file_name, 0, strlen($entity_data->file_name) - 4);
-        $translated_file_name = $file_name . '_' . $entity_data->target_language . '.xml';
-
-        // Save result.
-        $save = smartling_save_xml($xml, $entity_data, $translated_file_name, TRUE);
-
-        // If result is saved.
-        if ($save) {
-          smartling_update_translated_fields($entity_data);
-          $entity_data->progress = $progress;
-          smartling_entity_data_save($entity_data);
-          drupal_set_message(t('Downloaded for language translation @language', array('@language' => $s_locale)), 'status');
-        }
-      }
-      else {
-        drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $s_locale)), 'error');
-      }
-    }
-    else {
-      drupal_set_message(t('Progress status Failed for language translation @language', array('@language' => $d_locale)), 'error');
-    }
-  }
-  else {
-    drupal_set_message(t('Smartling is not configured'), 'error');
-  }
-}
-
-/**
- * Download file from service.
- *
- * @param object $entity_data
- *   Smartling transaction entity.
- *
- * @return \DOMDocument
- *   Return xml dom from downloaded file.
- */
-function smartling_download_file($entity_data) {
-  $api = drupal_container()->get('smartling.api_wrapper');
-  $download_result = $api->downloadFile($entity_data);
-
-  if ($download_result) {
-    $xml = new DOMDocument();
-    $xml->loadXML($download_result);
-
-    return $xml;
-  }
-
-  return FALSE;
-}
-
-/**
- * Get progress for transaction.
- *
- * @param object $entity_data
- *   Smartling transaction entity.
- *
- * @deprecated @see getProgressStatus()
- *
- * @return int|bool
- *   Return number of progress or FALSE.
- */
-function smartling_get_progress_status($entity_data) {
-  if (is_string($entity_data->file_name) && (strlen($entity_data->file_name) > 0)) {
-    $api = drupal_container()->get('smartling.api_wrapper');
-    $result = $api->getStatus($entity_data);
-
-    if (!empty($result)) {
-      return $result['entity_data']->progress;
-    }
-    else {
-      return FALSE;
-    }
-  }
-  else {
-    return FALSE;
-  }
-}
-
-/**
  * Smartling language options list.
  *
  * @return array
@@ -647,6 +540,8 @@ function smartling_language_list() {
  *   Smartling transaction entity.
  * @param string $event
  *   Event for change status.
+ *
+ * @todo it's a duplicate of setProgressStatus() method of GenericEntity. Need to resolve it.
  */
 function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
   if (!is_null($entity_data) && !is_null($event)) {
