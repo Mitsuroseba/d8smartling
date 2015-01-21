@@ -65,3 +65,23 @@ function hook_smartling_entity_processor_mapping_info_alter(&$entity_processor_m
     'generic' => 'Drupal\smartling\Processors\GenericEntityProcessor'
   );
 }
+
+/**
+ * Allows other modules to inject their forms into smartling settings page
+ * on a separate tab. The "key" is a machine name of a form and "value" is a human readable title.
+ *
+ * @return array
+ */
+function hook_smartling_settings_form_info() {
+  $forms = array(
+    'smartling_admin_account_info_settings_form' => t('Account info'),
+    'smartling_admin_node_translation_settings_form' => t('Nodes settings'),
+    'smartling_admin_entities_translation_settings_form' => t('Entities settings'),
+  );
+
+  if (module_exists('taxonomy')) {
+    $forms['smartling_admin_taxonomy_translation_settings_form'] = t('Taxonomy vocabularies and fields');
+  }
+
+  return $forms;
+}
