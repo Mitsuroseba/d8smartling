@@ -522,14 +522,7 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
   }
 
   // Reset default state, since all disabled checkboxes will be ignored
-  // and therefore, not updated.
-  // @todo
-  // This is to be refactored, since it's annoying to add a line for each
-  // entity processor.
-  smartling_settings_get_handler()->userSetFieldsSettings(array());
-  smartling_settings_get_handler()->commentSetFieldsSettings(array());
-  smartling_settings_get_handler()->setFieldsSettings('field_collection_item', array());
-  smartling_settings_get_handler()->setFieldsSettings('fieldable_panels_pane', array());
+  smartling_settings_get_handler()->resetAllFieldsSettings();
 
   // Save the settings, considering entity bundle, to know which
   // update method to be called.
@@ -589,18 +582,18 @@ function smartling_admin_entities_translation_crawler() {
   $entities = entity_get_info();
   $rows = array();
 
-  // Loop thru each entity type.
+  // Loop through each entity type.
   foreach ($entities as $name => $definition) {
     if (in_array($name, $exclude)) {
       continue;
     }
 
     $bundles = array_keys($definition['bundles']);
-    // Loop thru each entity bundle.
+    // Loop through each entity bundle.
     foreach ($bundles as $bundle) {
       $field_instances = field_info_instances($name, $bundle);
 
-      // Loop thru each field instance of the bundle.
+      // Loop through each field instance of the bundle.
       foreach ($field_instances as $field) {
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];

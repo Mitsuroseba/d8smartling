@@ -142,6 +142,18 @@ class SmartlingSettingsHandler {
   }
 
   /**
+   * Resets all smartling fields settings to an empty array.
+   *
+   */
+  public function resetAllFieldsSettings() {
+    $settings = $this->getFieldsSettingsAll();
+
+    foreach ($settings as $entity_type => $val) {
+      $this->setFieldsSettings($entity_type, array());
+    }
+  }
+
+  /**
    * Set smartling fields settings for node entity.
    *
    * @param array $node_fields_settings
