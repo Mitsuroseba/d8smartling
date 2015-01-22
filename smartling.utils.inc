@@ -636,51 +636,22 @@ function smartling_get_link_to_entity($rid, $entity_type) {
 /**
  * Get original entity.
  *
- * @param int $rid
+ * @param int $tid
  *   Related id.
- * @param string $entity_type
- *   Entity type.
  *
  * @deprecated
  *
  * @return object|bool
  *   Return entity object or FALSE.
  */
-function smartling_get_original_entity($rid, $entity_type) {
-  switch ($entity_type) {
-    case 'node':
-      $entity = FALSE;
-      break;
-
-    case 'taxonomy_term':
-      $term = taxonomy_term_load($rid);
-      if ($term->language == language_default()->language) {
-        $entity = $term;
-      }
-      else {
-        if (!isset($term->i18n_tsid)) {
-          $entity = FALSE;
-        }
-        elseif (isset($term->i18n_tsid) && ($term->i18n_tsid == FALSE)) {
-          $entity = FALSE;
-        }
-        elseif (isset($term->i18n_tsid) && is_numeric($term->i18n_tsid)) {
-          $entity = i18n_taxonomy_term_get_translation($term, language_default()->language);
-        }
-      }
-      break;
-
-    case 'comment':
-      $entity = FALSE;
-      break;
-
-    case 'user':
-      $entity = FALSE;
-      break;
-
-    default:
-      $entity = FALSE;
-      break;
+function smartling_get_original_taxonomy_term($tid) {
+  $entity = FALSE;
+  $term   = taxonomy_term_load($tid);
+  if ($term->language == language_default()->language) {
+    $entity = $term;
+  }
+  elseif (isset($term->i18n_tsid) && is_numeric($term->i18n_tsid)) {
+    $entity = i18n_taxonomy_term_get_translation($term, language_default()->language);
   }
 
   return $entity;

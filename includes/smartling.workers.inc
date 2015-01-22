@@ -63,7 +63,8 @@ function smartling_queue_send_to_translate_process($eids) {
     $eids = array($eids);
   }
 
-  $target_locales = array();
+  $smartling_entity  = NULL;
+  $target_locales    = array();
   $entity_data_array = array();
 
   foreach($eids as $eid) {

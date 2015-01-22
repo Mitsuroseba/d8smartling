@@ -142,7 +142,7 @@ function smartling_get_term_settings_form(array $form, array &$form_state) {
         $tid = $form['#term']['tid'];
       }
       else {
-        $original_term = smartling_get_original_entity($form['#term']['tid'], $form['#entity_type']);
+        $original_term = smartling_get_original_taxonomy_term($form['#term']['tid']);
         $tid = ($original_term) ? $original_term->tid : $original_term;
       }
 
@@ -253,7 +253,7 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
     $tid = $term->tid;
   }
   else {
-    $original_term = smartling_get_original_entity($term->tid, $form['#entity_type']);
+    $original_term = smartling_get_original_taxonomy_term($term->tid);
     $tid = $original_term->tid;
   }
 

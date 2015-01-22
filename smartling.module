@@ -647,7 +647,7 @@ function smartling_do_translate_action($entity, array $context) {
           $tid = $entity->tid;
         }
         else {
-          $original_term = smartling_get_original_entity($entity->tid, $entity_type);
+          $original_term = smartling_get_original_taxonomy_term($entity->tid);
           $tid = $original_term->tid;
         }
 
