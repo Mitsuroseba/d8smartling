@@ -15,37 +15,37 @@ class NodeProcessor extends GenericEntityProcessor {
    * @todo remove procedural code.
    */
   public function addTranslatedFieldsToNode($node){
-      $field_values = array();
-      foreach ($this->getTranslatableFields() as $field_name) {
-          if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
-              $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
-              $val = $fieldProcessor->cleanBeforeClone($node);
-              if (!empty($val)) {
-                  $field_values[$field_name] = $val;
-              }
-          }
+    $field_values = array();
+    foreach ($this->getTranslatableFields() as $field_name) {
+      if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
+        $val = $fieldProcessor->cleanBeforeClone($node);
+        if (!empty($val)) {
+          $field_values[$field_name] = $val;
+        }
       }
+    }
 
-      node_object_prepare($node);
-      node_save($node);
+    node_object_prepare($node);
+    node_save($node);
 
-      foreach ($this->getTranslatableFields() as $field_name) {
-          if (!empty($field_values[$field_name])) {
-              $node->{$field_name} = $field_values[$field_name];
-          }
+    foreach ($this->getTranslatableFields() as $field_name) {
+      if (!empty($field_values[$field_name])) {
+        $node->{$field_name} = $field_values[$field_name];
       }
+    }
 
-      foreach ($this->getTranslatableFields() as $field_name) {
-          // Run all translatable fields through prepareBeforeDownload
-          // to make sure that all related logic was triggered.
-          if (!empty($this->contentEntity->{$field_name}[LANGUAGE_NONE])) {
-              $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
-              // @TODO get rid of hardcoded language.
-              $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
-          }
+    foreach ($this->getTranslatableFields() as $field_name) {
+      // Run all translatable fields through prepareBeforeDownload
+      // to make sure that all related logic was triggered.
+      if (!empty($this->contentEntity->{$field_name}[LANGUAGE_NONE])) {
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
+        // @TODO get rid of hardcoded language.
+        $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
       }
+    }
 
-      return $node;
+    return $node;
   }
 
   public function prepareDrupalEntity() {

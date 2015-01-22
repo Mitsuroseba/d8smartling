@@ -48,13 +48,6 @@ class GenericEntityProcessor {
   public $contentEntityWrapper;
 
   /**
-   * List of drupal content entity fields that could be translated.
-   *
-   * @var array
-   */
-  protected $fields;
-
-  /**
    * Contain drupal content entity type.
    *
    * @var string
@@ -405,6 +398,18 @@ class GenericEntityProcessor {
     return $this->updateDrupalTranslation();
   }
 
+  public function getTranslatableContent() {
+    $data = array();
+    foreach ($this->getTranslatableFields() as $field_name) {
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
+      if ($fieldProcessor) {
+        $data[$field_name] = $fieldProcessor->getSmartlingContent();
+      }
+    }
+
+    return $data;
+  }
+
   public function exportContentToTranslation($xml, $rid) {
     $localize = $xml->createElement('localize');
     $localize_attr = $xml->createAttribute('title');
@@ -413,7 +418,7 @@ class GenericEntityProcessor {
 
     foreach ($this->getTranslatableFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-      $this->fields[$field_name] = $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
       if ($fieldProcessor) {
         $data = $fieldProcessor->getSmartlingContent();
         $fieldProcessor->putDataToXML($xml, $localize, $data);
