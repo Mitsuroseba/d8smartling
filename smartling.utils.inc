@@ -137,20 +137,13 @@ function smartling_fields_method($type) {
 /**
  * Returns node status for nodes method by node id.
  *
- * @param int $nid
- *   Node id.
+ * @param object $node
+ *   Node object.
  *
  * @return string
  *   Return unical node status for nodes method translate.
  */
-function smartling_nodes_method_node_status($nid) {
-  if (is_int($nid) || is_numeric($nid)) {
-    $node = node_load($nid);
-  }
-  elseif (is_object($nid)) {
-    $node = $nid;
-  }
-
+function smartling_nodes_method_node_status($node) {
   if (isset($node->tnid) && $node->tnid != '0' && ($node->tnid != $node->nid)) {
     return SMARTLING_TRANSLATE_NODE;
   }

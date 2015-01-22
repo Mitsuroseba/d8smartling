@@ -1,13 +1,5 @@
 <?php
 
-/**
- * @file
- * Smartling demo content.
- *
- * @author Maxim Bogdanov <sin666m4a1fox@gmail.com>
- * @copyright maxim 4/3/14 | 3:54 PM
- */
-
 define('SMARTLING_DEMO_MODULE', 'smartling_demo_content');
 
 define('TRAVEL_TAXONOMY_ADDED', t('Travel taxonomy has been added to DB.'));
@@ -27,14 +19,14 @@ define('DEMO_LANGUAGE_DEFAULT', language_default()->language);
 /**
  * Implements hook_modules_enabled().
  */
-function smartling_modules_enabled(array $modules) {
+function smartling_demo_content_modules_enabled(array $modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
     drupal_cron_run();
 
-    smartling_create_comments_to_nodes();
-    smartling_create_additional_fields_for_account();
-    smartling_create_taxonomy();
-    smartling_add_taxonomy_to_travel_node();
+    smartling_demo_content_create_comments_to_nodes();
+    smartling_demo_content_create_additional_fields_for_account();
+    smartling_demo_content_create_taxonomy();
+    smartling_demo_content_add_taxonomy_to_travel_node();
 
     db_update('block')
       ->fields(array(
@@ -50,18 +42,18 @@ function smartling_modules_enabled(array $modules) {
 /**
  * Implements hook_modules_disabled().
  */
-function smartling_modules_disabled(array $modules) {
+function smartling_demo_content_modules_disabled(array $modules) {
   if (in_array(SMARTLING_DEMO_MODULE, $modules)) {
-    smartling_delete_comments_to_nodes();
-    smartling_delete_additional_fields_for_account();
-    smartling_delete_taxonomy();
+    smartling_demo_content_delete_comments_to_nodes();
+    smartling_demo_content_delete_additional_fields_for_account();
+    smartling_demo_content_delete_taxonomy();
   }
 }
 
 /**
  * Create comments to nodes.
  */
-function smartling_create_comments_to_nodes() {
+function smartling_demo_content_create_comments_to_nodes() {
   // Make comment_body translatable.
   $field = field_info_field('comment_body');
   $field['translatable'] = 1;
@@ -82,12 +74,12 @@ function smartling_create_comments_to_nodes() {
         'is_anonymous' => 0,
         'homepage' => '',
         'status' => COMMENT_PUBLISHED,
-        'subject' => smartling_devel_create_greeking(mt_rand(1, 3), TRUE),
+        'subject' => smartling_demo_content_devel_create_greeking(mt_rand(1, 3), TRUE),
         'language' => DEMO_LANGUAGE_DEFAULT,
         'comment_body' => array(
           DEMO_LANGUAGE_DEFAULT => array(
             0 => array(
-              'value' => smartling_devel_create_greeking(mt_rand(2, 17), TRUE),
+              'value' => smartling_demo_content_devel_create_greeking(mt_rand(2, 17), TRUE),
               'format' => 'filtered_html',
             ),
           ),
@@ -98,13 +90,13 @@ function smartling_create_comments_to_nodes() {
     }
   }
 
-  smartling_set_message_watchdog(NODES_COMMENTS_ADDED);
+  smartling_demo_content_set_message_watchdog(NODES_COMMENTS_ADDED);
 }
 
 /**
  * Delete comments.
  */
-function smartling_delete_comments_to_nodes() {
+function smartling_demo_content_delete_comments_to_nodes() {
   $nodes = node_load_multiple(array(), array(
     'type' => array(
       'article',
@@ -123,10 +115,10 @@ function smartling_delete_comments_to_nodes() {
 
   if (count($comment_id) > 0) {
     comment_delete_multiple($comment_id);
-    smartling_set_message_watchdog(NODES_COMMENT_DELETE);
+    smartling_demo_content_set_message_watchdog(NODES_COMMENT_DELETE);
   }
   else {
-    smartling_set_message_watchdog(NO_NODES_DEMO_COMMENTS);
+    smartling_demo_content_set_message_watchdog(NO_NODES_DEMO_COMMENTS);
   }
 }
 
@@ -136,7 +128,7 @@ function smartling_delete_comments_to_nodes() {
  * @return null
  *   Return null.
  */
-function smartling_create_additional_fields_for_account() {
+function smartling_demo_content_create_additional_fields_for_account() {
   $data_fields = array(
     array(
       'field' => array(
@@ -277,18 +269,18 @@ function smartling_create_additional_fields_for_account() {
       }
     }
     else {
-      smartling_set_message_watchdog(DEMO_USERS_EXIST);
+      smartling_demo_content_set_message_watchdog(DEMO_USERS_EXIST);
       return NULL;
     }
   }
 
-  smartling_set_message_watchdog(DEMO_USERS_ADDED);
+  smartling_demo_content_set_message_watchdog(DEMO_USERS_ADDED);
 }
 
 /**
  * Delete additional fields for account.
  */
-function smartling_delete_additional_fields_for_account() {
+function smartling_demo_content_delete_additional_fields_for_account() {
 
   $data_fields = array(
     array(
@@ -322,14 +314,14 @@ function smartling_delete_additional_fields_for_account() {
     user_delete($user_load->uid);
   }
 
-  smartling_set_message_watchdog(DELETE_ADDITIONAL_ACCOUNT_FIELDS);
-  smartling_set_message_watchdog(DELETE_DEMO_USERS);
+  smartling_demo_content_set_message_watchdog(DELETE_ADDITIONAL_ACCOUNT_FIELDS);
+  smartling_demo_content_set_message_watchdog(DELETE_DEMO_USERS);
 }
 
 /**
  * Create taxonomy terms.
  */
-function smartling_create_taxonomy() {
+function smartling_demo_content_create_taxonomy() {
   $terms_data = array('Turkey', 'Egypt', 'Dubai', 'Thailand', 'Spain');
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
 
@@ -355,27 +347,27 @@ function smartling_create_taxonomy() {
     ));
   }
 
-  smartling_set_message_watchdog(TRAVEL_TAXONOMY_ADDED);
+  smartling_demo_content_set_message_watchdog(TRAVEL_TAXONOMY_ADDED);
 }
 
 /**
  * Delete taxonomy terms.
  */
-function smartling_delete_taxonomy() {
+function smartling_demo_content_delete_taxonomy() {
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
   if (is_object($get_taxonomy_vocabulary)) {
     taxonomy_vocabulary_delete($get_taxonomy_vocabulary->vid);
-    smartling_set_message_watchdog(TRAVEL_VOCABULARY_DELETED);
+    smartling_demo_content_set_message_watchdog(TRAVEL_VOCABULARY_DELETED);
   }
   else {
-    smartling_set_message_watchdog(TRAVEL_VOCABULARY_NOT_FOUND);
+    smartling_demo_content_set_message_watchdog(TRAVEL_VOCABULARY_NOT_FOUND);
   }
 }
 
 /**
  * Add taxonomy term to travel node.
  */
-function smartling_add_taxonomy_to_travel_node() {
+function smartling_demo_content_add_taxonomy_to_travel_node() {
   $data_fields = array(
     array(
       'field' => array(
@@ -441,14 +433,14 @@ function smartling_add_taxonomy_to_travel_node() {
 
   foreach ($travel_nodes as $node) {
     $load_node = node_load($node->nid, NULL, TRUE);
-    foreach (smartling_get_random_taxonomy_array() as $taxonomy) {
+    foreach (smartling_demo_content_get_random_taxonomy_array() as $taxonomy) {
       $load_node->field_taxonomy_field[LANGUAGE_NONE][]['tid'] = $taxonomy->tid;
     }
 
     node_save($load_node);
   }
 
-  smartling_set_message_watchdog(TRAVEL_TAXONOMY_ADDED_TO_NODE);
+  smartling_demo_content_set_message_watchdog(TRAVEL_TAXONOMY_ADDED_TO_NODE);
 }
 
 /**
@@ -457,7 +449,7 @@ function smartling_add_taxonomy_to_travel_node() {
  * @return array
  *   Return random taxonomy array.
  */
-function smartling_get_random_taxonomy_array() {
+function smartling_demo_content_get_random_taxonomy_array() {
   $get_taxonomy_vocabulary = taxonomy_vocabulary_machine_name_load(TAXONOMY_TRAVEL);
   $taxonomy_data = array();
 
@@ -480,7 +472,7 @@ function smartling_get_random_taxonomy_array() {
  * @param string $msg
  *   Message.
  */
-function smartling_set_message_watchdog($msg) {
+function smartling_demo_content_set_message_watchdog($msg) {
   drupal_set_message($msg);
   $log = smartling_log_get_handler();
   $log->setMessage($msg)->execute();
@@ -498,7 +490,7 @@ function smartling_set_message_watchdog($msg) {
  * @return string
  *   Return random string.
  */
-function smartling_devel_create_greeking($word_count, $title = FALSE) {
+function smartling_demo_content_devel_create_greeking($word_count, $title = FALSE) {
   $dictionary = array("abbas", "abdo", "abico", "abigo", "abluo", "accumsan",
     "acsi", "ad", "adipiscing", "aliquam", "aliquip", "amet", "antehabeo",
     "appellatio", "aptent", "at", "augue", "autem", "bene", "blandit",
