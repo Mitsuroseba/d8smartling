@@ -4,7 +4,6 @@
  * @file
  * Processing functions for Smartling module.
  */
-use Drupal\smartling\Processors\GenericEntityProcessor;
 
 /**
  * Get field processing mode.

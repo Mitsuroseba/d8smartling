@@ -5,12 +5,6 @@
  * Utils functions for Smartling module.
  */
 
-use Drupal\smartling\EntityProcessorFactory;
-use Drupal\smartling\Settings\SmartlingSettingsHandler;
-use Drupal\smartling\Processors\NodeProcessor;
-use Drupal\smartling\Processors\TaxonomyTermProcessor;
-use Drupal\smartling\Processors\GenericEntityProcessor;
-
 /**
  * Returns whether the given node type has support for Smartling translations.
  *

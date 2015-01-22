@@ -5,8 +5,6 @@
  * Admin forms and other for Smartling module administration section.
  */
 
-use Drupal\smartling\Settings\SmartlingSettingsHandler;
-
 /**
  * Smartling settings page callback.
  *
