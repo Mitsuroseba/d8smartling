@@ -28,7 +28,6 @@ define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_DEFAULT_API_URL', 'https://capi.smartling.com/v1');
 
 include_once 'smartling.utils.inc';
-include_once 'smartling.processing.inc';
 include_once 'includes/smartling.workers.inc';
 include_once 'includes/smartling.entity.inc';
 include_once 'views/smartling.views.inc';
