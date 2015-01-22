@@ -366,7 +366,7 @@ function smartling_update_7100(&$sandbox) {
       unset($item->s_locales);
 
       foreach ($item->d_locales as $key => $locale) {
-        $item->d_locales[$key] = smartling_convert_locale_drupal_to_smartling($locale, TRUE);
+        $item->d_locales[$key] = smartling_convert_locale_smartling_to_drupal($locale);
       }
 
       db_update('queue')
@@ -513,7 +513,7 @@ function smartling_update_7100(&$sandbox) {
         $content_array = smartling_node_content_to_translate($node);
         $content_hash = md5(serialize($content_array));
         $original_language = $node->language;
-        $target_language = smartling_convert_locale_drupal_to_smartling($res->target_language, TRUE);
+        $target_language = smartling_convert_locale_smartling_to_drupal($res->target_language);
         if (is_null($target_language)) {
           $target_language = $res->target_language;
         }

@@ -201,23 +201,16 @@ function smartling_is_configured() {
  *   Entity type.
  *
  * @return bool
- *   Return TRUE if translate fields is set.
+ *   Return TRUE if fields for translation are set.
  */
 function smartling_translate_fields_is_set($bundle, $entity_type) {
-  $sm_settings = smartling_settings_get_handler();
-  $val = $sm_settings->getFieldsSettingsByBundle($entity_type, $bundle);
+  $val = smartling_settings_get_handler()->getFieldsSettingsByBundle($entity_type, $bundle);
 
   if (empty($val)) {
-    $result = FALSE;
-  }
-  else {
-    $result = TRUE;
-  }
-  if (!$result) {
     drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
   }
 
-  return $result;
+  return !empty($val);
 }
 
 /**
@@ -267,14 +260,14 @@ function smartling_field_is_translatable_by_field_name($field_name, $entity_type
  *   TRUE if save translated file. FALSE by default.
  */
 function smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file = FALSE) {
-    if ($translated_file) {
-      $smartling_entity->translated_file_name = $file_name;
-    }
-    else {
-      $smartling_entity->file_name = $file_name;
-    }
+  if ($translated_file) {
+    $smartling_entity->translated_file_name = $file_name;
+  }
+  else {
+    $smartling_entity->file_name = $file_name;
+  }
 
-    smartling_entity_data_save($smartling_entity);
+  smartling_entity_data_save($smartling_entity);
 }
 
 /**
@@ -283,47 +276,40 @@ function smartling_entity_data_filename_update($file_name, $smartling_entity, $t
  * @param string $d_locale
  *   Locale in drupal format (ru, en).
  *
- * @return string|null
- *   Return full language name or NULL.
+ * @return string
+ *   Return full language name or empty string.
  */
 function smartling_get_full_language_name($d_locale) {
   $languages = language_list();
-  if (isset($languages[$d_locale])) {
-    return check_plain($languages[$d_locale]->name);
-  }
-  else {
-    return NULL;
-  }
+  return (isset($languages[$d_locale]))? $languages[$d_locale]->name : '';
 }
 
 /**
  * This functions convert locale format. Example: 'en' => 'en-US'.
  *
  * @param string $locale
- *   Locale string in some format: 'en' or 'en-US'.
- * @param bool $reverse
- *   If TRUE, convert format: 'en-US' => 'en'. FALSE by default.
+ *   Locale string in Drupal format: 'en'.
  *
- * @return string|null
- *   Return locale or NULL.
+ * @return string
+ *   Return locale or empty string.
  */
-function smartling_convert_locale_drupal_to_smartling($locale, $reverse = FALSE) {
+function smartling_convert_locale_drupal_to_smartling($locale) {
   $locales = smartling_settings_get_handler()->getLocalesConvertArray();
-  if (!$reverse) {
-    if (isset($locales[$locale])) {
-      return $locales[$locale];
-    }
-    else {
-      return NULL;
-    }
-  }
-  else {
-    foreach ($locales as $key => $loc) {
-      if ($locale == $loc) {
-        return $key;
-      }
-    }
-  }
+  return (isset($locales[$locale])) ? $locales[$locale] : '';
+}
+
+/**
+ * This functions convert locale format. Example: 'en-US' => 'en'.
+ *
+ * @param string $locale
+ *   Locale string in Smartling format: 'en-US'.
+ *
+ * @return string
+ *   Return locale or empty string.
+ */
+function smartling_convert_locale_smartling_to_drupal($locale) {
+  $locales = smartling_settings_get_handler()->getLocalesConvertArray();
+  return (string) array_search($locale, $locales);
 }
 
 /**
@@ -471,8 +457,8 @@ function smartling_build_xml($processor, $rid) {
 
   $localize = $processor->exportContentToTranslation($xml, $rid);
 
-  //$data->appendChild(smartling_build_localize($xml, $rid, $content_to_translate));
   $data->appendChild($localize);
+  $xml->appendChild($data);
 
 // @todo Verify how many child has $data. If zero, then write to log and stop upload
 // This logic was lost in OOP branch
@@ -488,29 +474,23 @@ function smartling_build_xml($processor, $rid) {
 //    $file_name = FALSE;
 //  }
 
-
-  $xml->appendChild($data);
-
-
   return $xml;
 }
 
 /**
  * Smartling language options list.
+ * It's prepared for the list/checkboxes-item on the form.
  *
  * @return array
  *   Return language options list or empty array.
  */
 function smartling_language_options_list() {
-  $language_options_list = array();
   $languages = smartling_language_list();
 
-  foreach ($languages as $langcode => $language) {
-    if ($language->enabled != '0') {
-      $language_options_list[$langcode] = check_plain($language->name);
-    }
+  foreach ($languages as $lang => $language) {
+    $languages[$lang] = check_plain($language->name);
   }
-  return $language_options_list;
+  return $languages;
 }
 
 /**
@@ -658,30 +638,6 @@ function smartling_get_original_taxonomy_term($tid) {
 }
 
 /**
- * Get field format.
- *
- * @param object $original_entity
- *   Original entity.
- * @param string $field_name
- *   Field name.
- * @param string $language_key_format
- *   Field language.
- * @param int $i
- *   Field delta.
- *
- * @return string|null
- *   Return field format like "full_html" or NULL.
- */
-function smartling_get_field_format($original_entity, $field_name, $language_key_format, $i = 0) {
-  if (isset($original_entity->{$field_name}[$language_key_format][$i]['format'])) {
-    return $original_entity->{$field_name}[$language_key_format][$i]['format'];
-  }
-  else {
-    return NULL;
-  }
-}
-
-/**
  * Get fields by type.
  *
  * @param string $type
@@ -735,42 +691,6 @@ function smartling_log_get_handler() {
 }
 
 /**
- * Check filename length.
- *
- * @param string $title
- *   Entity title.
- * @param string $entity_type
- *   Entity type.
- * @param int $rid
- *   Related id.
- *
- * @return bool
- *   Return TRUE if normal filename.
- */
-function smartling_check_filename_length($title, $entity_type, $rid) {
-  $log = smartling_log_get_handler();
-  $file_name = strtolower(trim(preg_replace('#\W+#', '_', $title), '_')) . '_' . $entity_type . '_' . $rid . '.xml';
-
-  if (strlen($file_name) > 255) {
-    $count = (strlen($file_name) - 240);
-    $link_to_entity = smartling_get_link_to_entity($rid, $entity_type);
-    $log->setMessage('Generated file name is too long. Remove approximately @count characters. Filename: @file_name, related entity - @rid, entity type - @entity_type')
-      ->setVariables(array(
-        '@count' => $count,
-        '@file_name' => $file_name,
-        '@rid' => $rid,
-        '@entity_type' => $entity_type,
-      ))
-      ->setConsiderLog(FALSE)
-      ->setSeverity(WATCHDOG_ERROR)
-      ->setLink($link_to_entity)
-      ->execute();
-    return FALSE;
-  }
-  return TRUE;
-}
-
-/**
  * Check field by name.
  *
  * Return TRUE if this is fake field for entites translate method.
@@ -784,21 +704,9 @@ function smartling_check_filename_length($title, $entity_type, $rid) {
  *   Return fake parameter.
  */
 function smartling_check_fake_field_for_entities_translate_method($field_name) {
-  $fake = FALSE;
-  $fake_field_array = array(
-    'title_property_field',
-    'name_property_field',
-    'description_property_field',
-  );
+  $fake_field_array = array('title_property_field', 'name_property_field', 'description_property_field');
 
-  if (in_array($field_name, $fake_field_array)) {
-    $fake = TRUE;
-  }
-  else {
-    $fake = FALSE;
-  }
-
-  return $fake;
+  return in_array($field_name, $fake_field_array);
 }
 
 /**
@@ -815,131 +723,7 @@ function smartling_check_fake_field_for_entities_translate_method($field_name) {
  *   Return check result.
  */
 function smartling_is_title_module_field($field_name) {
-  $title_module = FALSE;
-  $field_array = array(
-    'title_field',
-    'name_field',
-    'description_field',
-  );
+  $field_array = array('title_field', 'name_field', 'description_field');
 
-  if (in_array($field_name, $field_array)) {
-    $title_module = TRUE;
-  }
-  else {
-    $title_module = FALSE;
-  }
-
-  return $title_module;
-}
-
-/**
- * Set duplicated values for fields method.
- *
- * We need to duplicate the original value in the first cell of
- * a target language for the fields that are
- * not in the settings smartling and that are translated so far.
- *
- * @param string $entity_type
- *   Entity type.
- * @param string $bundle
- *   Bundle.
- * @param object $original_entity
- *   Original entity.
- * @param string $d_locale
- *   Locale.
- * @param array $fields
- *   Fields in smartling settings for entity.
- *
- * @deprecated
- *
- * @return object
- *   Return entity object.
- */
-function smartling_duplicate_values_for_fields_method($entity_type, $bundle, $original_entity, $d_locale, array $fields) {
-  $field_info_instances = field_info_instances($entity_type, $bundle);
-  $need_save = FALSE;
-  foreach ($field_info_instances as $field) {
-    if (!in_array($field['field_name'], $fields) && smartling_field_is_translatable_by_field_name($field['field_name'], $entity_type) && isset($original_entity->{$field['field_name']})) {
-      $need_save = TRUE;
-      $original_lang = entity_language($entity_type, $original_entity);
-      $original_entity->{$field['field_name']}[$d_locale] = $original_entity->{$field['field_name']}[$original_lang];
-    }
-  }
-  if ($need_save) {
-    $function_name = $entity_type . '_save';
-    if (function_exists($function_name)) {
-      $function_name($original_entity);
-    }
-  }
-
-  return $original_entity;
-}
-
-/**
- * Copy devel_create_greeking().
- *
- * @param int $word_count
- *   Words count.
- * @param bool $title
- *   TRUE if is title. FALSE by default.
- *
- * @return string
- *   Return random string.
- */
-function smartling_devel_create_greeking($word_count, $title = FALSE) {
-  $dictionary = array("abbas", "abdo", "abico", "abigo", "abluo", "accumsan",
-    "acsi", "ad", "adipiscing", "aliquam", "aliquip", "amet", "antehabeo",
-    "appellatio", "aptent", "at", "augue", "autem", "bene", "blandit",
-    "brevitas", "caecus", "camur", "capto", "causa", "cogo", "comis",
-    "commodo", "commoveo", "consectetuer", "consequat", "conventio", "cui",
-    "damnum", "decet", "defui", "diam", "dignissim", "distineo", "dolor",
-    "dolore", "dolus", "duis", "ea", "eligo", "elit", "enim", "erat",
-    "eros", "esca", "esse", "et", "eu", "euismod", "eum", "ex", "exerci",
-    "exputo", "facilisi", "facilisis", "fere", "feugiat", "gemino",
-    "genitus", "gilvus", "gravis", "haero", "hendrerit", "hos", "huic",
-    "humo", "iaceo", "ibidem", "ideo", "ille", "illum", "immitto",
-    "importunus", "imputo", "in", "incassum", "inhibeo", "interdico",
-    "iriure", "iusto", "iustum", "jugis", "jumentum", "jus", "laoreet",
-    "lenis", "letalis", "lobortis", "loquor", "lucidus", "luctus", "ludus",
-    "luptatum", "macto", "magna", "mauris", "melior", "metuo", "meus",
-    "minim", "modo", "molior", "mos", "natu", "neo", "neque", "nibh",
-    "nimis", "nisl", "nobis", "nostrud", "nulla", "nunc", "nutus", "obruo",
-    "occuro", "odio", "olim", "oppeto", "os", "pagus", "pala", "paratus",
-    "patria", "paulatim", "pecus", "persto", "pertineo", "plaga", "pneum",
-    "populus", "praemitto", "praesent", "premo", "probo", "proprius",
-    "quadrum", "quae", "qui", "quia", "quibus", "quidem", "quidne", "quis",
-    "ratis", "refero", "refoveo", "roto", "rusticus", "saepius",
-    "sagaciter", "saluto", "scisco", "secundum", "sed", "si", "similis",
-    "singularis", "sino", "sit", "sudo", "suscipere", "suscipit", "tamen",
-    "tation", "te", "tego", "tincidunt", "torqueo", "tum", "turpis",
-    "typicus", "ulciscor", "ullamcorper", "usitas", "ut", "utinam",
-    "utrum", "uxor", "valde", "valetudo", "validus", "vel", "velit",
-    "veniam", "venio", "vereor", "vero", "verto", "vicis", "vindico",
-    "virtus", "voco", "volutpat", "vulpes", "vulputate", "wisi", "ymo",
-    "zelus");
-  $dictionary_flipped = array_flip($dictionary);
-
-  $greeking = '';
-
-  if (!$title) {
-    $words_remaining = $word_count;
-    while ($words_remaining > 0) {
-      $sentence_length = mt_rand(3, 10);
-      $words = array_rand($dictionary_flipped, $sentence_length);
-      $sentence = implode(' ', $words);
-      $greeking .= ucfirst($sentence) . '. ';
-      $words_remaining -= $sentence_length;
-    }
-  }
-  else {
-    // Use slightly different method for titles.
-    $words = array_rand($dictionary_flipped, $word_count);
-    $words = is_array($words) ? implode(' ', $words) : $words;
-    $greeking = ucwords($words);
-  }
-
-  // Work around possible php garbage collection bug. Without an unset(), this
-  // function gets very expensive over many calls (php 5.2.11).
-  unset($dictionary, $dictionary_flipped);
-  return trim($greeking);
+  return in_array($field_name, $field_array);
 }
