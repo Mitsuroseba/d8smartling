@@ -714,3 +714,43 @@ function smartling_is_title_module_field($field_name) {
 
   return in_array($field_name, $field_array);
 }
+
+/*
+ * Creates an HTML-ready translation status of an entity.
+ *
+ * @param string $entity_name
+ * @param int $status
+ * @param string $language_name
+ * @param int $progress
+ *
+ * @return string
+ */
+function smartling_entity_status_message($entity_name, $status, $language_name, $progress) {
+  $res = '';
+  $entity_name   = check_plain($entity_name);
+  $language_name = check_plain($language_name);
+  $progress      = intval($progress);
+  switch ($status) {
+    case SMARTLING_STATUS_IN_QUEUE:
+      $res = '<span title="' . $entity_name . ' ' . t('is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $progress . '%</span></span>';
+      break;
+
+    case SMARTLING_STATUS_IN_TRANSLATE:
+      $res = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $progress . '%</span></span>';
+      break;
+
+    case SMARTLING_STATUS_TRANSLATED:
+      $res = '<span title="'  . $entity_name . ' ' . t('is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $progress . '%</span></span>';
+      break;
+
+    case SMARTLING_STATUS_CHANGE:
+      $res = '<span title="' . $entity_name . ' ' . t('was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $progress . '%</span></span>';
+      break;
+
+    case SMARTLING_STATUS_FAILED:
+      $res = '<span title="' . t('Request to service failed') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-failed">' . $progress . '%</span></span>';
+      break;
+  }
+
+  return $res;
+}

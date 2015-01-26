@@ -520,6 +520,7 @@ function smartling_admin_entities_translation_settings_form_submit(array $form, 
   }
 
   // Reset default state, since all disabled checkboxes will be ignored
+  // and therefore, not updated.
   smartling_settings_get_handler()->resetAllFieldsSettings();
 
   // Save the settings, considering entity bundle, to know which

@@ -134,27 +134,7 @@ function smartling_get_entity_settings_form(array $form, array &$form_state) {
           $language_name = check_plain($language->name);
 
           if ($entity_data !== FALSE) {
-            switch ($entity_data->status) {
-              case SMARTLING_STATUS_IN_QUEUE:
-                $options[$d_locale] = '<span title="' . t('Comment is waiting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-queue">' . $entity_data->progress . '%</span></span>';
-                break;
-
-              case SMARTLING_STATUS_IN_TRANSLATE:
-                $options[$d_locale] = '<span title="' . t('Translation is in progress') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status in-translate">' . $entity_data->progress . '%</span></span>';
-                break;
-
-              case SMARTLING_STATUS_TRANSLATED:
-                $options[$d_locale] = '<span title="' . t('Comment is translated') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status translated">' . $entity_data->progress . '%</span></span>';
-                break;
-
-              case SMARTLING_STATUS_CHANGE:
-                $options[$d_locale] = '<span title="' . t('Comment was changed after submitting for translation') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-changed">' . $entity_data->progress . '%</span></span>';
-                break;
-
-              case SMARTLING_STATUS_FAILED:
-                $options[$d_locale] = '<span title="' . t('Request to service failed') . '"><span class="lang-name">' . $language_name . '</span><span class="lang-status status-failed">' . $entity_data->progress . '%</span></span>';
-                break;
-            }
+            $options[$d_locale] = smartling_entity_status_message(t('Entity'), $entity_data->status, $language_name, $entity_data->progress);
           }
           else {
             $options[$d_locale] = $language_name;
