@@ -208,6 +208,13 @@ function smartling_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'title' => array(
+        'description' => 'Title of the original entity.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'file_name' => array(
         'description' => 'File with original content.',
         'type' => 'varchar',
@@ -315,6 +322,9 @@ function smartling_requirements($phase) {
   return $requirements;
 }
 
+/*
+ * Implements hook_update_N().
+ */
 function smartling_update_7101(&$sandbox) {
   $supported_entity_types = array(
     'node' => 'smartling_node_fields_settings',
@@ -334,4 +344,21 @@ function smartling_update_7101(&$sandbox) {
     variable_del($variable_name);
   }
   variable_set('smartling_fields_settings', $settings);
+}
+
+/*
+ * Implements hook_update_N().
+ */
+function smartling_update_7102() {
+  $field_spec = array (
+    'description' => 'Title of the original entity.',
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => TRUE,
+    'default' => '',
+  );
+
+  db_add_field('smartling_entity_data', 'title', $field_spec);
+
+  db_query("UPDATE {smartling_entity_data} SET title = REPLACE(REPLACE(file_name, CONCAT('_', entity_type, '_', rid, '.xml'), ''), '_', ' ')");
 }

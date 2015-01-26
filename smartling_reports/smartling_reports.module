@@ -51,7 +51,7 @@ function smartling_reports_menu_alter(&$items) {
 }
 
 /**
- * Implements hook_views_data_alter().
+ * Implements hook_views_query_alter().
  */
 function smartling_reports_views_query_alter(&$view, &$query) {
   // Add relationships info for node.

@@ -897,6 +897,7 @@ function smartling_create_from_entity($drupal_entity, $entity_type, $origin_lang
   $wrapper = entity_metadata_wrapper($entity_type, $drupal_entity);
   $entity_data->rid = $wrapper->getIdentifier();
   $entity_data->entity_type = $entity_type;
+  $entity_data->title  = $wrapper->label();
   $entity_data->bundle = $wrapper->getBundle();
   $entity_data->original_language = $origin_language;
   $entity_data->target_language = $target_language;
