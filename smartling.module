@@ -434,52 +434,6 @@ function smartling_cron_queue_info() {
 }
 
 /**
- * Implements hook_entity_load().
- */
-function smartling_entity_load($entities, $type) {
-  $active_types = array('node', 'taxonomy_term', 'comment', 'user');
-  if (in_array($type, $active_types)) {
-
-    foreach ($entities as $entity) {
-      $wrapper = entity_metadata_wrapper($type, $entity);
-      $bundle = $wrapper->getBundle();
-      $entity_language = entity_language($type, $entity);
-
-      if (smartling_supported_type($type, $bundle)) {
-        $sm_settings = smartling_settings_get_handler();
-
-        foreach ($sm_settings->getFieldsSettingsByBundle($type, $bundle) as $field_name) {
-          if (smartling_field_is_translatable_by_field_name($field_name, $type) && isset($entity->{$field_name}) && !empty($entity->{$field_name}) && isset($entity->{$field_name}[LANGUAGE_NONE]) && !isset($entity->{$field_name}[$entity_language])) {
-            // If field have und value and don't have need value.
-            $entity->{$field_name}[$entity_language] = $entity->{$field_name}[LANGUAGE_NONE];
-            field_attach_presave($type, $entity);
-            field_attach_update($type, $entity);
-            $entity_ids = entity_extract_ids($type, $entity);
-            $entity_id = $entity_ids[0];
-            $log = smartling_log_get_handler();
-            $log->setMessage('Smartling adds value for field @fieldname, langcode @lang, entity - @entity, id - @id')
-              ->setVariables(array(
-                '@fieldname' => $field_name,
-                '@lang' => $entity_language,
-                '@entity' => $type,
-                '@id' => $entity_id,
-              ))
-              ->setLink(smartling_get_link_to_entity($type, $entity))
-              ->execute();
-          }
-        }
-      }
-    }
-  }
-
-  if ($type == 'smartling_entity_data') {
-    foreach ($entities as $entity) {
-      $entity->content_entity = entity_load_single($entity->entity_type, $entity->rid);
-    }
-  }
-}
-
-/**
  * Implements hook_entity_update().
  */
 function smartling_entity_update($entity, $type) {
