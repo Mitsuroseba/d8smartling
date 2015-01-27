@@ -451,12 +451,11 @@ function smartling_entity_update($entity, $type) {
   }
 
   if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
-    $sm_data = current($smartling_entity_data);
-    $processor = smartling_get_entity_processor($sm_data);
+    $sm_data       = current($smartling_entity_data);
+    $processor     = smartling_get_entity_processor($sm_data);
     $content_array = $processor->getTranslatableContent();
-//    $f_name = 'smartling_' . $type . '_content_to_translate';
-//    $content_array = $f_name($entity);
-    $content_hash = md5(serialize($content_array));
+    $content_hash  = md5(serialize($content_array));
+
     foreach ($smartling_entity_data as $smartling_entity) {
       $old_content_hash = $smartling_entity->content_hash;
 
@@ -642,14 +641,13 @@ function smartling_do_translate_action_validate(array $form, array &$form_state)
   $select_languages = array();
   if (!empty($form_state['input']['languages'])) {
     foreach ($form_state['input']['languages'] as $d_locale) {
-
-      if (!is_null($d_locale) && !empty($d_locale)) {
+      if (!empty($d_locale)) {
         $select_languages[] = $d_locale;
       }
     }
   }
 
-  if (!empty($select_languages) && (count($select_languages) > 0)) {
+  if (count($select_languages) > 0) {
     $form_state['translate_to_langs'] = $select_languages;
   }
   else {
