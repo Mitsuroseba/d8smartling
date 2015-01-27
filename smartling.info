@@ -19,6 +19,7 @@ dependencies[] = views
 dependencies[] = ultimate_cron
 dependencies[] = inject
 
+files[] = smartling_vbo_actions.inc
 files[] = includes/smartling_translation.handler.inc
 files[] = includes/smartling.entityController.inc
 files[] = views/smartling_handler_field_target_language.inc

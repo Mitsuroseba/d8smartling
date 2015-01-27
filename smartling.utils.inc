@@ -732,3 +732,40 @@ function smartling_entity_status_message($entity_name, $status, $language_name, 
 
   return $res;
 }
+
+
+/**
+ * Create Smartling entity.
+ *
+ * @param stdClass $entity
+ *   Drupal content entity.
+ * @param string $entity_type
+ *   Drupal entity type machine name.
+ * @param string $origin_language
+ *   Language key of source drupal content entity.
+ * @param string $target_language
+ *   Target language key for smartling entity.
+ *
+ * @return SmartlingEntityData
+ *
+ * @todo try to avoid original language in arguments.
+ */
+function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language) {
+  global $user;
+  $entity_data = smartling_entity_data_create();
+  $wrapper = entity_metadata_wrapper($entity_type, $drupal_entity);
+  $entity_data->rid = $wrapper->getIdentifier();
+  $entity_data->entity_type = $entity_type;
+  $entity_data->title  = $wrapper->label();
+  $entity_data->bundle = $wrapper->getBundle();
+  $entity_data->original_language = $origin_language;
+  $entity_data->target_language = $target_language;
+  $entity_data->progress = 0;
+
+  $entity_data->translated_file_name = FALSE;
+  $entity_data->submitter = $user->uid;
+  $entity_data->submission_date = time();
+  smartling_entity_data_save($entity_data);
+
+  return $entity_data;
+}

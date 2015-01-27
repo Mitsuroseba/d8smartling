@@ -1,10 +1,13 @@
 <?php
 
 /**
- * @file
+ *  * @file
  * Code for the nodes preparation for translation feature.
  */
 
+/*
+ * Implements hook_action_info().
+ */
 function smartling_entity_utils_action_info() {
   return array(
     'smartling_entity_utils_translate_prepare_action' => array(
