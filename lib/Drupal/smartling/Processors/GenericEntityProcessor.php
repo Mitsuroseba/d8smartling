@@ -241,10 +241,14 @@ class GenericEntityProcessor {
    *
    * @todo move this logic to original entity Proxy object.
    */
-  public function linkToContent() {
-    $uri_callback = $this->drupalEntityType . '_uri';
-    $uri = $uri_callback($this->contentEntity);
-    return l(t('Related entity'), $uri['path']);
+  public function linkToContent($link_title = '') {
+    $link_title = (!empty($link_title)) ? $link_title : $this->contentEntityWrapper->label();
+    $link_title = (!empty($link_title)) ? $link_title : t('Related entity');
+
+    $uri        = entity_uri($this->drupalEntityType, $this->contentEntity);
+    $path       = $uri['path'];
+
+    return l($link_title, $path);
   }
 
   /**

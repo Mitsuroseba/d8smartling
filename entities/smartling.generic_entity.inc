@@ -211,7 +211,7 @@ function smartling_get_entity_settings_form_submit(array $form, array &$form_sta
   //$comment = comment_form_submit_build_comment($form, $form_state);
   $d_locale_original = $entity->translations->original;
   $langs = array();
-  $link = smartling_get_link_to_entity($id, $entity_type);
+  $link = smartling_get_link_to_entity($entity_type, $entity);
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
     global $user;

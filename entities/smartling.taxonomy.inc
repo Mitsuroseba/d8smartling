@@ -243,7 +243,7 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
   }
 
   $langs = array();
-  $link = smartling_get_link_to_entity($term->tid, $form['#entity_type']);
+  $link = smartling_get_link_to_entity($form['#entity_type'], $term);
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
     $smartling_queue = DrupalQueue::get('smartling_upload');

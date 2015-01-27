@@ -561,37 +561,21 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
  * @param string $entity_type
  *   Entity type.
  *
- * @deprecated
  * @todo Looks like we have similar function in GenericEntityProcessor.linkToContent()
  *
  * @return string
  *   Return link to entity.
  */
-function smartling_get_link_to_entity($rid, $entity_type) {
-  $function_uri = $entity_type . '_uri';
-  $function_load = $entity_type . '_load';
-  if (function_exists($function_load)) {
-    $entity = $function_load($rid);
-  }
-  if (function_exists($function_uri)) {
-    $uri = $function_uri($entity);
-    $path = $uri['path'];
-  }
+function smartling_get_link_to_entity($entity_type, $entity, $link_title = '') {
+  $wrapper = entity_metadata_wrapper($entity_type, $entity);
 
-  switch ($entity_type) {
-    case 'node':
-    case 'taxonomy_term':
-    case 'comment':
-    case 'user':
-      $link = l(t('Related entity'), $path);
-      break;
+  $link_title = (!empty($link_title)) ? $link_title : $wrapper->label();
+  $link_title = (!empty($link_title)) ? $link_title : t('Related entity');
 
-    default:
-      $link = '-';
-      break;
-  }
+  $uri     = entity_uri($entity_type, $entity);
+  $path    = $uri['path'];
 
-  return $link;
+  return l($link_title, $path);
 }
 
 /**

@@ -190,7 +190,7 @@ function smartling_get_comment_settings_form_submit(array $form, array &$form_st
   $comment = comment_form_submit_build_comment($form, $form_state);
   $d_locale_original = $comment->translations->original;
   $langs = array();
-  $link = smartling_get_link_to_entity($comment->cid, $form['#entity_type']);
+  $link = smartling_get_link_to_entity($form['#entity_type'], $comment);
 
   if (count(array_filter($form_state['values']['target'])) !== 0) {
     $smartling_queue = DrupalQueue::get('smartling_upload');
