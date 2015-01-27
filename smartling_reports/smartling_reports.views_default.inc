@@ -11,376 +11,6 @@ function smartling_reports_views_default_views() {
   $export = array();
 
   $view = new view();
-  $view->name = 'smartlig_report';
-  $view->description = '';
-  $view->tag = 'default';
-  $view->base_table = 'smartling_entity_data';
-  $view->human_name = 'Smartlig report';
-  $view->core = 7;
-  $view->api_version = '3.0';
-  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-
-  /* Display: Master */
-  $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Completed Submissions';
-  $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
-  $handler->display->display_options['cache']['type'] = 'none';
-  $handler->display->display_options['query']['type'] = 'views_query';
-  $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '100';
-  $handler->display->display_options['style_plugin'] = 'table';
-  $handler->display->display_options['style_options']['columns'] = array(
-    'rid' => 'rid',
-    'smartling_title' => 'smartling_title',
-    'bundle' => 'bundle',
-    'original_language' => 'original_language',
-    'target_language' => 'target_language',
-    'file_name' => 'file_name',
-    'translated_file_name' => 'translated_file_name',
-    'name' => 'name',
-    'submission_date' => 'submission_date',
-    'progress' => 'progress',
-    'download' => 'download',
-    'smartling_operations' => 'smartling_operations',
-  );
-  $handler->display->display_options['style_options']['default'] = 'rid';
-  $handler->display->display_options['style_options']['info'] = array(
-    'rid' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'smartling_title' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'bundle' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'original_language' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'target_language' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'file_name' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'translated_file_name' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'name' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'submission_date' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'desc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'progress' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'download' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'smartling_operations' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-  );
-  /* Relationship: Smartling Entity Data: Submitter */
-  $handler->display->display_options['relationships']['submitter']['id'] = 'submitter';
-  $handler->display->display_options['relationships']['submitter']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['relationships']['submitter']['field'] = 'submitter';
-  $handler->display->display_options['relationships']['submitter']['required'] = TRUE;
-  /* Field: Smartling Entity Data: Rid */
-  $handler->display->display_options['fields']['rid']['id'] = 'rid';
-  $handler->display->display_options['fields']['rid']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['rid']['field'] = 'rid';
-  /* Field: Smartling Entity Data: Smartling entity Title */
-  $handler->display->display_options['fields']['smartling_title']['id'] = 'smartling_title';
-  $handler->display->display_options['fields']['smartling_title']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['smartling_title']['field'] = 'smartling_title';
-  $handler->display->display_options['fields']['smartling_title']['label'] = 'Title';
-  /* Field: Smartling Entity Data: Bundle */
-  $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
-  $handler->display->display_options['fields']['bundle']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['bundle']['field'] = 'bundle';
-  /* Field: Smartling Entity Data: Original_language */
-  $handler->display->display_options['fields']['original_language']['id'] = 'original_language';
-  $handler->display->display_options['fields']['original_language']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
-  $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
-  $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Target Language */
-  $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
-  $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
-  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
-  /* Field: Smartling Entity Data: File_name */
-  $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
-  $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['file_name']['field'] = 'file_name';
-  $handler->display->display_options['fields']['file_name']['label'] = 'Original filename';
-  $handler->display->display_options['fields']['file_name']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Translated_file_name */
-  $handler->display->display_options['fields']['translated_file_name']['id'] = 'translated_file_name';
-  $handler->display->display_options['fields']['translated_file_name']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['translated_file_name']['field'] = 'translated_file_name';
-  $handler->display->display_options['fields']['translated_file_name']['label'] = 'Translated filename';
-  $handler->display->display_options['fields']['translated_file_name']['exclude'] = TRUE;
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['relationship'] = 'submitter';
-  $handler->display->display_options['fields']['name']['label'] = 'Submitter name';
-  /* Field: Smartling Entity Data: Date */
-  $handler->display->display_options['fields']['submission_date']['id'] = 'submission_date';
-  $handler->display->display_options['fields']['submission_date']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['submission_date']['field'] = 'submission_date';
-  $handler->display->display_options['fields']['submission_date']['label'] = 'Submission date';
-  /* Field: Smartling Entity Data: Progress */
-  $handler->display->display_options['fields']['progress']['id'] = 'progress';
-  $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['progress']['field'] = 'progress';
-  $handler->display->display_options['fields']['progress']['separator'] = '';
-  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
-  /* Field: Smartling Entity Data: Download */
-  $handler->display->display_options['fields']['download']['id'] = 'download';
-  $handler->display->display_options['fields']['download']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['download']['field'] = 'download';
-  $handler->display->display_options['fields']['download']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Smartling entity OPERATIONS */
-  $handler->display->display_options['fields']['smartling_operations']['id'] = 'smartling_operations';
-  $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
-  $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
-  /* Field: Smartling Entity Data: Entity_type */
-  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
-  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
-  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Smartling status */
-  $handler->display->display_options['fields']['status']['id'] = 'status';
-  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['status']['field'] = 'status';
-  $handler->display->display_options['fields']['status']['label'] = '';
-  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['status']['separator'] = '';
-  /* Sort criterion: Smartling Entity Data: Date */
-  $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
-  $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['sorts']['submission_date']['field'] = 'submission_date';
-  $handler->display->display_options['sorts']['submission_date']['order'] = 'DESC';
-  /* Filter criterion: Smartling Entity Data: Progress */
-  $handler->display->display_options['filters']['progress']['id'] = 'progress';
-  $handler->display->display_options['filters']['progress']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['filters']['progress']['field'] = 'progress';
-  $handler->display->display_options['filters']['progress']['value']['value'] = '100';
-  $handler->display->display_options['filters']['progress']['expose']['operator_id'] = 'progress_op';
-  $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
-  $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
-  $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
-
-  /* Display: Completed Submissions */
-  $handler = $view->new_display('page', 'Completed Submissions', 'page');
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Smartling Entity Data: Rid */
-  $handler->display->display_options['fields']['rid']['id'] = 'rid';
-  $handler->display->display_options['fields']['rid']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['rid']['field'] = 'rid';
-  /* Field: Smartling Entity Data: Smartling entity Title */
-  $handler->display->display_options['fields']['smartling_title']['id'] = 'smartling_title';
-  $handler->display->display_options['fields']['smartling_title']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['smartling_title']['field'] = 'smartling_title';
-  $handler->display->display_options['fields']['smartling_title']['label'] = 'Title';
-  /* Field: Smartling Entity Data: Bundle */
-  $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
-  $handler->display->display_options['fields']['bundle']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['bundle']['field'] = 'bundle';
-  /* Field: Smartling Entity Data: Original_language */
-  $handler->display->display_options['fields']['original_language']['id'] = 'original_language';
-  $handler->display->display_options['fields']['original_language']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
-  $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
-  $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Target Language */
-  $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
-  $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
-  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
-  /* Field: Smartling Entity Data: File_name */
-  $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
-  $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['file_name']['field'] = 'file_name';
-  $handler->display->display_options['fields']['file_name']['label'] = 'Original filename';
-  $handler->display->display_options['fields']['file_name']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Translated_file_name */
-  $handler->display->display_options['fields']['translated_file_name']['id'] = 'translated_file_name';
-  $handler->display->display_options['fields']['translated_file_name']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['translated_file_name']['field'] = 'translated_file_name';
-  $handler->display->display_options['fields']['translated_file_name']['label'] = 'Translated filename';
-  $handler->display->display_options['fields']['translated_file_name']['exclude'] = TRUE;
-  /* Field: User: Name */
-  $handler->display->display_options['fields']['name']['id'] = 'name';
-  $handler->display->display_options['fields']['name']['table'] = 'users';
-  $handler->display->display_options['fields']['name']['field'] = 'name';
-  $handler->display->display_options['fields']['name']['relationship'] = 'submitter';
-  $handler->display->display_options['fields']['name']['label'] = 'Submitter name';
-  /* Field: Smartling Entity Data: Date */
-  $handler->display->display_options['fields']['submission_date']['id'] = 'submission_date';
-  $handler->display->display_options['fields']['submission_date']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['submission_date']['field'] = 'submission_date';
-  $handler->display->display_options['fields']['submission_date']['label'] = 'Submission date';
-  /* Field: Smartling Entity Data: Progress */
-  $handler->display->display_options['fields']['progress']['id'] = 'progress';
-  $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['progress']['field'] = 'progress';
-  $handler->display->display_options['fields']['progress']['separator'] = '';
-  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
-  /* Field: Smartling Entity Data: Smartling entity OPERATIONS */
-  $handler->display->display_options['fields']['smartling_operations']['id'] = 'smartling_operations';
-  $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
-  $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
-  /* Field: Smartling Entity Data: Entity_type */
-  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
-  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
-  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
-  /* Field: Smartling Entity Data: Smartling status */
-  $handler->display->display_options['fields']['status']['id'] = 'status';
-  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['fields']['status']['field'] = 'status';
-  $handler->display->display_options['fields']['status']['label'] = '';
-  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
-  $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Completed Submissions';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 1;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $handler->display->display_options['tab_options']['type'] = 'tab';
-  $handler->display->display_options['tab_options']['title'] = 'Submissions Report';
-  $handler->display->display_options['tab_options']['weight'] = '0';
-
-  /* Display: Submissions in Progress */
-  $handler = $view->new_display('page', 'Submissions in Progress', 'page_1');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'Submissions in Progress';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Smartling Entity Data: Progress */
-  $handler->display->display_options['filters']['progress']['id'] = 'progress';
-  $handler->display->display_options['filters']['progress']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['filters']['progress']['field'] = 'progress';
-  $handler->display->display_options['filters']['progress']['operator'] = '<';
-  $handler->display->display_options['filters']['progress']['value']['value'] = '100';
-  $handler->display->display_options['filters']['progress']['expose']['operator_id'] = 'progress_op';
-  $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
-  $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
-  $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
-  /* Filter criterion: Smartling Entity Data: Target Language */
-  $handler->display->display_options['filters']['target_language']['id'] = 'target_language';
-  $handler->display->display_options['filters']['target_language']['table'] = 'smartling_entity_data';
-  $handler->display->display_options['filters']['target_language']['field'] = 'target_language';
-  $handler->display->display_options['filters']['target_language']['operator'] = '!=';
-  $handler->display->display_options['filters']['target_language']['value'] = 'original';
-  $handler->display->display_options['path'] = 'admin/content/smartling/report-in-progress';
-  $handler->display->display_options['menu']['type'] = 'tab';
-  $handler->display->display_options['menu']['title'] = 'Submissions in Progress';
-  $handler->display->display_options['menu']['weight'] = '0';
-  $handler->display->display_options['menu']['context'] = 1;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-  $handler->display->display_options['tab_options']['type'] = 'normal';
-  $handler->display->display_options['tab_options']['title'] = 'Submissions Report';
-  $handler->display->display_options['tab_options']['weight'] = '0';
-  $translatables['smartlig_report'] = array(
-    t('Master'),
-    t('Completed Submissions'),
-    t('more'),
-    t('Apply'),
-    t('Reset'),
-    t('Sort by'),
-    t('Asc'),
-    t('Desc'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('« first'),
-    t('‹ previous'),
-    t('next ›'),
-    t('last »'),
-    t('Smartling submitter'),
-    t('Rid'),
-    t('.'),
-    t(','),
-    t('Title'),
-    t('Bundle'),
-    t('Original language'),
-    t('Locale'),
-    t('Original filename'),
-    t('Translated filename'),
-    t('Submitter name'),
-    t('Submission date'),
-    t('Progress'),
-    t(' %'),
-    t('Download'),
-    t('OPERATIONS'),
-    t('Entity_type'),
-    t('Submissions in Progress'),
-  );
-  $export['smartlig_report'] = $view;
-
-  $view = new view();
   $view->name = 'smartling_bulk_submit';
   $view->description = 'Smartling Bulk Submit';
   $view->tag = 'default';
@@ -1097,12 +727,7 @@ function smartling_reports_views_default_views() {
     t('Status'),
     t('Page'),
   );
-
-  // @todo
-  // Quick'n'dirty.
-  if (module_exists('comment')) {
-    $export['smartling_bulk_submit_comments'] = $view;
-  }
+  $export['smartling_bulk_submit_comments'] = $view;
 
   $view = new view();
   $view->name = 'smartling_bulk_submit_taxonomy_terms';
@@ -1587,6 +1212,601 @@ function smartling_reports_views_default_views() {
     t('Page'),
   );
   $export['smartling_bulk_submit_users'] = $view;
+
+  $view = new view();
+  $view->name = 'smartling_submissions';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'smartling_entity_data';
+  $view->human_name = 'Smartling submissions';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'Completed Submissions';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer smartling_entity_data entities';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '100';
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'rid' => 'rid',
+    'smartling_title' => 'smartling_title',
+    'bundle' => 'bundle',
+    'original_language' => 'original_language',
+    'target_language' => 'target_language',
+    'file_name' => 'file_name',
+    'translated_file_name' => 'translated_file_name',
+    'name' => 'name',
+    'submission_date' => 'submission_date',
+    'progress' => 'progress',
+    'download' => 'download',
+    'smartling_operations' => 'smartling_operations',
+  );
+  $handler->display->display_options['style_options']['default'] = 'rid';
+  $handler->display->display_options['style_options']['info'] = array(
+    'rid' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'smartling_title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'bundle' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'original_language' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'target_language' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'file_name' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'translated_file_name' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'name' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'submission_date' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'desc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'progress' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'download' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'smartling_operations' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  /* Relationship: Smartling Entity Data: Submitter */
+  $handler->display->display_options['relationships']['submitter']['id'] = 'submitter';
+  $handler->display->display_options['relationships']['submitter']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['relationships']['submitter']['field'] = 'submitter';
+  $handler->display->display_options['relationships']['submitter']['required'] = TRUE;
+  /* Field: Bulk operations: Smartling Entity Data */
+  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::views_bulk_operations_delete_item' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::views_bulk_operations_delete_revision' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::smartling_do_download_translation_action' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 1,
+      'override_label' => 1,
+      'label' => 'Download translation',
+    ),
+    'action::views_bulk_operations_script_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::views_bulk_operations_modify_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+      'settings' => array(
+        'show_all_tokens' => 1,
+        'display_values' => array(
+          '_all_' => '_all_',
+        ),
+      ),
+    ),
+    'action::views_bulk_operations_argument_selector_action' => array(
+      'selected' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+      'settings' => array(
+        'url' => '',
+      ),
+    ),
+    'action::system_send_email_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::smartling_do_translate_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+  );
+  /* Field: Smartling Entity Data: Rid */
+  $handler->display->display_options['fields']['rid']['id'] = 'rid';
+  $handler->display->display_options['fields']['rid']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['rid']['field'] = 'rid';
+  /* Field: Smartling Entity Data: Smartling entity Title */
+  $handler->display->display_options['fields']['smartling_title']['id'] = 'smartling_title';
+  $handler->display->display_options['fields']['smartling_title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['smartling_title']['field'] = 'smartling_title';
+  $handler->display->display_options['fields']['smartling_title']['label'] = 'Title';
+  /* Field: Smartling Entity Data: Bundle */
+  $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+  $handler->display->display_options['fields']['bundle']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+  /* Field: Smartling Entity Data: Original_language */
+  $handler->display->display_options['fields']['original_language']['id'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
+  $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Target Language */
+  $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
+  /* Field: Smartling Entity Data: File_name */
+  $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['file_name']['field'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['label'] = 'Original filename';
+  $handler->display->display_options['fields']['file_name']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Translated_file_name */
+  $handler->display->display_options['fields']['translated_file_name']['id'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['translated_file_name']['field'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['label'] = 'Translated filename';
+  $handler->display->display_options['fields']['translated_file_name']['exclude'] = TRUE;
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'submitter';
+  $handler->display->display_options['fields']['name']['label'] = 'Submitter name';
+  /* Field: Smartling Entity Data: Date */
+  $handler->display->display_options['fields']['submission_date']['id'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['submission_date']['field'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['label'] = 'Submission date';
+  /* Field: Smartling Entity Data: Progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['separator'] = '';
+  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
+  /* Field: Smartling Entity Data: Download */
+  $handler->display->display_options['fields']['download']['id'] = 'download';
+  $handler->display->display_options['fields']['download']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['download']['field'] = 'download';
+  $handler->display->display_options['fields']['download']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Smartling entity OPERATIONS */
+  $handler->display->display_options['fields']['smartling_operations']['id'] = 'smartling_operations';
+  $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
+  $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
+  /* Field: Smartling Entity Data: Entity_type */
+  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Smartling status */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  $handler->display->display_options['fields']['status']['label'] = '';
+  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['status']['separator'] = '';
+  /* Field: Smartling Entity Data: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  /* Sort criterion: Smartling Entity Data: Date */
+  $handler->display->display_options['sorts']['submission_date']['id'] = 'submission_date';
+  $handler->display->display_options['sorts']['submission_date']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['sorts']['submission_date']['field'] = 'submission_date';
+  $handler->display->display_options['sorts']['submission_date']['order'] = 'DESC';
+  /* Filter criterion: Smartling Entity Data: Progress */
+  $handler->display->display_options['filters']['progress']['id'] = 'progress';
+  $handler->display->display_options['filters']['progress']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['progress']['field'] = 'progress';
+  $handler->display->display_options['filters']['progress']['value']['value'] = '100';
+  $handler->display->display_options['filters']['progress']['expose']['operator_id'] = 'progress_op';
+  $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
+  $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
+  $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
+  /* Filter criterion: Smartling Entity Data: Title */
+  $handler->display->display_options['filters']['title']['id'] = 'title';
+  $handler->display->display_options['filters']['title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['title']['field'] = 'title';
+  $handler->display->display_options['filters']['title']['operator'] = 'contains';
+  $handler->display->display_options['filters']['title']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['title']['expose']['operator_id'] = 'title_op';
+  $handler->display->display_options['filters']['title']['expose']['label'] = 'Title';
+  $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
+  $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
+  $handler->display->display_options['filters']['title']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['title']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'submitter';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+
+  /* Display: Completed Submissions */
+  $handler = $view->new_display('page', 'Completed Submissions', 'page');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Bulk operations: Smartling Entity Data */
+  $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+  $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+    'action::views_bulk_operations_delete_item' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::views_bulk_operations_delete_revision' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::smartling_do_download_translation_action' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 1,
+      'override_label' => 1,
+      'label' => 'Download translation',
+    ),
+    'action::views_bulk_operations_script_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::views_bulk_operations_modify_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+      'settings' => array(
+        'show_all_tokens' => 1,
+        'display_values' => array(
+          '_all_' => '_all_',
+        ),
+      ),
+    ),
+    'action::views_bulk_operations_argument_selector_action' => array(
+      'selected' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+      'settings' => array(
+        'url' => '',
+      ),
+    ),
+    'action::system_send_email_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'action::smartling_do_translate_action' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+  );
+  /* Field: Smartling Entity Data: Rid */
+  $handler->display->display_options['fields']['rid']['id'] = 'rid';
+  $handler->display->display_options['fields']['rid']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['rid']['field'] = 'rid';
+  /* Field: Smartling Entity Data: Smartling entity Title */
+  $handler->display->display_options['fields']['smartling_title']['id'] = 'smartling_title';
+  $handler->display->display_options['fields']['smartling_title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['smartling_title']['field'] = 'smartling_title';
+  $handler->display->display_options['fields']['smartling_title']['label'] = 'Title';
+  /* Field: Smartling Entity Data: Bundle */
+  $handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+  $handler->display->display_options['fields']['bundle']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+  /* Field: Smartling Entity Data: Original_language */
+  $handler->display->display_options['fields']['original_language']['id'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['original_language']['field'] = 'original_language';
+  $handler->display->display_options['fields']['original_language']['label'] = 'Original language';
+  $handler->display->display_options['fields']['original_language']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Target Language */
+  $handler->display->display_options['fields']['target_language']['id'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['target_language']['field'] = 'target_language';
+  $handler->display->display_options['fields']['target_language']['label'] = 'Locale';
+  /* Field: Smartling Entity Data: File_name */
+  $handler->display->display_options['fields']['file_name']['id'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['file_name']['field'] = 'file_name';
+  $handler->display->display_options['fields']['file_name']['label'] = 'Original filename';
+  $handler->display->display_options['fields']['file_name']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Translated_file_name */
+  $handler->display->display_options['fields']['translated_file_name']['id'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['translated_file_name']['field'] = 'translated_file_name';
+  $handler->display->display_options['fields']['translated_file_name']['label'] = 'Translated filename';
+  $handler->display->display_options['fields']['translated_file_name']['exclude'] = TRUE;
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'submitter';
+  $handler->display->display_options['fields']['name']['label'] = 'Submitter name';
+  /* Field: Smartling Entity Data: Date */
+  $handler->display->display_options['fields']['submission_date']['id'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['submission_date']['field'] = 'submission_date';
+  $handler->display->display_options['fields']['submission_date']['label'] = 'Submission date';
+  /* Field: Smartling Entity Data: Progress */
+  $handler->display->display_options['fields']['progress']['id'] = 'progress';
+  $handler->display->display_options['fields']['progress']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['progress']['field'] = 'progress';
+  $handler->display->display_options['fields']['progress']['separator'] = '';
+  $handler->display->display_options['fields']['progress']['suffix'] = ' %';
+  /* Field: Smartling Entity Data: Smartling entity OPERATIONS */
+  $handler->display->display_options['fields']['smartling_operations']['id'] = 'smartling_operations';
+  $handler->display->display_options['fields']['smartling_operations']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['smartling_operations']['field'] = 'smartling_operations';
+  $handler->display->display_options['fields']['smartling_operations']['label'] = 'OPERATIONS';
+  /* Field: Smartling Entity Data: Entity_type */
+  $handler->display->display_options['fields']['entity_type']['id'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['entity_type']['field'] = 'entity_type';
+  $handler->display->display_options['fields']['entity_type']['exclude'] = TRUE;
+  /* Field: Smartling Entity Data: Smartling status */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  $handler->display->display_options['fields']['status']['label'] = '';
+  $handler->display->display_options['fields']['status']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['status']['element_label_colon'] = FALSE;
+  /* Field: Smartling Entity Data: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Completed Submissions';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 1;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'tab';
+  $handler->display->display_options['tab_options']['title'] = 'Submissions Report';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+
+  /* Display: Submissions in Progress */
+  $handler = $view->new_display('page', 'Submissions in Progress', 'page_1');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Submissions in Progress';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Smartling Entity Data: Progress */
+  $handler->display->display_options['filters']['progress']['id'] = 'progress';
+  $handler->display->display_options['filters']['progress']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['progress']['field'] = 'progress';
+  $handler->display->display_options['filters']['progress']['operator'] = '<';
+  $handler->display->display_options['filters']['progress']['value']['value'] = '100';
+  $handler->display->display_options['filters']['progress']['expose']['operator_id'] = 'progress_op';
+  $handler->display->display_options['filters']['progress']['expose']['label'] = 'Progress';
+  $handler->display->display_options['filters']['progress']['expose']['operator'] = 'progress_op';
+  $handler->display->display_options['filters']['progress']['expose']['identifier'] = 'progress';
+  /* Filter criterion: Smartling Entity Data: Target Language */
+  $handler->display->display_options['filters']['target_language']['id'] = 'target_language';
+  $handler->display->display_options['filters']['target_language']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['target_language']['field'] = 'target_language';
+  $handler->display->display_options['filters']['target_language']['operator'] = '!=';
+  $handler->display->display_options['filters']['target_language']['value'] = 'original';
+  /* Filter criterion: Smartling Entity Data: Title */
+  $handler->display->display_options['filters']['title']['id'] = 'title';
+  $handler->display->display_options['filters']['title']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['title']['field'] = 'title';
+  $handler->display->display_options['filters']['title']['operator'] = 'contains';
+  $handler->display->display_options['filters']['title']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['title']['expose']['operator_id'] = 'title_op';
+  $handler->display->display_options['filters']['title']['expose']['label'] = 'Title';
+  $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
+  $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
+  $handler->display->display_options['filters']['title']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['title']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'submitter';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
+  $handler->display->display_options['path'] = 'admin/content/smartling/report-in-progress';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Submissions in Progress';
+  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['context'] = 1;
+  $handler->display->display_options['menu']['context_only_inline'] = 0;
+  $handler->display->display_options['tab_options']['type'] = 'normal';
+  $handler->display->display_options['tab_options']['title'] = 'Submissions Report';
+  $handler->display->display_options['tab_options']['weight'] = '0';
+  $translatables['smartling_submissions'] = array(
+    t('Master'),
+    t('Completed Submissions'),
+    t('more'),
+    t('Apply'),
+    t('Reset'),
+    t('Sort by'),
+    t('Asc'),
+    t('Desc'),
+    t('Items per page'),
+    t('- All -'),
+    t('Offset'),
+    t('« first'),
+    t('‹ previous'),
+    t('next ›'),
+    t('last »'),
+    t('Smartling submitter'),
+    t('Smartling Entity Data'),
+    t('- Choose an operation -'),
+    t('Download translation'),
+    t('Rid'),
+    t('.'),
+    t(','),
+    t('Title'),
+    t('Bundle'),
+    t('Original language'),
+    t('Locale'),
+    t('Original filename'),
+    t('Translated filename'),
+    t('Submitter name'),
+    t('Submission date'),
+    t('Progress'),
+    t(' %'),
+    t('Download'),
+    t('OPERATIONS'),
+    t('Entity_type'),
+    t('Name'),
+    t('Submissions in Progress'),
+  );
+  $export['smartling_submissions'] = $view;
 
   return $export;
 }

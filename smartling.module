@@ -471,7 +471,7 @@ function smartling_entity_delete($entity, $type) {
  * Implements hook_views_pre_render().
  */
 function smartling_views_pre_render(&$view) {
-  if ($view->name == 'smartlig_report') {
+  if ($view->name == 'smartling_submissions') {
     drupal_add_library('system', 'ui.progressbar');
     drupal_add_js(drupal_get_path('module', 'smartling') . '/js/smartling_admin.js');
   }

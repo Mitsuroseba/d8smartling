@@ -9,9 +9,9 @@
         attach: function (context, settings) {
 
             var progress = '';
-            var is_progressbar = $('.view-smartlig-report .views-field-progress').attr('class');
+            var is_progressbar = $('.view-smartling-submissions .views-field-progress').attr('class');
             if (typeof is_progressbar !== 'undefined') {
-                $('.view-smartlig-report tbody .views-field-progress').each(function () {
+                $('.view-smartling-submissions tbody .views-field-progress').each(function () {
                     progress = $(this).html();
                     var progress_string = '<div class="progress-val">' + progress + '</div>';
                     $(this).empty();
@@ -23,7 +23,7 @@
                     });
                 });
             }
-            var is_title = $('.view-smartlig-report table.views-table').attr('class');
+            var is_title = $('.view-smartling-submissions table.views-table').attr('class');
             if (typeof is_title !== 'undefined') {
                 $('.views-field-smartling-title').each(function () {
                     $(this).css({'width': '40%'});
