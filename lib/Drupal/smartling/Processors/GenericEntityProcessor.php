@@ -435,7 +435,7 @@ class GenericEntityProcessor {
   /**
    * Build name for translations xml file.
    *
-   * @todo move it to XML convector class.
+   * @todo move it to XML convertor class.
    *
    * @return string
    */
