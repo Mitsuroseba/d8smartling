@@ -41,6 +41,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
         foreach ($this->getTranslatableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
+          //$fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage, $this->smartling_entity->original_language);
           $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage, $this->sourceLanguage);
 
           if ($fieldProcessor) {
@@ -55,7 +56,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
   protected function getTranslatableFields() {
     // @todo Inject via DIC.
-    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection_item', $this->entity->field_name);
+    return smartling_settings_get_handler()->getFieldsSettingsByBundle('field_collection_item', $this->fieldName);//$this->entity->field_name);
   }
 
   protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
@@ -99,40 +100,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
       $delta++;
       $this->entity = $parentEntity;
     }
-
-//    $item = $data->firstChild;
-//    $delta = 0;
-//    $eid = $data->attributes->getNamedItem('eid')->value;
-//    $eid = $this->entity->{$this->fieldName}[$this->sourceLanguage][$delta]['value'];
-//    do {
-//      $this->entity = field_collection_item_load($eid);
-//      $doc = new \DOMDocument();
-//      $nested_item = $item->cloneNode(TRUE);
-//      $doc->appendChild($doc->importNode($nested_item, TRUE));
-//      $nested_xpath = new \DomXpath($doc);
-//      $this->importSmartlingXMLToFieldCollectionEntity($nested_xpath);
-////      if ($item->tagName == 'string') {
-////        $field = $item->attributes->getNamedItem('id')->value;
-////        $string_delta = $item->attributes->getNamedItem('delta')->value;
-////        $result[$eid][$field][$string_delta] = $item->nodeValue;
-////      }
-////      elseif ($item->tagName == 'field_collection') {
-//////        $eid = $item->attributes->getNamedItem('eid')->value;
-////        $field = $item->attributes->getNamedItem('id')->value;
-////        // Ugly DOM* PHP API requires DOMDocument here.
-////        $doc = new \DOMDocument();
-////        $nested_item = $item->cloneNode(TRUE);
-////        $doc->appendChild($doc->importNode($nested_item, TRUE));
-////        $nested_xpath = new \DomXpath($doc);
-////        $entity = $this->fieldCollectionItemLoad($eid);
-////        $smartling_entity = clone $this->smartling_entity;
-////        $fieldProcessor = $this->fieldFactory->getProcessor($field, $entity, 'field_collection', $smartling_entity, $this->targetLanguage);
-////        $result[$eid][$field][$delta] = $fieldProcessor->fetchDataFromXML($nested_xpath);
-////        unset($fieldProcessor);
-////        $delta++;
-////      }
-//      $delta++;
-//    } while ($item = $item->nextSibling);
 
     return array(array('value' => $eid));
   }

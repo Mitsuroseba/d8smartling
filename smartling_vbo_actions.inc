@@ -182,14 +182,16 @@ function smartling_do_download_translation_action_form() {
 
   $form['confirm'] = array(
     '#type' => 'checkbox',
-    '#title' => t('I confirm that I understand that this action is irrevertible. And that I have a backup for my data (DB).'),
+    '#title' => t('Download translation of the selected items.'),
   );
 
   return $form;
 }
 
 function smartling_do_download_translation_action_validate($form, $form_state) {
-
+  if (!@$form['confirm']['#value']) {
+    form_set_error('confirm', t('Please confirm explicitly if you want to continue.'));
+  }
 }
 
 function smartling_do_download_translation_action_submit($form, $form_state) {
