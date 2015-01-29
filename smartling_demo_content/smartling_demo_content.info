@@ -14,6 +14,7 @@ dependencies[] = locale
 dependencies[] = options
 dependencies[] = taxonomy
 dependencies[] = text
+dependencies[] = smartling
 features[content][] = apple_iphone
 features[content][] = baseball_museums
 features[content][] = caribbean_port
