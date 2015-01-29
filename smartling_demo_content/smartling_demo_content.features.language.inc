@@ -10,6 +10,19 @@
 function smartling_demo_content_locale_default_languages() {
   $languages = array();
 
+  // Exported language: de.
+  $languages['de'] = array(
+    'language' => 'de',
+    'name' => 'German',
+    'native' => 'Deutsch',
+    'direction' => 0,
+    'enabled' => 1,
+    'plurals' => 0,
+    'formula' => '',
+    'domain' => '',
+    'prefix' => 'de',
+    'weight' => 0,
+  );
   // Exported language: en.
   $languages['en'] = array(
     'language' => 'en',
@@ -21,6 +34,19 @@ function smartling_demo_content_locale_default_languages() {
     'formula' => '',
     'domain' => '',
     'prefix' => '',
+    'weight' => 0,
+  );
+  // Exported language: fr.
+  $languages['fr'] = array(
+    'language' => 'fr',
+    'name' => 'French',
+    'native' => 'Français',
+    'direction' => 0,
+    'enabled' => 1,
+    'plurals' => 0,
+    'formula' => '',
+    'domain' => '',
+    'prefix' => 'fr',
     'weight' => 0,
   );
   // Exported language: nl.
@@ -36,17 +62,17 @@ function smartling_demo_content_locale_default_languages() {
     'prefix' => 'nl',
     'weight' => 0,
   );
-  // Exported language: ru.
-  $languages['ru'] = array(
-    'language' => 'ru',
-    'name' => 'Russian',
-    'native' => 'Русский',
+  // Exported language: uk.
+  $languages['uk'] = array(
+    'language' => 'uk',
+    'name' => 'Ukrainian',
+    'native' => 'Українська',
     'direction' => 0,
     'enabled' => 1,
     'plurals' => 0,
     'formula' => '',
     'domain' => '',
-    'prefix' => 'ru',
+    'prefix' => 'uk',
     'weight' => 0,
   );
   // Exported language: zh-hans.
