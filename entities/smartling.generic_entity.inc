@@ -248,7 +248,7 @@ function smartling_get_entity_settings_form_submit(array $form, array &$form_sta
       ->execute();
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The @entity_type "@title" has been sent to Smartling for translation to "@langs".', array(
+    drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
       '@entity_type' => $entity_type,
       '@title' => $entity->title,
       '@langs' => $langs,

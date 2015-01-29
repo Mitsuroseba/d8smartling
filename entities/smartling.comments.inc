@@ -225,7 +225,7 @@ function smartling_get_comment_settings_form_submit(array $form, array &$form_st
       ->execute();
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The comment "@title" has been sent to Smartling for translation to "@langs".', array(
+    drupal_set_message(t('The comment "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
       '@title' => $comment->subject,
       '@langs' => $langs,
     )));

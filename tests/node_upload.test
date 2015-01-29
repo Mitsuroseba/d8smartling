@@ -49,7 +49,7 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
       "target[ru]" => 'ru',
     );
     $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
-    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+    $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
       '@title' => 'Title test',
       '@langs' => 'ru',
     )));

@@ -278,7 +278,7 @@ function smartling_get_term_settings_form_submit(array $form, array &$form_state
       ->execute();
 
     $langs = implode(', ', $langs);
-    drupal_set_message(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
+    drupal_set_message(t('The term "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
       '@title' => $term->name,
       '@langs' => $langs,
     )));

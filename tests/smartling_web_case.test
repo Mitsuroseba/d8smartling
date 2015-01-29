@@ -456,7 +456,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
         '@langs' => implode(', ', $convert_array),
       )));
@@ -507,7 +507,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
         '@langs' => implode(', ', $convert_array),
       )));
@@ -560,7 +560,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       $this->drupalPost('taxonomy/term/' . $tid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The term "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@title' => $term->name,
         '@langs' => implode(', ', $convert_array),
       )));

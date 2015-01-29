@@ -319,7 +319,7 @@ function smartling_get_node_settings_form_submit(array $form, array &$form_state
         ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
         ->execute();
 
-      drupal_set_message(t('The node "@title" has been sent to Smartling for translation to "@lang".', array(
+      drupal_set_message(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@lang".', array(
         '@title' => $entity_wrapper->title->value(),
         '@lang' => $target_language,
       )));
