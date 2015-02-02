@@ -9,6 +9,10 @@ services:
     class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
     arguments:          [@smartling.settings, @smartling.log]
 
+  smartling.local_api_wrapper:
+    class:              Drupal\smartling\ApiWrapper\SmartlingLocalApiWrapper
+    arguments:          [@smartling.settings, @smartling.log]
+
   smartling.mock_api_wrapper:
     class:              Drupal\smartling\ApiWrapper\MockApiWrapper
     arguments:          [@smartling.settings, @smartling.log]

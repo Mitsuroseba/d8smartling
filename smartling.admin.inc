@@ -299,6 +299,7 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
   // Retrieval type.
   if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
     $smartling_settings->setRetrievalType($form_state['values']['production_retrieval_type']);
+    inject_flush_caches();
   }
 
   // Target locales.

@@ -44,7 +44,7 @@ function smartling_queue_check_status_process($eid) {
     $result = $api->getStatus($smartling_entity);
 
     if (!empty($result)) {
-      if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($args->entity_type != 'smartling_interface_entity')) {
+      if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_entity->entity_type != 'smartling_interface_entity')) {
         $smartling_queue = DrupalQueue::get('smartling_download');
         $smartling_queue->createQueue();
         $smartling_queue->createItem($eid);

@@ -567,9 +567,10 @@ class SmartlingSettingsHandler {
    */
   public function getRetrievalTypeOptions() {
     return array(
-      'pseudo' => 'pseudo',
       'published' => 'published',
       'pending' => 'pending',
+      'pseudo' => 'pseudo',
+      'pseudo_local' => 'pseudo local',
     );
   }
 

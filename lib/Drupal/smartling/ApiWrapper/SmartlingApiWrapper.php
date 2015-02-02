@@ -182,7 +182,6 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       );
     }
 
-    $file_name = $smartling_entity->file_name;
     $file_name_unic = $smartling_entity->file_name;
 
     $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
