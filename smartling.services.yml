@@ -25,6 +25,42 @@ services:
     class:              Drupal\smartling\EntityProcessorFactory
     arguments:          [%entity_processors%, @smartling.field_processor_factory, @smartling.log, @smartling.api_wrapper]
 
+
+
+
+  smartling.forms.admin_node_translation_settings:
+    class:              Drupal\smartling\Forms\AdminNodeTranslationSettingsForm
+
+  smartling.forms.admin_taxonomy_translation_settings:
+    class:              Drupal\smartling\Forms\AdminTaxonomyTranslationSettingsForm
+
+  smartling.forms.admin_entities_translation_settings:
+    class:              Drupal\smartling\Forms\AdminEntitiesTranslationSettingsForm
+
+  smartling.forms.admin_account_info_settings:
+    class:              Drupal\smartling\Forms\AdminAccountInfoSettingsForm
+
+  smartling.forms.admin_log_info_settings:
+    class:              Drupal\smartling\Forms\AdminLogInfoSettingsForm
+
+
+
+  smartling.forms.node_settings:
+    class:              Drupal\smartling\Forms\NodeSettingsForm
+
+  smartling.forms.comment_settings:
+    class:              Drupal\smartling\Forms\CommentSettingsForm
+
+  smartling.forms.taxonomy_term_settings:
+    class:              Drupal\smartling\Forms\TaxonomyTermSettingsForm
+
+  smartling.forms.user_settings:
+    class:              Drupal\smartling\Forms\UserSettingsForm
+
+  smartling.forms.generic_entity_settings:
+    class:              Drupal\smartling\Forms\GenericEntitySettingsForm
+
+
 parameters:
   entity_processors:
     node:                   Drupal\smartling\Processors\NodeProcessor

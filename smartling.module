@@ -88,7 +88,7 @@ function smartling_menu() {
     'weight' => -99,
     'type' => MENU_NORMAL_ITEM,
     'file' => 'smartling.admin.inc',
-    'page callback' => 'smartling_admin_configuration_view',
+    'page callback' => 'smartling_admin_configuration_page',
     'access arguments' => array('administer smartling'),
   );
 
