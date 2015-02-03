@@ -74,7 +74,7 @@ function smartling_register() {
   $loader->registerNamespace('Drupal\smartling\Settings', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\Processors', __DIR__ . '/lib');
   $loader->registerNamespace('Drupal\smartling\FieldProcessors', __DIR__ . '/lib');
-
+  $loader->registerNamespace('Drupal\smartling\Forms', __DIR__ . '/lib');
 }
 
 /**
