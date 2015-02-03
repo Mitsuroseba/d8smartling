@@ -201,3 +201,39 @@ function smartling_do_download_translation_action_submit($form, $form_state) {
 function smartling_do_download_translation_action(&$entity, $context) {
   smartling_queue_download_update_translated_item_process($entity->eid);
 }
+
+
+
+
+
+
+function smartling_do_resend_translation_action_form() {
+  $form = array();
+
+  $form['confirm'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Resend the selected items for translation.'),
+  );
+
+  return $form;
+}
+
+function smartling_do_resend_translation_action_validate($form, $form_state) {
+  if (!@$form['confirm']['#value']) {
+    form_set_error('confirm', t('Please confirm explicitly if you want to continue.'));
+  }
+}
+
+function smartling_do_resend_translation_action_submit($form, $form_state) {
+  return array();
+}
+
+function smartling_do_resend_translation_action(&$entity, $context) {
+  smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+
+  $smartling_queue = DrupalQueue::get('smartling_upload');
+  $smartling_queue->createQueue();
+  $smartling_queue->createItem(array($entity->eid));
+
+  drupal_set_message(t('Entity "@title" has been successfully enqueued for resubmission.', array('@title' => $entity->title)));
+}

@@ -1400,6 +1400,13 @@ function smartling_reports_views_default_views() {
         'url' => '',
       ),
     ),
+    'action::smartling_do_resend_translation_action' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 1,
+      'override_label' => 1,
+      'label' => 'Resend for translation',
+    ),
     'action::system_send_email_action' => array(
       'selected' => 0,
       'postpone_processing' => 0,
@@ -1542,6 +1549,28 @@ function smartling_reports_views_default_views() {
     1 => 0,
     3 => 0,
   );
+  /* Filter criterion: Smartling Entity Data: Smartling status */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    0 => '0',
+    1 => '1',
+    2 => '2',
+    3 => '3',
+    4 => '4',
+  );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = 'Translation status';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
 
   /* Display: Completed Submissions */
   $handler = $view->new_display('page', 'Completed Submissions', 'page');
@@ -1604,6 +1633,13 @@ function smartling_reports_views_default_views() {
       'settings' => array(
         'url' => '',
       ),
+    ),
+    'action::smartling_do_resend_translation_action' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 1,
+      'override_label' => 1,
+      'label' => 'Resend for translation',
     ),
     'action::system_send_email_action' => array(
       'selected' => 0,
@@ -1758,6 +1794,28 @@ function smartling_reports_views_default_views() {
     1 => 0,
     3 => 0,
   );
+  /* Filter criterion: Smartling Entity Data: Smartling status */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'smartling_entity_data';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = array(
+    0 => '0',
+    1 => '1',
+    2 => '2',
+    3 => '3',
+    4 => '4',
+  );
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = 'Translation status';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
+  $handler->display->display_options['filters']['status']['expose']['remember'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+  );
   $handler->display->display_options['path'] = 'admin/content/smartling/report-in-progress';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Submissions in Progress';
@@ -1787,6 +1845,7 @@ function smartling_reports_views_default_views() {
     t('Smartling Entity Data'),
     t('- Choose an operation -'),
     t('Download translation'),
+    t('Resend for translation'),
     t('Rid'),
     t('.'),
     t(','),
@@ -1804,6 +1863,7 @@ function smartling_reports_views_default_views() {
     t('OPERATIONS'),
     t('Entity_type'),
     t('Name'),
+    t('Translation status'),
     t('Submissions in Progress'),
   );
   $export['smartling_submissions'] = $view;

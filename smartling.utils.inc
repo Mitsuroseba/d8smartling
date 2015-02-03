@@ -358,8 +358,6 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  *   File name.
  * @param bool $translated_file
  *   TRUE if save translated file. FALSE by default.
- * @param string $entity_type
- *   Entity type.
  *
  * @return bool
  *   Was file creation successful or not.
@@ -418,13 +416,12 @@ function smartling_get_entity_processor($smartling_entity) {
 /**
  * Build xml document and save in file.
  *
- * @param string $file_name
- *   XML file name to be created.
- * @param array $content_to_translate
- *   Array of string to be translated.
+ * @param object $processor
+ *   Drupal entity processor
+ * @param int $rid
  *
- * @return string|bool
- *   Return filename or FALSE.
+ * @return DOMDocument
+ *   Returns XML object.
  */
 function smartling_build_xml($processor, $rid) {
   $xml = new DOMDocument('1.0', 'UTF-8');
@@ -556,10 +553,11 @@ function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
 /**
  * Get link to entity.
  *
- * @param int $rid
- *   Related id.
  * @param string $entity_type
  *   Entity type.
+ * @param object $entity
+ *   Smartling data object
+ * @param string $link_title
  *
  * @todo Looks like we have similar function in GenericEntityProcessor.linkToContent()
  *

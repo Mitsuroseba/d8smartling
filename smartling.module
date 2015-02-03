@@ -496,6 +496,14 @@ function smartling_action_info() {
       'vbo_configurable' => TRUE,
       'triggers' => array('any'),
     ),
+    'smartling_do_resend_translation_action' => array(
+      'type' => 'smartling_entity_data',//'entity',
+      'label' => t('Resend selected content elements for translation.'),
+      'behavior' => array('changes_property'),
+      'configurable' => FALSE,
+      'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+    ),
   );
 }
 
