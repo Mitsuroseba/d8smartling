@@ -92,14 +92,6 @@ function smartling_menu() {
     'access arguments' => array('administer smartling'),
   );
 
-  $items['smartling/download/%/%'] = array(
-    'title' => 'Smartling settings',
-    'type' => MENU_CALLBACK,
-    'page arguments' => array(2, 3),
-    'page callback' => 'smartling_download_translate_form_submission_form',
-    'access arguments' => array('administer smartling'),
-  );
-
   $items['smartling'] = array(
     'title' => 'Smartling settings',
     'type' => MENU_CALLBACK,
@@ -139,26 +131,6 @@ function smartling_menu() {
  */
 function smartling_download_translate_simple_callback() {
   return '';
-}
-
-/**
- * Smartling download translate form submission form.
- *
- * @param int $rid
- *   Related id.
- * @param int $eid
- *   smartling_entity ID.
- */
-function smartling_download_translate_form_submission_form($rid, $eid = 0) {
-  if (!smartling_is_configured() || empty($eid)) {
-    return;
-  }
-
-  smartling_queue_download_update_translated_item_process($eid);
-
-  // TODO : Make a wrapper for unset + drupal_goto
-  unset($_GET['destination']);
-  drupal_goto('admin/content/smartling/report-in-progress');
 }
 
 /**

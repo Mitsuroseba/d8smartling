@@ -34,23 +34,19 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
 
     switch ($entity_type) {
       case 'node':
-        $output = l(t('Edit'), 'node/' . $rid . '/edit/' . $d_locale) . ' | '
-          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        $output = l(t('Edit'), 'node/' . $rid . '/edit/' . $d_locale);
         break;
 
       case 'taxonomy_term':
-        $output = l(t('Edit'), 'taxonomy/term/' . $rid . '/edit/' . $d_locale) . ' | '
-          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        $output = l(t('Edit'), 'taxonomy/term/' . $rid . '/edit/' . $d_locale);
         break;
 
       case 'comment':
-        $output = l(t('Edit'), 'comment/' . $rid . '/edit/' . $d_locale) . ' | '
-          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        $output = l(t('Edit'), 'comment/' . $rid . '/edit/' . $d_locale);
         break;
 
       case 'user':
-        $output = l(t('Edit'), 'user/' . $rid . '/edit/' . $d_locale) . ' | '
-          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        $output = l(t('Edit'), 'user/' . $rid . '/edit/' . $d_locale);
         break;
 
       case 'smartling_interface_entity':
@@ -61,12 +57,7 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
         break;
 
       case 'fieldable_panels_pane':
-        $output = l(t('Edit'), 'admin/structure/fieldable-panels-panes/view/' . $rid . '/edit') . ' | '
-          . l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
-        break;
-
-      default:
-        $output = l(t('Download'), 'smartling/download/' . $rid . '/' . $eid, $options);
+        $output = l(t('Edit'), 'admin/structure/fieldable-panels-panes/view/' . $rid . '/edit');
         break;
     }
     return $output;
