@@ -217,26 +217,42 @@ class NodeSettingsForm implements FormInterface {
     }
 
     $log = smartling_log_get_handler();
-    $node = node_form_submit_build_node($form, $form_state);
+    $entity = $this->getOriginalEntity($form['#entity']);
+    $entity_type = $form['#entity_type'];
 
-    $smartling_queue = DrupalQueue::get('smartling_upload');
+    if (empty($entity)) {
+      return;
+    }
+
+    $wrapper = entity_metadata_wrapper($entity_type, $entity);
+    $id = $wrapper->getIdentifier();
+    $title = $wrapper->label();
+    //$comment = comment_form_submit_build_comment($form, $form_state);
+    $d_locale_original = $entity->translations->original;
+    $langs = array();
+    $link = smartling_get_link_to_entity($entity_type, $entity);
+
+//    $log = smartling_log_get_handler();
+//    $node = node_form_submit_build_node($form, $form_state);
+
+    $smartling_queue = \DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
     /* @var $entity_wrapper \EntityDrupalWrapper */
-    $entity_type = $form['#entity_type'];
-    $entity_wrapper = entity_metadata_wrapper($entity_type, $node);
+//    $entity_type = $form['#entity_type'];
+//    $entity_wrapper = entity_metadata_wrapper($entity_type, $node);
 
     foreach ($form_state['values']['target'] as $target_language) {
       if ($target_language) {
         $conditions = array(
-          'rid' => $entity_wrapper->getIdentifier(),
+          'rid' => $id,
           'entity_type' => $entity_type, //$entity_wrapper->getBundle(),
           'target_language' => $target_language,
         );
         $smartling_entity = smartling_entity_load_by_conditions($conditions);
 
         if (!$smartling_entity) {
-          $smartling_entity = smartling_create_from_entity($node, $entity_wrapper->type(), $entity_wrapper->language->value(), $target_language);
+          $smartling_entity = smartling_create_from_entity($entity, $entity_type, $entity_wrapper->language->value(), $target_language);
         }
 
         $processor = smartling_get_entity_processor($smartling_entity);
@@ -246,14 +262,14 @@ class NodeSettingsForm implements FormInterface {
 
         $log->setMessage('Add smartling queue task for node id - @nid, locale - @locale')
           ->setVariables(array(
-            '@nid' => $entity_wrapper->getIdentifier(),
+            '@nid' => $id,
             '@locale' => $target_language,
           ))
-          ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
+          ->setLink($link)
           ->execute();
 
         drupal_set_message(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@lang".', array(
-          '@title' => $entity_wrapper->title->value(),
+          '@title' => $title,
           '@lang' => $target_language,
         )));
       }
@@ -261,7 +277,7 @@ class NodeSettingsForm implements FormInterface {
 
     unset($_GET['destination']);
     // For not change node status to red when send node and change content.
-    $node->send_to_smartling = TRUE;
-    node_save($node);
+    $entity->send_to_smartling = TRUE;
+    node_save($entity);
   }
 }

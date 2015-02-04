@@ -3,6 +3,17 @@
 namespace Drupal\smartling\Forms;
 
 class GenericEntitySettingsForm implements FormInterface {
+  protected $entity_name_translated;
+
+
+  public function __construct() {
+    $this->$entity_name_translated = t('Entity');
+  }
+
+  protected function getOriginalEntity($entity) {
+    return $entity;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -49,10 +60,10 @@ class GenericEntitySettingsForm implements FormInterface {
       $languages = smartling_language_list();
       $options = array();
       $check = array();
-      $entity = $form['#entity'];
+      $entity = $this->getOriginalEntity($form['#entity']);
       $entity_type = $form['#entity_type'];
-      $wp = entity_metadata_wrapper($entity_type, $entity);
-      $id = $wp->getIdentifier();
+      $wrapper = entity_metadata_wrapper($entity_type, $entity);
+      $id = $wrapper->getIdentifier();
 
       if (!is_null($id)) {
         foreach ($languages as $d_locale => $language) {
@@ -66,7 +77,7 @@ class GenericEntitySettingsForm implements FormInterface {
             $language_name = check_plain($language->name);
 
             if ($entity_data !== FALSE) {
-              $options[$d_locale] = smartling_entity_status_message(t('Entity'), $entity_data->status, $language_name, $entity_data->progress);
+              $options[$d_locale] = smartling_entity_status_message($this->$entity_name_translated, $entity_data->status, $language_name, $entity_data->progress);
             }
             else {
               $options[$d_locale] = $language_name;
@@ -98,7 +109,7 @@ class GenericEntitySettingsForm implements FormInterface {
       $form['smartling']['submit_to_translate'] = array(
         '#type' => 'submit',
         '#value' => 'Send to Smartling',
-        '#submit' => array('smartling_get_entity_settings_form_submit'),
+        '#submit' => array($this->getFormId() . '_submit'),
         '#states' => array(
           'invisible' => array(
             // Hide the button if term is language neutral.
@@ -137,20 +148,28 @@ class GenericEntitySettingsForm implements FormInterface {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, array &$form_state) {
+    if (!smartling_is_configured()) {
+      return;
+    }
+
     $log = smartling_log_get_handler();
-    $entity = $form['#entity'];
+    $entity = $this->getOriginalEntity($form['#entity']);
     $entity_type = $form['#entity_type'];
-    $wp = entity_metadata_wrapper($entity_type, $entity);
-    $id = $wp->getIdentifier();
+
+    if (empty($entity)) {
+      return;
+    }
+
+    $wrapper = entity_metadata_wrapper($entity_type, $entity);
+    $id = $wrapper->getIdentifier();
+    $title = $wrapper->label();
     //$comment = comment_form_submit_build_comment($form, $form_state);
     $d_locale_original = $entity->translations->original;
     $langs = array();
     $link = smartling_get_link_to_entity($entity_type, $entity);
 
     if (count(array_filter($form_state['values']['target'])) !== 0) {
-      global $user;
-
-      $smartling_queue = DrupalQueue::get('smartling_upload');
+      $smartling_queue = \DrupalQueue::get('smartling_upload');
       $smartling_queue->createQueue();
 
       $eids = array();
@@ -173,10 +192,11 @@ class GenericEntitySettingsForm implements FormInterface {
       }
 
       $smartling_queue->createItem($eids);
-      $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale')
+      $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale, type - @entity_type')
         ->setVariables(array(
           '@id' => $id,
           '@locale' => implode('; ', $langs),
+          '@entity_type' => $entity_type,
         ))
         ->setLink($link)
         ->execute();
@@ -184,7 +204,7 @@ class GenericEntitySettingsForm implements FormInterface {
       $langs = implode(', ', $langs);
       drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@entity_type' => $entity_type,
-        '@title' => $entity->title,
+        '@title' => $title,
         '@langs' => $langs,
       )));
     }
@@ -192,12 +212,14 @@ class GenericEntitySettingsForm implements FormInterface {
     if (isset($_GET['destination'])) {
       unset($_GET['destination']);
     }
+
+    //@todo: Why do we want to save Drupal entity from our code here? We're only preparing node for submission (read only mode).
     // For not change entity status to red when send comment and change content.
     $entity->send_to_smartling = TRUE;
     entity_save($entity_type, $entity);
     $log->setMessage('Updated %entity_type %entity.')
       ->setVariables(array('%entity_type' => $entity_type))
-      ->setVariables(array('%entity' => $entity->title))
+      ->setVariables(array('%entity' => $title))
       ->setLink($link)
       ->execute();
   }

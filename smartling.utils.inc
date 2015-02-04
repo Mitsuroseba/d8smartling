@@ -579,17 +579,15 @@ function smartling_get_link_to_entity($entity_type, $entity, $link_title = '') {
 /**
  * Get original entity.
  *
- * @param int $tid
- *   Related id.
+ * @param objext $term
  *
  * @deprecated
  *
- * @return object|bool
- *   Return entity object or FALSE.
+ * @return object
+ *   Return entity object or NULL.
  */
-function smartling_get_original_taxonomy_term($tid) {
-  $entity = FALSE;
-  $term   = taxonomy_term_load($tid);
+function smartling_get_original_taxonomy_term($term) {
+  $entity = NULL;
   if ($term->language == language_default()->language) {
     $entity = $term;
   }
@@ -735,7 +733,7 @@ function smartling_entity_status_message($entity_name, $status, $language_name, 
 /**
  * Create Smartling entity.
  *
- * @param stdClass $entity
+ * @param stdClass $drupal_entity
  *   Drupal content entity.
  * @param string $entity_type
  *   Drupal entity type machine name.
