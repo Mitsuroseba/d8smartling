@@ -88,10 +88,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $delta = 0;
     foreach ($data as $field_collection_tag) {
       $eid = $this->entity->{$this->fieldName}[$this->targetLanguage][$delta]['value'];
+      if (empty($eid)) {
+        continue;
+      }
       $parentEntity = clone $this->entity;
       $this->entity = field_collection_item_load($eid);
     //  $this->entity = entity_load_single('field_collection_item', $eid);
-      $host_entity = $this->entity->hostEntity();
+    //  $host_entity = $this->entity->hostEntity();
       $doc = new \DOMDocument();
       $nested_item = $field_collection_tag->cloneNode(TRUE);
       $doc->appendChild($doc->importNode($nested_item, TRUE));
