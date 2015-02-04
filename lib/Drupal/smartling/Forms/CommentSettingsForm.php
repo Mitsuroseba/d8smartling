@@ -141,7 +141,7 @@ class CommentSettingsForm implements FormInterface {
     $link = smartling_get_link_to_entity($form['#entity_type'], $comment);
 
     if (count(array_filter($form_state['values']['target'])) !== 0) {
-      $smartling_queue = DrupalQueue::get('smartling_upload');
+      $smartling_queue = \DrupalQueue::get('smartling_upload');
       $smartling_queue->createQueue();
 
       $eids = array();

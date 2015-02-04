@@ -150,7 +150,7 @@ class GenericEntitySettingsForm implements FormInterface {
     if (count(array_filter($form_state['values']['target'])) !== 0) {
       global $user;
 
-      $smartling_queue = DrupalQueue::get('smartling_upload');
+      $smartling_queue = \DrupalQueue::get('smartling_upload');
       $smartling_queue->createQueue();
 
       $eids = array();

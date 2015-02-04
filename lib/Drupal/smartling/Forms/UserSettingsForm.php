@@ -157,7 +157,7 @@ class UserSettingsForm implements FormInterface {
     $link = smartling_get_link_to_entity($form['#entity_type'], $account);
 
     if (count(array_filter($form_state['values']['target'])) !== 0) {
-      $smartling_queue = DrupalQueue::get('smartling_upload');
+      $smartling_queue = \DrupalQueue::get('smartling_upload');
       $smartling_queue->createQueue();
 
       foreach ($form_state['values']['target'] as $d_locale) {

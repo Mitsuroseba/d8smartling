@@ -219,7 +219,7 @@ class NodeSettingsForm implements FormInterface {
     $log = smartling_log_get_handler();
     $node = node_form_submit_build_node($form, $form_state);
 
-    $smartling_queue = DrupalQueue::get('smartling_upload');
+    $smartling_queue = \DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
 
     /* @var $entity_wrapper \EntityDrupalWrapper */
