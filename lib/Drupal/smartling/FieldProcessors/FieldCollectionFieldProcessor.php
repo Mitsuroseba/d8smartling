@@ -87,7 +87,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $delta = 0;
     foreach ($data as $field_collection_tag) {
-      $eid = $this->entity->{$this->fieldName}[$this->targetLanguage][$delta]['value'];
+      $eid = @$this->entity->{$this->fieldName}[$this->targetLanguage][$delta]['value'];
       if (empty($eid)) {
         continue;
       }

@@ -1216,7 +1216,7 @@ function smartling_reports_views_default_views() {
   $view = new view();
   $view->name = 'smartling_submissions';
   $view->description = '';
-  $view->tag = 'default';
+  $view->tag = '';
   $view->base_table = 'smartling_entity_data';
   $view->human_name = 'Smartling submissions';
   $view->core = 7;
@@ -1553,13 +1553,6 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'smartling_entity_data';
   $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = array(
-    0 => '0',
-    1 => '1',
-    2 => '2',
-    3 => '3',
-    4 => '4',
-  );
   $handler->display->display_options['filters']['status']['exposed'] = TRUE;
   $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
   $handler->display->display_options['filters']['status']['expose']['label'] = 'Translation status';
@@ -1733,7 +1726,7 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['path'] = 'admin/content/smartling/report-completed';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Completed Submissions';
-  $handler->display->display_options['menu']['weight'] = '0';
+  $handler->display->display_options['menu']['weight'] = '10';
   $handler->display->display_options['menu']['context'] = 1;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
   $handler->display->display_options['tab_options']['type'] = 'tab';
@@ -1798,13 +1791,6 @@ function smartling_reports_views_default_views() {
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'smartling_entity_data';
   $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = array(
-    0 => '0',
-    1 => '1',
-    2 => '2',
-    3 => '3',
-    4 => '4',
-  );
   $handler->display->display_options['filters']['status']['exposed'] = TRUE;
   $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
   $handler->display->display_options['filters']['status']['expose']['label'] = 'Translation status';

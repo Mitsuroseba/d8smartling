@@ -131,7 +131,7 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
 
     // Reset default state, since all disabled checkboxes will be ignored
     // and therefore, not updated.
-    smartling_settings_get_handler()->resetAllFieldsSettings();
+    //smartling_settings_get_handler()->resetAllFieldsSettings();
 
     // Save the settings, considering entity bundle, to know which
     // update method to be called.
