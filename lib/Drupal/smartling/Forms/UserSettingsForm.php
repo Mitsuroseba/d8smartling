@@ -37,7 +37,7 @@ class UserSettingsForm extends GenericEntitySettingsForm {
     $edit = array_intersect_key((array) $account, $form_state['values']);
 
 
-    //todo: Check what's going on above abd below this line. We might want to delete them?
+    //todo: Check what's going on above and below this line. Might we want to delete them?
     parent::submitForm($form, $form_state);
 
 

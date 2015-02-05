@@ -3,6 +3,15 @@
 namespace Drupal\smartling\Forms;
 
 class AdminEntitiesTranslationSettingsForm implements FormInterface {
+
+  protected $settings;
+  protected $logger;
+
+  public function __construct($settings, $logger) {
+    $this->settings = $settings;
+    $this->logger = $logger;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -15,10 +24,8 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
    */
   public function buildForm(array $form, array &$form_state) {
     $entity_rows = $this->entities_translation_crawler();
-    //$user_ = drupal_get_form('smartling_admin_user_translation_settings_form');
 
     $header = array(t('Entity Type'), t('Fields'));
-    //$rows = array(array(t('User'), drupal_render($user_)));
 
     $variables = array(
       'header' => $header,
@@ -59,59 +66,43 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
 
     // Obtain what fields instances are marked for translation.
     foreach ($input as $key => $value) {
+      // Skip if not set to translate.
+      if ($value == 0) {
+        continue;
+      }
+
       // Look for Selected Content Types and Fields.
       if (FALSE !== strpos($key, '_SEPARATOR_')) {
         // And only if set to translate.
-        if ($value != 0) {
-          $parts = explode('_SEPARATOR_', $key);
-          $content_type = $parts[0];
-          $content_field = $parts[1];
+        $parts = explode('_SEPARATOR_', $key);
+        $content_type = $parts[0];
+        $content_field = $parts[1];
 
-          $translate[$content_type][$content_field] = $content_field;
+        $translate[$content_type][$content_field] = $content_field;
 
-          $field = field_info_field($content_field);
-          $field['translatable'] = 1;
-          field_update_field($field);
-        }
+        $field = field_info_field($content_field);
+        $field['translatable'] = 1;
+        field_update_field($field);
       }
 
       if (FALSE !== strpos($key, '_swap_')) {
         // And only if set to swap.
-        if ($value != 0) {
-          // @todo
-          // This is too ambiguous and hard-coded.
-          $swap_chunks = explode('_swap_', $key);
-          $legacy_field = $swap_chunks[0];
-          $bundle = $swap_chunks[1];
 
-          switch ($legacy_field) {
-            case 'title':
-              $entity_type = 'fieldable_panels_pane';
-              $resulting_field = 'title_field';
-              break;
-            case 'subject':
-              $entity_type = 'comment';
-              $resulting_field = 'subject_field';
-              break;
-          }
+        $swap_chunks = explode('_swap_', $key);
+        $legacy_property = $swap_chunks[0];
+        $bundle = $swap_chunks[1];
+        $entity_type = $swap_chunks[2];
+        $resulting_field = $legacy_property . '_field';
 
-          // Use the Title module to migrate the content.
-          if (title_field_replacement_toggle($entity_type, $bundle, $legacy_field)) {
-            $operations[] = array(
-              'title_field_replacement_batch',
-              array(
-                $entity_type,
-                $bundle,
-                $legacy_field,
-              ),
-            );
-            // Add in config.
-            $translate[$bundle][$resulting_field] = $resulting_field;
+        // Use the Title module to migrate the content.
+        if (title_field_replacement_toggle($entity_type, $bundle, $legacy_property)) {
+          $operations[] = array('title_field_replacement_batch', array($entity_type, $bundle, $legacy_property));
+          // Add in config.
+          $translate[$bundle][$resulting_field] = $resulting_field;
 
-            $field = field_info_field($resulting_field);
-            $field['translatable'] = 1;
-            $operations[] = array('field_update_field', array($field));
-          }
+          $field = field_info_field($resulting_field);
+          $field['translatable'] = 1;
+          $operations[] = array('field_update_field', array($field));
         }
       }
     }
@@ -137,14 +128,13 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
     // update method to be called.
     foreach ($_translate as $k => $v) {
       if (in_array($k, array('user', 'comment', 'field_collection_item', 'fieldable_panels_pane'))) {
-        smartling_settings_get_handler()->setFieldsSettings($k, $v);
+        $this->settings->setFieldsSettings($k, $v);
       }
     }
 
     drupal_set_message(t('Entities settings updated.'));
 
-    $log = smartling_log_get_handler();
-    $log->setMessage('Smartling entities and fields have been updated.')
+    $this->logger->setMessage('Smartling entities and fields have been updated.')
       ->setConsiderLog(FALSE)
       ->execute();
 
@@ -193,15 +183,21 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
     $rows = array();
 
     // Loop through each entity type.
-    foreach ($entities as $name => $definition) {
-      if (in_array($name, $exclude)) {
+    foreach ($entities as $entity_type => $definition) {
+      if (in_array($entity_type, $exclude)) {
         continue;
       }
+
+      $entity_info = entity_get_info($entity_type);
+      $title_fields_info = @$entity_info['field replacement'];
+      $field_replacement = (!empty($title_fields_info)) ? key($entity_info['field replacement']) : NULL;
+
+      $translate_fields = $this->settings->getFieldsSettings($entity_type);
 
       $bundles = array_keys($definition['bundles']);
       // Loop through each entity bundle.
       foreach ($bundles as $bundle) {
-        $field_instances = field_info_instances($name, $bundle);
+        $field_instances = field_info_instances($entity_type, $bundle);
 
         // Loop through each field instance of the bundle.
         foreach ($field_instances as $field) {
@@ -211,7 +207,7 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
 
           if (in_array($field_type, $translatable_field_types)) {
             $key = $bundle . '_SEPARATOR_' . $field_machine_name;
-            $fr_fields[$key] = array(
+            $form_fields[$key] = array(
               '#type' => 'checkbox',
               '#title' => check_plain($field_label),
               '#attributes' => array(
@@ -222,47 +218,34 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
               '#id' => 'edit-form-item-' . $bundle . '-separator-' . $field_machine_name,
             );
 
-            // Comments subject field need special treatment. i.e. some fields
-            // replaced instead of standard ones.
-            $comment_key = $bundle . '_SEPARATOR_' . 'subject_field';
-            $fpp_key = $bundle . '_SEPARATOR_' . 'title_field';
-            if ($name == 'comment' && !isset($fr_fields[$comment_key])) {
-              $fr_fields[$comment_key] = array(
-                '#type' => 'checkbox',
-                '#title' => t('Subject (Note: field will be created.)'),
-                '#attributes' => array(
-                  'id' => array('edit-form-item-' . $bundle . '-separator-subject'),
-                  'name' => 'subject_swap_' . $bundle,
-                  'class' => array('field'),
-                ),
-              );
-            }
-            else if ($name == 'fieldable_panels_pane' && !isset($fr_fields[$fpp_key])) {
-              $fr_fields[$fpp_key] = array(
-                '#type' => 'checkbox',
-                '#title' => t('Title (Note: field will be created.)'),
-                '#attributes' => array(
-                  'id' => array('edit-form-item-' . $bundle . '-separator-title'),
-                  'name' => 'title_swap_' . $bundle,
-                  'class' => array('field'),
-                ),
-              );
-            }
-
-            if (in_array($name, array('user', 'comment', 'field_collection_item', 'fieldable_panels_pane'))) {
-              $translate_fields = smartling_settings_get_handler()->getFieldsSettings($name);
-
-              $is_in_conf = !empty($translate_fields) && isset($translate_fields[$bundle][$field_machine_name]);
-
-              if ($is_in_conf) {
-                $fr_fields[$key]['#attributes']['checked'] = 'checked';
-              }
+            if (!empty($translate_fields) && isset($translate_fields[$bundle][$field_machine_name])) {
+              $form_fields[$key]['#attributes']['checked'] = 'checked';
             }
           }
         }
 
-        $rows[] = array($bundle, drupal_render($fr_fields));
-        $fr_fields = NULL;
+
+        if (!empty($field_replacement)) {
+          $entity_key = $bundle . '_SEPARATOR_' . $field_replacement . '_field';
+          if (!isset($form_fields[$entity_key])) {
+            $form_fields[$entity_key] = array(
+              '#type' => 'checkbox',
+              '#title' => ucfirst($field_replacement) . ' ' . t('(Note: field will be created.)'),
+              '#attributes' => array(
+                'id' => array('edit-form-item-' . $bundle . '-separator-' . $field_replacement),
+                'name' => $field_replacement . '_swap_' . $bundle . '_swap_' . $entity_type,
+                'class' => array('field'),
+              ),
+            );
+
+            if (!empty($translate_fields) && isset($translate_fields[$bundle][$field_replacement . '_field'])) {
+              $form_fields[$entity_key]['#attributes']['checked'] = 'checked';
+            }
+          }
+        }
+
+        $rows[] = array($bundle, drupal_render($form_fields));
+        $form_fields = NULL;
       }
     }
 

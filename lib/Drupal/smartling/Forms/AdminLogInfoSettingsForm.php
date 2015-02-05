@@ -3,6 +3,15 @@
 namespace Drupal\smartling\Forms;
 
 class AdminLogInfoSettingsForm implements FormInterface {
+
+  protected $settings;
+  protected $logger;
+
+  public function __construct($settings, $logger) {
+    $this->settings = $settings;
+    $this->logger = $logger;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -14,13 +23,13 @@ class AdminLogInfoSettingsForm implements FormInterface {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state) {
-    $smartling_settings = smartling_settings_get_handler();
+    $settings = $this->settings;
 
     $form['log_info']['log_mode'] = array(
       '#type' => 'radios',
       '#title' => t('Smartling mode'),
-      '#default_value' => $smartling_settings->getLogMode(),
-      '#options' => $smartling_settings->getLogModeOptions(),
+      '#default_value' => $settings->getLogMode(),
+      '#options' => $settings->getLogModeOptions(),
       '#description' => t('Log ON dy default.'),
     );
 
@@ -46,18 +55,17 @@ class AdminLogInfoSettingsForm implements FormInterface {
    */
   public function submitForm(array &$form, array &$form_state) {
     if (isset($form_state['values']['log_mode'])) {
-      $log = smartling_log_get_handler();
       if ($form_state['values']['log_mode'] == FALSE) {
-        $log->setMessage('Smartling log OFF')
+        $this->logger->setMessage('Smartling log OFF')
           ->setConsiderLog(FALSE)
           ->execute();
       }
       elseif ($form_state['values']['log_mode'] == TRUE) {
-        $log->setMessage('Smartling log ON')
+        $this->logger->setMessage('Smartling log ON')
           ->setConsiderLog(FALSE)
           ->execute();
       }
-      smartling_settings_get_handler()->setLogMode($form_state['values']['log_mode']);
+      $this->settings->setLogMode($form_state['values']['log_mode']);
     }
     drupal_goto(current_path(), array('fragment' => 'smartling-smartling-log'));
   }

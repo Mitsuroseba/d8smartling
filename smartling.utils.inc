@@ -21,31 +21,14 @@ function smartling_supported_type($entity_type, $bundle) {
 
   switch ($entity_type) {
     case 'node':
-      $smartling_supported_explicitly = variable_get('language_content_type_' . $bundle, NULL);
-      if (($smartling_supported_explicitly == SMARTLING_NODES_METHOD_KEY || $smartling_supported_explicitly == SMARTLING_FIELDS_METHOD_KEY)) {
-        $smartling_supported_explicitly = TRUE;
-      }
-      else {
-        $smartling_supported_explicitly = FALSE;
-      }
+      $transl_mathod = variable_get('language_content_type_' . $bundle, NULL);
+      $smartling_supported_explicitly = in_array($transl_mathod, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
       break;
 
     case 'taxonomy_term':
       $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
-      switch ($vocabulary_mode) {
-        case I18N_MODE_TRANSLATE:
-          $smartling_supported_explicitly = TRUE;
-          break;
-
-        case I18N_MODE_LOCALIZE:
-          $smartling_supported_explicitly = TRUE;
-          break;
-
-        default:
-          $smartling_supported_explicitly = FALSE;
-          break;
-      }
+      $smartling_supported_explicitly = in_array($vocabulary_mode, array(I18N_MODE_TRANSLATE, I18N_MODE_LOCALIZE));
       break;
 
     case 'comment':

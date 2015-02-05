@@ -5,6 +5,40 @@
  * Admin forms and other for Smartling module administration section.
  */
 
+/*
+ * Gets all the fields that are configured to be translated "by fields" and "by nodes".
+ * That's a conflict situation that should be avoided.
+ */
+function get_translatable_fields_with_conflict_settings() {
+  $fields_with_problem = array();
+
+  $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
+  foreach ($node_translate_fields as $bundle => $fields) {
+    // Error in field settings.
+    foreach (field_info_instances('node', $bundle) as $field) {
+      $field_machine_name = $field['field_name'];
+      if (smartling_nodes_method($bundle) && smartling_field_is_translatable_by_field_name($field_machine_name, 'node') && !smartling_is_title_module_field($field_machine_name)) {
+        $fields_with_problem[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
+      }
+    }
+  }
+
+  $term_translate_fields = smartling_settings_get_handler()->taxonomyTermGetFieldsSettings();
+  foreach ($term_translate_fields as $bundle => $fields) {
+    // Error in field settings.
+    $voc = taxonomy_vocabulary_machine_name_load($bundle);
+    $vocabulary_mode = i18n_taxonomy_vocabulary_mode($voc->vid);
+    foreach (field_info_instances('taxonomy_term', $bundle) as $field) {
+      $field_machine_name = $field['field_name'];
+      if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name, 'taxonomy_term') && isset($term_translate_fields[$bundle][$field['field_name']]) && !smartling_is_title_module_field($field_machine_name)) {
+        $fields_with_problem[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
+      }
+    }
+  }
+
+  return $fields_with_problem;
+}
+
 /**
  * Smartling settings page callback.
  *
@@ -14,9 +48,6 @@
 function smartling_admin_configuration_page() {
   // Add ajax library.
   drupal_add_library('system', 'drupal.ajax');
-
-  global $_fix_field_settings;
-  $_fix_field_settings = array();
 
   $output['smartling'] = array(
     '#type' => 'vertical_tabs',
@@ -33,8 +64,9 @@ function smartling_admin_configuration_page() {
     $output['smartling'][] = smartling_wrap_in_fieldset($form, $title);
   }
 
-  if (!empty($_fix_field_settings) && is_array($_fix_field_settings)) {
-    $text = t('Following field(s) should be set as untranslatable for translation: !fields.', array('!fields' => implode(', ', $_fix_field_settings)));
+  $fields_with_problem = get_translatable_fields_with_conflict_settings();
+  if (!empty($fields_with_problem) && is_array($fields_with_problem)) {
+    $text = t('Following field(s) should be set as untranslatable for translation: !fields.', array('!fields' => implode(', ', $fields_with_problem)));
     $suffix = '<div id="smartling-untranslatable-fix">' . $text . '</div>';
     $output['fix'] = array(
       '#type' => 'markup',

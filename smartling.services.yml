@@ -30,19 +30,23 @@ services:
 
   smartling.forms.admin_node_translation_settings:
     class:              Drupal\smartling\Forms\AdminNodeTranslationSettingsForm
+    arguments:          [@smartling.settings, @smartling.log]
 
   smartling.forms.admin_taxonomy_translation_settings:
     class:              Drupal\smartling\Forms\AdminTaxonomyTranslationSettingsForm
+    arguments:          [@smartling.settings, @smartling.log]
 
   smartling.forms.admin_entities_translation_settings:
     class:              Drupal\smartling\Forms\AdminEntitiesTranslationSettingsForm
+    arguments:          [@smartling.settings, @smartling.log]
 
   smartling.forms.admin_account_info_settings:
     class:              Drupal\smartling\Forms\AdminAccountInfoSettingsForm
+    arguments:          [@smartling.settings, @smartling.api_wrapper]
 
   smartling.forms.admin_log_info_settings:
     class:              Drupal\smartling\Forms\AdminLogInfoSettingsForm
-
+    arguments:          [@smartling.settings, @smartling.log]
 
 
   smartling.forms.node_settings:

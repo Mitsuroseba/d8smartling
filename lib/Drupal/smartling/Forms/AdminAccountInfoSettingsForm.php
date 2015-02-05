@@ -3,6 +3,15 @@
 namespace Drupal\smartling\Forms;
 
 class AdminAccountInfoSettingsForm implements FormInterface {
+
+  protected $settings;
+  protected $api_wrapper;
+
+  public function __construct($settings, $api_wrapper) {
+    $this->settings = $settings;
+    $this->api_wrapper = $api_wrapper;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -14,7 +23,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state) {
-    $smartling_settings = smartling_settings_get_handler();
+    $settings = $this->settings;
 
     $form['account_info'] = array(
       'actions' => array(
@@ -30,7 +39,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     $form['account_info']['api_url'] = array(
       '#type' => 'textfield',
       '#title' => t('API URL'),
-      '#default_value' => $smartling_settings->getApiUrl(),
+      '#default_value' => $settings->getApiUrl(),
       '#size' => 25,
       '#maxlength' => 255,
       '#required' => FALSE,
@@ -40,7 +49,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     $form['account_info']['project_id'] = array(
       '#type' => 'textfield',
       '#title' => t('Project Id'),
-      '#default_value' => $smartling_settings->getProjectId(),
+      '#default_value' => $settings->getProjectId(),
       '#size' => 25,
       '#maxlength' => 25,
       '#required' => TRUE,
@@ -50,7 +59,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       '#type' => 'textfield',
       '#title' => t('Key'),
       '#default_value' => '',
-      '#description' => t('Current key: @key', array('@key' => smartling_hide_key($smartling_settings->getKey()))),
+      '#description' => t('Current key: @key', array('@key' => smartling_hide_key($settings->getKey()))),
       '#size' => 40,
       '#maxlength' => 40,
       '#required' => FALSE,
@@ -59,24 +68,24 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     $form['account_info']['production_retrieval_type'] = array(
       '#type' => 'radios',
       '#title' => t('Retrieval type'),
-      '#default_value' => $smartling_settings->getRetrievalType(),
-      '#options' => $smartling_settings->getRetrievalTypeOptions(),
+      '#default_value' => $settings->getRetrievalType(),
+      '#options' => $settings->getRetrievalTypeOptions(),
       '#description' => t('Param for download translate.'),
     );
 
-    $target_language_options_list = $smartling_settings->getTargetLanguageOptionsList();
+    $target_language_options_list = $settings->getTargetLanguageOptionsList();
     if (!empty($target_language_options_list)) {
       $form['account_info']['target_locales'] = array(
         '#type' => 'checkboxes',
         '#options' => $target_language_options_list,
         '#title' => t('Target Locales'),
-        '#default_value' => $smartling_settings->getTargetLocales(),
+        '#default_value' => $settings->getTargetLocales(),
         '#prefix' => '<div class="wrap-target-locales">',
       );
 
       $total = count($target_language_options_list);
       $counter = 0;
-      $locales_convert_array = $smartling_settings->getLocalesConvertArray();
+      $locales_convert_array = $settings->getLocalesConvertArray();
       foreach (array_keys($target_language_options_list) as $langcode) {
         $counter++;
 
@@ -132,7 +141,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     $form['account_info']['callback_url_use'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use Smartling callback: /smartling/callback/%cron_key'),
-      '#default_value' => $smartling_settings->getCallbackUrlUse(),
+      '#default_value' => $settings->getCallbackUrlUse(),
       '#required' => FALSE,
     );
 
@@ -144,7 +153,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     $form['account_info']['auto_authorize_content'] = array(
       '#type' => 'checkbox',
       '#title' => t('Auto authorize content'),
-      '#default_value' => $smartling_settings->getAutoAuthorizeContent(),
+      '#default_value' => $settings->getAutoAuthorizeContent(),
       '#required' => FALSE,
     );
 
@@ -169,7 +178,6 @@ class AdminAccountInfoSettingsForm implements FormInterface {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, array &$form_state) {
-    $project_id = '';
     if (isset($form_state['values']['api_url']) && !empty($form_state['values']['api_url'])) {
       $api_url = check_plain($form_state['values']['api_url']);
       $status = valid_url($api_url, TRUE);
@@ -230,35 +238,35 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       }
     }
 
-    $smartling_settings = smartling_settings_get_handler();
+    $settings = $this->settings;
     // Account settings.
     if (isset($form_state['values']['api_url'])) {
-      $smartling_settings->setApiUrl(check_plain($form_state['values']['api_url']));
+      $settings->setApiUrl(check_plain($form_state['values']['api_url']));
     }
     if (isset($form_state['values']['project_id'])) {
-      $smartling_settings->setProjectId(check_plain($form_state['values']['project_id']));
+      $settings->setProjectId(check_plain($form_state['values']['project_id']));
     }
     if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
-      $smartling_settings->setKey(check_plain(trim($form_state['values']['smartling_key'])));
+      $settings->setKey(check_plain(trim($form_state['values']['smartling_key'])));
     }
     // Retrieval type.
     if (isset($form_state['values']['production_retrieval_type']) && !empty($form_state['values']['production_retrieval_type'])) {
-      $smartling_settings->setRetrievalType($form_state['values']['production_retrieval_type']);
+      $settings->setRetrievalType($form_state['values']['production_retrieval_type']);
       inject_flush_caches();
     }
 
     // Target locales.
-    $smartling_settings->makeTargetLocales($form_state['values']['target_locales']);
-    $smartling_settings->makeLocalesConvertArray($form_state['values']);
+    $settings->makeTargetLocales($form_state['values']['target_locales']);
+    $settings->makeLocalesConvertArray($form_state['values']);
 
     // Callback.
     if (isset($form_state['values']['callback_url_use'])) {
-      $smartling_settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
+      $settings->setCallbackUrlUse($form_state['values']['callback_url_use']);
     }
 
     // AutoAuthorizeContent.
     if (isset($form_state['values']['auto_authorize_content'])) {
-      $smartling_settings->setAutoAuthorizeContent($form_state['values']['auto_authorize_content']);
+      $settings->setAutoAuthorizeContent($form_state['values']['auto_authorize_content']);
     }
 
     drupal_set_message(t('Account settings saved.'));
@@ -269,9 +277,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
 
     // Test.
     if ($form_state['triggering_element']['#name'] == 'test_connection') {
-      $api = drupal_container()->get('smartling.api_wrapper');
-
-      $connection = $api->testConnection($form_state['values']['target_locales']);
+      $connection = $this->api_wrapper->testConnection($form_state['values']['target_locales']);
       foreach ($connection as $locale => $val) {
         if ($val) {
           drupal_set_message(t('Test connection for locale @s_locale is success.', array('@s_locale' => $locale)));
