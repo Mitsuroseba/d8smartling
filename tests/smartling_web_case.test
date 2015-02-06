@@ -151,7 +151,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
 //    $this->assertText(t('Saved @field configuration.', array('@field' => $field_machine_name)));
 
     $field = array('field_name' => $field_machine_name, 'type' => 'text');
-    field_create_field($this->$field);
+    field_create_field($field);
 
     $instance = array(
       'field_name' => $field_machine_name,

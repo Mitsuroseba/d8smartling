@@ -29,7 +29,7 @@ class GenericEntitySettingsForm implements FormInterface {
           $language_name = check_plain($language->name);
 
           if ($entity_data !== FALSE) {
-            $options[$d_locale] = smartling_entity_status_message($this->$entity_name_translated, $entity_data->status, $language_name, $entity_data->progress);
+            $options[$d_locale] = smartling_entity_status_message($this->entity_name_translated, $entity_data->status, $language_name, $entity_data->progress);
           }
           else {
             $options[$d_locale] = $language_name;

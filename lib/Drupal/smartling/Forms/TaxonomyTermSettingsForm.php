@@ -4,7 +4,7 @@ namespace Drupal\smartling\Forms;
 
 class TaxonomyTermSettingsForm extends GenericEntitySettingsForm {
   public function __construct() {
-    $this->$entity_name_translated = t('Term');
+    $this->entity_name_translated = t('Term');
   }
 
   protected function getOriginalEntity($entity) {
