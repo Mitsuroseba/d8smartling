@@ -7,7 +7,7 @@ class GenericEntitySettingsForm implements FormInterface {
 
 
   public function __construct() {
-    $this->$entity_name_translated = t('Entity');
+    $this->entity_name_translated = t('Entity');
   }
 
   protected function getOriginalEntity($entity) {

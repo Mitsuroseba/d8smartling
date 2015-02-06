@@ -43,6 +43,10 @@ function smartling_form_alter(&$form, $form_state, $form_id) {
     return;
   }
 
+  if (!isset($form['#entity'])) {
+    return;
+  }
+
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
   if (smartling_supported_type($entity_type, $bundle)) {
