@@ -48,6 +48,12 @@ function get_translatable_fields_with_conflict_settings() {
 function smartling_admin_configuration_page() {
   // Add ajax library.
   drupal_add_library('system', 'drupal.ajax');
+  $output['message'] = array(
+    '#type' => 'markup',
+    '#title' => 'Link to submission views',
+    '#title_display' => 'invisible',
+    '#prefix' => t('After you configure Smartling module you can <a href="@url">start submitting your content</a>.', array('@url' => url('admin/content/smartling-content'))),
+  );
 
   $output['smartling'] = array(
     '#type' => 'vertical_tabs',

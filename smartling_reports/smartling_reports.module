@@ -135,3 +135,18 @@ function smartling_reports_preprocess_views_view_table(array &$vars) {
     }
   }
 }
+
+function smartling_reports_views_pre_view($view, &$display_id, &$args) {
+  $config_link = t('You can change Smartling settings at <a href="@url">the configuration page</a>', array('@url' => url('admin/config/regional/smartling')));
+  if ($view->name == 'smartling_submissions') {
+    $view->add_item('page_1', 'footer', 'views', 'area', array('content' => $config_link, 'format' => 'full_html'));
+  }
+
+  if (in_array($view->name, array('smartling_bulk_submit', 'smartling_bulk_submit_taxonomy_terms', 'smartling_bulk_submit_comments', 'smartling_bulk_submit_users'))) {
+    $view->add_item('page', 'footer', 'views', 'area', array('content' => $config_link, 'format' => 'full_html'));
+  }
+
+
+
+
+}

@@ -215,7 +215,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       Action: status <br/>
       URI: @file_uri <br/>
       Drupal Locale: @d_locale <br/>
-      Samrtling Locale: @s_locale <br/>
+      Smartling Locale: @s_locale <br/>
       Error: response code -> @code and message -> @message')
         ->setVariables(array(
           '@entity_type' => $smartling_entity->entity_type,
@@ -345,7 +345,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           Action: upload <br/>
           URI: @file_uri <br/>
           Drupal Locale: @d_locale <br/>
-          Samrtling Locale: @s_locale <br/>
+          Smartling Locale: @s_locale <br/>
           Error: response code -> @code and message -> @message
           Upload params: @upload_params')
         ->setVariables(array(
