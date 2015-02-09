@@ -36,7 +36,11 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
-        $fid = (int) $value['value'];
+        $fid = intval(@$value['value']);
+        if (0 == $fid) {
+          continue;
+        }
+
         $entity = $this->fieldCollectionItemLoad($fid);
 
         foreach ($this->getTranslatableFields() as $field_name) {

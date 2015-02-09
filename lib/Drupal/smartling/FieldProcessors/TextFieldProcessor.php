@@ -17,8 +17,8 @@ class TextFieldProcessor extends BaseFieldProcessor {
 
     if (!empty($this->entity->{$this->fieldName}[$this->sourceLanguage])) {
       foreach ($this->entity->{$this->fieldName}[$this->sourceLanguage] as $delta => $value) {
-        $data[$delta]['value'] = $value['value'];
-        $data[$delta]['format'] = $value['format'];
+        $data[$delta]['value'] = isset($value['value']) ? $value['value'] : '';
+        $data[$delta]['format'] = isset($value['format']) ? $value['format'] : '';
       }
     }
 
