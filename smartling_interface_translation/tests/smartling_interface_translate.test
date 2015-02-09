@@ -46,8 +46,8 @@ class SmartlingInterfaceTranslateTest extends SmartlingWebTestCase {
     $this->assertText(t('Built-in interface'));
     $this->assertText(t('Russian'));
 
-    // Go to report-in-progress and download.
-    $this->drupalGet('admin/content/smartling/report-in-progress');
+    // Go to smartling-submissions and download.
+    $this->drupalGet('admin/content/smartling-submissions');
     $this->clickLink('Import (owerwrite mode)');
     $this->assertText(t('The translation was successfully imported.'));
   }

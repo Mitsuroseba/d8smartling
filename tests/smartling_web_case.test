@@ -473,8 +473,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
       }
 
       if ($download) {
-        // Go to report-in-progress and download.
-        $this->drupalGet('admin/content/smartling/report-in-progress');
+        // Go to smartling-submissions and download.
+        $this->drupalGet('admin/content/smartling-submissions');
         $this->clickLink('Download');
         foreach ($convert_array as $d_locale) {
           $this->assertText(t('Downloaded for language translation @locale', array('@locale' => $d_locale)));

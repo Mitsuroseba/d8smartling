@@ -26,10 +26,8 @@ class SmartlingHandlerFieldSmartlingOperations extends views_handler_field {
     $rid = $values->smartling_entity_data_rid;
     $eid = $values->eid;
     $d_locale = $values->smartling_entity_data_target_language;
-    $destination = 'admin/content/smartling';
-    if (arg(3) == 'report-in-progress') {
-      $destination = $destination . '/report-in-progress';
-    }
+    $destination = 'admin/content/smartling-submissions';
+
     $options = array('query' => array('destination' => $destination));
 
     switch ($entity_type) {

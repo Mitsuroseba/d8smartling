@@ -19,9 +19,9 @@ class SmartlingHandlerFilterEntityStatus extends views_handler_filter_in_operato
     if (!isset($this->value_options)) {
       $this->value_title = t('Smartling status');
       $options = array(
-        0 => 'In upload queue',
-        1 => 'Being translated',
-        2 => 'Translated',
+        0 => 'New',
+        1 => 'In Progress',
+        2 => 'Completed',
         3 => 'Changed',
         4 => 'Failed',
       );

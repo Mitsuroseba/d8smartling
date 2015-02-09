@@ -259,7 +259,7 @@ function smartling_interface_translation_submission_import($mode, $eid) {
 
   // TODO : Make a wrapper for unset + drupal_goto
   unset($_GET['destination']);
-  drupal_goto('admin/content/smartling/report-in-progress');
+  drupal_goto('admin/content/smartling-submissions');
 }
 
 /**

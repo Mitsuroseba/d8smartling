@@ -13,13 +13,6 @@ include_once 'smartling_reports.features.inc';
 function smartling_reports_menu() {
   $items = array();
 
-  $items['admin/content/smartling'] = array(
-    'title' => 'Submissions',
-    'description' => 'Submissions',
-    'weight' => 101,
-    'access arguments' => array('administer smartling'),
-    'type' => MENU_LOCAL_TASK,
-  );
   $items['admin/content/smartling-content'] = array(
     'title' => 'Smartling Bulk Submit',
     'description' => 'Smartling Bulk Submit',
