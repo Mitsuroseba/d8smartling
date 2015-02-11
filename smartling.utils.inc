@@ -67,16 +67,12 @@ function smartling_supported_type($entity_type, $bundle) {
  *   Return TRUE if entity has translatable fields.
  */
 function smartling_entity_has_translatable_field($entity_type, $bundle) {
-  $translatable = FALSE;
   foreach (field_info_instances($entity_type, $bundle) as $instance) {
-    $field_name = $instance['field_name'];
-    $field = field_info_field($field_name);
-    if ($field['translatable']) {
-      $translatable = TRUE;
-      break;
+    if (smartling_field_is_translatable($instance['field_name'], $entity_type)) {
+      return TRUE;
     }
   }
-  return $translatable;
+  return FALSE;
 }
 
 /**
@@ -167,7 +163,7 @@ function smartling_is_configured() {
  * @return bool
  *   Return TRUE if fields for translation are set.
  */
-function smartling_translate_fields_is_set($bundle, $entity_type) {
+function smartling_translate_fields_configured($bundle, $entity_type) {
   $val = smartling_settings_get_handler()->getFieldsSettingsByBundle($entity_type, $bundle);
 
   if (empty($val)) {
@@ -188,7 +184,7 @@ function smartling_translate_fields_is_set($bundle, $entity_type) {
  * @return bool
  *   Return TRUE if field is translatable.
  */
-function smartling_field_is_translatable_by_field_name($field_name, $entity_type) {
+function smartling_field_is_translatable($field_name, $entity_type) {
   $field = field_info_field($field_name);
   return field_is_translatable($entity_type, $field);
 }

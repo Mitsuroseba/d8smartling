@@ -9,42 +9,40 @@
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function smartling_form_comment_form_alter(&$form, $form_state) {
-  if (smartling_supported_type($form['#entity_type'], $form['#bundle']) && smartling_fields_method(str_ireplace('comment_node_', '', $form['#bundle']))) {
+  if (smartling_translate_fields_configured($form['#bundle'], 'comment') && smartling_fields_method(str_ireplace('comment_node_', '', $form['#bundle']))) {
     $comment = $form['#entity'];
     if (!empty($comment->cid)) {
-      if (smartling_translate_fields_is_set($form['#bundle'], 'comment')) {
-        if (($comment->language != LANGUAGE_NONE)) {
-          $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
-        }
-        else {
-          $form['smartling'] = array(
-            '#title' => t('Smartling management'),
-            '#type' => 'fieldset',
-            '#collapsible' => TRUE,
-            '#collapsed' => TRUE,
-            '#weight' => 100,
-            '#group' => 'additional_settings',
-            '#attributes' => array('id' => array('smartling_fieldset')),
-            '#attached' => array(
-              'css' => array(
-                drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
-                  'type' => 'file',
-                ),
+      if (($comment->language != LANGUAGE_NONE)) {
+        $form = array_merge($form, smartling_get_comment_settings_form($form, $form_state));
+      }
+      else {
+        $form['smartling'] = array(
+          '#title' => t('Smartling management'),
+          '#type' => 'fieldset',
+          '#collapsible' => TRUE,
+          '#collapsed' => TRUE,
+          '#weight' => 100,
+          '#group' => 'additional_settings',
+          '#attributes' => array('id' => array('smartling_fieldset')),
+          '#attached' => array(
+            'css' => array(
+              drupal_get_path('module', 'smartling') . '/css/smartling_entity_settings.css' => array(
+                'type' => 'file',
               ),
             ),
-            '#modal' => TRUE,
-          );
+          ),
+          '#modal' => TRUE,
+        );
 
-          $form['smartling']['content'] = array(
-            '#type' => 'container',
-          );
+        $form['smartling']['content'] = array(
+          '#type' => 'container',
+        );
 
-          $form['smartling']['content']['lang'] = array(
-            '#type' => 'item',
-            '#title' => '',
-            '#markup' => t('This entity is as to be Language Neutral.'),
-          );
-        }
+        $form['smartling']['content']['lang'] = array(
+          '#type' => 'item',
+          '#title' => '',
+          '#markup' => t('This entity is as to be Language Neutral.'),
+        );
       }
     }
   }

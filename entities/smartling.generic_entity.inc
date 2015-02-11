@@ -49,19 +49,17 @@ function smartling_form_alter(&$form, $form_state, $form_id) {
 
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
-  if (smartling_supported_type($entity_type, $bundle)) {
+  if (smartling_translate_fields_configured($bundle, $entity_type)) {
     $entity = $form['#entity'];
     $wp = entity_metadata_wrapper($entity_type, $entity);
     $id = $wp->getIdentifier();
     if (!empty($id)) {
-      if (smartling_translate_fields_is_set($bundle, $entity_type)) {
-        if (($entity->language != LANGUAGE_NONE)) {
-          $form = array_merge($form, smartling_get_entity_settings_form($form, $form_state));
-        }
-        else {
-          $frm = smartling_language_neutral_form_element();
-          $form = array_merge($form, $frm);
-        }
+      if (($entity->language != LANGUAGE_NONE)) {
+        $form = array_merge($form, smartling_get_entity_settings_form($form, $form_state));
+      }
+      else {
+        $frm = smartling_language_neutral_form_element();
+        $form = array_merge($form, $frm);
       }
     }
   }

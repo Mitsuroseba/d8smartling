@@ -400,14 +400,14 @@ function smartling_entity_update($entity, $type) {
   $bundle = $entity_wrapper->getBundle();
 
   $smartling_entity_data = FALSE;
-  if (smartling_supported_type($type, $bundle)) {
+  if (smartling_translate_fields_configured($bundle, $type)) {
     $smartling_entity_data = smartling_entity_load_all_by_conditions(array(
       'rid' => $rid,
       'bundle' => $bundle,
     ));
   }
 
-  if ($smartling_entity_data !== FALSE && is_array($smartling_entity_data)) {
+  if (is_array($smartling_entity_data)) {
     $sm_data       = current($smartling_entity_data);
     $processor     = smartling_get_entity_processor($sm_data);
     $content_array = $processor->getTranslatableContent();

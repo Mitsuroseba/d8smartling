@@ -80,7 +80,7 @@ function smartling_content_utils_translate_prepare_action(&$node, $context) {
  * *def - default language of the site. Usually it's english.
  */
 function smartling_content_utils_translate_router($entity, $type, $default_lang) {
-  if (!smartling_supported_type($type, $entity->type)) {
+  if (!smartling_translate_fields_configured($entity->type, $type)) {
     return;
   }
   $allowed_fields = smartling_settings_get_handler()->getFieldsSettingsByBundle($type, $entity->type);

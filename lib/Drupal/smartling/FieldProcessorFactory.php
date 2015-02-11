@@ -83,7 +83,7 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    $source_language = ($source_language ?: ((smartling_field_is_translatable_by_field_name($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE));
+    $source_language = ($source_language ?: ((smartling_field_is_translatable($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE));
 
     $field_class = new $class_name(
       $entity,

@@ -60,7 +60,7 @@ function smartling_entity_utils_translate_prepare_action(&$entity, $context) {
 }
 
 function smartling_entity_utils_translate_router($entity, $type, $bundle, $default_lang) {
-  if (!smartling_supported_type($type, $bundle)) {
+  if (!smartling_translate_fields_configured($bundle, $type)) {
     return;
   }
   $allowed_fields = smartling_settings_get_handler()->getFieldsSettingsByBundle($type, $bundle);

@@ -70,10 +70,8 @@ function smartling_form_taxonomy_form_term_alter(&$form, $form_state) {
   $term = $form_state['term'];
 
   if (!empty($term->tid)) {
-    if (smartling_supported_type('taxonomy_term', $form['#vocabulary']->machine_name)) {
-      if (smartling_translate_fields_is_set($form['#vocabulary']->machine_name, 'taxonomy_term')) {
-        $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
-      }
+    if (smartling_translate_fields_configured($form['#vocabulary']->machine_name, 'taxonomy_term')) {
+      $form = array_merge($form, smartling_get_term_settings_form($form, $form_state));
     }
     else {
       drupal_set_message(t('Please follow the page <a href="/admin/structure/taxonomy/@machine_name/edit">"edit vocabulary"</a> to set Translation mode for Smartling.', array('@machine_name' => $form['#vocabulary']->machine_name)));

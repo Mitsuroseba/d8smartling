@@ -81,7 +81,7 @@ class GenericEntitySettingsForm implements FormInterface {
     $bundle  = $wrapper->getBundle();
     $id      = $wrapper->getIdentifier();
 
-    if (!smartling_translate_fields_is_set($bundle, $entity_type)) {
+    if (!smartling_translate_fields_configured($bundle, $entity_type)) {
       return array();
     }
 

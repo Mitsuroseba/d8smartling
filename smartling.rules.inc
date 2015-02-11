@@ -308,7 +308,7 @@ function smartling_send_to_translate_action($node, array $translate_to_langs) {
   if (is_object($node) && !empty($translate_to_langs)) {
     foreach ($translate_to_langs as $d_locale) {
 
-      if (smartling_supported_type('node', $node->type) && smartling_translate_fields_is_set($node->type, 'node')) {
+      if (smartling_translate_fields_configured($node->type, 'node')) {
 
         if (smartling_nodes_method($node->type)) {
           $status = smartling_nodes_method_node_status($node);
@@ -355,7 +355,7 @@ function smartling_send_to_translate_action($node, array $translate_to_langs) {
     if ($result) {
       foreach ($result as $entity_data) {
         $d_locale = $entity_data->target_language;
-        if (smartling_supported_type('node', $node->type) && smartling_translate_fields_is_set($node->type, 'node')) {
+        if (smartling_translate_fields_configured($node->type, 'node')) {
           if (smartling_nodes_method($node->type)) {
             $status = smartling_nodes_method_node_status($node);
             if ($status == SMARTLING_ORIGINAL_NODE || $status == SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE) {

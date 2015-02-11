@@ -18,7 +18,7 @@ function get_translatable_fields_with_conflict_settings() {
     // Error in field settings.
     foreach (field_info_instances('node', $bundle) as $field) {
       $field_machine_name = $field['field_name'];
-      if (smartling_nodes_method($bundle) && smartling_field_is_translatable_by_field_name($field_machine_name, 'node') && !in_array($field_machine_name, $title_module_fields)) {
+      if (smartling_nodes_method($bundle) && smartling_field_is_translatable($field_machine_name, 'node') && !in_array($field_machine_name, $title_module_fields)) {
         $fields_with_problem[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
       }
     }
@@ -31,7 +31,7 @@ function get_translatable_fields_with_conflict_settings() {
     $vocabulary_mode = i18n_taxonomy_vocabulary_mode($voc->vid);
     foreach (field_info_instances('taxonomy_term', $bundle) as $field) {
       $field_machine_name = $field['field_name'];
-      if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable_by_field_name($field_machine_name, 'taxonomy_term') && isset($term_translate_fields[$bundle][$field['field_name']]) && !in_array($field_machine_name, $title_module_fields)) {
+      if (($vocabulary_mode == I18N_MODE_TRANSLATE) && smartling_field_is_translatable($field_machine_name, 'taxonomy_term') && isset($term_translate_fields[$bundle][$field['field_name']]) && !in_array($field_machine_name, $title_module_fields)) {
         $fields_with_problem[$field_machine_name] = '<b>' . $field_machine_name . '</b>';
       }
     }

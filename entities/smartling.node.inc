@@ -9,10 +9,9 @@
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function smartling_form_node_form_alter(&$form, $form_state) {
-  if (!smartling_supported_type($form['#entity_type'], $form['#node']->type)) {
+  if (!smartling_translate_fields_configured($form['#node']->type, 'node')) {
     return;
   }
-
   if (smartling_nodes_method($form['#node']->type) && !isset($form['#node']->tnid)) {
     return;
   }
@@ -21,9 +20,7 @@ function smartling_form_node_form_alter(&$form, $form_state) {
     return;
   }
 
-  if (smartling_translate_fields_is_set($form['#node']->type, 'node')) {
-    $form = array_merge($form, smartling_get_node_settings_form($form, $form_state));
-  }
+  $form = array_merge($form, smartling_get_node_settings_form($form, $form_state));
 }
 
 /**

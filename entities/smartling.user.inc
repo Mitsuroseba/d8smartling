@@ -11,13 +11,11 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_user_profile_form_alter(&$form, &$form_state) {
-  if (smartling_supported_type($form['#entity_type'], $form['#bundle'])) {
-    if (smartling_translate_fields_is_set($form['#bundle'], 'user')) {
-      $user = $form['#user'];
+  if (smartling_translate_fields_configured($form['#bundle'], 'user')) {
+    $user = $form['#user'];
 
-      if (!empty($user->uid)) {
-        $form = array_merge($form, smartling_get_user_settings_form($form, $form_state));
-      }
+    if (!empty($user->uid)) {
+      $form = array_merge($form, smartling_get_user_settings_form($form, $form_state));
     }
   }
   else {

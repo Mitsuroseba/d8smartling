@@ -19,7 +19,7 @@ function smartling_do_translate_action($entity, array $context) {
   $id      = $wrapper->getIdentifier();
   $bundle  = $wrapper->getBundle();
 
-  if (!smartling_supported_type($entity_type, $bundle) || !smartling_translate_fields_is_set($bundle, $entity_type)) {
+  if (!smartling_translate_fields_configured($bundle, $entity_type)) {
     $link = smartling_get_link_to_entity($entity_type, $entity);
 
     drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)), 'warning');
