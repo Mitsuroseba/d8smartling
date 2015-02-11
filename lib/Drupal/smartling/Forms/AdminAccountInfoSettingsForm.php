@@ -59,7 +59,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       '#type' => 'textfield',
       '#title' => t('Key'),
       '#default_value' => '',
-      '#description' => t('Current key: @key', array('@key' => smartling_hide_key($settings->getKey()))),
+      '#description' => t('Current key: @key', array('@key' => $this->hideKey($settings->getKey()))),
       '#size' => 40,
       '#maxlength' => 40,
       '#required' => FALSE,
@@ -189,7 +189,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
 
     if (isset($form_state['values']['project_id']) && !empty($form_state['values']['project_id'])) {
       $project_id = trim($form_state['values']['project_id']);
-      if (!smartling_project_id_check($project_id)) {
+      if (!$this->projectIdCheck($project_id)) {
         drupal_set_message(t('Please enter valid Smartling Project Id.'), 'error');
         form_set_error('project_id');
       }
@@ -198,7 +198,7 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     if (isset($form_state['values']['smartling_key']) && !empty($form_state['values']['smartling_key'])) {
       $smartling_key = trim($form_state['values']['smartling_key']);
 
-      if (!smartling_api_key_check($smartling_key)) {
+      if (!$this->apiKeyCheck($smartling_key)) {
         drupal_set_message(t('Please enter valid Smartling key.'), 'error');
         form_set_error('smartling_key');
       }
@@ -290,4 +290,45 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       drupal_goto(current_path());
     }
   }
+
+
+  /**
+   * Hide last 10 characters in string.
+   *
+   * @param string $key
+   *   Smartling key.
+   *
+   * @return string
+   *   Return smartling key without 10 last characters.
+   */
+  protected function hideKey($key = '') {
+    return substr($key, 0, -10) . str_repeat("*", 10);
+  }
+
+  /**
+   * Check api key.
+   *
+   * @param string $key
+   *   Api key.
+   *
+   * @return string
+   *   Return checked api key.
+   */
+  protected function apiKeyCheck($key) {
+    return preg_match("/^[a-z0-9]{8}(?:-[a-z0-9]{4}){3}-[a-z0-9]{12}$/", $key);
+  }
+
+  /**
+   * Check project id.
+   *
+   * @param string $project_id
+   *   Project id.
+   *
+   * @return string
+   *   Return checked project id.
+   */
+  protected function projectIdCheck($project_id) {
+    return preg_match("/^[a-z0-9]{9}$/", $project_id);
+  }
+
 }
