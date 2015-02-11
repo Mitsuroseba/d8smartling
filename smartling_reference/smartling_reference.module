@@ -298,3 +298,16 @@ function smartling_get_original_node_ids(array $bundles) {
     return FALSE;
   }
 }
+
+/**
+ * Get fields by type.
+ *
+ * @param string $type
+ *   Like entityreference field type or other.
+ *
+ * @return array
+ *   Return array with fields by type.
+ */
+function smartling_get_fields_by_type($type) {
+  return field_read_fields(array('type' => $type));
+}

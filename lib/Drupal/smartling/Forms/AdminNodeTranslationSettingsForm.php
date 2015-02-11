@@ -6,10 +6,12 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
 
   protected $settings;
   protected $logger;
+  protected $fieldProcessorFactory;
 
-  public function __construct($settings, $logger) {
+  public function __construct($settings, $logger, $field_processor_factory) {
     $this->settings = $settings;
     $this->logger = $logger;
+    $this->fieldProcessorFactory = $field_processor_factory;
   }
 
   /**
@@ -55,24 +57,23 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
   protected function getTranslatableFieldsElem($bundle) {
     $form_fields = array();
     // What types of fields DO we translate?
-    $translatable_field_types = smartling_get_translatable_field_types();
     $node_translate_fields = $this->settings->nodeGetFieldsSettings();
 
     if (smartling_supported_type('node', $bundle)) {
       $fields_list = field_info_instances('node', $bundle);
       if (!isset($fields_list['title_field']) && smartling_fields_method($bundle)) {
-        $fields_list['title_field'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field', 'widget' => array('type' => 'text_textfield'));
+        $fields_list['title_field'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field');
       }
 
       if (!isset($fields_list['title_field']) && smartling_nodes_method($bundle)) {
-        $fields_list['title_property_field'] = array('label' => t('Title'), 'field_name' => 'title_property_field', 'widget' => array('type' => 'text_textfield'));
+        $fields_list['title_property_field'] = array('label' => t('Title'), 'field_name' => 'title_property_field');
       }
 
       foreach ($fields_list as $field) {
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
-        $field_type = $field['widget']['type'];
-        if (array_search($field_type, $translatable_field_types)) {
+
+        if ($this->fieldProcessorFactory->isSupportedField($field_machine_name)) {
           $form_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),

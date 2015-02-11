@@ -6,7 +6,7 @@
  */
 
 /**
- * Returns whether the given node type has support for Smartling translations.
+ * Returns whether the given entity type has support for Smartling translations.
  *
  * @param string $entity_type
  *   Entity type.
@@ -21,8 +21,8 @@ function smartling_supported_type($entity_type, $bundle) {
 
   switch ($entity_type) {
     case 'node':
-      $transl_mathod = variable_get('language_content_type_' . $bundle, NULL);
-      $smartling_supported_explicitly = in_array($transl_mathod, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
+      $transl_method = variable_get('language_content_type_' . $bundle, NULL);
+      $smartling_supported_explicitly = in_array($transl_method, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
       break;
 
     case 'taxonomy_term':
@@ -175,26 +175,6 @@ function smartling_translate_fields_is_set($bundle, $entity_type) {
   }
 
   return !empty($val);
-}
-
-/**
- * Return translatable field types.
- *
- * @return array
- *   Return translatable field types.
- */
-function smartling_get_translatable_field_types() {
-  // What types of fields DO we translate?
-  $included_fields = array(
-    'text',
-    'text_long',
-    'text_textfield',
-    'text_textarea',
-    'text_textarea_with_summary',
-    'image_image',
-    'field_collection_embed',
-  );
-  return $included_fields;
 }
 
 /**
@@ -582,19 +562,6 @@ function smartling_get_original_taxonomy_term($term) {
 }
 
 /**
- * Get fields by type.
- *
- * @param string $type
- *   Like entityreference field type or other.
- *
- * @return array
- *   Return array with fields by type.
- */
-function smartling_get_fields_by_type($type) {
-  return field_read_fields(array('type' => $type));
-}
-
-/**
  * Translation handler factory.
  *
  * @param string $entity_type
@@ -632,44 +599,6 @@ function smartling_settings_get_handler() {
  */
 function smartling_log_get_handler() {
   return drupal_container()->get('smartling.log');
-}
-
-/**
- * Check field by name.
- *
- * Return TRUE if this is fake field for entites translate method.
- *
- * @param string $field_name
- *   Field name for check.
- *
- * @deprecated
- *
- * @return bool
- *   Return fake parameter.
- */
-function smartling_check_fake_field_for_entities_translate_method($field_name) {
-  $fake_field_array = array('title_property_field', 'name_property_field', 'description_property_field');
-
-  return in_array($field_name, $fake_field_array);
-}
-
-/**
- * Check field by field name.
- *
- * Return TRUE if this field is replacement field by title module.
- *
- * @param string $field_name
- *   Field name.
- *
- * @deprecated
- *
- * @return boolean
- *   Return check result.
- */
-function smartling_is_title_module_field($field_name) {
-  $field_array = array('title_field', 'name_field', 'description_field');
-
-  return in_array($field_name, $field_array);
 }
 
 /*

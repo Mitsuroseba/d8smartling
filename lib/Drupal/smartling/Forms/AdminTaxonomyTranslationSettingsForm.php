@@ -6,10 +6,12 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
 
   protected $settings;
   protected $logger;
+  protected $fieldProcessorFactory;
 
-  public function __construct($settings, $logger) {
+  public function __construct($settings, $logger, $field_processor_factory) {
     $this->settings = $settings;
     $this->logger = $logger;
+    $this->fieldProcessorFactory = $field_processor_factory;
   }
 
   /**
@@ -76,9 +78,7 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
 
   protected function getTranslatableFieldsElem($bundle) {
     $form_fields = array();
-
-    // What types of fields DO we translate?
-    $translatable_field_types = smartling_get_translatable_field_types();
+    $term_translate_fields = $this->settings->taxonomyTermGetFieldsSettings();
 
     if (smartling_supported_type('taxonomy_term', $bundle)) {
       $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
@@ -87,8 +87,8 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
       foreach (field_info_instances('taxonomy_term', $bundle) as $field) {
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
-        $field_type = $field['widget']['type'];
-        if (array_search($field_type, $translatable_field_types)) {
+
+        if ($this->fieldProcessorFactory->isSupportedField($field_machine_name)) {
           $form_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),

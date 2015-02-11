@@ -97,4 +97,18 @@ class FieldProcessorFactory {
     return $field_class;
   }
 
+  public function isSupportedField($field_name) {
+    $supported = FALSE;
+    $field_info = field_info_field($field_name);
+
+    if ($field_info) {
+      $type = $field_info['type'];
+      $supported = isset($this->fieldMapping['real'][$type]);
+    }
+    elseif (isset($this->fieldMapping['fake'][$field_name])) {
+      $type = $field_name;
+      $supported = isset($this->fieldMapping['fake'][$type]);
+    }
+    return (bool) $supported;
+  }
 }

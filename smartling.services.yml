@@ -30,15 +30,15 @@ services:
 
   smartling.forms.admin_node_translation_settings:
     class:              Drupal\smartling\Forms\AdminNodeTranslationSettingsForm
-    arguments:          [@smartling.settings, @smartling.log]
+    arguments:          [@smartling.settings, @smartling.log, @smartling.field_processor_factory]
 
   smartling.forms.admin_taxonomy_translation_settings:
     class:              Drupal\smartling\Forms\AdminTaxonomyTranslationSettingsForm
-    arguments:          [@smartling.settings, @smartling.log]
+    arguments:          [@smartling.settings, @smartling.log, @smartling.field_processor_factory]
 
   smartling.forms.admin_entities_translation_settings:
     class:              Drupal\smartling\Forms\AdminEntitiesTranslationSettingsForm
-    arguments:          [@smartling.settings, @smartling.log]
+    arguments:          [@smartling.settings, @smartling.log, @smartling.field_processor_factory]
 
   smartling.forms.admin_account_info_settings:
     class:              Drupal\smartling\Forms\AdminAccountInfoSettingsForm
@@ -78,6 +78,7 @@ parameters:
       text_with_summary:    Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
       image:                Drupal\smartling\FieldProcessors\ImageFieldProcessor
       field_collection:     Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
+      link_field:           Drupal\smartling\FieldProcessors\LinkFieldProcessor
 
     fake:
       title_property:       Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor

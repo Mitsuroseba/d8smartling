@@ -6,10 +6,12 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
 
   protected $settings;
   protected $logger;
+  protected $fieldProcessorFactory;
 
-  public function __construct($settings, $logger) {
+  public function __construct($settings, $logger, $field_processor_factory) {
     $this->settings = $settings;
     $this->logger = $logger;
+    $this->fieldProcessorFactory = $field_processor_factory;
   }
 
   /**
@@ -178,7 +180,6 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
       'smartling_entity_data',
     );
 
-    $translatable_field_types = smartling_get_translatable_field_types();
     $entities = entity_get_info();
     $rows = array();
 
@@ -203,9 +204,8 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
         foreach ($field_instances as $field) {
           $field_label = $field['label'];
           $field_machine_name = $field['field_name'];
-          $field_type = $field['widget']['type'];
 
-          if (in_array($field_type, $translatable_field_types)) {
+          if ($this->fieldProcessorFactory->isSupportedField($field_machine_name)) {
             $key = $bundle . '_SEPARATOR_' . $field_machine_name;
             $form_fields[$key] = array(
               '#type' => 'checkbox',
