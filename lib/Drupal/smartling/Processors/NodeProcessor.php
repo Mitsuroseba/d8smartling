@@ -97,4 +97,8 @@ class NodeProcessor extends GenericEntityProcessor {
     }
   }
 
+  public static function supportedType($bundle) {
+    $transl_method = variable_get('language_content_type_' . $bundle, NULL);
+    return in_array($transl_method, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
+  }
 }

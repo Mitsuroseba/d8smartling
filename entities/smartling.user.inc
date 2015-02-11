@@ -11,15 +11,13 @@
  * Disabled method on taxonomy vocabulary form
  */
 function smartling_form_user_profile_form_alter(&$form, &$form_state) {
-  if (smartling_translate_fields_configured($form['#bundle'], 'user')) {
-    $user = $form['#user'];
-
-    if (!empty($user->uid)) {
-      $form = array_merge($form, smartling_get_user_settings_form($form, $form_state));
-    }
+  if (!smartling_translate_fields_configured($form['#bundle'], 'user')) {
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
   }
-  else {
-    drupal_set_message(t('Add translatable field to user entity to use Smartling translate.'), 'info');
+  $user = $form['#user'];
+
+  if (!empty($user->uid)) {
+    $form = array_merge($form, smartling_get_user_settings_form($form, $form_state));
   }
 }
 

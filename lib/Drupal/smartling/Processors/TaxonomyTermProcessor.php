@@ -91,4 +91,9 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
     }
   }
 
+  public static function supportedType($bundle) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
+    $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+    return in_array($vocabulary_mode, array(I18N_MODE_TRANSLATE, I18N_MODE_LOCALIZE));
+  }
 }

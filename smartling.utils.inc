@@ -6,56 +6,6 @@
  */
 
 /**
- * Returns whether the given entity type has support for Smartling translations.
- *
- * @param string $entity_type
- *   Entity type.
- * @param string $bundle
- *   Entity bundle.
- *
- * @return bool
- *   Return TRUE if smartling support this bundle.
- */
-function smartling_supported_type($entity_type, $bundle) {
-  $smartling_supported_explicitly = FALSE;
-
-  switch ($entity_type) {
-    case 'node':
-      $transl_method = variable_get('language_content_type_' . $bundle, NULL);
-      $smartling_supported_explicitly = in_array($transl_method, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
-      break;
-
-    case 'taxonomy_term':
-      $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
-      $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
-      $smartling_supported_explicitly = in_array($vocabulary_mode, array(I18N_MODE_TRANSLATE, I18N_MODE_LOCALIZE));
-      break;
-
-    case 'comment':
-      $node_type = str_ireplace('comment_node_', '', $bundle);
-      if (smartling_fields_method($node_type)) {
-        $smartling_supported_explicitly = smartling_entity_has_translatable_field($entity_type, $bundle);
-      }
-      break;
-
-    case 'user':
-      $smartling_supported_explicitly = smartling_entity_has_translatable_field($entity_type, $bundle);
-      break;
-
-    //@todo: implement normal check for this type of entity
-    case 'fieldable_panels_pane':
-      $smartling_supported_explicitly = TRUE;//smartling_entity_has_translatable_field($entity_type, $bundle);
-      break;
-
-    default:
-      $smartling_supported_explicitly = FALSE;
-      break;
-  }
-
-  return $smartling_supported_explicitly;
-}
-
-/**
  * Checks entity. If entity have translatable field return TRUE.
  *
  * @param string $entity_type
@@ -165,11 +115,6 @@ function smartling_is_configured() {
  */
 function smartling_translate_fields_configured($bundle, $entity_type) {
   $val = smartling_settings_get_handler()->getFieldsSettingsByBundle($entity_type, $bundle);
-
-  if (empty($val)) {
-    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
-  }
-
   return !empty($val);
 }
 

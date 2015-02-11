@@ -10,6 +10,7 @@
  */
 function smartling_form_node_form_alter(&$form, $form_state) {
   if (!smartling_translate_fields_configured($form['#node']->type, 'node')) {
+    drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
     return;
   }
   if (smartling_nodes_method($form['#node']->type) && !isset($form['#node']->tnid)) {

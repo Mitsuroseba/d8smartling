@@ -25,7 +25,7 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
   protected function getTranslationTypeElem($bundle) {
     $form_transl_type = array();
 
-    if (smartling_supported_type('taxonomy_term', $bundle)) {
+    if ($this->supportedType($bundle)) {
       $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
       switch ($vocabulary_mode) {
@@ -80,7 +80,7 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
     $form_fields = array();
     $term_translate_fields = $this->settings->taxonomyTermGetFieldsSettings();
 
-    if (smartling_supported_type('taxonomy_term', $bundle)) {
+    if ($this->supportedType($bundle)) {
       $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
 
@@ -346,5 +346,12 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
     else {
       $form_state['redirect'] = $redirect;
     }
+  }
+
+  protected function supportedType($bundle) {
+    return \Drupal\smartling\Processors\TaxonomyTermProcessor::supportedType($bundle);
+//    $vocabulary = taxonomy_vocabulary_machine_name_load($bundle);
+//    $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+//    return in_array($vocabulary_mode, array(I18N_MODE_TRANSLATE, I18N_MODE_LOCALIZE));
   }
 }

@@ -23,7 +23,7 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
 
   protected function getTranslationTypeElem($bundle) {
     $form_transl_type = array();
-    if (smartling_supported_type('node', $bundle)) {
+    if ($this->supportedType($bundle)) {
       $form_transl_type['from'] = array(
         '#type' => 'item',
         '#title' => (smartling_nodes_method($bundle)) ? t('Nodes method') : t('Fields method'),
@@ -59,7 +59,7 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
     // What types of fields DO we translate?
     $node_translate_fields = $this->settings->nodeGetFieldsSettings();
 
-    if (smartling_supported_type('node', $bundle)) {
+    if ($this->supportedType($bundle)) {
       $fields_list = field_info_instances('node', $bundle);
       if (!isset($fields_list['title_field']) && smartling_fields_method($bundle)) {
         $fields_list['title_field'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field');
@@ -268,5 +268,11 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
     else {
       $form_state['redirect'] = $redirect;
     }
+  }
+
+  protected function supportedType($bundle) {
+    return \Drupal\smartling\Processors\NodeProcessor::supportedType($bundle);
+//    $transl_method = variable_get('language_content_type_' . $bundle, NULL);
+//    return in_array($transl_method, array(SMARTLING_NODES_METHOD_KEY, SMARTLING_FIELDS_METHOD_KEY));
   }
 }
