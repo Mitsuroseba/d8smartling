@@ -85,7 +85,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $this->settingsHandler = $settings_handler;
     $this->logger = $logger;
 
-    $this->setApi(new SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
+    $this->setApi(new \SmartlingAPI($settings_handler->getApiUrl(), $settings_handler->getKey(), $settings_handler->getProjectId(), SMARTLING_PRODUCTION_MODE));
   }
 
   /**
