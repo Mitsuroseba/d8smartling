@@ -10,8 +10,16 @@ function smartling_translate_page_popup_init() {
  * Implements hook_entity_load().
  */
 function smartling_translate_page_popup_entity_load($entities, $type) {
+  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE))) {
+    return;
+  }
 
+  $language_default = language_default()->language;
   foreach ($entities as $entity) {
+    if (!in_array(entity_language($type, $entity), array($language_default, LANGUAGE_NONE))) {
+      continue;
+    }
+
     $wrapper = entity_metadata_wrapper($type, $entity);
     $bundle = $wrapper->getBundle();
     if (smartling_translate_fields_configured($bundle, $type)) {
@@ -24,10 +32,12 @@ function smartling_translate_page_popup_entity_load($entities, $type) {
 }
 
 function smartling_translate_page_popup_page_alter(&$page) {
-  $form = array(); $form_state = array();
-  //$form = drupal_container()->get('smartling.forms.translate_page_popup')->buildForm($form, $form_state);
-  //drupal_get_form($form)
-  $page['page_bottom']['smartling_translation_form'] = drupal_build_form('smartling_translate_page_popup_form', $form_state);//drupal_get_form('smartling_translate_page_popup_form');
+  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE))) {
+    return;
+  }
+
+  $form_state = array();
+  $page['page_bottom']['smartling_translation_form'] = drupal_build_form('smartling_translate_page_popup_form', $form_state);
 }
 
 function smartling_translate_page_popup_form($form, $form_state) {
