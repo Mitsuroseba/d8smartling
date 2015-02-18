@@ -46,6 +46,7 @@
 #smartling_stats {
     float: right;
     cursor: pointer;
+    margin-top: 7px;
 }
 
 #smartling_popup_content .entity_type, #smartling_popup_content .entity_progress {

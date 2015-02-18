@@ -112,14 +112,20 @@ EOF;
       $commands[] = ajax_command_replace('#translation_result', '<div id="translation_result" class="failed">' . implode(" ", $errors) . '</div>');
       return array('#type' => 'ajax', '#commands' => $commands);
     }
-    //print_r($form_state['input']);
-    //die('hi');
-    //$elem
-    //print_r($form_state['input'], TRUE)
-    //drupal_set_message('hi', 'error');
-    //rgb(194, 82, 20)
-    $commands[] = (mt_rand(0,1)==0)?ajax_command_replace('#translation_result', '<div id="translation_result" class="success">Everything is ok!</div>'):
-      ajax_command_replace('#translation_result', '<div id="translation_result" class="failed">Something is wrong!</div>');
+
+    $langs = $form_state['input']['languages'];
+    foreach($form_state['input']['items'] as $v ) {
+      if (empty($v)) {
+        continue;
+      }
+      $v = explode('_||_', $v);
+      $id = (int) $v[0];
+      $entity_type = $v[1];
+      $entity = entity_load_single($entity_type, $id);
+      drupal_container()->get('smartling.queue_managers.upload')->add($entity_type, $entity, $langs);
+    }
+
+    $commands[] = ajax_command_replace('#translation_result', '<div id="translation_result" class="success">' . t('Selected entities have successfully been enqueued for upload for translation.') . '</div>');
   return array(
     '#type' => 'ajax',
     '#commands' => $commands,

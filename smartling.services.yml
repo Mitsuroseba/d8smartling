@@ -65,6 +65,17 @@ services:
     class:              Drupal\smartling\Forms\GenericEntitySettingsForm
 
 
+
+  smartling.queue_managers.upload:
+    class:              Drupal\smartling\QueueManager\UploadQueueManager
+
+  smartling.queue_managers.download:
+    class:              Drupal\smartling\QueueManager\DownloadQueueManager
+
+  smartling.queue_managers.check_status:
+    class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
+
+
 parameters:
   entity_processors:
     node:                   Drupal\smartling\Processors\NodeProcessor

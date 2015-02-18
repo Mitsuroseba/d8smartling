@@ -13,11 +13,11 @@ Drupal.behaviors.smartlingTranslatePopup = {
         jQuery("#smartling_stats a").click(function() {
             if (jQuery('#smartling_popup_content .entity_type:visible').length) {
                 jQuery("#smartling_popup_content .entity_type").toggle();
-                jQuery("#smartling_popup_content .entity_progress").fadeToggle(1000);
+                jQuery("#smartling_popup_content .entity_progress").fadeToggle();
             }
             else {
                 jQuery("#smartling_popup_content .entity_progress").toggle();
-                jQuery("#smartling_popup_content .entity_type").fadeToggle(1000);
+                jQuery("#smartling_popup_content .entity_type").fadeToggle();
             }
         });
     }
