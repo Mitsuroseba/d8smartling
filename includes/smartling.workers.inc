@@ -9,7 +9,7 @@
  * Worker callback defined in hook_cron_queue_info().
  */
 function smartling_queue_download_update_translated_item_process($eid) {
-  $status = drupal_container()->get('smartling.queue_managers.check_status')->execute($eid);
+  $status = drupal_container()->get('smartling.queue_managers.download')->execute($eid);
 
   if ($status) {
     drupal_set_message(t('The translation was successfully downloaded.'));
