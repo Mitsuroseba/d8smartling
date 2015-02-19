@@ -62,7 +62,7 @@ class CheckStatusQueueManager implements QueueManagerInterface {
 //            $smartling_queue = \DrupalQueue::get('smartling_download');
 //            $smartling_queue->createQueue();
 //            $smartling_queue->createItem($eid);
-            drupal_container()->get('smartling.queue_managers.upload')->add($eid);
+            drupal_container()->get('smartling.queue_managers.download')->add($eid);
           }
 
           smartling_entity_data_save($result['entity_data']);
