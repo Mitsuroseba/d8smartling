@@ -502,6 +502,14 @@ function smartling_get_original_taxonomy_term($term) {
   return $entity;
 }
 
+function smartling_get_original_node($node) {
+  if (smartling_nodes_method($node->type)) {
+    if (isset($node->tnid) && $node->tnid != '0' && ($node->tnid != $node->nid)) {
+      return node_load($node->tnid);
+    }
+  }
+  return $node;
+}
 /**
  * Translation handler factory.
  *

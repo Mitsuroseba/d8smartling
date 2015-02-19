@@ -11,14 +11,9 @@ interface QueueManagerInterface {
   /**
    * Adds an element to the queue.
    *
-   * @param string $entity_type
-   *   type of the entity
-   * @param object $entity
-   *   entity itself.
-   * @param array $langs
-   *   Array of languages entity should be translated to.
+   * @param int|array $eids
    */
-  public function add($entity_type, $entity, $langs);
+  public function add($eids);
 
   /**
    * Runs each queue iteration.

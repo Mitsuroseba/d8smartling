@@ -11,16 +11,44 @@ class UploadQueueManager implements QueueManagerInterface {
   /**
    * @inheritdoc
    */
-  public function add($entity_type, $entity, $langs) {
+  public function add($eids) {
+    if (empty($eids)) {
+      return;
+    }
+    $smartling_queue = \DrupalQueue::get('smartling_upload');
+    $smartling_queue->createQueue();
+    $smartling_queue->createItem($eids);
+  }
+
+  protected function getOriginalEntity($entity_type, $entity) {
+    switch ($entity_type) {
+      case 'node':
+        $entity = smartling_get_original_node($entity);
+        break;
+
+      case 'taxonomy_term':
+        $entity = smartling_get_original_taxonomy_term($entity);
+        break;
+    }
+    return $entity;
+  }
+
+  public function addRawEntity($entity_type, $entity, $languages) {
     $log = smartling_log_get_handler();
+
+    $entity = $this->getOriginalEntity($entity_type, $entity);
+
+    if (empty($entity)) {
+      return;
+    }
 
     $wrapper = entity_metadata_wrapper($entity_type, $entity);
     $id      = $wrapper->getIdentifier();
     $bundle  = $wrapper->getBundle();
+    $title   = $wrapper->label();
+    $link    = smartling_get_link_to_entity($entity_type, $entity);
 
     if (!smartling_translate_fields_configured($bundle, $entity_type)) {
-      $link = smartling_get_link_to_entity($entity_type, $entity);
-
       drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)), 'warning');
       $log->setMessage("Type '@type' is not supported or it's not configured in Smartling.")
         ->setVariables(array('@type' => $bundle))
@@ -32,73 +60,52 @@ class UploadQueueManager implements QueueManagerInterface {
       return;
     }
 
-    $queued_eids = array();
-    switch ($entity_type) {
-      case 'node':
-        $node_status = NULL;
-        if (smartling_nodes_method($entity->type)) {
-          $node_status = smartling_nodes_method_node_status($entity);
-
-          if (($entity->tnid == '0') && in_array($node_status, array(SMARTLING_ORIGINAL_NODE, SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE))) {
-            $entity->tnid = $entity->nid;
-            node_save($entity);
-          }
-        }
-        break;
-
-      case 'taxonomy_term':
-        $language_default = language_default()->language;
-
-        if (entity_language($entity_type, $entity) == $language_default) {
-          $id = $entity->tid;
-        }
-        else {
-          $original_term = smartling_get_original_taxonomy_term($entity);
-          $id = $original_term->tid;
-        }
-
-        if (intval($id) == 0) {
-          drupal_set_message(t('Original entity was not found. Please check if your current entity is "language neutral", that shouldn\'t be the case.'));
-          return;
-        }
-        break;
-    }
-
     // $d_locale_original = language_default()->language;
     // $d_locale_original = $entity->translations->original;
     $d_locale_original = entity_language($entity_type, $entity);
-    foreach ($langs as $d_locale) {
-      if ($d_locale == $d_locale_original) {
-        continue;
-      }
-
-      if (!((smartling_nodes_method($entity->type) && in_array($node_status, array(SMARTLING_ORIGINAL_NODE, SMARTLING_ORIGINAL_WITHOUT_TRANSLATION_NODE)))
-          || (smartling_fields_method($entity->type))) && ($entity_type == 'node')) {
+    $queued_eids = array();
+    $langs = array();
+    foreach ($languages as $target_language) {
+      if ($target_language == $d_locale_original) {
         continue;
       }
 
       $smartling_data = smartling_entity_load_by_conditions(array(
         'rid' => $id,
         'entity_type' => $entity_type,
-        'target_language' => $d_locale,
+        'target_language' => $target_language,
       ));
 
-      if ($smartling_data == FALSE) {
-        $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $d_locale);
+      if (empty($smartling_data)) {
+        $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $target_language);
       }
 
-      smartling_set_translation_status($smartling_data, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
+      $processor = smartling_get_entity_processor($smartling_data);
+      $processor->sendToUploadQueue();
 
+      $langs[] = $target_language;
       $queued_eids[] = $smartling_data->eid;
     }
 
-    if (!empty($queued_eids)) {
-      $smartling_queue = \DrupalQueue::get('smartling_upload');
-      $smartling_queue->createQueue();
-      $smartling_queue->createItem($queued_eids);
-    }
+    $this->add($queued_eids);
     // Create content hash (Fake entity update).
     smartling_entity_update($entity, $entity_type);
+
+    $langs = implode(', ', $langs);
+    $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale, type - @entity_type')
+      ->setVariables(array(
+        '@id' => $id,
+        '@locale' => $langs,
+        '@entity_type' => $entity_type,
+      ))
+      ->setLink($link)
+      ->execute();
+
+    drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
+      '@entity_type' => $entity_type,
+      '@title' => $title,
+      '@langs' => $langs,
+    )));
   }
 
   /**

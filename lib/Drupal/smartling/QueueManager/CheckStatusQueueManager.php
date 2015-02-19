@@ -11,7 +11,35 @@ class CheckStatusQueueManager implements QueueManagerInterface {
   /**
    * @inheritdoc
    */
-  public function add($entity_type, $entity, $langs) {
+  public function add($eids) {
+    $log = smartling_log_get_handler();
+
+    $smartling_entities = smartling_entity_data_load_multiple($eids);
+
+    $smartling_queue = \DrupalQueue::get('smartling_check_status');
+    $smartling_queue->createQueue();
+    foreach ($smartling_entities as $eid => $queue_item) {
+      if (!empty($queue_item->file_name)) {
+        $smartling_queue->createItem($eid);
+        $log->setMessage('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
+          ->setVariables(array(
+            '@eid' => $queue_item->eid,
+            '@rid' => $queue_item->rid,
+            '@entity_type' => $queue_item->entity_type,
+          ))
+          ->execute();
+      }
+      elseif ($queue_item->status != 0) {
+        $log->setMessage('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
+          ->setVariables(array(
+            '@eid' => $queue_item->eid,
+            '@rid' => $queue_item->rid,
+            '@entity_type' => $queue_item->entity_type,
+          ))
+          ->setSeverity(WATCHDOG_WARNING)
+          ->execute();
+      }
+    }
   }
 
   /**
@@ -31,9 +59,10 @@ class CheckStatusQueueManager implements QueueManagerInterface {
 
         if (!empty($result)) {
           if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_entity->entity_type != 'smartling_interface_entity')) {
-            $smartling_queue = \DrupalQueue::get('smartling_download');
-            $smartling_queue->createQueue();
-            $smartling_queue->createItem($eid);
+//            $smartling_queue = \DrupalQueue::get('smartling_download');
+//            $smartling_queue->createQueue();
+//            $smartling_queue->createItem($eid);
+            drupal_container()->get('smartling.queue_managers.upload')->add($eid);
           }
 
           smartling_entity_data_save($result['entity_data']);

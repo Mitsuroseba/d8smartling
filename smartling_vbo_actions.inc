@@ -12,7 +12,7 @@
  *   Drupal user object.
  */
 function smartling_do_translate_action($entity, array $context) {
-  return drupal_container()->get('smartling.queue_managers.upload')->add($context['entity_type'], $entity, $context['translate_to_langs']);
+  return drupal_container()->get('smartling.queue_managers.upload')->addRawEntity($context['entity_type'], $entity, $context['translate_to_langs']);
 //  $entity_type = $context['entity_type'];
 //  $log = smartling_log_get_handler();
 //
@@ -232,9 +232,7 @@ function smartling_do_resend_translation_action_submit($form, $form_state) {
 function smartling_do_resend_translation_action(&$entity, $context) {
   smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
 
-  $smartling_queue = DrupalQueue::get('smartling_upload');
-  $smartling_queue->createQueue();
-  $smartling_queue->createItem(array($entity->eid));
+  drupal_container()->get('smartling.queue_managers.upload')->add(array($entity->eid));
 
   drupal_set_message(t('Entity "@title" has been successfully enqueued for resubmission.', array('@title' => $entity->title)));
 }

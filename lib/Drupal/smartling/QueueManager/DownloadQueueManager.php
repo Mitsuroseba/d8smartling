@@ -11,7 +11,13 @@ class DownloadQueueManager implements QueueManagerInterface {
   /**
    * @inheritdoc
    */
-  public function add($entity_type, $entity, $langs) {
+  public function add($eids) {
+    if (empty($eids)) {
+      return;
+    }
+    $smartling_queue = \DrupalQueue::get('smartling_download');
+    $smartling_queue->createQueue();
+    $smartling_queue->createItem($eids);
   }
 
   /**
