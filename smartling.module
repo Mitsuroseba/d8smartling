@@ -447,7 +447,7 @@ function smartling_action_info() {
     ),
     'smartling_do_resend_translation_action' => array(
       'type' => 'smartling_entity_data',//'entity',
-      'label' => t('Resend selected content elements for translation.'),
+      'label' => t('Resend original content for translation.'),
       'behavior' => array('changes_property'),
       'configurable' => FALSE,
       'vbo_configurable' => TRUE,
