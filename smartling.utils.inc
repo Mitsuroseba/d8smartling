@@ -602,26 +602,32 @@ function smartling_entity_status_message($entity_name, $status, $language_name, 
  *   Language key of source drupal content entity.
  * @param string $target_language
  *   Target language key for smartling entity.
+ * @param array $default_options
+ *   Optional params that will override the ones in a function.
+ *   This feature is use in interface_translation module to set a bundle for example.
  *
  * @return SmartlingEntityData
  *
  * @todo try to avoid original language in arguments.
  */
-function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language) {
+function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options = array()) {
   global $user;
-  $entity_data = smartling_entity_data_create();
+  //$entity_data = smartling_entity_data_create();
   $wrapper = entity_metadata_wrapper($entity_type, $drupal_entity);
-  $entity_data->rid = $wrapper->getIdentifier();
-  $entity_data->entity_type = $entity_type;
-  $entity_data->title  = $wrapper->label();
-  $entity_data->bundle = $wrapper->getBundle();
-  $entity_data->original_language = $origin_language;
-  $entity_data->target_language = $target_language;
-  $entity_data->progress = 0;
+  $entity_data = $default_options + array(
+    'rid' => $wrapper->getIdentifier(),
+    'entity_type' => $entity_type,
+    'title'  => $wrapper->label(),
+    'bundle' => $wrapper->getBundle(),
+    'original_language' => $origin_language,
+    'target_language' => $target_language,
+    'progress' => 0,
+    'translated_file_name' => FALSE,
+    'submitter' => $user->uid,
+    'submission_date' => time()
+  );
+  $entity_data = (object) $entity_data;
 
-  $entity_data->translated_file_name = FALSE;
-  $entity_data->submitter = $user->uid;
-  $entity_data->submission_date = time();
   smartling_entity_data_save($entity_data);
 
   return $entity_data;

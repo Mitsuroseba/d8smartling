@@ -108,7 +108,7 @@ function smartling_interface_translation_do_translate_action($entity, array $con
         ));
 
         if (empty($entity_data)) {
-          $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale);
+          $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale, array('bundle' => $entity->textgroup, 'title' => $entity->textgroup_name, 'file_name' => $file_name_unic));
         }
 
         smartling_set_translation_status($entity_data, SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE);
@@ -241,6 +241,8 @@ function smartling_interface_translation_submission_import($mode, $eid) {
       }
 
       if (!empty($file->fid)) {
+        $entity_data->translated_file_name = $translated_filename;
+        smartling_entity_data_save($entity_data);
         // Now import strings into the language.
         if ($return = _locale_import_po($file, $langcode, $mode, $group) == FALSE) {
           $variables = array('%filename' => $file->filename);
