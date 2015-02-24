@@ -135,27 +135,6 @@ function smartling_field_is_translatable($field_name, $entity_type) {
 }
 
 /**
- * Update filename in smartling transaction.
- *
- * @param string $file_name
- *   File name.
- * @param stdClass $smartling_entity
- *   Smartling entity.
- * @param bool $translated_file
- *   TRUE if save translated file. FALSE by default.
- */
-function smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file = FALSE) {
-  if ($translated_file) {
-    $smartling_entity->translated_file_name = $file_name;
-  }
-  else {
-    $smartling_entity->file_name = $file_name;
-  }
-
-  smartling_entity_data_save($smartling_entity);
-}
-
-/**
  * Get full language name.
  *
  * @param string $d_locale
@@ -253,42 +232,33 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
  * Otherwise skip saving. Other function must not require a phisical file on a disk
  *
  * Save xml document.
- *
+
+ * @param string $file_name
+ *   File name.
  * @param object $xml_doc
  *   Xml document.
  * @param stdClass $smartling_entity
  *   Locale in drupal format (ru, en).
- * @param string $file_name
- *   File name.
- * @param bool $translated_file
- *   TRUE if save translated file. FALSE by default.
  *
  * @return bool
  *   Was file creation successful or not.
  */
-function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $translated_file = FALSE) {
+function smartling_save_xml($file_name, $xml_doc, $smartling_entity  = NULL) {
   $log = smartling_log_get_handler();
 
-  if (is_null($file_name)) {
+  if (empty($file_name)) {
     $file_name = 'smartling_translate_' . $smartling_entity->entity_type . '_' . $smartling_entity->rid . '.xml';
   }
 
   $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
   $directory = smartling_get_dir();
   $path = $directory . '/' . smartling_clean_filename($file_name);
-  $file_type = 'original';
 
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
     $xml_doc->save(drupal_realpath($path));
 
-    if ($translated_file == TRUE) {
-      $file_type = 'translated';
-    }
-
-
-    $log->setMessage('Smartling saves @file_type xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
+    $log->setMessage('Smartling saves xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
       ->setVariables(array(
-        '@file_type' => $file_type,
         '@entity_type' => $smartling_entity->entity_type,
         '@rid' => $smartling_entity->rid,
         '@locale' => $smartling_entity->target_language,
@@ -296,21 +266,16 @@ function smartling_save_xml($xml_doc, $smartling_entity, $file_name = NULL, $tra
       ->setLink(l(t('View file'), file_create_url($path)))
       ->execute();
 
-
-    if (!is_null($smartling_entity->rid)) {
-      smartling_entity_data_filename_update($file_name, $smartling_entity, $translated_file);
-    }
     return TRUE;
   }
-  else {
-    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.')
-      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory))
-      ->setConsiderLog(FALSE)
-      ->setSeverity(WATCHDOG_ERROR)
-      ->execute();
-    drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
-    return FALSE;
-  }
+
+  $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.')
+    ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory))
+    ->setConsiderLog(FALSE)
+    ->setSeverity(WATCHDOG_ERROR)
+    ->execute();
+  drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
+  return FALSE;
 }
 
 function smartling_get_entity_processor($smartling_entity) {
@@ -393,65 +358,6 @@ function smartling_language_list() {
     }
   }
   return $languages_list;
-}
-
-/**
- * Change smartling transaction entity status.
- *
- * @param object $entity_data
- *   Smartling transaction entity.
- * @param string $event
- *   Event for change status.
- *
- * @todo it's a duplicate of setProgressStatus() method of GenericEntity. Need to resolve it.
- */
-function smartling_set_translation_status($entity_data = NULL, $event = NULL) {
-  if (!is_null($entity_data) && !is_null($event)) {
-    // @todo: why do we need reload this entity everywhere?
-    $entity_data = smartling_entity_load_by_conditions(array(
-      'rid' => $entity_data->rid,
-      'entity_type' => $entity_data->entity_type,
-      'target_language' => $entity_data->target_language,
-    ));
-    switch ($event) {
-      case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
-        if (empty($entity_data->status) || ($entity_data->status == SMARTLING_STATUS_CHANGE)) {
-          $entity_data->status = SMARTLING_STATUS_IN_QUEUE;
-          smartling_entity_data_save($entity_data);
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
-        if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
-          $entity_data->status = SMARTLING_STATUS_IN_TRANSLATE;
-          smartling_entity_data_save($entity_data);
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE:
-      case SMARTLING_STATUS_EVENT_UPDATE_FIELDS:
-        if ($entity_data->status != SMARTLING_STATUS_CHANGE) {
-          if ($entity_data->progress == 100) {
-            $entity_data->status = SMARTLING_STATUS_TRANSLATED;
-          }
-          smartling_entity_data_save($entity_data);
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
-        $entity_data->status = SMARTLING_STATUS_CHANGE;
-        smartling_entity_data_save($entity_data);
-        break;
-
-      case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
-        $entity_data->status = SMARTLING_STATUS_FAILED;
-        smartling_entity_data_save($entity_data);
-        break;
-
-      default:
-        break;
-    }
-  }
 }
 
 /**
@@ -611,24 +517,6 @@ function smartling_entity_status_message($entity_name, $status, $language_name, 
  * @todo try to avoid original language in arguments.
  */
 function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options = array()) {
-  global $user;
-  //$entity_data = smartling_entity_data_create();
-  $wrapper = entity_metadata_wrapper($entity_type, $drupal_entity);
-  $entity_data = $default_options + array(
-    'rid' => $wrapper->getIdentifier(),
-    'entity_type' => $entity_type,
-    'title'  => $wrapper->label(),
-    'bundle' => $wrapper->getBundle(),
-    'original_language' => $origin_language,
-    'target_language' => $target_language,
-    'progress' => 0,
-    'translated_file_name' => FALSE,
-    'submitter' => $user->uid,
-    'submission_date' => time()
-  );
-  $entity_data = (object) $entity_data;
-
-  smartling_entity_data_save($entity_data);
-
-  return $entity_data;
+  return drupal_container()->get('smartling.wrappers.entity_data_wrapper')
+    ->createFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options)->getEntity();
 }

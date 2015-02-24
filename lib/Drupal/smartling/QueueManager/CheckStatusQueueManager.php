@@ -59,9 +59,6 @@ class CheckStatusQueueManager implements QueueManagerInterface {
 
         if (!empty($result)) {
           if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_entity->entity_type != 'smartling_interface_entity')) {
-//            $smartling_queue = \DrupalQueue::get('smartling_download');
-//            $smartling_queue->createQueue();
-//            $smartling_queue->createItem($eid);
             drupal_container()->get('smartling.queue_managers.download')->add($eid);
           }
 

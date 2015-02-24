@@ -76,6 +76,10 @@ services:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
 
 
+
+  smartling.wrappers.entity_data_wrapper:
+    class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapper
+
 parameters:
   entity_processors:
     node:                   Drupal\smartling\Processors\NodeProcessor

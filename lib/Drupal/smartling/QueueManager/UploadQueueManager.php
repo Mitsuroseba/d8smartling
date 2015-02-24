@@ -70,21 +70,16 @@ class UploadQueueManager implements QueueManagerInterface {
         continue;
       }
 
-      $smartling_data = smartling_entity_load_by_conditions(array(
-        'rid' => $id,
-        'entity_type' => $entity_type,
-        'target_language' => $target_language,
-      ));
-
-      if (empty($smartling_data)) {
-        $smartling_data = smartling_create_from_entity($entity, $entity_type, $d_locale_original, $target_language);
-      }
-
-      $processor = smartling_get_entity_processor($smartling_data);
-      $processor->sendToUploadQueue();
+      $queued_eids[] = drupal_container()->get('smartling.wrappers.entity_data_wrapper')
+        ->loadSingleByConditions(array('rid' => $id, 'entity_type' => $entity_type, 'target_language' => $target_language))
+        ->orCreateFromDrupalEntity($entity, $entity_type, $d_locale_original, $target_language)
+        ->setStatusByEvent(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE)
+        ->setSubmitter()
+        ->setSubmissionDate(REQUEST_TIME)
+        ->save()
+        ->getEID();
 
       $langs[] = $target_language;
-      $queued_eids[] = $smartling_data->eid;
     }
 
     $this->add($queued_eids);
@@ -112,6 +107,9 @@ class UploadQueueManager implements QueueManagerInterface {
    * @inheritdoc
    */
   public function execute($eids) {
+    if (!smartling_is_configured()) {
+      return;
+    }
     if (!is_array($eids)) {
       $eids = array($eids);
     }
@@ -120,64 +118,40 @@ class UploadQueueManager implements QueueManagerInterface {
     $target_locales    = array();
     $entity_data_array = array();
 
-    $rids = array(); $types = array();
+    $entity_data_wrapper = drupal_container()->get('smartling.wrappers.entity_data_wrapper');
     foreach($eids as $eid) {
-      $smartling_entity = entity_load_single('smartling_entity_data', $eid);
-      $target_locales[] = $smartling_entity->target_language;
-      $entity_data_array[] = $smartling_entity;
-
-      $rids []= $smartling_entity->rid;
-      $types []= $smartling_entity->entity_type;
+      $entity_data_wrapper->loadByID($eid);
+      $file_name = $entity_data_wrapper->getFileName();
+      $target_locales[$file_name][] = $entity_data_wrapper->getTargetLanguage();
+      $entity_data_array[$file_name][] = $entity_data_wrapper->getEntity();
     }
 
-    if (count(array_unique($rids)) > 1 || count(array_unique($types)) > 1) {
-      throw new \Exception('"eids" passed to the execute method point to different original entities.');
-    }
 
-    //$smartling_entity = entity_load_single('smartling_entity_data', $eid);
-
-    if (!$smartling_entity || !smartling_is_configured()) {
-      return;
-    }
-
-    $entity_type = $smartling_entity->entity_type;
-
-    $processor = smartling_get_entity_processor($smartling_entity);
-    $file_name = $processor->buildXmlFileName();
-    $xml = smartling_build_xml($processor, $smartling_entity->rid);
-    $success = FALSE;
-    if ($xml instanceof \DOMNode) {
-      $success = TRUE;
-      foreach ($entity_data_array as $entity) {
-        $success = (smartling_save_xml($xml, $entity, $file_name, FALSE))?$success:FALSE;
+    $api = drupal_container()->get('smartling.api_wrapper');
+    foreach ($entity_data_array as $file_name => $entity_array) {
+      $entity = reset($entity_array);
+      $processor = smartling_get_entity_processor($entity);
+      $xml = smartling_build_xml($processor, $$entity->rid);
+      if (!($xml instanceof \DOMNode)) {
+        continue;
       }
-    }
 
-    if ($success) {
-      $file_name_unic = $file_name;
-      $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($file_name), TRUE));
-
+      $event   = SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
+      $success = (bool) smartling_save_xml($file_name, $xml, $entity);
       // Init api object.
-      $api = drupal_container()->get('smartling.api_wrapper');
-      $result_status = $api->uploadFile($file_path, $file_name_unic, 'xml', $target_locales);
-
-      //$processor->setProgressStatus($result_status);
-      foreach ($entity_data_array as $entity) {
-        $proc = smartling_get_entity_processor($entity);
-        $proc->setProgressStatus($result_status);
+      if ($success) {
+        $file_path = drupal_realpath(smartling_get_dir($file_name), TRUE);
+        $event = $api->uploadFile($file_path, $file_name, 'xml', $target_locales[$file_name]);
       }
 
-      if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
-        if (module_exists('rules') && ($entity_type == 'node')) {
-          $node_event = node_load($smartling_entity->rid);
-          rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
+      foreach ($entity_array as $entity) {
+        $entity_data_wrapper->setEntity($entity)->setStatusByEvent($event)->save();
+
+        //@todo: refactor this code to be compatible with any entity_type
+        if (($event == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) && module_exists('rules') && ($entity_data_wrapper->getEntityType() == 'node')) {
+            $node_event = node_load($entity_data_wrapper->getRID());
+            rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
         }
-      }
-    }
-    //@todo We lost this functionality in OOP branch, but it was introduced in 2.x. Must be restored
-    else {
-      foreach ($entity_data_array as $entity) {
-        smartling_set_translation_status($entity, SMARTLING_STATUS_EVENT_FAILED_UPLOAD);
       }
     }
   }

@@ -62,13 +62,6 @@ class GenericEntityProcessor {
   protected $log;
 
   /**
-   * Contains drupal content entity id.
-   *
-   * @var string|int
-   */
-  protected $relatedId;
-
-  /**
    * @var string
    * @todo Rename suffix Language to Locale to make consistent with other properties
    */
@@ -85,13 +78,6 @@ class GenericEntityProcessor {
    * @var string
    */
   protected $drupalTargetLocale;
-
-  /**
-   * Contains locale in drupal format, e.g. 'en-US', 'ru-RU'.
-   *
-   * @var string
-   */
-  protected $smartlingTargetLocale;
 
   /**
    * Contains if drupal content bundle has "Entity translation" mode.
@@ -137,8 +123,6 @@ class GenericEntityProcessor {
     $this->entity = $entity;
     $this->drupalTargetLocale = $entity->target_language;
     $this->drupalOriginalLocale = $entity->original_language;
-    $this->smartlingTargetLocale = smartling_convert_locale_drupal_to_smartling($entity->target_language);
-    $this->relatedId = $entity->rid;
 
     $this->contentEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
     $this->drupalEntityType = $this->entity->entity_type;
@@ -170,52 +154,6 @@ class GenericEntityProcessor {
     }
     else {
       return FALSE;
-    }
-  }
-
-  /**
-   * Set translation status|progress to smartling data entity.
-   *
-   * @param $status
-   */
-  public function setProgressStatus($status) {
-    switch ($status) {
-      case SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE:
-        if (empty($this->entity->status) || ($this->entity->status == SMARTLING_STATUS_CHANGE)) {
-          $this->entity->status = SMARTLING_STATUS_IN_QUEUE;
-          $this->saveSmartlingEntity();
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE:
-        if ($this->entity->status != SMARTLING_STATUS_CHANGE) {
-          $this->entity->status = SMARTLING_STATUS_IN_TRANSLATE;
-          $this->saveSmartlingEntity();
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_DOWNLOAD_FROM_SERVICE:
-      case SMARTLING_STATUS_EVENT_UPDATE_FIELDS:
-        if ($this->entity->status != SMARTLING_STATUS_CHANGE) {
-          if ($this->entity->progress == 100) {
-            $this->entity->status = SMARTLING_STATUS_TRANSLATED;
-          }
-          $this->saveSmartlingEntity();
-        }
-        break;
-
-      case SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE:
-        $this->entity->status = SMARTLING_STATUS_CHANGE;
-        $this->saveSmartlingEntity();
-        break;
-
-      case SMARTLING_STATUS_EVENT_FAILED_UPLOAD:
-        $this->entity->status = SMARTLING_STATUS_FAILED;
-        $this->saveSmartlingEntity();
-        break;
-
-      default:
-        break;
     }
   }
 
@@ -270,21 +208,22 @@ class GenericEntityProcessor {
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);
 
-    // @todo Generating file name and saving on disk we need only for debugging purpose.
-    // Try to simplify code and move all logic into smartling_save_xml
-    // Also maybe use $file_name = $this->buildXmlFileName();
-    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
-    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
+    $translated_file_name = drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($this->entity)->getFileTranslatedName();
+//    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
+//    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccess = smartling_save_xml($xml, $this->entity, $translated_file_name, TRUE);
+    $isSuccess = smartling_save_xml($translated_file_name, $xml, $this->entity);
 
     // If result is saved.
     // @todo finish converting.
     if ($isSuccess) {
-      $this->setProgressStatus(SMARTLING_STATUS_EVENT_UPDATE_FIELDS);
-      $this->entity->progress = $progress;
-      smartling_entity_data_save($this->entity);
+      drupal_container()->get('smartling.wrappers.entity_data_wrapper')
+        ->setEntity($this->entity)
+        ->setStatusByEvent(SMARTLING_STATUS_EVENT_UPDATE_FIELDS)
+        ->setProgress($progress)
+        ->save();
+
       $isSuccess = $this->updateDrupalTranslation();
     }
 
@@ -433,17 +372,6 @@ class GenericEntityProcessor {
   }
 
   /**
-   * Build name for translations xml file.
-   *
-   * @todo move it to XML convertor class.
-   *
-   * @return string
-   */
-  public function buildXmlFileName() {
-    return strtolower(trim(preg_replace('#\W+#', '_', $this->contentEntityWrapper->label()), '_')) . '_' . $this->contentEntityWrapper->type() . '_' . $this->contentEntityWrapper->getIdentifier() . '.xml';
-  }
-
-  /**
    * Wrapper for Smartling settings storage.
    *
    * @todo avoid procedural code and inject storage to keep DI pattern.
@@ -453,14 +381,5 @@ class GenericEntityProcessor {
   public function getTranslatableFields() {
     // @todo Inject via DIC.
     return smartling_settings_get_handler()->getFieldsSettingsByBundle($this->entity->entity_type, $this->entity->bundle);
-  }
-
-  public function sendToUploadQueue() {
-    global $user;
-    $this->entity->translated_file_name = FALSE;
-    $this->entity->submitter = $user->uid;
-    $this->entity->submission_date = REQUEST_TIME;
-
-    $this->setProgressStatus(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE);
   }
 }
