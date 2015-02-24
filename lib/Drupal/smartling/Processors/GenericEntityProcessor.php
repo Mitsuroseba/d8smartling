@@ -158,13 +158,6 @@ class GenericEntityProcessor {
   }
 
   /**
-   * Wrapper for smartling data entity saving.
-   */
-  public function saveSmartlingEntity() {
-    smartling_entity_data_save($this->entity);
-  }
-
-  /**
    * Wrapper for drupal entity saving.
    *
    * @todo move this logic to original entity Proxy object.
