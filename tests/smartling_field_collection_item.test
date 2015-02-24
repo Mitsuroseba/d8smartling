@@ -5,7 +5,7 @@
  * Tests for smartling.
  */
 
-//require_once __DIR__ . '/../lib/Drupal/smartling/Alters/SmartlingContentImageUrlProcessor.php';
+require_once __DIR__ . '/../lib/Drupal/smartling/FieldProcessors/FieldCollectionFieldProcessor.php';
 use Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor;
 
 class FakeFieldProcessorFactory {
@@ -15,6 +15,8 @@ class FakeFieldProcessorFactory {
 }
 
 class MockedFieldCollectionFieldProcessor extends FieldCollectionFieldProcessor {
+    public $entity;
+
   public function __construct() {
     $this->sourceLanguage = 'en';
     $this->targetLanguage = 'nl';
@@ -48,6 +50,9 @@ class MockedFieldCollectionFieldProcessor extends FieldCollectionFieldProcessor 
 
   public function setSourceLanguage($lang) {
     $this->sourceLanguage = $lang;
+  }
+
+  public function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
   }
 }
 /**
@@ -89,7 +94,7 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
 
     $obj = new MockedFieldCollectionFieldProcessor();
     $test_res = $obj->getSmartlingContent();
-    $this->assertEqual($result, $test_res);
+    $this->assertEqual($result, $test_res, 'Get standard content');
   }
 
   public function testGetSmartlingContentEmpty() {
@@ -98,7 +103,7 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
     $obj = new MockedFieldCollectionFieldProcessor();
     $obj->setSourceLanguage('some');
     $test_res = $obj->getSmartlingContent();
-    $this->assertEqual($result, $test_res);
+    $this->assertEqual($result, $test_res, 'Get empty content');
   }
 
   public function testCleanBeforeCloneStandard() {
@@ -109,7 +114,7 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
     $obj = new MockedFieldCollectionFieldProcessor();
     $test_res = $obj->cleanBeforeClone($entity);
 
-    $this->assertEqual('asd', $test_res);
+    $this->assertEqual('asd', $test_res, 'testCleanBeforeCloneStandard');
   }
 
   public function testCleanBeforeCloneEmpty() {
@@ -119,21 +124,21 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
     $obj = new MockedFieldCollectionFieldProcessor();
     $test_res = $obj->cleanBeforeClone($entity);
 
-    $this->assertEqual('', $test_res);
+    $this->assertEqual('', $test_res, 'testCleanBeforeCloneEmpty');
   }
 
   public function testFetchDataFromXML() {
-    $result = array(60 => array('field_some2' => array('nsratnsort hrost hrisyt')),
-                    61 => array('field_some2' => array('rs tharst hrsytherst hroost')));
+    $result = array(0 => array('value' => 1));
 
     $xml = new \DOMDocument();
     $xml->load(dirname(__FILE__) . '/xml_sources/translated_field_collection1.xml');
     $xpath = new DomXpath($xml);
 
     $obj = new MockedFieldCollectionFieldProcessor();
+    $obj->entity->field_collection1['nl'] = $obj->entity->field_collection1['en'];
     $test_res = $obj->fetchDataFromXML($xpath);
 
-    $this->assertEqual($result, $test_res);
+    $this->assertEqual($result, $test_res, 'testFetchDataFromXML');
   }
 
   public function testFetchDataFromXMLEmpty() {
@@ -146,6 +151,6 @@ class SmartlingFieldCollectionItem extends \DrupalUnitTestCase {
     $obj = new MockedFieldCollectionFieldProcessor();
     $test_res = $obj->fetchDataFromXML($xpath);
 
-    $this->assertEqual($result, $test_res);
+    $this->assertEqual($result, $test_res, 'testFetchDataFromXMLEmpty');
   }
 }

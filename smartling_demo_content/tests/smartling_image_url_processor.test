@@ -51,7 +51,7 @@ class SmartlingContentImageUrlProcessorTest extends \DrupalUnitTestCase {
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
-    $this->assertEqual($result, $item);
+    $this->assertEqual($result, $item, 'Convert link');
   }
 
   /**
@@ -68,7 +68,7 @@ class SmartlingContentImageUrlProcessorTest extends \DrupalUnitTestCase {
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
-    $this->assertEqual($result, $item);
+    $this->assertEqual($result, $item, 'Convert link with WWW');
   }
 
   /**
@@ -88,7 +88,7 @@ class SmartlingContentImageUrlProcessorTest extends \DrupalUnitTestCase {
     $proc = new SmartlingContentImageUrlProcessor();
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
-    $this->assertEqual($result, $item);
+    $this->assertEqual($result, $item, 'Do not convert images');
   }
 
   /**
@@ -101,6 +101,6 @@ class SmartlingContentImageUrlProcessorTest extends \DrupalUnitTestCase {
 
     $proc->process($item, $this->context, 'en', 'field_body', $this->entity);
 
-    $this->assertEqual($result, $item);
+    $this->assertEqual($result, $item, 'Do not convert another domain');
   }
 }

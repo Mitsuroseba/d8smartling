@@ -94,6 +94,6 @@ class SmartlingContentImageUrlParserTest extends \DrupalUnitTestCase {
     $parse = new SmartlingContentImageUrlParser(array($proc));
     $content = $parse->parse($content, 'en', 'field_body', $this->entity);
 
-    $this->assertEqual($content, $content_res);
+    $this->assertEqual($content, $content_res, 'Test should convert links');
   }
 }
