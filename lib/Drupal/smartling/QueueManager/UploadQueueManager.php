@@ -131,7 +131,7 @@ class UploadQueueManager implements QueueManagerInterface {
     foreach ($entity_data_array as $file_name => $entity_array) {
       $entity = reset($entity_array);
       $processor = smartling_get_entity_processor($entity);
-      $xml = smartling_build_xml($processor, $$entity->rid);
+      $xml = smartling_build_xml($processor, $entity->rid);
       if (!($xml instanceof \DOMNode)) {
         continue;
       }

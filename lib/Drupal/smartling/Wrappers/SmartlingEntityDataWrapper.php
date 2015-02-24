@@ -17,7 +17,7 @@ class SmartlingEntityDataWrapper {
 
 
   protected function buildXmlFileName() {
-    return strtolower(trim(preg_replace('#\W+#', '_', $this->getTitle()), '_')) . '_' . $this->getEntityType() . '_' . $this->getID() . '.xml';
+    return strtolower(trim(preg_replace('#\W+#', '_', $this->getTitle()), '_')) . '_' . $this->getEntityType() . '_' . $this->getRID() . '.xml';
   }
 
 
@@ -33,7 +33,7 @@ class SmartlingEntityDataWrapper {
    * Initialize.
    */
   public function __construct() {
-    $this->entity = array(
+    $this->entity = (object) array(
       'rid' => '',
       'entity_type' => '',
       'bundle' => '',
@@ -51,7 +51,7 @@ class SmartlingEntityDataWrapper {
   }
 
   public function save() {
-    smartling_entity_data_save($this->getEntity());
+    smartling_entity_data_save($this->entity);
     return $this;
   }
 
