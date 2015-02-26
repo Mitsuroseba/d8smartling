@@ -46,7 +46,7 @@ class SmartlingBulkSubmitTest extends SmartlingWebTestCase {
     $this->drupalPost('admin/content/smartling-content', $edit, t('Translate'));
 
     $edit = array(
-      "languages[ru]" => 'ru',
+      "languages[nl]" => 'nl',
     );
     $this->drupalPost(NULL, $edit, t('Next'));
     $this->assertText(t('Performed Translate on 1 item.'));

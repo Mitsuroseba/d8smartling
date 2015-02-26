@@ -67,7 +67,7 @@ EOT;
     $node_translate_fields = smartling_settings_get_handler()->nodeGetFieldsSettings();
     $fields = $node_translate_fields['article'];
 
-    //$result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'ru', 'en', $fields, NULL, FALSE);
+    //$result = smartling_copy_translations_from_xml_to_fields('node', $xml, 1, 'nl', 'en', $fields, NULL, FALSE);
 
     if ($result) {
       // Asserts.
@@ -108,12 +108,12 @@ EOT;
       'status' => 1,
       'sticky' => 0,
       'revisions' => NULL,
-      'language' => 'ru',
+      'language' => 'nl',
     );
     $settings['body'][$settings['language']][0]['value'] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae arcu at leo cursus laoreet. Curabitur dui tortor, adipiscing malesuada tempor in, bibendum ac diam.';
     $this->drupalCreateNode('article', $settings);
     // Set node values.
-    $this->smartlingAddImageToField(1, 'field_image', 'ru');
+    $this->smartlingAddImageToField(1, 'field_image', 'nl');
 
     $xml_string = <<<EOT
 <?xml version = "1.0" encoding = "UTF-8"?>
@@ -136,8 +136,8 @@ EOT;
       $node_translated = node_load(1);
 
       $field_name = 'field_image';
-      $this->assertTrue((!empty($node_translated->{$field_name}['ru'][0]['title']) && ($node_translated->{$field_name}['ru'][0]['title'] != 'Title of image')), t('Field image contains translated content for sub-field title and language RU for @field_name field', array('@field_name' => $field_name)), t('Browser'));
-      $this->assertTrue((!empty($node_translated->{$field_name}['ru'][0]['alt']) && ($node_translated->{$field_name}['ru'][0]['alt'] != 'Alternate text of image')), t('Field image contains translated content for sub-field alt and language RU for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+      $this->assertTrue((!empty($node_translated->{$field_name}['nl'][0]['title']) && ($node_translated->{$field_name}['nl'][0]['title'] != 'Title of image')), t('Field image contains translated content for sub-field title and language NL for @field_name field', array('@field_name' => $field_name)), t('Browser'));
+      $this->assertTrue((!empty($node_translated->{$field_name}['nl'][0]['alt']) && ($node_translated->{$field_name}['nl'][0]['alt'] != 'Alternate text of image')), t('Field image contains translated content for sub-field alt and language NL for @field_name field', array('@field_name' => $field_name)), t('Browser'));
     }
     else {
       $message = t('Test failed');

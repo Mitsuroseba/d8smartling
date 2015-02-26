@@ -39,7 +39,7 @@ class SmartlingTranslateTermTest extends SmartlingWebTestCase {
     $this->smartlingSetTermFieldSettings('travel', 'name_property_field');
     $this->drupalGet('taxonomy/term/1');
     // Translate.
-    $this->smartlingUploadDownloadTerm(1, array('ru'));
+    $this->smartlingUploadDownloadTerm(1, array('nl'));
     $this->drupalGet('taxonomy/term/6');
 
     $original_term = taxonomy_term_load(1);
@@ -47,7 +47,7 @@ class SmartlingTranslateTermTest extends SmartlingWebTestCase {
 
     // Check.
     $this->assertTrue(($translate_term->i18n_tsid == 1), t('Translate i18n_tsid = 1'), t('Browser'));
-    $this->assertTrue(($original_term->name != $translate_term->name), t('Original name != translated name for RU'), t('Browser'));
+    $this->assertTrue(($original_term->name != $translate_term->name), t('Original name != translated name for NL'), t('Browser'));
   }
 
   /**
@@ -66,14 +66,14 @@ class SmartlingTranslateTermTest extends SmartlingWebTestCase {
     $this->smartlingSetTermFieldSettings('travel', 'name', TRUE);
     $this->drupalGet('taxonomy/term/1');
     // Translate.
-    $this->smartlingUploadDownloadTerm(1, array('ru'));
+    $this->smartlingUploadDownloadTerm(1, array('nl'));
 
 
     $original_term = entity_load('taxonomy_term', array(1), array(), TRUE);
     $original_term = $original_term[1];
 
     // Check.
-    $this->assertTrue(($original_term->name_field['en'][0]['value'] != $original_term->name_field['ru'][0]['value']), t('Original name != translated name for RU'), t('Browser'));
+    $this->assertTrue(($original_term->name_field['en'][0]['value'] != $original_term->name_field['nl'][0]['value']), t('Original name != translated name for NL'), t('Browser'));
   }
 
 }

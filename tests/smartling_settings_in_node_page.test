@@ -50,7 +50,7 @@ class SmartlingSettingsInNodePageTest extends SmartlingWebTestCase {
 
     // Check node.
     $edit = array(
-      "target[ru]" => 'ru',
+      "target[nl]" => 'nl',
     );
     $this->drupalGet('node/1/edit');
     $this->assertNoText(t('Please follow the page "Smartling settings" to setup Smartling configuration.'));

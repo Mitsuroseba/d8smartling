@@ -52,8 +52,8 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     // Authorizing user.
     $this->drupalLogin($this->privileged_user);
 
-    // Add predefined Russian language.
-    locale_add_language('ru');
+    // Add predefined Dutch language.
+    locale_add_language('nl');
   }
 
   /**
@@ -62,10 +62,10 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
   public function smartlingSetCorrectSettings() {
     // @todo remove hardcoded constants and try to avoid post request and use direct api.
     $edit = array(
-      "target_locales[ru]" => 'ru',
+      "target_locales[nl]" => 'nl',
       "project_id" => SMARTLING_TEST_PROJECT_ID,
       "smartling_key" => SMARTLING_TEST_KEY,
-      "target_locales_text_key_ru" => 'ru-RU',
+      "target_locales_text_key_nl" => 'nl-NL',
       "callback_url_use" => FALSE,
     );
     $this->drupalPost('admin/config/regional/smartling', $edit, t('Save'), array(), array(), 'smartling-admin-account-info-settings-form');
@@ -304,7 +304,7 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $this->smartlingSetFieldSettings($bundle, $field_name);
     $this->drupalGet('node/' . $nid);
     // Translate node.
-    $this->smartlingUploadDownloadNode($nid, array('ru'));
+    $this->smartlingUploadDownloadNode($nid, array('nl'));
     $this->drupalGet('node/' . $nid);
     // End Set Up.
   }

@@ -98,7 +98,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('node/1/edit', $node_array, t('Save'));
 
     // Send and download node.
-    $this->smartlingTranslateNode(1, array('ru'));
+    $this->smartlingTranslateNode(1, array('nl'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
@@ -218,11 +218,11 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
       'field_tags[und]' => drupal_implode_tags($terms),
     );
 
-    $options = array('query' => array('translation' => '1', 'target' => 'ru'));
+    $options = array('query' => array('translation' => '1', 'target' => 'nl'));
     $this->drupalPost('node/add/page', $node_tr_array, t('Save'), $options);
 
     $node_tr_array = array(
-      'body[und][0][value]' => 'Translated boby text ru',
+      'body[und][0][value]' => 'Translated boby text nl',
       'field_price[und][0][value]' => '321.00',
       'field_client_help_url[und][0][value]' => 'taranslated url',
     );
@@ -230,7 +230,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalPost('node/2/edit', $node_tr_array, t('Save'));
 
     // Send and download node.
-    $this->smartlingTranslateNode(1, array('ru'));
+    $this->smartlingTranslateNode(1, array('nl'));
 
     $this->drupalGet('node/1/edit');
     $this->drupalGet('node/2/edit');
@@ -246,7 +246,7 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
 
-    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text ru')), t('Body conteins translated value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text nl')), t('Body conteins translated value'), t('Browser'));
 
     // Equal client help url.
     $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];

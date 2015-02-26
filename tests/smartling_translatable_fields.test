@@ -43,7 +43,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $node->field_not_translatable_data[LANGUAGE_NONE][0]['value'] = 'Not translatable data field text';
     node_save($node);
     // Send and download node.
-    $this->smartlingTranslateNode($node->nid, array('ru'));
+    $this->smartlingTranslateNode($node->nid, array('nl'));
 
     // Asserts.
     $this->drupalGet('node/1/edit');
@@ -80,7 +80,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $node->field_not_translatable_data[LANGUAGE_NONE][0]['value'] = 'Not translatable data field text';
     node_save($node);
     // Send and download node.
-    $this->smartlingTranslateNode($node->nid, array('ru'));
+    $this->smartlingTranslateNode($node->nid, array('nl'));
 
     // Asserts.
     $this->drupalGet('node/1/edit');
@@ -90,9 +90,9 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
 
     $this->assertTrue((isset($node_original->field_translatable_data['en']) && (count($node_original->field_translatable_data) == 1)), t('Original node has only EN language for field_translatable_data field'), t('Browser'));
     $this->assertTrue((isset($node_original->field_not_translatable_data[LANGUAGE_NONE]) && (count($node_original->field_not_translatable_data) == 1)), t('Original node has only UND language for field_not_translatable_data field'), t('Browser'));
-    $this->assertTrue((isset($node_translated->field_translatable_data['en']) && isset($node_translated->field_translatable_data['ru'])), t('Translated node has 2 languages: EN and RU for field_translatable_data field'), t('Browser'));
+    $this->assertTrue((isset($node_translated->field_translatable_data['en']) && isset($node_translated->field_translatable_data['nl'])), t('Translated node has 2 languages: EN and NL for field_translatable_data field'), t('Browser'));
     $this->assertTrue((isset($node_translated->field_not_translatable_data[LANGUAGE_NONE]) && (count($node_translated->field_not_translatable_data) == 1)), t('Translated node has only UND language for field_not_translatable_data field'), t('Browser'));
-    $this->assertTrue(($node_translated->field_translatable_data['ru'][0]['value'] != 'Translatable data field text'), t('Translated node has translated content in RU for field_translatable_data field'), t('Browser'));
+    $this->assertTrue(($node_translated->field_translatable_data['nl'][0]['value'] != 'Translatable data field text'), t('Translated node has translated content in NL for field_translatable_data field'), t('Browser'));
     $this->assertTrue(($node_translated->field_not_translatable_data[LANGUAGE_NONE][0]['value'] == 'Not translatable data field text'), t('Translated node has original content for field_not_translatable_data'), t('Browser'));
   }
 
@@ -115,7 +115,7 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
     $node->field_not_translatable_data['en'][0]['value'] = 'Not translatable data field text';
     node_save($node);
     // Send and download node.
-    $this->smartlingTranslateNode($node->nid, array('ru'));
+    $this->smartlingTranslateNode($node->nid, array('nl'));
 
     // Asserts.
     $this->drupalGet('node/1/edit');
@@ -125,9 +125,9 @@ class SmartlingTranslatableFieldsTest extends SmartlingWebTestCase {
 
     $this->assertTrue((isset($node_original->field_translatable_data['en']) && (count($node_original->field_translatable_data) == 1)), t('Original node has only EN language for field_translatable_data field'), t('Browser'));
     $this->assertTrue((isset($node_original->field_not_translatable_data['en']) && (count($node_original->field_not_translatable_data) == 1)), t('Original node has only EN language for field_not_translatable_data field'), t('Browser'));
-    $this->assertTrue((isset($node_translated->field_translatable_data['en']) && isset($node_translated->field_translatable_data['ru'])), t('Translated node has 2 languages: EN and RU for field_translatable_data field'), t('Browser'));
+    $this->assertTrue((isset($node_translated->field_translatable_data['en']) && isset($node_translated->field_translatable_data['nl'])), t('Translated node has 2 languages: EN and NL for field_translatable_data field'), t('Browser'));
     $this->assertTrue((isset($node_translated->field_not_translatable_data['en']) && (count($node_translated->field_not_translatable_data) == 1)), t('Translated node has only EN language for field_not_translatable_data field'), t('Browser'));
-    $this->assertTrue(($node_translated->field_translatable_data['ru'][0]['value'] != 'Translatable data field text'), t('Translated node has translated content in RU for field_translatable_data field'), t('Browser'));
+    $this->assertTrue(($node_translated->field_translatable_data['nl'][0]['value'] != 'Translatable data field text'), t('Translated node has translated content in NL for field_translatable_data field'), t('Browser'));
     $this->assertTrue(($node_translated->field_not_translatable_data['en'][0]['value'] == 'Not translatable data field text'), t('Translated node has original content for field_not_translatable_data'), t('Browser'));
   }
 

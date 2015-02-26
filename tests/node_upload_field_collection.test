@@ -55,12 +55,12 @@ class SmartlingNodeUploadFieldCollectionTest extends SmartlingWebTestCase {
 //
 //    // Send node to smartling.
 //    $edit = array(
-//      "target[ru]" => 'ru',
+//      "target[nl]" => 'nl',
 //    );
 //    $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
 //    $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
 //      '@title' => 'Title test',
-//      '@langs' => 'ru',
+//      '@langs' => 'nl',
 //    )));
 //
 //    $queue = db_select('queue', 'q')
@@ -102,8 +102,8 @@ class SmartlingNodeUploadFieldCollectionTest extends SmartlingWebTestCase {
     // Set title field for article CT.
     //$this->smartlingSetFieldSettings('collection_test', 'title_property_field');
     $this->smartlingSetFieldSettings('collection_test', 'body');
-    smartling_settings_get_handler()->dbSync();
-    $smartling_data = smartling_create_from_entity($node, 'node', $node->language, 'ru');
+
+    $smartling_data = smartling_create_from_entity($node, 'node', $node->language, 'nl');
     smartling_queue_send_to_translate_process($smartling_data->eid);
 
     // @todo use API function for path building.
@@ -120,14 +120,14 @@ class SmartlingNodeUploadFieldCollectionTest extends SmartlingWebTestCase {
 
     smartling_queue_download_update_translated_item_process($smartling_data->eid);
 
-    $filename = DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_ru.xml';
+    $filename = DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_nl.xml';
     $this->assertTrue(file_exists($filename), $filename);
 
 
     drupal_static_reset('translation_node_get_translations');
     $translations = translation_node_get_translations(($node->tnid ?: $node->nid));
 
-    $this->assertTrue(isset($translations['ru']), print_r($translations, TRUE));
+    $this->assertTrue(isset($translations['nl']), print_r($translations, TRUE));
 
     // @todo verify that everything was translated properly
   }

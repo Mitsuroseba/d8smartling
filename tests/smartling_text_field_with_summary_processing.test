@@ -50,17 +50,16 @@ EOF;
     $xpath = new DomXpath($xml);
     $language_key = 'en';
     $original_entity = new stdClass();
-    //$new = smartling_body_with_summary_field_processing($node_wrapper, 'body', $xpath, $language_key, 'en', $original_entity);
+
+    $smartling_data = new \stdClass(); $smartling_data->fieldName = 'body';
+    $tmp = new \Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor($original_entity, 'node', 'body', $smartling_data, 'en', 'nl');
+    $new = $tmp->fetchDataFromXML($xpath);
 
     $expected_res = array(
-      'body' => array(
-        'en' => array(
-          0 => array(
-            'value' => 'sdfsdfsdfsa',
-            'format' => NULL,
-            'summary' => '',
-          ),
-        ),
+      0 => array(
+        'value' => 'sdfsdfsdfsa',
+        'format' => NULL,
+        'summary' => '',
       ),
     );
 

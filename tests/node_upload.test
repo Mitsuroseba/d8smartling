@@ -46,12 +46,12 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
 
     // Send node to smartling.
     $edit = array(
-      "target[ru]" => 'ru',
+      "target[nl]" => 'nl',
     );
     $this->drupalPost('node/1/edit', $edit, t('Send to Smartling'));
     $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
       '@title' => 'Title test',
-      '@langs' => 'ru',
+      '@langs' => 'nl',
     )));
 
     $queue = db_select('queue', 'q')
@@ -91,8 +91,8 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     // Set title field for article CT.
     $this->smartlingSetFieldSettings('page', 'title_property_field');
     $this->smartlingSetFieldSettings('page', 'body');
-    smartling_settings_get_handler()->dbSync();
-    $smartling_data = smartling_create_from_entity($node, 'node', $node->language, 'ru');
+
+    $smartling_data = smartling_create_from_entity($node, 'node', $node->language, 'nl');
     smartling_queue_send_to_translate_process($smartling_data->eid);
 
     // @todo use API function for path building.
@@ -109,13 +109,13 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
 
     smartling_queue_download_update_translated_item_process($smartling_data->eid);
 
-    $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_ru.xml'));
+    $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_nl.xml'));
 
 
     drupal_static_reset('translation_node_get_translations');
     $translations = translation_node_get_translations(($node->tnid ?: $node->nid));
 
-    $this->assertTrue(isset($translations['ru']));
+    $this->assertTrue(isset($translations['nl']));
 
     // @todo verify that everything was translated properly
   }

@@ -43,7 +43,7 @@ class SmartlingSettingsInNodePageFailsTest extends SmartlingWebTestCase {
 
     // Check message.
     $edit = array(
-      "target[ru]" => 'ru',
+      "target[nl]" => 'nl',
     );
     $this->drupalGet('node/1/edit');
     $this->assertText(t('Please follow the page "Smartling settings" to setup Smartling configuration.'));
