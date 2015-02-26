@@ -62,18 +62,18 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
     if ($this->supportedType($bundle)) {
       $fields_list = field_info_instances('node', $bundle);
       if (!isset($fields_list['title_field']) && smartling_fields_method($bundle)) {
-        $fields_list['title_field'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field');
+        $fields_list['title_property'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field');
       }
 
       if (!isset($fields_list['title_field']) && smartling_nodes_method($bundle)) {
         $fields_list['title_property_field'] = array('label' => t('Title'), 'field_name' => 'title_property_field');
       }
 
-      foreach ($fields_list as $field) {
+      foreach ($fields_list as $field_name => $field) {
         $field_label = $field['label'];
         $field_machine_name = $field['field_name'];
 
-        if ($this->fieldProcessorFactory->isSupportedField($field_machine_name)) {
+        if ($this->fieldProcessorFactory->isSupportedField($field_name)) {
           $form_fields[$field_machine_name] = array(
             '#type' => 'checkbox',
             '#title' => check_plain($field_label),
