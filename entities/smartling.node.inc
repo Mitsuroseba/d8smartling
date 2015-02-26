@@ -77,5 +77,6 @@ function smartling_get_node_settings_form(array $form, array &$form_state) {
  *   FAPI array.
  */
 function smartling_get_node_settings_form_submit(array $form, array &$form_state) {
-  return drupal_container()->get('smartling.forms.node_settings')->submitForm($form, $form_state);
+  drupal_container()->get('smartling.forms.node_settings')->submitForm($form, $form_state);
+  unset($_GET['destination']);
 }
