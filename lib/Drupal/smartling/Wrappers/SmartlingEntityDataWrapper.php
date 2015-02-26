@@ -59,7 +59,15 @@ class SmartlingEntityDataWrapper {
   }
 
   public function setEntity($entity) {
-    $this->entity = (object)((array)$entity + (array)$this->defaultEntity());
+    $this->entity = $entity;
+    if (!empty($entity)) {
+      //Adds default values to an entity, but doesn't loose a link to the $entity param
+      foreach($this->defaultEntity() as $k => $v) {
+        if (!isset($entity->{$k})) {
+          $this->entity->{$k} = $v;
+        }
+      }
+    }
     return $this;
   }
 
@@ -273,7 +281,7 @@ class SmartlingEntityDataWrapper {
   }
 
   public function orCreateFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options = array()) {
-    if ($this->getEntity()) {
+    if (!$this->getEntity()) {
       $this->createFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options);
     }
     return $this;
