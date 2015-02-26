@@ -73,7 +73,11 @@ EOF;
       '#title' => t('Content items'),
       //'#description' => t('What items would you like to translate?'),
       '#required' => TRUE,
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'smartling') . '/js/smartling_check_all.js'),
+      ),
     );
+    drupal_add_js(array('smartling' => array('checkAllId' => array('#edit-items', '#edit-languages' ))), 'setting');
 
     $form['smartling']['languages'] = array(
       '#type' => 'checkboxes',

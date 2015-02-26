@@ -29,7 +29,11 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       'actions' => array(
         '#type' => 'actions',
       ),
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'smartling') . '/js/smartling_check_all.js'),
+      ),
     );
+    drupal_add_js(array('smartling' => array('checkAllId' => array('#edit-target-locales'))), 'setting');
 
     $form['account_info']['title'] = array(
       '#type' => 'item',

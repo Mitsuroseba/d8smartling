@@ -61,7 +61,7 @@ class SmartlingEntityDataWrapper {
   public function setEntity($entity) {
     $this->entity = $entity;
     if (!empty($entity)) {
-      //Adds default values to an entity, but doesn't loose a link to the $entity param
+      //Adds default values to an entity, but doesn't loose a link to the $entity param (as objects are passed by link).
       foreach($this->defaultEntity() as $k => $v) {
         if (!isset($entity->{$k})) {
           $this->entity->{$k} = $v;
