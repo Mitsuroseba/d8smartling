@@ -27,13 +27,8 @@ class SmartlingEntityDataWrapper {
     return $file_name . '_' . $this->entity->target_language . '.xml';
   }
 
-
-
-  /**
-   * Initialize.
-   */
-  public function __construct() {
-    $this->entity = (object) array(
+  protected function defaultEntity() {
+    return (object) array(
       'rid' => '',
       'entity_type' => '',
       'bundle' => '',
@@ -50,13 +45,21 @@ class SmartlingEntityDataWrapper {
     );
   }
 
+
+  /**
+   * Initialize.
+   */
+  public function __construct() {
+    $this->entity = $this->defaultEntity();
+  }
+
   public function save() {
     smartling_entity_data_save($this->entity);
     return $this;
   }
 
   public function setEntity($entity) {
-    $this->entity = $entity;
+    $this->entity = (object)((array)$entity + (array)$this->defaultEntity());
     return $this;
   }
 
@@ -270,7 +273,7 @@ class SmartlingEntityDataWrapper {
   }
 
   public function orCreateFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options = array()) {
-    if (empty($this->getEntity())) {
+    if ($this->getEntity()) {
       $this->createFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options);
     }
     return $this;
