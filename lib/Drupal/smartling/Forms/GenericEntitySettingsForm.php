@@ -4,10 +4,12 @@ namespace Drupal\smartling\Forms;
 
 class GenericEntitySettingsForm implements FormInterface {
   protected $entity_name_translated;
+  protected $entity_key;
 
 
   public function __construct() {
     $this->entity_name_translated = t('Entity');
+    $this->entity_key = '#entity';
   }
 
   protected function getOriginalEntity($entity) {
@@ -75,7 +77,7 @@ class GenericEntitySettingsForm implements FormInterface {
 //      return array();
 //    }
 
-    $entity      = $this->getOriginalEntity($form['#entity']);
+    $entity      = $this->getOriginalEntity((object) $form[$this->entity_key]);
     $entity_type = $form['#entity_type'];
     $wrapper = entity_metadata_wrapper($entity_type, $entity);
     $bundle  = $wrapper->getBundle();
@@ -99,9 +101,11 @@ class GenericEntitySettingsForm implements FormInterface {
             'type' => 'file',
           ),
         ),
+        'js' => array(drupal_get_path('module', 'smartling') . '/js/smartling_check_all.js'),
       ),
       '#modal' => TRUE,
     );
+    drupal_add_js(array('smartling' => array('checkAllId' => array('#edit-target'))), 'setting');
 
     if (language_default('language') != field_valid_language(NULL, FALSE)) {
       //Otherwise if "title" module is enabled - it will spoil the title of the original node.
@@ -160,6 +164,6 @@ class GenericEntitySettingsForm implements FormInterface {
       return;
     }
 
-    return drupal_container()->get('smartling.queue_managers.upload')->addRawEntity($form['#entity_type'], $form['#entity'], $form_state['values']['target']);
+    return drupal_container()->get('smartling.queue_managers.upload')->addRawEntity($form['#entity_type'], $form[$this->entity_key], $form_state['values']['target']);
   }
 }

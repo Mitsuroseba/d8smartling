@@ -6,6 +6,7 @@ class CommentSettingsForm extends GenericEntitySettingsForm {
 
   public function __construct() {
     $this->entity_name_translated = t('Comment');
+    $this->entity_key = '#comment';
   }
 
   /**

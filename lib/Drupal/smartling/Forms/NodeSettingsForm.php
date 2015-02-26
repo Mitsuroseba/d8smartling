@@ -6,6 +6,7 @@ class NodeSettingsForm extends GenericEntitySettingsForm {
 
   public function __construct() {
     $this->entity_name_translated = t('Node');
+    $this->entity_key = '#entity';
   }
 
   /**

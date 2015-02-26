@@ -6,6 +6,7 @@ class UserSettingsForm extends GenericEntitySettingsForm {
 
   public function __construct() {
     $this->entity_name_translated = t('User');
+    $this->entity_key = '#user';
   }
 
   /**
