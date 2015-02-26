@@ -60,6 +60,8 @@ class TextSummaryFieldProcessor extends BaseFieldProcessor {
     // Field body-summary.
     $quantity = count($data);
     foreach ($data as $key => $value) {
+      $value['body'] = $this->filterInvalidCharacters($value['body']);
+      $value['summary'] = $this->filterInvalidCharacters($value['summary']);
       $string = $xml->createElement('string');
       $string_val = $xml->createTextNode($value['body']);
       $string_attr = $xml->createAttribute('id');

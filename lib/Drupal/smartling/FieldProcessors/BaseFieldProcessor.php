@@ -97,11 +97,17 @@ abstract class BaseFieldProcessor {
    */
   abstract public function fetchDataFromXML(\DomXpath $xpath);
 
+
+  public function filterInvalidCharacters($text) {
+    return preg_replace('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', "", $text);
+  }
+
   public function putDataToXML($xml, $localize, $data) {
     $quantity = count($data);
     $string = $xml->createElement('string');
     foreach ($data as $key => $value) {
       foreach ($value as $item_key => $item) {
+        $item = $this->filterInvalidCharacters($item);
         $string_val = $xml->createTextNode($item);
         $string_attr = $xml->createAttribute('id');
         $string_attr->value = $this->fieldName . '-' . $item_key . '-' . $key;
@@ -158,6 +164,7 @@ abstract class BaseFieldProcessor {
    * @return \DOMElement
    */
   protected function buildXMLString($xml, $field_name, $delta, $quantity, $value, $extra_attributes = array()) {
+    $value = $this->filterInvalidCharacters($value);
     $string = $xml->createElement('string', $value);
     $string->setAttribute('id', $field_name);
     $string->setAttribute('delta', $delta);

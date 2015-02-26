@@ -54,6 +54,7 @@ class LinkFieldProcessor extends BaseFieldProcessor {
     // Field text.
     $quantity = count($data);
     foreach ($data as $key => $value) {
+      $value['title'] = $this->filterInvalidCharacters($value['title']);
       $string = $xml->createElement('string');
       $string_val = $xml->createTextNode($value['title']);
       $string_attr = $xml->createAttribute('id');

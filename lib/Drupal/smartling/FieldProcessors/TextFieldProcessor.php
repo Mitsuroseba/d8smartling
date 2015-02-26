@@ -57,6 +57,7 @@ class TextFieldProcessor extends BaseFieldProcessor {
     // Field text.
     $quantity = count($data);
     foreach ($data as $key => $value) {
+      $value['value'] = $this->filterInvalidCharacters($value['value']);
       $string = $xml->createElement('string');
       $string_val = $xml->createTextNode($value['value']);
       $string_attr = $xml->createAttribute('id');
