@@ -13,94 +13,11 @@ class UploadQueueManager implements QueueManagerInterface {
    */
   public function add($eids) {
     if (empty($eids)) {
-      return;
+      return FALSE;
     }
     $smartling_queue = \DrupalQueue::get('smartling_upload');
     $smartling_queue->createQueue();
-    $smartling_queue->createItem($eids);
-  }
-
-  protected function getOriginalEntity($entity_type, $entity) {
-    switch ($entity_type) {
-      case 'node':
-        $entity = smartling_get_original_node($entity);
-        break;
-
-      case 'taxonomy_term':
-        $entity = smartling_get_original_taxonomy_term($entity);
-        break;
-    }
-    return $entity;
-  }
-
-  public function addRawEntity($entity_type, $entity, $languages) {
-    $log = smartling_log_get_handler();
-
-    $entity = $this->getOriginalEntity($entity_type, $entity);
-
-    if (empty($entity)) {
-      return;
-    }
-
-    $wrapper = entity_metadata_wrapper($entity_type, $entity);
-    $id      = $wrapper->getIdentifier();
-    $bundle  = $wrapper->getBundle();
-    $title   = $wrapper->label();
-    $link    = smartling_get_link_to_entity($entity_type, $entity);
-
-    if (!smartling_translate_fields_configured($bundle, $entity_type)) {
-      drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)), 'warning');
-      $log->setMessage("Type '@type' is not supported or it's not configured in Smartling.")
-        ->setVariables(array('@type' => $bundle))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link)
-        ->execute();
-
-      return;
-    }
-
-    // $d_locale_original = language_default()->language;
-    // $d_locale_original = $entity->translations->original;
-    $d_locale_original = entity_language($entity_type, $entity);
-    $queued_eids = array();
-    $langs = array();
-    foreach ($languages as $target_language) {
-      if ($target_language == $d_locale_original) {
-        continue;
-      }
-
-      $queued_eids[] = drupal_container()->get('smartling.wrappers.entity_data_wrapper')
-        ->loadSingleByConditions(array('rid' => $id, 'entity_type' => $entity_type, 'target_language' => $target_language))
-        ->orCreateFromDrupalEntity($entity, $entity_type, $d_locale_original, $target_language)
-        ->setStatusByEvent(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE)
-        ->setSubmitter()
-        ->setSubmissionDate(REQUEST_TIME)
-        ->save()
-        ->getEID();
-
-      $langs[] = $target_language;
-    }
-
-    $this->add($queued_eids);
-    // Create content hash (Fake entity update).
-    smartling_entity_update($entity, $entity_type);
-
-    $langs = implode(', ', $langs);
-    $log->setMessage('Add smartling queue task for entity id - @id, locale - @locale, type - @entity_type')
-      ->setVariables(array(
-        '@id' => $id,
-        '@locale' => $langs,
-        '@entity_type' => $entity_type,
-      ))
-      ->setLink($link)
-      ->execute();
-
-    drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
-      '@entity_type' => $entity_type,
-      '@title' => $title,
-      '@langs' => $langs,
-    )));
+    return $smartling_queue->createItem($eids);
   }
 
   /**

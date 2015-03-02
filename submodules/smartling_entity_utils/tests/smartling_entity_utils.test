@@ -10,6 +10,11 @@
  */
 class SmartlingUtilsTest extends DrupalWebTestCase {
 
+  public function setUp() {
+    // Enable Smartling modules.
+    parent::setUp('smartling', 'smartling_entity_utils');
+  }
+
   /**
    * Test info.
    *

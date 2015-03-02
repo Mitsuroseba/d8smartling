@@ -75,10 +75,21 @@ services:
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
 
+  smartling.queue_managers.upload_router:
+    class:              Drupal\smartling\QueueManager\UploadRouter
+    arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log]
 
 
   smartling.wrappers.entity_data_wrapper:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapper
+
+  smartling.wrappers.entity_api_wrapper:
+    class:              Drupal\smartling\Wrappers\EntityAPIWrapper
+
+  smartling.wrappers.entity_data_wrapper_collection:
+    class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapperCollection
+    arguments:          [@smartling.wrappers.entity_data_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper]
+
 
 parameters:
   entity_processors:

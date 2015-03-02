@@ -126,7 +126,7 @@ EOF;
       $id = (int) $v[0];
       $entity_type = $v[1];
       $entity = entity_load_single($entity_type, $id);
-      drupal_container()->get('smartling.queue_managers.upload')->addRawEntity($entity_type, $entity, $langs);
+      drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($entity_type, $entity, $langs);
     }
 
     $commands[] = ajax_command_replace('#translation_result', '<div id="translation_result" class="success">' . t('Selected entities have successfully been enqueued for upload for translation.') . '</div>');

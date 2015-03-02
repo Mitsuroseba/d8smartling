@@ -1,8 +1,21 @@
 <?php
 
+function smartling_translate_page_popup_boot() {
+
+}
+/**
+ * Implements hook_flush_caches().
+ */
+function smartling_translate_page_popup_flush_caches() {
+//  $loader = drupal_classloader();
+//  $loader->registerNamespace('Drupal\smartling_translate_page_popup\Forms', __DIR__ . '/lib');
+  drupal_classloader_register('Drupal\smartling_translate_page_popup\Forms', __DIR__ . '/lib');
+}
+
 function smartling_translate_page_popup_init() {
-  $loader = drupal_classloader();
-  $loader->registerNamespace('Drupal\smartling_translate_page_popup\Forms', __DIR__ . '/lib');
+  //$loader = drupal_classloader();
+  //$loader->registerNamespace('Drupal\smartling_translate_page_popup\Forms', __DIR__ . '/lib');
+  drupal_classloader_register('Drupal\smartling_translate_page_popup\Forms', __DIR__ . '/lib');
 
 }
 
