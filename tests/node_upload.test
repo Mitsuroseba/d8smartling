@@ -103,14 +103,15 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     if (file_exists($translation_file_path)) {
       $translation_file = file_get_contents($translation_file_path);
       $assertion_file = file_get_contents(__DIR__ . '/xml_sources/node_upload__upload.xml');
-      $this->assertEqual($translation_file, $assertion_file);
+      $this->assertEqual(trim($translation_file), trim($assertion_file));
     }
     // @todo validate xml structure and content.
 
     smartling_queue_download_update_translated_item_process($smartling_data->eid);
 
+    //$smartling_data = smartling_entity_data_load($smartling_data->eid);
+    //$this->assertEqual($this->private_files_directory, $smartling_data->translated_file_name . '   ||   ' . $smartling_data->file_name);
     $this->assertTrue(file_exists(DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_nl.xml'));
-
 
     drupal_static_reset('translation_node_get_translations');
     $translations = translation_node_get_translations(($node->tnid ?: $node->nid));

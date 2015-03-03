@@ -7,6 +7,7 @@
 
 /**
  * Worker callback defined in hook_cron_queue_info().
+ * @todo: rename the function. "download-update" (we download or update?)
  */
 function smartling_queue_download_update_translated_item_process($eid) {
   $status = drupal_container()->get('smartling.queue_managers.download')->execute($eid);

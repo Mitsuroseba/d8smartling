@@ -288,7 +288,7 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
           // @todo remove hardcoded link. We have function linkToContent()
           ->setLink(l(t('Edit node'), 'node/' . $entity_wrapper->getIdentifier() . '/edit'))
           ->execute();
-        drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)));
+        drupal_set_message(t('You did not send this entity to translate or that the task is in queue. Language - @language', array('@language' => $d_locale)), 'error');
         return;
       }
 

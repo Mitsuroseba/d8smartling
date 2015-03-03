@@ -46,6 +46,15 @@ class UploadRouter {
     }
     else {
       $this->upload_manager->execute($this->entity_wrapper_collection->getIDs());
+
+      $collection = $this->entity_wrapper_collection->getCollection();
+      $smartling_wrapper = reset($collection);
+
+      drupal_set_message(t('The @entity_type "@title" has been sent to Smartling for translation to "@langs".', array(
+        '@entity_type' => $entity_type,
+        '@title' => $smartling_wrapper->getTitle(),
+        '@langs' => implode(', ', $languages),
+      )));
     }
   }
 

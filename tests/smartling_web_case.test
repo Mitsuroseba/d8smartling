@@ -450,34 +450,38 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
     $node = node_load($nid);
     if ($node) {
       // Send node to smartling.
+      $convert_array = array();
       foreach ($langs as $lang) {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
       }
+      $edit['async_mode'] = FALSE;
 
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
         '@langs' => implode(', ', $convert_array),
       )));
 
       // Run cron.
-      $cron = FALSE;
-      while (!$cron) {
-        $cron = drupal_cron_run();
-        if (!$cron) {
-          db_delete('semaphore')
-            ->condition('name', 'cron')
-            ->execute();
-        }
-      }
+//      $param = ctools_export_ui_load('queue_smartling_upload', 'ultimate_cron_job_ctools_export_ui');
+//      ctools_export_ui_switcher_page('ultimate_cron_job_ctools_export_ui', 'run', $param);
+//      $cron = FALSE;
+//      while (!$cron) {
+//        $cron = drupal_cron_run();
+//        if (!$cron) {
+//          db_delete('semaphore')
+//            ->condition('name', 'cron')
+//            ->execute();
+//        }
+//      }
 
       if ($download) {
         // Go to smartling-submissions and download.
-        $this->drupalGet('admin/content/smartling-submissions');
-        $this->clickLink('Download');
+        $this->drupalPost('node/' . $nid . '/edit', $edit, t('Download Translation'));
+
         foreach ($convert_array as $d_locale) {
-          $this->assertText(t('Downloaded for language translation @locale', array('@locale' => $d_locale)));
+          $this->assertText(t('The translation was successfully downloaded.'));
         }
       }
     }
@@ -505,21 +509,24 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
       }
+      $edit['async_mode'] = FALSE;
 
       $this->drupalPost('node/' . $nid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The node "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The node "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $node->title,
         '@langs' => implode(', ', $convert_array),
       )));
 
       // Run cron.
-      $cron = FALSE;
-      while (!$cron) {
-        $cron = drupal_cron_run();
-        if (!$cron) {
-          sleep(10);
-        }
-      }
+//      $cron = FALSE;
+//      while (!$cron) {
+//        $cron = drupal_cron_run();
+//        if (!$cron) {
+//          sleep(10);
+//        }
+//      }
+//      $param = ctools_export_ui_load('queue_smartling_upload', 'ultimate_cron_job_ctools_export_ui');
+//      ctools_export_ui_switcher_page('ultimate_cron_job_ctools_export_ui', 'run', $param);
     }
 
     if ($download) {
@@ -558,23 +565,26 @@ class SmartlingWebTestCase extends DrupalWebTestCase {
         $edit['target[' . $lang . ']'] = $lang;
         $convert_array[] = $lang;
       }
+      $edit['async_mode'] = FALSE;
 
       $this->drupalPost('taxonomy/term/' . $tid . '/edit', $edit, t('Send to Smartling'));
-      $this->assertText(t('The term "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
+      $this->assertText(t('The term "@title" has been sent to Smartling for translation to "@langs".', array(
         '@title' => $term->name,
         '@langs' => implode(', ', $convert_array),
       )));
 
-      // Run cron.
-      $cron = FALSE;
-      while (!$cron) {
-        $cron = drupal_cron_run();
-        if (!$cron) {
-          db_delete('semaphore')
-              ->condition('name', 'cron')
-              ->execute();
-        }
-      }
+//      // Run cron.
+//      $cron = FALSE;
+//      while (!$cron) {
+//        $cron = drupal_cron_run();
+//        if (!$cron) {
+//          db_delete('semaphore')
+//              ->condition('name', 'cron')
+//              ->execute();
+//        }
+//      }
+      //$param = ctools_export_ui_load('queue_smartling_upload', 'ultimate_cron_job_ctools_export_ui');
+      //ctools_export_ui_switcher_page('ultimate_cron_job_ctools_export_ui', 'run', $param);
     }
 
     if ($download) {

@@ -110,29 +110,29 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
 
     $translated_value = $translated_node->title;
     $original_value = $original_node->title;
-    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Title conteins translated value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Title contains translated value'), t('Browser'));
 
     $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->body[LANGUAGE_NONE][0]['value'];
-    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body conteins translated value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value != $original_value)), t('Body contains translated value'), t('Browser'));
 
     // Equal client help url.
     $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
-    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_client_help_url conteins original value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_client_help_url contains original value'), t('Browser'));
 
     // Equal tags.
     $translated_value = $translated_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $original_value = $original_node->field_tags[LANGUAGE_NONE][0]['tid'];
     $this->assertEqual($original_value, $translated_value);
-    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_tags conteins original value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_tags contains original value'), t('Browser'));
 
     // Equal price.
     $translated_value = $translated_node->field_price[LANGUAGE_NONE][0]['value'];
     $original_value = $original_node->field_price[LANGUAGE_NONE][0]['value'];
     $this->assertEqual($original_value, $translated_value);
-    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_price conteins original value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value == $original_value)), t('field_price contains original value'), t('Browser'));
   }
 
   /**
@@ -242,11 +242,11 @@ class SmartlingCopyFieldsTest extends SmartlingWebTestCase {
     $this->drupalGet('node/2/translate');
 
     $translated_value = $translated_node->title;
-    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated title test')), t('Title conteins translated value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated title test')), t('Title contains translated value'), t('Browser'));
 
     $translated_value = $translated_node->body[LANGUAGE_NONE][0]['value'];
 
-    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text nl')), t('Body conteins translated value'), t('Browser'));
+    $this->assertTrue((!empty($translated_value) && ($translated_value != 'Translated boby text nl')), t('Body contains translated value'), t('Browser'));
 
     // Equal client help url.
     $translated_value = $translated_node->field_client_help_url[LANGUAGE_NONE][0]['value'];
