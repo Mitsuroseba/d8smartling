@@ -4,6 +4,9 @@
         attach: function (context, settings) {
             //alert(settings.smartling.checkAllId);
             for (var i=0; i < settings.smartling.checkAllId.length; ++i) {
+                if ($('#smartling-check-all-' + i).length) {
+                    continue;
+                }
                 //alert(settings.smartling.checkAllId[i]);
                 $(settings.smartling.checkAllId[i]).prepend( "<a href='#' id='smartling-check-all-" + i + "'>Check/uncheck all</p>" );
 

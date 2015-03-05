@@ -60,13 +60,16 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
     $node_translate_fields = $this->settings->nodeGetFieldsSettings();
 
     if ($this->supportedType($bundle)) {
+      $is_title_replaced = FALSE;
       $fields_list = field_info_instances('node', $bundle);
       if (!isset($fields_list['title_field']) && smartling_fields_method($bundle)) {
         $fields_list['title_property'] = array('label' => t('Title (Note: field will be created.)'), 'field_name' => 'title_field');
+        $is_title_replaced = TRUE;
       }
 
       if (!isset($fields_list['title_field']) && smartling_nodes_method($bundle)) {
         $fields_list['title_property_field'] = array('label' => t('Title'), 'field_name' => 'title_property_field');
+        $is_title_replaced = TRUE;
       }
 
       foreach ($fields_list as $field_name => $field) {
@@ -93,7 +96,7 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
         }
       }
 
-      if (isset($form_fields['title_field']) && smartling_fields_method($bundle)) {
+      if ($is_title_replaced && isset($form_fields['title_field']) && smartling_fields_method($bundle)) {
         $form_fields['title_field']['#attributes']['name'] = 'title_swap_' . $bundle;
       }
     }
