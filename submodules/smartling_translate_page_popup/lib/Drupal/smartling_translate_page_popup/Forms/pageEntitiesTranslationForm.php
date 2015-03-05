@@ -117,7 +117,7 @@ EOF;
       return array('#type' => 'ajax', '#commands' => $commands);
     }
 
-    $langs = $form_state['input']['languages'];
+    $langs = array_filter($form_state['input']['languages']);
     foreach($form_state['input']['items'] as $v ) {
       if (empty($v)) {
         continue;
