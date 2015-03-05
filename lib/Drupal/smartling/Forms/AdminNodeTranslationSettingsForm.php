@@ -200,8 +200,12 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
         // Update the field via the Field API (Instead of the direct db_update).
         if (smartling_fields_method($content_type)) {
           $field = field_info_field($content_field);
-          $field['translatable'] = 1;
-          field_update_field($field);
+          if (!$field['translatable']) {
+            $field['translatable'] = 1;
+            field_update_field($field);
+            drupal_set_message(t('You have enabled "by fields" translation. If you have existing content on the site, please enable @link module and prepare your content for translation. It is desirable to make a DB backup beforehand.',
+              array('@link' => l('"Smartling content utils"', 'admin/config/regional/smartling/prepare_node_for_translation'))), 'warning');
+          }
         }
       }
       // END:  Selected Content Types and Fields.

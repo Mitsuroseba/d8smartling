@@ -122,13 +122,6 @@ class GenericEntitySettingsForm implements FormInterface {
 
     $form['smartling']['content']['target'] = $this->targetLangFormElem($id, $entity_type, $entity, $form['language']['#default_value']);
 
-    $form['smartling']['async_mode'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Async mode'),
-      '#description' => t('Add this item to queue if checked, or upload it immediately otherwise.'),
-      '#default_value' => 1,
-    );
-
     $form['smartling']['submit_to_translate'] = array(
       '#type' => 'submit',
       '#value' => 'Send to Smartling',
@@ -172,7 +165,7 @@ class GenericEntitySettingsForm implements FormInterface {
     }
 
     $upload_manager = drupal_container()->get('smartling.queue_managers.upload_router');
-    $eids = $upload_manager->routeUploadRequest($form['#entity_type'], $form[$this->entity_key], $form_state['values']['target'], $form_state['values']['async_mode']);
+    $eids = $upload_manager->routeUploadRequest($form['#entity_type'], $form[$this->entity_key], $form_state['values']['target']);
     return $eids;
   }
 }

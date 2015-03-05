@@ -30,7 +30,7 @@ function smartling_language_neutral_form_element() {
   $form['smartling']['content']['lang'] = array(
     '#type' => 'item',
     '#title' => '',
-    '#markup' => t('This entity is as to be Language Neutral.'),
+    '#markup' => t('This entity is in the Neutral Language so it can\'t be translated right now. Please convert it into some language (for example english) in order to turn on such possibility.'),
   );
   return $form;
 }

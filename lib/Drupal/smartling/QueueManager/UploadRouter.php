@@ -11,14 +11,18 @@ class UploadRouter {
   protected $entity_wrapper_collection;
   protected $upload_manager;
   protected $log;
+  protected $settings;
 
-  public function __construct($entity_wrapper_collection, $upload_manager, $log) {
+  public function __construct($entity_wrapper_collection, $upload_manager, $log, $settings) {
     $this->entity_wrapper_collection = $entity_wrapper_collection;
     $this->upload_manager = $upload_manager;
     $this->log = $log;
+    $this->settings = $settings;
   }
 
-  public function routeUploadRequest($entity_type, $entity, $languages, $async_mode = TRUE) {
+  public function routeUploadRequest($entity_type, $entity, $languages, $async_mode = NULL) {
+    $async_mode = (is_null($async_mode)) ? $this->settings->getAsyncMode() : $async_mode;
+
     $this->entity_wrapper_collection->createForLanguages($entity_type, $entity, $languages);
     if ($async_mode) {
       $this->upload_manager->add($this->entity_wrapper_collection->getIDs());

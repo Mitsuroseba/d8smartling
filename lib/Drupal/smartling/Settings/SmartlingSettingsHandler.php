@@ -708,4 +708,23 @@ class SmartlingSettingsHandler {
   public function getCallbackUrl() {
     return $this->callbackUrl;
   }
+
+  /**
+   * Set async mode.
+   *
+   * @param int $async_mode
+   *   State of the asynchronous mode.
+   */
+  public function setAsyncMode($async_mode) {
+    $this->variableSet('smartling_async_mode', (int) $async_mode);
+  }
+
+  /**
+   * Get async mode.
+   *
+   * @return int
+   */
+  public function getAsyncMode() {
+    return $this->variableGet('smartling_async_mode', 1);
+  }
 }

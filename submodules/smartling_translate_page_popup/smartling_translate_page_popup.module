@@ -23,7 +23,7 @@ function smartling_translate_page_popup_init() {
  * Implements hook_entity_load().
  */
 function smartling_translate_page_popup_entity_load($entities, $type) {
-  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE))) {
+  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE)) || path_is_admin(current_path())) {
     return;
   }
 
@@ -45,7 +45,7 @@ function smartling_translate_page_popup_entity_load($entities, $type) {
 }
 
 function smartling_translate_page_popup_page_alter(&$page) {
-  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE))) {
+  if (!user_access('administer smartling') || (language_default('language') != field_valid_language(NULL, FALSE)) || path_is_admin(current_path())) {
     return;
   }
 
