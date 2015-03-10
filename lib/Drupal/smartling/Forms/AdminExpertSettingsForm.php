@@ -2,7 +2,7 @@
 
 namespace Drupal\smartling\Forms;
 
-class AdminLogInfoSettingsForm implements FormInterface {
+class AdminExpertSettingsForm implements FormInterface {
 
   protected $settings;
   protected $logger;
@@ -16,7 +16,7 @@ class AdminLogInfoSettingsForm implements FormInterface {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'smartling_admin_log_info_settings_form';
+    return 'smartling_expert_info_settings_form';
   }
 
   /**
@@ -33,12 +33,19 @@ class AdminLogInfoSettingsForm implements FormInterface {
       '#description' => t('Log ON dy default.'),
     );
 
+    $form['log_info']['async_mode'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Asynchronous mode'),
+      '#description' => t('If you uncheck this, the Smartling Connector will attempt to submit content immediately to Smartling servers.'),
+      '#default_value' => $settings->getAsyncMode(),
+    );
+
     $form['log_info']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save'),
     );
 
-    $form['#submit'][] = 'smartling_admin_log_info_settings_form_submit';
+    $form['#submit'][] = 'smartling_admin_expert_settings_form_submit';
 
     return $form;
   }
@@ -67,6 +74,9 @@ class AdminLogInfoSettingsForm implements FormInterface {
       }
       $this->settings->setLogMode($form_state['values']['log_mode']);
     }
-    drupal_goto(current_path(), array('fragment' => 'smartling-smartling-log'));
+
+    $this->settings->setAsyncMode($form_state['values']['async_mode']);
+
+    drupal_goto(current_path(), array('fragment' => 'smartling-expert-settings'));
   }
 }

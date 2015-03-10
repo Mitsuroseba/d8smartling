@@ -77,13 +77,6 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       '#description' => t('Param for download translate.'),
     );
 
-    $form['account_info']['async_mode'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Asynchronous mode'),
-      '#description' => t('If you uncheck this, the Smartling Connector will attempt to submit content immediately to Smartling servers.'),
-      '#default_value' => $settings->getAsyncMode(),
-    );
-
 
     $target_language_options_list = $settings->getTargetLanguageOptionsList();
     if (!empty($target_language_options_list)) {
@@ -270,8 +263,6 @@ class AdminAccountInfoSettingsForm implements FormInterface {
     // Target locales.
     $settings->makeTargetLocales($form_state['values']['target_locales']);
     $settings->makeLocalesConvertArray($form_state['values']);
-
-    $settings->setAsyncMode($form_state['values']['async_mode']);
 
     // Callback.
     if (isset($form_state['values']['callback_url_use'])) {

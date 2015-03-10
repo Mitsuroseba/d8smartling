@@ -44,8 +44,8 @@ services:
     class:              Drupal\smartling\Forms\AdminAccountInfoSettingsForm
     arguments:          [@smartling.settings, @smartling.api_wrapper]
 
-  smartling.forms.admin_log_info_settings:
-    class:              Drupal\smartling\Forms\AdminLogInfoSettingsForm
+  smartling.forms.admin_expert_settings:
+    class:              Drupal\smartling\Forms\AdminExpertSettingsForm
     arguments:          [@smartling.settings, @smartling.log]
 
 

@@ -136,8 +136,8 @@ function smartling_admin_account_info_settings_form_submit(array $form, array &$
  * @return array
  *   Return FAPI array for smartling log settings.
  */
-function smartling_admin_log_info_settings_form(array $form, array &$form_state) {
-  return drupal_container()->get('smartling.forms.admin_log_info_settings')->buildForm($form, $form_state);
+function smartling_admin_expert_settings_form(array $form, array &$form_state) {
+  return drupal_container()->get('smartling.forms.admin_expert_settings')->buildForm($form, $form_state);
 }
 
 /**
@@ -148,8 +148,8 @@ function smartling_admin_log_info_settings_form(array $form, array &$form_state)
  * @param array $form_state
  *   FAPI array.
  */
-function smartling_admin_log_info_settings_form_submit(array $form, array &$form_state) {
-  return drupal_container()->get('smartling.forms.admin_log_info_settings')->submitForm($form, $form_state);
+function smartling_admin_expert_settings_form_submit(array $form, array &$form_state) {
+  return drupal_container()->get('smartling.forms.admin_expert_settings')->submitForm($form, $form_state);
 }
 
 /**
