@@ -288,6 +288,14 @@ function smartling_requirements($phase) {
   $requirements = array();
   $t = get_t();
 
+  if (!function_exists('curl_init')) {
+    $requirements['smartling']['title'] = $t('Smartling needs CURL library');
+    $requirements['smartling']['description'] = $t('Smartling needs CURL library to be installed on your server in order to communicate with Smartling services.');
+    $requirements['smartling']['severity'] = REQUIREMENT_ERROR;
+    $requirements['smartling']['value'] = $t('Please configure the CURL for Smartling.');
+    return $requirements;
+  }
+
   if ($phase == 'update') {
     $module_list = array();
     $module_names = array('i18n_taxonomy', 'i18n_field', 'entity_translation');
