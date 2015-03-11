@@ -27,6 +27,8 @@ define('SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE', 'check_status_in_node_entity
 define('SMARTLING_PRODUCTION_MODE', 'PRODUCTION');
 define('SMARTLING_DEFAULT_API_URL', 'https://capi.smartling.com/v1');
 
+define('SMARTLING_CRON_RUN_INTERVAL', 3*60*60);
+
 include_once 'smartling.utils.inc';
 include_once 'smartling_vbo_actions.inc';
 include_once 'includes/smartling.workers.inc';
@@ -315,6 +317,13 @@ function smartling_views_api() {
  * Implements hook_cron().
  */
 function smartling_cron() {
+  $settings = smartling_settings_get_handler();
+  $cron_last = $settings->getCheckStatusCronLast();
+  if ( $cron_last + SMARTLING_CRON_RUN_INTERVAL > time()) {
+    return;
+  }
+  $settings->setCheckStatusCronLast(time());
+
   $query = new EntityFieldQuery();
   $entities = $query->entityCondition('entity_type', 'smartling_entity_data')
     ->propertyCondition('progress', 100, '<>')

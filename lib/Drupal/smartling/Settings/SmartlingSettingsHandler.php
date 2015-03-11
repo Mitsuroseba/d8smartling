@@ -727,4 +727,22 @@ class SmartlingSettingsHandler {
   public function getAsyncMode() {
     return $this->variableGet('smartling_async_mode', 1);
   }
+
+  /**
+   * Set last cron run time.
+   *
+   * @param int $check_status_cron_last
+   */
+  public function setCheckStatusCronLast($check_status_cron_last) {
+    $this->variableSet('smartling_check_status_cron_last', (int) $check_status_cron_last);
+  }
+
+  /**
+   * Get last cron run time.
+   *
+   * @return int
+   */
+  public function getCheckStatusCronLast() {
+    return $this->variableGet('smartling_check_status_cron_last', 0);
+  }
 }
