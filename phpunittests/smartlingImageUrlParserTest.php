@@ -53,7 +53,7 @@ class MockedSmartlingContentImageUrlProcessor implements SmartlingContentProcess
 /**
  * SmartlingContentImageUrlParserTest.
  */
-class SmartlingContentImageUrlParserTest extends \DrupalUnitTestCase {
+class SmartlingContentImageUrlParserTest extends \PHPUnit_Framework_TestCase {
   protected $context;
   protected $entity;
 
@@ -77,7 +77,7 @@ class SmartlingContentImageUrlParserTest extends \DrupalUnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->entity = new stdClass();
+    $this->entity = new \stdClass();
   }
 
   /**
@@ -94,6 +94,6 @@ class SmartlingContentImageUrlParserTest extends \DrupalUnitTestCase {
     $parse = new SmartlingContentImageUrlParser(array($proc));
     $content = $parse->parse($content, 'en', 'field_body', $this->entity);
 
-    $this->assertEqual($content, $content_res, 'Test should convert links');
+    $this->assertEquals($content, $content_res, 'Test should convert links');
   }
 }
