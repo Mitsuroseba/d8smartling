@@ -1,8 +1,0 @@
-name = Smartling field collection demo content
-description = Posts a demo content for field colection
-core = 7.x
-package = smartling
-project = smartling_field_collection_content_demo
-dependencies[] = smartling_demo_content
-dependencies[] = field_collection
-
