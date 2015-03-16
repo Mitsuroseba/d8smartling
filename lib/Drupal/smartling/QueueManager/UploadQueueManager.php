@@ -30,6 +30,7 @@ class UploadQueueManager implements QueueManagerInterface {
     if (!is_array($eids)) {
       $eids = array($eids);
     }
+    $eids = array_unique($eids);
 
     $smartling_entity  = NULL;
     $target_locales    = array();

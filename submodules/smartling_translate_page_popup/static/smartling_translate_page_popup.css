@@ -4,6 +4,7 @@
     right: 0px;
     position: fixed;
     width: 600px;
+    z-index: 1000;
 }
 
 #smartling_translate_popup .helper_button {

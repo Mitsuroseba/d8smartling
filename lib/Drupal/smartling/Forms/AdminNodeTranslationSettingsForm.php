@@ -206,8 +206,8 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
           if (!$field['translatable']) {
             $field['translatable'] = 1;
             field_update_field($field);
-            drupal_set_message(t('You have enabled "by fields" translation. If you have existing content on the site, please enable @link module and prepare your content for translation. It is desirable to make a DB backup beforehand.',
-              array('@link' => l('"Smartling content utils"', 'admin/config/regional/smartling/prepare_node_for_translation'))), 'warning');
+            drupal_set_message(t('You have enabled "by fields" translation. If you have existing content on the site, please enable !link module and prepare your content for translation. It is desirable to make a DB backup beforehand.',
+              array('!link' => l('"Smartling content utils"', 'admin/config/regional/smartling/prepare_node_for_translation'))), 'warning');
           }
         }
       }
