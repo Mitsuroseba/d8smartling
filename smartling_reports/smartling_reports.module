@@ -19,6 +19,7 @@ function smartling_reports_menu() {
     'weight' => 100,
     'access arguments' => array('administer smartling'),
     'type' => MENU_LOCAL_TASK,
+    'file' => ''
   );
 
   return $items;
