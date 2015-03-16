@@ -1,7 +1,7 @@
 name = Smartling reports
 description = Smartling reports.
 core = 7.x
-package = smartling
+package = Smartling
 dependencies[] = ctools
 dependencies[] = smartling
 dependencies[] = views

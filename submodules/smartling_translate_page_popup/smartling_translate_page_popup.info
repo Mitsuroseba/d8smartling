@@ -1,7 +1,7 @@
 name = Smartling translation page popup
 description = Creates a popup for non-admin pages that allows to submit a content from current page for translation.
 core = 7.x
-package = smartling
+package = Smartling
 
 dependencies[] = inject
 dependencies[] = smartling

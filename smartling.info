@@ -1,7 +1,7 @@
 name = Smartling
 description = Smartling automatical translation.
 core = 7.x
-package = smartling
+package = Smartling
 
 configure = admin/config/regional/smartling
 

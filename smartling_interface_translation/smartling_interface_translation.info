@@ -1,7 +1,7 @@
 name = Smartling interface translation
 description = Import and export .po/.pot files
 core = 7.x
-package = smartling
+package = Smartling
 dependencies[] = smartling
 dependencies[] = views
 features[ctools][] = views:views_default:3.0

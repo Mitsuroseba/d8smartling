@@ -1,6 +1,6 @@
 name = Smartling Entity Reference
 description = Rebuild entity references in translated entites.
 core = 7.x
-package = smartling
+package = Smartling
 dependencies[] = smartling
 dependencies[] = entityreference
