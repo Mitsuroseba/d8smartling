@@ -1,8 +1,0 @@
-name = Smartling entity utils
-description = Smartling utilits that can help to prepare sites content for translation.
-core = 7.x
-package = Smartling
-project = smartling_entity_utils
-dependencies[] = smartling
-dependencies[] = views
-files[] = tests/smartling_entity_utils.test

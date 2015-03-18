@@ -40,6 +40,13 @@ class AdminExpertSettingsForm implements FormInterface {
       '#default_value' => $settings->getAsyncMode(),
     );
 
+    $form['log_info']['convert_entities_before_translation'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Convert entities before translation'),
+      '#description' => t('If this is unchecked, then you should convert your content manually from "language-neutral" to default language (usually english) before sending content item for translation.'),
+      '#default_value' => $settings->getConvertEntitiesBeforeTranslation(),
+    );
+
     $form['log_info']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save'),
@@ -76,6 +83,7 @@ class AdminExpertSettingsForm implements FormInterface {
     }
 
     $this->settings->setAsyncMode($form_state['values']['async_mode']);
+    $this->settings->setConvertEntitiesBeforeTranslation($form_state['values']['convert_entities_before_translation']);
 
     drupal_goto(current_path(), array('fragment' => 'smartling-expert-settings'));
   }

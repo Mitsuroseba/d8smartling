@@ -745,4 +745,12 @@ class SmartlingSettingsHandler {
   public function getCheckStatusCronLast() {
     return $this->variableGet('smartling_check_status_cron_last', 0);
   }
+
+  public function setConvertEntitiesBeforeTranslation($convert_entities_before_translation) {
+    $this->variableSet('smartling_convert_entities_before_translation', (int) $convert_entities_before_translation);
+  }
+
+  public function getConvertEntitiesBeforeTranslation() {
+    return $this->variableGet('smartling_convert_entities_before_translation', 1);
+  }
 }

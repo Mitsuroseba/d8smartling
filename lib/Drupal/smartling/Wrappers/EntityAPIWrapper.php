@@ -15,6 +15,11 @@ class EntityAPIWrapper {
     return entity_metadata_wrapper($entity_type, $entity);
   }
 
+  public function getBundle($entity_type, $entity) {
+    $wrapper = $this->entityMetadataWrapper($entity_type, $entity);
+    return $wrapper->getBundle();
+  }
+
   public function getOriginalEntity($entity_type, $entity) {
     switch ($entity_type) {
       case 'node':

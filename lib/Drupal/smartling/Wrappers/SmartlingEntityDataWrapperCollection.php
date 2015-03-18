@@ -46,8 +46,13 @@ class SmartlingEntityDataWrapperCollection {
     return $this;
   }
 
+  public function deleteAll() {
+    $this->collection = array();
+  }
+
   public function createForLanguages($entity_type, $entity, $languages) {
 
+    $this->deleteAll();
     $entity = $this->entity_api_wrapper->getOriginalEntity($entity_type, $entity);
 
     if (empty($entity)) {
