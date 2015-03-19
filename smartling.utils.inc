@@ -353,7 +353,7 @@ function smartling_language_list() {
   $smartling_target_locales = variable_get('smartling_target_locales', array());
 
   foreach ($languages as $langcode => $language) {
-    if ($language->enabled != '0' && (in_array($langcode, $smartling_target_locales))) {
+    if (/* $language->enabled != '0' && */(in_array($langcode, $smartling_target_locales))) {
       $languages_list[$langcode] = $language;
     }
   }

@@ -21,7 +21,7 @@ class GenericEntitySettingsForm implements FormInterface {
 
     if (!is_null($id)) {
       foreach ($languages as $d_locale => $language) {
-        if ($language->enabled != '0') {
+        //if ($language->enabled != '0') {
 
           $entity_data = smartling_entity_load_by_conditions(array(
             'rid' => $id,
@@ -38,7 +38,7 @@ class GenericEntitySettingsForm implements FormInterface {
           }
 
           $check[] = ($entity_data) ? $d_locale : FALSE;
-        }
+        //}
       }
 
       $elem = array(

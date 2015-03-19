@@ -60,7 +60,8 @@ function smartling_interface_translation_install() {
  */
 function smartling_interface_translation_enable() {
   // Clear caches.
-  views_invalidate_cache();
+  //views_invalidate_cache();
+
 }
 
 /**
@@ -68,5 +69,6 @@ function smartling_interface_translation_enable() {
  */
 function smartling_interface_translation_disable() {
   // Clear caches.
-  views_invalidate_cache();
+  //views_invalidate_cache();
+  //menu_cache_clear('management');
 }

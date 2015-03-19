@@ -37,42 +37,12 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
    *
    * @param string $locale
    *   Locale string in some format: 'en' or 'en-US'.
-   * @param bool $reverse
-   *   If TRUE, converts Smartling locale to Drupal. FALSE by default.
    *
    * @return string|null
    *   Return locale or NULL.
    */
-  protected function convertLocaleDrupalToSmartling($locale, $reverse = FALSE) {
-    $locales = $this->settingsHandler->getLocalesConvertArray();
-    if (!$reverse) {
-      if (isset($locales[$locale])) {
-        return $locales[$locale];
-      }
-      else {
-        $this->logger->setMessage('Cannot convert drupal locale @locale to smartling locale')
-          ->setVariables(array(
-            '@locale' => $locale))
-          ->setConsiderLog(FALSE)
-          ->setSeverity(WATCHDOG_ERROR)
-          ->execute();        
-        return NULL;
-      }
-    }
-    else {
-      foreach ($locales as $key => $loc) {
-        if ($locale == $loc) {
-          return $key;
-        }
-      }
-      $this->logger->setMessage('Cannot convert smartling locale @locale to drupal locale')
-        ->setVariables(array(
-          '@locale' => $locale))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();        
-      return NULL;
-    }
+  protected function convertLocaleDrupalToSmartling($locale) {
+    return smartling_convert_locale_drupal_to_smartling($locale);
   }
 
   /**

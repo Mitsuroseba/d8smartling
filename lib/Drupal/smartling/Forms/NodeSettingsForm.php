@@ -44,7 +44,7 @@ class NodeSettingsForm extends GenericEntitySettingsForm {
         }
 
         foreach ($languages as $d_locale => $language) {
-          if ($language->enabled != '0') {
+          //if ($language->enabled != '0') {
 
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $original_nid,
@@ -61,7 +61,7 @@ class NodeSettingsForm extends GenericEntitySettingsForm {
             }
 
             $check[] = ($entity_data) ? $d_locale : FALSE;
-          }
+          //}
         }
       }
       elseif (($entity->tnid != '0') && ($entity->tnid == $entity->nid)) {
@@ -78,7 +78,7 @@ class NodeSettingsForm extends GenericEntitySettingsForm {
 
         foreach ($languages as $d_locale => $language) {
 
-          if ($default_language != $d_locale && $language->enabled != '0') {
+          if ($default_language != $d_locale ) {//&& $language->enabled != '0') {
 
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $original_nid,
@@ -101,7 +101,7 @@ class NodeSettingsForm extends GenericEntitySettingsForm {
       else {
         // For fieds method.
         foreach ($languages as $d_locale => $language) {
-          if ($default_language != $d_locale && $language->enabled != '0') {
+          if ($default_language != $d_locale ) {//&& $language->enabled != '0') {
 
             $entity_data = smartling_entity_load_by_conditions(array(
               'rid' => $id,

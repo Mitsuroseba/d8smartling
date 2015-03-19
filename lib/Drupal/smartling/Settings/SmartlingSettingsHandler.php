@@ -587,9 +587,9 @@ class SmartlingSettingsHandler {
     unset($languages[$default_language->language]);
 
     foreach ($languages as $langcode => $language) {
-      if ($language->enabled != '0') {
+      //if ($language->enabled != '0') {
         $target_language_options_list[$langcode] = check_plain($language->name);
-      }
+      //}
     }
     return $target_language_options_list;
   }
