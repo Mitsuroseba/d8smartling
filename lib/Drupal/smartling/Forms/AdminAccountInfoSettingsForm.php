@@ -69,12 +69,22 @@ class AdminAccountInfoSettingsForm implements FormInterface {
       '#required' => FALSE,
     );
 
+    $retrieval_type_tooltip =<<<EOF
+Published - indicates that Smartling returns only published/pre-published translations
+
+Pending - indicates that Smartling returns any translations (including non-published translations)
+
+Pseudo - indicates that Smartling returns a modified version of the original text with certain characters transformed and the text expanded. For example, the uploaded string "This is a sample string", will return as "T~hís ~ís á s~ámpl~é str~íñg". Pseudo translations enable you to test how a longer string integrates into your application
+
+Pseudo local - works like described above, but doesn't require credentials for accessing to smartling because generates translations locally
+EOF;
     $form['account_info']['production_retrieval_type'] = array(
       '#type' => 'radios',
       '#title' => t('Retrieval type'),
       '#default_value' => $settings->getRetrievalType(),
       '#options' => $settings->getRetrievalTypeOptions(),
       '#description' => t('Param for download translate.'),
+      '#attributes' => array('title' => $retrieval_type_tooltip,),
     );
 
 
