@@ -7,9 +7,11 @@ class NodeConversionUtil extends EntityConversionUtil {
   protected $field_api_wrapper;
   protected $drupal_api_wrapper;
   protected $smartling_utils;
+  protected  $entity_api_wrapper;
 
-  public function __construct($settings, $field_api_wrapper, $drupal_api_wrapper, $smartling_utils) {
+  public function __construct($settings, $entity_api_wrapper, $field_api_wrapper, $drupal_api_wrapper, $smartling_utils) {
     $this->settings = $settings;
+    $this->entity_api_wrapper = $entity_api_wrapper;
     $this->field_api_wrapper = $field_api_wrapper;
     $this->drupal_api_wrapper = $drupal_api_wrapper;
     $this->smartling_utils = $smartling_utils;
@@ -56,6 +58,11 @@ class NodeConversionUtil extends EntityConversionUtil {
     else {
       $this->updateToFieldsTranslateMethod($entity, 'node', $default_lang, $allowed_fields);
     }
+
+    //some magic transformations so that "title" module could catch up the title.
+    $this->entity_api_wrapper->entitySave($entity_type, $entity);
+    $id = $this->entity_api_wrapper->getID($entity_type, $entity);
+    $entity = $this->entity_api_wrapper->entityLoadSingle($entity_type, $id);
   }
 
   function updateToNodeTranslateMethod($node, $entity_type, $default_language, $allowed_fields) {

@@ -77,7 +77,7 @@ services:
 
   smartling.queue_managers.upload_router:
     class:              Drupal\smartling\QueueManager\UploadRouter
-    arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log, @smartling.settings]
+    arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log, @smartling.settings, @smartling.entity_conversion_utils.factory]
 
 
   smartling.wrappers.entity_data_wrapper:
@@ -100,17 +100,19 @@ services:
     class:              Drupal\smartling\Wrappers\SmartlingUtils
 
 
-  smartling.entity_conversion_utils.entity
+  smartling.entity_conversion_utils.entity:
     class:              Drupal\smartling\EntityConversionUtils\EntityConversionUtil
     arguments:          [@smartling.settings, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
 
-  smartling.entity_conversion_utils.node
+  smartling.entity_conversion_utils.node:
     class:              Drupal\smartling\EntityConversionUtils\NodeConversionUtil
-    arguments:          [@smartling.settings, @smartling.wrappers.field_api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [@smartling.settings, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
 
-  smartling.entity_conversion_utils.factory
+  smartling.entity_conversion_utils.factory:
     class:              Drupal\smartling\EntityConversionUtils\EntityConversionFactory
 
+  smartling.entity_conversion_utils.taxonomy_term:
+    class:              Drupal\smartling\EntityConversionUtils\TaxonomyTermConversionUtil
 
 parameters:
   entity_processors:

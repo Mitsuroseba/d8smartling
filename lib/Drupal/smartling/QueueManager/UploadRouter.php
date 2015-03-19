@@ -12,18 +12,27 @@ class UploadRouter {
   protected $upload_manager;
   protected $log;
   protected $settings;
+  protected $entity_conversion_factory;
 
-  public function __construct($entity_wrapper_collection, $upload_manager, $log, $settings) {
+  public function __construct($entity_wrapper_collection, $upload_manager, $log, $settings, $entity_conversion_factory) {
     $this->entity_wrapper_collection = $entity_wrapper_collection;
     $this->upload_manager = $upload_manager;
     $this->log = $log;
     $this->settings = $settings;
+    $this->entity_conversion_factory = $entity_conversion_factory;
   }
 
   public function routeUploadRequest($entity_type, $entity, $languages, $async_mode = NULL) {
+    if ($this->settings->getConvertEntitiesBeforeTranslation()) {
+      $this->entity_conversion_factory->getConverter($entity_type)->convert($entity, $entity_type);
+    }
+
     $async_mode = (is_null($async_mode)) ? $this->settings->getAsyncMode() : $async_mode;
 
-    $this->entity_wrapper_collection->createForLanguages($entity_type, $entity, $languages);
+    $success = $this->entity_wrapper_collection->createForLanguages($entity_type, $entity, $languages);
+    if (!$success) {
+      return FALSE;
+    }
     if ($async_mode) {
       $this->upload_manager->add($this->entity_wrapper_collection->getIDs());
 

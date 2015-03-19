@@ -29,6 +29,11 @@ class EntityConversionUtil implements EntityConversionInterface {
     }
 
     $this->updateToFieldsTranslateMethod($entity, $entity_type, $default_language, $allowed_fields);
+
+    //some magic transformations so that "title" module could catch up the title.
+    $this->entity_api_wrapper->entitySave($entity_type, $entity);
+    $id = $this->entity_api_wrapper->getID($entity_type, $entity);
+    $entity = $this->entity_api_wrapper->entityLoadSingle($entity_type, $id);
   }
 
   function updateToFieldsTranslateMethod($entity, $entity_type, $default_language, $allowed_fields) {

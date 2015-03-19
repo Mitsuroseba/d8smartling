@@ -20,6 +20,11 @@ class EntityAPIWrapper {
     return $wrapper->getBundle();
   }
 
+  public function getID($entity_type, $entity) {
+    $wrapper = $this->entityMetadataWrapper($entity_type, $entity);
+    return $wrapper->getIdentifier();
+  }
+
   public function getOriginalEntity($entity_type, $entity) {
     switch ($entity_type) {
       case 'node':
@@ -39,5 +44,17 @@ class EntityAPIWrapper {
 
   public function entityLanguage($entity_type, $entity) {
     return entity_language($entity_type, $entity);
+  }
+
+  public function entityLoad($entity_type, $ids = FALSE, $conditions = array(), $reset = FALSE) {
+    return entity_load($entity_type, $ids, $conditions, $reset);
+  }
+
+  public function entityLoadSingle($entity_type, $id) {
+    return entity_load_single($entity_type, $id);
+  }
+
+  public function entitySave($entity_type, $entity) {
+    return entity_save($entity_type, $entity);
   }
 }
