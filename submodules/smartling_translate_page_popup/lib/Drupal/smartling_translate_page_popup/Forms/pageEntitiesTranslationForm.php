@@ -2,7 +2,7 @@
 
 namespace Drupal\smartling_translate_page_popup\Forms;
 
-class pageEntitiesTranslationForm implements \Drupal\smartling\Forms\FormInterface {
+class PageEntitiesTranslationForm implements \Drupal\smartling\Forms\FormInterface {
 
   /**
    * {@inheritdoc}
