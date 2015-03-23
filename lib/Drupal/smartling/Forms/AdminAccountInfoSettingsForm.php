@@ -101,16 +101,16 @@ EOF;
       $total = count($target_language_options_list);
       $counter = 0;
       $locales_convert_array = $settings->getLocalesConvertArray();
+      $smartling_locales_list = $this->api_wrapper->getLocaleList();
       foreach (array_keys($target_language_options_list) as $langcode) {
         $counter++;
 
         $form['account_info']['target_locales_text_key_' . $langcode] = array(
-          '#type' => 'textfield',
+          '#type' => 'select',
           '#title' => '',
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
-          '#size' => 6,
-          '#maxlength' => 10,
+          '#options' => $smartling_locales_list,
           '#required' => FALSE,
           '#states' => array(
             'disabled' => array(

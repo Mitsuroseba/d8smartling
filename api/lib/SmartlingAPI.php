@@ -52,6 +52,15 @@ class SmartlingAPI {
   }
 
   /**
+    * get locale list for project
+    *
+    * @return string
+    */
+  public function getLocaleList() {
+    return $this->sendRequest('project/locale/list', array(), HttpClient::REQUEST_TYPE_GET);
+  }
+
+  /**
    * upload file to Smartling service
    *
    * @param string $path

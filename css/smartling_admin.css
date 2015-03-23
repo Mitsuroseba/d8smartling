@@ -23,8 +23,7 @@
     clear: both;
 }
 
-#edit-target-locales .form-type-textfield {
-    width: 60px;
+#edit-target-locales .form-type-select {
     display: inline-block;
     position: absolute;
     left: 150px;

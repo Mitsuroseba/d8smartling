@@ -67,4 +67,10 @@ interface ApiWrapperInterface {
    */
   public function uploadFile($file_path, $file_name_unic, $file_type, array $locales);
 
+  /**
+   * get locale list for project
+   *
+   * @return array of locales
+   */
+  public function getLocaleList();
 }

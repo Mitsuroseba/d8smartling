@@ -65,6 +65,18 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $this->api = $api;
   }
 
+  public function getLocaleList() {
+    $response = $this->api->getLocaleList();
+    $response = json_decode($response);
+    $locales = isset($response->response->data->locales) ? $response->response->data->locales : array();
+    $result = array();
+    foreach ($locales as $locale) {
+      $result[$locale->locale] = "{$locale->name} ({$locale->translated})";
+    }
+
+    return $result;
+  }
+
   /**
    * {@inheritdoc}
    */

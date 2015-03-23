@@ -83,6 +83,18 @@ class MockApiWrapper implements ApiWrapperInterface {
     $this->api = $api;
   }
 
+  public function getLocaleList() {
+    $response = '{"response":{"data":{"locales":[{"locale":"zh-CN","name":"Chinese (Simplified)","translated":"??"},{"locale":"nl","name":"Dutch (International)","translated":"Nederlands"},{"locale":"en-GB","name":"English (United Kingdom)","translated":"English (United Kingdom)"},{"locale":"fr-FR","name":"French (France)","translated":"Francais"},{"locale":"de-DE","name":"German (Germany)","translated":"Deutsch"},{"locale":"it-IT","name":"Italian (Italy)","translated":"Italiano"},{"locale":"ja-JP","name":"Japanese","translated":"???"},{"locale":"pl-PL","name":"Polish (Poland)","translated":"Polski"},{"locale":"es","name":"Spanish (International)","translated":"Espanol"},{"locale":"sv-SE","name":"Swedish","translated":"Svenska"},{"locale":"uk-UA","name":"Ukrainian","translated":"Українська"}]},"code":"SUCCESS","messages":[]}}';
+    $response = json_decode($response);
+    $locales = isset($response->response->data->locales) ? $response->response->data->locales : array();
+    $result = array();
+    foreach ($locales as $locale) {
+      $result[$locale->locale] = "{$locale->name} ({$locale->translated})";
+    }
+
+    return $result;
+  }
+
   /**
    * {@inheritdoc}
    */
