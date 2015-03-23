@@ -88,41 +88,94 @@ class entityConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->disableOriginalConstructor()
       ->getMock();
   }
-  /**
-   * Test clean file.
-   */
-  public function testConvert() {
-    $this->settings->expects($this->once())
-      ->method('getFieldsSettingsByBundle')
-      ->will($this->returnValue(123));
 
+
+  public function testConvertDefaultLangNeutral() {
     $this->drupal_api_wrapper->expects($this->once())
       ->method('getDefaultLanguage')
-      ->will($this->returnValue('en'));
-
-    $this->field_api_wrapper->expects($this->once())
-      ->method('fieldLanguage')
-      ->will($this->returnValue(array('en')));
-
-    $this->entity_api_wrapper->expects($this->once())
-      ->method('getBundle')
-      ->will($this->returnValue('comment'));
+      ->will($this->returnValue(LANGUAGE_NONE));
 
     $obj = new EntityConversionUtils\EntityConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
 
 
     $node = $this->customCreateNode();
-    $node_res = clone $node;
+    $res = $obj->convert($node, 'node');
 
-    $obj->convert($node, 'node');
-    //smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
-
-    $this->assertEquals($node_res->body, $node->body);
-    $this->assertEquals($node->language, 'en');
+    $this->assertEquals(FALSE, $res);
   }
 
 
+  public function testConvertNoAllowedLanguage() {
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
 
+    $this->entity_api_wrapper->expects($this->once())
+      ->method('getBundle')
+      ->will($this->returnValue('article'));
+
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array()));
+
+    $obj = new EntityConversionUtils\EntityConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+
+
+    $node = $this->customCreateNode();
+    $res = $obj->convert($node, 'node');
+
+    $this->assertEquals(FALSE, $res);
+  }
+
+
+  public function testConvertFieldLangNeutral() {
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
+
+    $this->entity_api_wrapper->expects($this->once())
+      ->method('getBundle')
+      ->will($this->returnValue('article'));
+
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+
+
+    $this->field_api_wrapper->expects($this->once())
+      ->method('fieldLanguage')
+      ->will($this->returnValue(array('uk')));
+
+    $obj = new EntityConversionUtils\EntityConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+
+
+    $node = $this->customCreateNode();
+    $res = $obj->convert($node, 'node');
+
+    $this->assertEquals(FALSE, $res);
+  }
+
+  public function testConvertToFieldsMethod() {
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
+
+    $obj = $this->getMockBuilder('\Drupal\smartling\EntityConversionUtils\EntityConversionUtil')
+      ->setConstructorArgs(array($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils))
+      ->setMethods(array('updateToNodeTranslateMethod', 'updateToFieldsTranslateMethod'))
+      ->getMock();
+
+    $obj->expects($this->once())->method('updateToFieldsTranslateMethod');
+
+
+    $node = $this->customCreateNode();
+    $obj->convert($node, 'node');
+  }
 
   /**
    * Test correct copy fields when translated node not exist.

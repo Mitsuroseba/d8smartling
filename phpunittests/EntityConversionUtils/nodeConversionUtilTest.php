@@ -1,5 +1,6 @@
 <?php
 require_once(dirname(__FILE__) . '/../../lib/Drupal/smartling/Settings/SmartlingSettingsHandler.php');
+require_once(dirname(__FILE__) . '/../../lib/Drupal/smartling/Wrappers/EntityAPIWrapper.php');
 require_once(dirname(__FILE__) . '/../../lib/Drupal/smartling/Wrappers/FieldAPIWrapper.php');
 require_once(dirname(__FILE__) . '/../../lib/Drupal/smartling/Wrappers/DrupalAPIWrapper.php');
 require_once(dirname(__FILE__) . '/../../lib/Drupal/smartling/Wrappers/SmartlingUtils.php');
@@ -73,6 +74,9 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
     $this->settings = $this->getMockBuilder('\Drupal\smartling\Settings\SmartlingSettingsHandler')
       ->disableOriginalConstructor()
       ->getMock();
+    $this->entity_api_wrapper = $this->getMockBuilder('\Drupal\smartling\Wrappers\EntityAPIWrapper')
+      ->disableOriginalConstructor()
+      ->getMock();
     $this->field_api_wrapper = $this->getMockBuilder('\Drupal\smartling\Wrappers\FieldAPIWrapper')
       ->disableOriginalConstructor()
       ->getMock();
@@ -83,19 +87,75 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->disableOriginalConstructor()
       ->getMock();
   }
-  /**
-   * Test clean file.
-   */
-  public function testConvert() {
+
+  public function testConvertNoAllowedLanguage() {
     $this->settings->expects($this->once())
       ->method('getFieldsSettingsByBundle')
-      ->will($this->returnValue(123));
+      ->will($this->returnValue(array()));
 
     $this->drupal_api_wrapper->expects($this->once())
       ->method('getDefaultLanguage')
       ->will($this->returnValue('en'));
 
-    $this->field_api_wrapper->expects($this->exactly(2))
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+
+
+    $node = $this->customCreateNode();
+    $res = $obj->convert($node, 'node');
+
+    $this->assertEquals(FALSE, $res);
+  }
+
+  public function testConvertDefaultLangNeutral() {
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue(LANGUAGE_NONE));
+
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+
+
+    $node = $this->customCreateNode();
+    $res = $obj->convert($node, 'node');
+
+    $this->assertEquals(FALSE, $res);
+  }
+
+  public function testConvertFieldLangNeutral() {
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
+
+    $this->field_api_wrapper->expects($this->once())
+      ->method('fieldLanguage')
+      ->will($this->returnValue(array('uk')));
+
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+
+
+    $node = $this->customCreateNode();
+    $res = $obj->convert($node, 'node');
+
+    $this->assertEquals(FALSE, $res);
+  }
+
+  public function testConvertToFieldsMethod() {
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
+
+    $this->field_api_wrapper->expects($this->once())
       ->method('fieldLanguage')
       ->will($this->returnValue(array('en')));
 
@@ -104,17 +164,46 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->will($this->returnValue(FALSE));
 
 
-    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+    $obj = $this->getMockBuilder('\Drupal\smartling\EntityConversionUtils\NodeConversionUtil')
+      ->setConstructorArgs(array($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils))
+      ->setMethods(array('updateToNodeTranslateMethod', 'updateToFieldsTranslateMethod'))
+      ->getMock();
+
+    $obj->expects($this->once())->method('updateToFieldsTranslateMethod');
 
 
     $node = $this->customCreateNode();
-    $node_res = clone $node;
-
     $obj->convert($node, 'node');
-    //smartling_content_utils_update_to_node_translate_method($node, 'en', array('body'));
+  }
 
-    $this->assertEquals($node_res->body, $node->body);
-    $this->assertEquals($node->language, 'en');
+  public function testConvertToNodesMethod() {
+    $this->settings->expects($this->once())
+      ->method('getFieldsSettingsByBundle')
+      ->will($this->returnValue(array('article' => array('title', 'body'))));
+
+    $this->drupal_api_wrapper->expects($this->once())
+      ->method('getDefaultLanguage')
+      ->will($this->returnValue('en'));
+
+    $this->field_api_wrapper->expects($this->once())
+      ->method('fieldLanguage')
+      ->will($this->returnValue(array('en')));
+
+    $this->smartling_utils->expects($this->once())
+      ->method('nodesMethod')
+      ->will($this->returnValue(TRUE));
+
+
+    $obj = $this->getMockBuilder('\Drupal\smartling\EntityConversionUtils\NodeConversionUtil')
+      ->setConstructorArgs(array($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils))
+      ->setMethods(array('updateToNodeTranslateMethod', 'updateToFieldsTranslateMethod'))
+      ->getMock();
+
+    $obj->expects($this->once())->method('updateToNodeTranslateMethod');
+
+
+    $node = $this->customCreateNode();
+    $obj->convert($node, 'node');
   }
 
   public function testPrepareForByNodesTranslationUndUnd() {
@@ -125,7 +214,7 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->method('fieldLanguage')
       ->will($this->returnValue(array('body' => LANGUAGE_NONE)));
 
-    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
     $obj->updateToNodeTranslateMethod($node, 'node', 'en', array('body'));
 
     $this->assertEquals($node_res->body, $node->body);
@@ -149,7 +238,7 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->method('fieldGetItems')
       ->will($this->returnValue($node->body['en']));
 
-    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
     $obj->updateToNodeTranslateMethod($node, 'node', 'en', array('body'));
 
     $this->assertEquals($node_res->body, $node->body);
@@ -166,7 +255,7 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->method('fieldLanguage')
       ->will($this->returnValue(array('body'=>LANGUAGE_NONE)));
 
-    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
     $obj->updateToNodeTranslateMethod($node, 'node', 'en', array('body'));
 
     $this->assertEquals($node_res->body, $node->body);
@@ -189,17 +278,10 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->method('fieldGetItems')
       ->will($this->returnValue($node->body['en']));
 
-    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
+    $obj = new EntityConversionUtils\NodeConversionUtil($this->settings, $this->entity_api_wrapper, $this->field_api_wrapper, $this->drupal_api_wrapper, $this->smartling_utils);
     $obj->updateToNodeTranslateMethod($node, 'node', 'en', array('body'));
 
     $this->assertEquals($node_res->body, $node->body);
     $this->assertEquals($node->language, 'en');
   }
-
-
-
-
-
-
-
 }
