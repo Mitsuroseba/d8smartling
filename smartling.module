@@ -111,15 +111,6 @@ function smartling_menu() {
     'access arguments' => array(2),
   );
 
-  $items['admin/config/regional/smartling/manual-management'] = array(
-    'title' => 'Smartling manual translation management',
-    'description' => 'Here you can send node to smartling or get translation from smartling for specific node if available',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('smartling_manual_management_form'),
-    'access arguments' => array('administer smartling'),
-    'file' => 'smartling.pages.inc',
-  );
-
   return $items;
 }
 
