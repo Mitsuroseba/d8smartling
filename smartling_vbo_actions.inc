@@ -86,58 +86,8 @@ function smartling_do_translate_action_submit(array $form, array $form_state) {
 
 
 
-
-
-
-function smartling_do_download_translation_action_form() {
-  $form = array();
-
-  $form['confirm'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Download translation of the selected items.'),
-  );
-
-  return $form;
-}
-
-function smartling_do_download_translation_action_validate($form, $form_state) {
-  if (!@$form['confirm']['#value']) {
-    form_set_error('confirm', t('Please confirm explicitly if you want to continue.'));
-  }
-}
-
-function smartling_do_download_translation_action_submit($form, $form_state) {
-  return array();
-}
-
 function smartling_do_download_translation_action(&$entity, $context) {
   smartling_queue_download_update_translated_item_process($entity->eid);
-}
-
-
-
-
-
-
-function smartling_do_resend_translation_action_form() {
-  $form = array();
-
-  $form['confirm'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Resend the selected items for translation.'),
-  );
-
-  return $form;
-}
-
-function smartling_do_resend_translation_action_validate($form, $form_state) {
-  if (!@$form['confirm']['#value']) {
-    form_set_error('confirm', t('Please confirm explicitly if you want to continue.'));
-  }
-}
-
-function smartling_do_resend_translation_action_submit($form, $form_state) {
-  return array();
 }
 
 function smartling_do_resend_translation_action(&$entity, $context) {
