@@ -87,13 +87,13 @@ EOF;
       '#attributes' => array('title' => $retrieval_type_tooltip,),
     );
 
-
     $target_language_options_list = $settings->getTargetLanguageOptionsList();
     if (!empty($target_language_options_list)) {
       $form['account_info']['target_locales'] = array(
         '#type' => 'checkboxes',
         '#options' => $target_language_options_list,
         '#title' => t('Target Locales'),
+        '#description' => t('In order to get values for these fields, please visit API section of Smartling dashboard: https://dashboard.smartling.com/settings/api.htm'),
         '#default_value' => $settings->getTargetLocales(),
         '#prefix' => '<div class="wrap-target-locales">',
       );
@@ -101,16 +101,16 @@ EOF;
       $total = count($target_language_options_list);
       $counter = 0;
       $locales_convert_array = $settings->getLocalesConvertArray();
-      $smartling_locales_list = $this->api_wrapper->getLocaleList();
       foreach (array_keys($target_language_options_list) as $langcode) {
         $counter++;
 
         $form['account_info']['target_locales_text_key_' . $langcode] = array(
-          '#type' => 'select',
+          '#type' => 'textfield',
           '#title' => '',
           '#title_display' => 'invisible',
           '#default_value' => (isset($locales_convert_array[$langcode]) && ($locales_convert_array[$langcode] != $langcode)) ? $locales_convert_array[$langcode] : '',
-          '#options' => $smartling_locales_list,
+          '#size' => 6,
+          '#maxlength' => 10,
           '#required' => FALSE,
           '#states' => array(
             'disabled' => array(

@@ -442,7 +442,7 @@ function smartling_action_info() {
       'label' => t('Download translated content elements.'),
       //'behavior' => array('changes_property'),
       'configurable' => FALSE,
-      'vbo_configurable' => TRUE,
+      'vbo_configurable' => FALSE,
       'triggers' => array('any'),
     ),
     'smartling_do_resend_translation_action' => array(
@@ -450,7 +450,7 @@ function smartling_action_info() {
       'label' => t('Resend original content for translation.'),
       //'behavior' => array('changes_property'),
       'configurable' => FALSE,
-      'vbo_configurable' => TRUE,
+      'vbo_configurable' => FALSE,
       'triggers' => array('any'),
     ),
   );
