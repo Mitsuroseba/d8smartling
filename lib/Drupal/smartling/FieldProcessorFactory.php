@@ -9,10 +9,6 @@
 
 namespace Drupal\smartling;
 
-use Drupal\smartling\ApiWrapper\SmartlingApiWrapper;
-use Drupal\smartling\FieldProcessors\BaseFieldProcessor;
-use Drupal\smartling\Log\SmartlingLog;
-
 /**
  * Factory that creates field processor instances and contains mapping.
  *
@@ -21,15 +17,19 @@ use Drupal\smartling\Log\SmartlingLog;
 class FieldProcessorFactory {
 
   protected $fieldMapping;
+  protected $log;
+  protected $field_api_wrapper;
 
   /**
    * @param array $field_mapping
    * @param SmartlingLog $logger
-   * @param SmartlingApiWrapper $smartling_api
+   * @param $field_api_wrapper
    */
-  public function __construct($field_mapping, $logger, $smartling_api) {
+  public function __construct($field_mapping, $logger, $field_api_wrapper) {
     $this->alter('smartling_field_processor_mapping_info', $field_mapping);
     $this->fieldMapping = $field_mapping;
+    $this->log = $logger;
+    $this->field_api_wrapper = $field_api_wrapper;
   }
 
   /*
@@ -52,7 +52,7 @@ class FieldProcessorFactory {
    * @return BaseFieldProcessor
    */
   public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language, $source_language = NULL) {
-    $field_info = field_info_field($field_name);
+    $field_info = $this->field_api_wrapper->fieldInfoField($field_name);
 
     if ($field_info) {
       $type = $field_info['type'];
@@ -64,8 +64,7 @@ class FieldProcessorFactory {
       $class_name = $this->fieldMapping['fake'][$type];
     }
     else {
-      $log = smartling_log_get_handler();
-      $log->setMessage("Smartling found unexisted field - @field_name")
+      $this->log->setMessage("Smartling found unexisted field - @field_name")
         ->setVariables(array('@field_name' => $field_name))
         ->setConsiderLog(FALSE)
         ->execute();
@@ -74,8 +73,7 @@ class FieldProcessorFactory {
     }
 
     if (!$class_name) {
-      $log = smartling_log_get_handler();
-      $log->setMessage("Smartling didn't process content of field - @field_name")
+      $this->log->setMessage("Smartling didn't process content of field - @field_name")
         ->setVariables(array('@field_name' => $field_name))
         ->setConsiderLog(FALSE)
         ->execute();
@@ -99,7 +97,7 @@ class FieldProcessorFactory {
 
   public function isSupportedField($field_name) {
     $supported = FALSE;
-    $field_info = field_info_field($field_name);
+    $field_info = $this->field_api_wrapper->fieldInfoField($field_name);
 
     if ($field_info) {
       $type = $field_info['type'];

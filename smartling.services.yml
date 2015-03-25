@@ -19,7 +19,7 @@ services:
 
   smartling.field_processor_factory:
     class:              Drupal\smartling\FieldProcessorFactory
-    arguments:          [%field_processors%, @smartling.log, @smartling.api_wrapper]
+    arguments:          [%field_processors%, @smartling.log, @smartling.wrappers.field_api_wrapper]
 
   smartling.entity_processor_factory:
     class:              Drupal\smartling\EntityProcessorFactory
