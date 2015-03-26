@@ -50,7 +50,15 @@ function smartling_translate_page_popup_page_alter(&$page) {
   }
 
   $form_state = array();
-  $page['page_bottom']['smartling_translation_form'] = drupal_build_form('smartling_translate_page_popup_form', $form_state);
+  try {
+    $page['page_bottom']['smartling_translation_form'] = drupal_build_form('smartling_translate_page_popup_form', $form_state);
+  } catch (\Exception $e) {
+    $page['page_bottom']['smartling_translation_form'] = array();
+
+    $log = smartling_log_get_handler();
+    $log->setMessage('Caught exception: ',  $e->getMessage())->setSeverity(WATCHDOG_ERROR)->execute();
+  }
+
 }
 
 function smartling_translate_page_popup_form($form, $form_state) {

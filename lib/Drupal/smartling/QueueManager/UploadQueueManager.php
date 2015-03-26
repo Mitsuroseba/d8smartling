@@ -20,7 +20,7 @@ class UploadQueueManager implements QueueManagerInterface {
    *   Returns XML object.
    */
   protected function buildXml($processor, $rid) {
-    $xml = new DOMDocument('1.0', 'UTF-8');
+    $xml = new \DOMDocument('1.0', 'UTF-8');
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string, data/localize/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/field_collection/string '));
     // @todo remove hardcoded mappping of nested field colelctions.
