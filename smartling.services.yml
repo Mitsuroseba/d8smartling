@@ -77,7 +77,7 @@ services:
 
   smartling.queue_managers.upload_router:
     class:              Drupal\smartling\QueueManager\UploadRouter
-    arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log, @smartling.settings, @smartling.entity_conversion_utils.factory]
+    arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log, @smartling.settings, @smartling.entity_conversion_utils.factory, @smartling.wrappers.smartling_utils]
 
 
   smartling.wrappers.entity_data_wrapper:

@@ -38,4 +38,9 @@ class SmartlingUtils {
     $field = $this->field_api_wrapper->fieldInfoField($field_name);
     return $this->field_api_wrapper->fieldIsTranslatable($entity_type, $field);
   }
+
+
+  public function hookEntityUpdate($entity, $entity_type) {
+    return smartling_entity_update($entity, $entity_type);
+  }
 }

@@ -13,13 +13,15 @@ class UploadRouter {
   protected $log;
   protected $settings;
   protected $entity_conversion_factory;
+  protected $smartling_utils;
 
-  public function __construct($entity_wrapper_collection, $upload_manager, $log, $settings, $entity_conversion_factory) {
+  public function __construct($entity_wrapper_collection, $upload_manager, $log, $settings, $entity_conversion_factory, $smartling_utils) {
     $this->entity_wrapper_collection = $entity_wrapper_collection;
     $this->upload_manager = $upload_manager;
     $this->log = $log;
     $this->settings = $settings;
     $this->entity_conversion_factory = $entity_conversion_factory;
+    $this->smartling_utils = $smartling_utils;
   }
 
   public function routeUploadRequest($entity_type, $entity, $languages, $async_mode = NULL) {
@@ -40,7 +42,7 @@ class UploadRouter {
       $smartling_wrapper = reset($collection);
 
       // Create content hash (Fake entity update).
-      smartling_entity_update($entity, $entity_type);
+      $this->smartling_utils->hookEntityUpdate($entity, $entity_type);
 
       $langs = implode(', ', $languages);
       $this->log->setMessage('Smartling queue task was created for entity id - @id, locale - @locale, type - @entity_type')
