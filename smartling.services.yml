@@ -23,7 +23,7 @@ services:
 
   smartling.entity_processor_factory:
     class:              Drupal\smartling\EntityProcessorFactory
-    arguments:          [%entity_processors%, @smartling.field_processor_factory, @smartling.log, @smartling.api_wrapper]
+    arguments:          [%entity_processors%, @smartling.field_processor_factory, @smartling.log, @smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper]
 
 
 

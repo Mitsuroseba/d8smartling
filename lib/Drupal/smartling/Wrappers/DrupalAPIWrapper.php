@@ -18,7 +18,11 @@ class DrupalAPIWrapper {
   /*
    * A wrapper for Drupal drupal_alter function
    */
-  protected function alter($hook_name, &$handlers) {
+  public function alter($hook_name, &$handlers) {
     drupal_alter($hook_name, $handlers);
+  }
+
+  public function &drupalStatic($name, $default_value = NULL, $reset = FALSE) {
+    return drupal_static($name, $default_value, $reset);
   }
 }

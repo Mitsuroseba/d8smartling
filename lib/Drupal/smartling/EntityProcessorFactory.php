@@ -39,25 +39,23 @@ class EntityProcessorFactory {
    */
   protected $fieldProcessorFactory;
 
+  protected $drupal_api_wrapper;
+
   /**
    * @param array $processor_mapping
    * @param FieldProcessorFactory $field_processor_factory
    * @param SmartlingLog $logger
    * @param SmartlingApiWrapper $smartling_api
+   * @param $drupal_api_wrapper
    */
-  public function __construct($processor_mapping, $field_processor_factory, $logger, $smartling_api) {
-    $this->alter('smartling_entity_processor_mapping_info', $processor_mapping);
-    $this->processorMapping = $processor_mapping;
+  public function __construct($processor_mapping, $field_processor_factory, $logger, $smartling_api, $drupal_api_wrapper) {
     $this->logger = $logger;
     $this->smartlingAPI = $smartling_api;
     $this->fieldProcessorFactory = $field_processor_factory;
-  }
+    $this->drupal_api_wrapper = $drupal_api_wrapper;
 
-  /*
-   * A wrapper for Drupal drupal_alter function
-   */
-  protected function alter($hook_name, &$handlers) {
-    drupal_alter($hook_name, $handlers);
+    $this->drupal_api_wrapper->alter('smartling_entity_processor_mapping_info', $processor_mapping);
+    $this->processorMapping = $processor_mapping;
   }
 
   /**
@@ -70,7 +68,7 @@ class EntityProcessorFactory {
    * @return GenericEntityProcessor
    */
   public function getProcessor($smartling_entity) {
-    $static_storage = &drupal_static(__CLASS__ . '_' . __METHOD__, array());
+    $static_storage = &$this->drupal_api_wrapper->drupalStatic(__CLASS__ . '_' . __METHOD__, array());
 
     if (!empty($static_storage[$smartling_entity->eid])) {
       return $static_storage[$smartling_entity->eid];
