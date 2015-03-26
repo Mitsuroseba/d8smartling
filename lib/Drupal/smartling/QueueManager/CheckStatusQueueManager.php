@@ -8,20 +8,36 @@
 namespace Drupal\smartling\QueueManager;
 
 class CheckStatusQueueManager implements QueueManagerInterface {
+
+  protected $api_wrapper;
+  protected $entity_data_wrapper;
+  protected $queue_download;
+  protected $log;
+  protected $smartling_utils;
+  protected $submissions_collection;
+
+  public function __construct($api_wrapper, $entity_data_wrapper, $submissions_collection, $queue_download, $log, $smartling_utils) {
+    $this->api_wrapper = $api_wrapper;
+    $this->entity_data_wrapper = $entity_data_wrapper;
+    $this->submissions_collection = $submissions_collection;
+    $this->queue_download = $queue_download;
+    $this->log = $log;
+    $this->smartling_utils = $smartling_utils;
+  }
+
   /**
    * @inheritdoc
    */
   public function add($eids) {
-    $log = smartling_log_get_handler();
-
-    $smartling_entities = smartling_entity_data_load_multiple($eids);
+    //$smartling_entities = smartling_entity_data_load_multiple($eids);
+    $smartling_entities = $this->submissions_collection->loadByIDs($eids)->getCollection();
 
     $smartling_queue = \DrupalQueue::get('smartling_check_status');
     $smartling_queue->createQueue();
     foreach ($smartling_entities as $eid => $queue_item) {
       if (!empty($queue_item->file_name)) {
         $smartling_queue->createItem($eid);
-        $log->setMessage('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
+        $this->log->setMessage('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
           ->setVariables(array(
             '@eid' => $queue_item->eid,
             '@rid' => $queue_item->rid,
@@ -30,7 +46,7 @@ class CheckStatusQueueManager implements QueueManagerInterface {
           ->execute();
       }
       elseif ($queue_item->status != 0) {
-        $log->setMessage('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
+        $this->log->setMessage('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
           ->setVariables(array(
             '@eid' => $queue_item->eid,
             '@rid' => $queue_item->rid,
@@ -51,18 +67,18 @@ class CheckStatusQueueManager implements QueueManagerInterface {
     }
 
     foreach($eids as $eid) {
-      $smartling_entity = entity_load_single('smartling_entity_data', $eid);
+      $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
 
-      if (smartling_is_configured()) {
-        $api = drupal_container()->get('smartling.api_wrapper');
-        $result = $api->getStatus($smartling_entity);
+      if ($this->smartling_utils->isConfigured()) {
+        $result = $this->api_wrapper->getStatus($smartling_submission);
 
         if (!empty($result)) {
-          if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_entity->entity_type != 'smartling_interface_entity')) {
-            drupal_container()->get('smartling.queue_managers.download')->add($eid);
+          if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_submission->entity_type != 'smartling_interface_entity')) {
+            $this->queue_download->add($eid);
           }
 
-          smartling_entity_data_save($result['entity_data']);
+          //smartling_entity_data_save($result['entity_data']);
+          $this->entity_data_wrapper->setEntity($result['entity_data'])->save();
         }
       }
     }
