@@ -19,7 +19,7 @@ services:
 
   smartling.field_processor_factory:
     class:              Drupal\smartling\FieldProcessorFactory
-    arguments:          [%field_processors%, @smartling.log, @smartling.wrappers.field_api_wrapper]
+    arguments:          [%field_processors%, @smartling.log, @smartling.wrappers.field_api_wrapper, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.drupal_api_wrapper,@smartling.wrappers.smartling_utils]
 
   smartling.entity_processor_factory:
     class:              Drupal\smartling\EntityProcessorFactory
@@ -83,12 +83,12 @@ services:
   smartling.wrappers.entity_data_wrapper:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapper
 
-  smartling.wrappers.entity_api_wrapper:
-    class:              Drupal\smartling\Wrappers\EntityAPIWrapper
-
   smartling.wrappers.entity_data_wrapper_collection:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapperCollection
     arguments:          [@smartling.wrappers.entity_data_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper]
+
+  smartling.wrappers.entity_api_wrapper:
+    class:              Drupal\smartling\Wrappers\EntityAPIWrapper
 
   smartling.wrappers.field_api_wrapper:
     class:              Drupal\smartling\Wrappers\FieldAPIWrapper
@@ -98,6 +98,7 @@ services:
 
   smartling.wrappers.smartling_utils:
     class:              Drupal\smartling\Wrappers\SmartlingUtils
+    arguments:          [@smartling.wrappers.entity_api_wrapper, @smartling.wrappers.field_api_wrapper]
 
 
   smartling.entity_conversion_utils.entity:

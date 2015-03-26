@@ -118,20 +118,9 @@ function smartling_translate_fields_configured($bundle, $entity_type) {
   return !empty($val);
 }
 
-/**
- * Checks translatable field by field name.
- *
- * @param string $field_name
- *   Field name.
- *
- * @param string $entity_type
- *   Entity type machine name.
- * @return bool
- *   Return TRUE if field is translatable.
- */
+
 function smartling_field_is_translatable($field_name, $entity_type) {
-  $field = field_info_field($field_name);
-  return field_is_translatable($entity_type, $field);
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->fieldIssTranslatable($field_name, $entity_type);
 }
 
 /**

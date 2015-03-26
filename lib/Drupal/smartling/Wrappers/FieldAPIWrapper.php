@@ -22,4 +22,8 @@ class FieldAPIWrapper {
   public function fieldInfoField($field_name) {
     return field_info_field($field_name);
   }
+
+  public function fieldIsTranslatable($entity_type, $field) {
+    return field_is_translatable($entity_type, $field);
+  }
 }
