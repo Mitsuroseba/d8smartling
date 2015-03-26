@@ -8,6 +8,24 @@
 namespace Drupal\smartling\QueueManager;
 
 class DownloadQueueManager implements QueueManagerInterface {
+
+  protected $entity_data_wrapper;
+  protected $field_api_wrapper;
+  protected $entity_processor_factory;
+  protected $settings;
+  protected $smartling_utils;
+  protected $drupal_wrapper;
+
+
+  public function __construct($entity_data_wrapper, $field_api_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
+    $this->entity_data_wrapper = $entity_data_wrapper;
+    $this->field_api_wrapper = $field_api_wrapper;
+    $this->entity_processor_factory = $entity_processor_factory;
+    $this->settings = $settings;
+    $this->smartling_utils = $smartling_utils;
+    $this->drupal_wrapper = $drupal_wrapper;
+  }
+
   /**
    * @inheritdoc
    */
@@ -24,8 +42,8 @@ class DownloadQueueManager implements QueueManagerInterface {
    * @inheritdoc
    */
   public function execute($eids) {
-    if (language_default('language') != field_valid_language(NULL, FALSE)) {
-      drupal_set_message('The download failed. Please switch to the site\'s default language: ' . language_default('language'), 'error');
+    if ($this->drupal_wrapper->getDefaultLanguage() != $this->field_api_wrapper->fieldValidLanguage(NULL, FALSE)) {
+      drupal_set_message('The download failed. Please switch to the site\'s default language: ' . $this->drupal_wrapper->getDefaultLanguage(), 'error');
       return FALSE;
     }
 
@@ -37,9 +55,9 @@ class DownloadQueueManager implements QueueManagerInterface {
     foreach ($eids as $eid) {
       $status = FALSE;
 
-      $smartling_entity = entity_load_single('smartling_entity_data', $eid);
-      if ($smartling_entity && smartling_is_configured() && smartling_translate_fields_configured($smartling_entity->bundle, $smartling_entity->entity_type)) {
-        $processor = smartling_get_entity_processor($smartling_entity);
+      $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
+      if ($smartling_submission && $this->smartling_utils->isConfigured() && !empty($this->settings->getFieldsSettingsByBundle($smartling_submission->bundle, $smartling_submission->entity_type))) {
+        $processor = $this->$entity_processor_factory->getProcessor($smartling_submission);
         if ($processor->downloadTranslation()) {
           $status = $processor->updateEntityFromXML();
         }

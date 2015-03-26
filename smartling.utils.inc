@@ -94,13 +94,13 @@ function smartling_is_configured() {
  *   Return TRUE if fields for translation are set.
  */
 function smartling_translate_fields_configured($bundle, $entity_type) {
-  $val = smartling_settings_get_handler()->getFieldsSettingsByBundle($entity_type, $bundle);
+  $val = drupal_container()->get('smartling.settings')->getFieldsSettingsByBundle($entity_type, $bundle);
   return !empty($val);
 }
 
 
 function smartling_field_is_translatable($field_name, $entity_type) {
-  return drupal_container()->get('smartling.wrappers.smartling_utils')->fieldIssTranslatable($field_name, $entity_type);
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->fieldIsTranslatable($field_name, $entity_type);
 }
 
 /**

@@ -26,4 +26,8 @@ class FieldAPIWrapper {
   public function fieldIsTranslatable($entity_type, $field) {
     return field_is_translatable($entity_type, $field);
   }
+
+  public function fieldValidLanguage($langcode, $default = TRUE) {
+    return field_valid_language($langcode, $default);
+  }
 }

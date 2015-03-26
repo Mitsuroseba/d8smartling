@@ -72,6 +72,7 @@ services:
 
   smartling.queue_managers.download:
     class:              Drupal\smartling\QueueManager\DownloadQueueManager
+    arguments:          [@smartling.wrappers.entity_data_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
