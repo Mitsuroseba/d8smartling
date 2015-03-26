@@ -68,6 +68,7 @@ services:
 
   smartling.queue_managers.upload:
     class:              Drupal\smartling\QueueManager\UploadQueueManager
+    arguments:          [@smartling.api_wrapper, @smartling.wrappers.entity_data_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.queue_managers.download:
     class:              Drupal\smartling\QueueManager\DownloadQueueManager

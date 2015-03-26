@@ -9,6 +9,22 @@ namespace Drupal\smartling\QueueManager;
 
 class UploadQueueManager implements QueueManagerInterface {
 
+  protected $api_wrapper;
+  protected $smartling_utils;
+  protected $entity_processor_factory;
+  protected $entity_data_wrapper;
+  protected $drupal_wrapper;
+  protected $settings;
+
+  public function __construct($api_wrapper, $entity_data_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
+    $this->api_wrapper = $api_wrapper;
+    $this->entity_data_wrapper = $entity_data_wrapper;
+    $this->entity_processor_factory = $entity_processor_factory;
+    $this->smartling_utils = $smartling_utils;
+    $this->drupal_wrapper = $drupal_wrapper;
+    $this->settings = $settings;
+  }
+
   /**
    * Build xml document and save in file.
    *
@@ -23,7 +39,7 @@ class UploadQueueManager implements QueueManagerInterface {
     $xml = new \DOMDocument('1.0', 'UTF-8');
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string, data/localize/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/field_collection/string '));
-    // @todo remove hardcoded mappping of nested field colelctions.
+    // @todo remove hardcoded mappping of nested field collections.
     $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string, html : data/localize/field_collection/string, html : data/localize/field_collection/field_collection/string, html : data/localize/field_collection/field_collection/field_collection/string '));
     $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
 
@@ -67,7 +83,7 @@ class UploadQueueManager implements QueueManagerInterface {
    * @inheritdoc
    */
   public function execute($eids) {
-    if (!smartling_is_configured()) {
+    if (!$this->smartling_utils->isConfigured()) {
       return;
     }
     if (!is_array($eids)) {
@@ -79,40 +95,32 @@ class UploadQueueManager implements QueueManagerInterface {
     $target_locales    = array();
     $entity_data_array = array();
 
-    $entity_data_wrapper = drupal_container()->get('smartling.wrappers.entity_data_wrapper');
     foreach($eids as $eid) {
-      $entity_data_wrapper->loadByID($eid);
-      $file_name = $entity_data_wrapper->getFileName();
-      $target_locales[$file_name][] = $entity_data_wrapper->getTargetLanguage();
-      $entity_data_array[$file_name][] = $entity_data_wrapper->getEntity();
+      $this->entity_data_wrapper->loadByID($eid);
+      $file_name = $this->entity_data_wrapper->getFileName();
+      $target_locales[$file_name][] = $this->entity_data_wrapper->getTargetLanguage();
+      $entity_data_array[$file_name][] = $this->entity_data_wrapper->getEntity();
     }
 
 
-    $api = drupal_container()->get('smartling.api_wrapper');
     foreach ($entity_data_array as $file_name => $entity_array) {
-      $entity = reset($entity_array);
-      $processor = smartling_get_entity_processor($entity);
-      $xml = $this->buildXml($processor, $entity->rid);
+      $submission = reset($entity_array);
+      $processor = $this->entity_processor_factory->getProcessor($submission);
+      $xml = $this->buildXml($processor, $submission->rid);
       if (!($xml instanceof \DOMNode)) {
         continue;
       }
 
       $event   = SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
-      $success = (bool) smartling_save_xml($file_name, $xml, $entity);
+      $success = (bool) $this->smartling_utils->saveXml($file_name, $xml, $submission);
       // Init api object.
       if ($success) {
-        $file_path = drupal_realpath(smartling_get_dir($file_name), TRUE);
-        $event = $api->uploadFile($file_path, $file_name, 'xml', $target_locales[$file_name]);
+        $file_path = $this->drupal_wrapper->drupalRealpath($this->settings->getDir($file_name), TRUE);
+        $event = $this->api_wrapper->uploadFile($file_path, $file_name, 'xml', $target_locales[$file_name]);
       }
 
-      foreach ($entity_array as $entity) {
-        $entity_data_wrapper->setEntity($entity)->setStatusByEvent($event)->save();
-
-        //@todo: refactor this code to be compatible with any entity_type
-        if (($event == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) && module_exists('rules') && ($entity_data_wrapper->getEntityType() == 'node')) {
-            $node_event = node_load($entity_data_wrapper->getRID());
-            rules_invoke_event('smartling_uploading_original_to_smartling_event', $node_event);
-        }
+      foreach ($entity_array as $submission) {
+        $this->entity_data_wrapper->setEntity($submission)->setStatusByEvent($event)->save();
       }
     }
   }

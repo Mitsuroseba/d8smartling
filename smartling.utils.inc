@@ -78,28 +78,8 @@ function smartling_nodes_method_node_status($node) {
   }
 }
 
-/**
- * Checks any required configuration parameters are missing.
- *
- * @return bool
- *   Return TRUE if configuration parameters is set.
- */
 function smartling_is_configured() {
-  $required_variables = array(
-    'smartling_api_url',
-    'smartling_key',
-    'smartling_project_id',
-    'smartling_target_locales',
-  );
-  foreach ($required_variables as $required_variable) {
-    $val = variable_get($required_variable, NULL);
-    if (empty($val)) {
-      drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
-      return FALSE;
-    }
-  }
-  // All required configuration variables are set.
-  return TRUE;
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->isConfigured();
 }
 
 /**
@@ -165,19 +145,8 @@ function smartling_convert_locale_smartling_to_drupal($locale) {
   return (string) array_search($locale, $locales);
 }
 
-/**
- * Get smartling directory.
- *
- * @param string $file_name
- *   File name.
- *
- * @return string
- *   Return path for smartling dir without end '/' or file path with dir.
- */
 function smartling_get_dir($file_name = '') {
-  $smartling_dir = (variable_get('file_private_path', FALSE)) ? ('private://smartling') : ('public://smartling');
-  $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
-  return (string) $smartling_dir;
+  return drupal_container()->get('')->getDir($file_name);
 }
 
 /**
@@ -216,55 +185,8 @@ function smartling_clean_filename($filename, $allow_dirs = FALSE) {
   return (string) $filename;
 }
 
-/**
- * @todo Add new 'Debug' option to smartling settings and save files to disk only if debugging is enabled
- * Otherwise skip saving. Other function must not require a phisical file on a disk
- *
- * Save xml document.
-
- * @param string $file_name
- *   File name.
- * @param object $xml_doc
- *   Xml document.
- * @param stdClass $smartling_entity
- *   Locale in drupal format (ru, en).
- *
- * @return bool
- *   Was file creation successful or not.
- */
-function smartling_save_xml($file_name, $xml_doc, $smartling_entity  = NULL) {
-  $log = smartling_log_get_handler();
-
-  if (empty($file_name)) {
-    $file_name = 'smartling_translate_' . $smartling_entity->entity_type . '_' . $smartling_entity->rid . '.xml';
-  }
-
-  $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
-  $directory = smartling_get_dir();
-  $path = $directory . '/' . smartling_clean_filename($file_name);
-
-  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-    $xml_doc->save(drupal_realpath($path));
-
-    $log->setMessage('Smartling saves xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-      ->setVariables(array(
-        '@entity_type' => $smartling_entity->entity_type,
-        '@rid' => $smartling_entity->rid,
-        '@locale' => $smartling_entity->target_language,
-      ))
-      ->setLink(l(t('View file'), file_create_url($path)))
-      ->execute();
-
-    return TRUE;
-  }
-
-  $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.')
-    ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_entity->rid, '@dir' => $directory))
-    ->setConsiderLog(FALSE)
-    ->setSeverity(WATCHDOG_ERROR)
-    ->execute();
-  drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
-  return FALSE;
+function smartling_save_xml($file_name, $xml_doc, $smartling_submission  = NULL) {
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->saveXML($file_name, $xml_doc, $smartling_submission);
 }
 
 function smartling_get_entity_processor($smartling_entity) {

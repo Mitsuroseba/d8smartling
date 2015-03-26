@@ -25,4 +25,8 @@ class DrupalAPIWrapper {
   public function &drupalStatic($name, $default_value = NULL, $reset = FALSE) {
     return drupal_static($name, $default_value, $reset);
   }
+
+  public function drupalRealpath($uri) {
+    return drupal_realpath($uri);
+  }
 }

@@ -686,7 +686,9 @@ class SmartlingSettingsHandler {
    *   Return smartling dir path.
    */
   public function getDir($file_name = '') {
-    return smartling_get_dir($file_name);
+    $smartling_dir = (variable_get('file_private_path', FALSE)) ? ('private://smartling') : ('public://smartling');
+    $smartling_dir .= (empty($file_name)) ? '' : '/' . $file_name;
+    return (string) $smartling_dir;
   }
 
   /**
