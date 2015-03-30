@@ -146,7 +146,7 @@ function smartling_convert_locale_smartling_to_drupal($locale) {
 }
 
 function smartling_get_dir($file_name = '') {
-  return drupal_container()->get('')->getDir($file_name);
+  return drupal_container()->get('smartling.settings')->getDir($file_name);
 }
 
 /**

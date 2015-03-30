@@ -29,7 +29,7 @@ class GenericEntityProcessor {
    *
    * @var \stdClass|\SmartlingEntityData
    */
-  public $entity;
+  public $smartling_submission;
 
   /**
    * Contains Smartling data referenced drupal content entity, e.g. Node, User.
@@ -108,7 +108,7 @@ class GenericEntityProcessor {
   /**
    * Create GenericEntityProcessor instance.
    *
-   * @param object $entity
+   * @param object $smartling_submission
    *   Smartling data entity.
    * @param FieldProcessorFactory $field_processor_factory
    *   Factory instance for all field specific logic.
@@ -119,13 +119,13 @@ class GenericEntityProcessor {
    *
    * @todo avoid procedural code in construct to achieve full DI.
    */
-  public function __construct($entity, $field_processor_factory, $smartling_api, $log) {
-    $this->entity = $entity;
-    $this->drupalTargetLocale = $entity->target_language;
-    $this->drupalOriginalLocale = $entity->original_language;
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $log) {
+    $this->smartling_submission = $smartling_submission;
+    $this->drupalTargetLocale = $smartling_submission->target_language;
+    $this->drupalOriginalLocale = $smartling_submission->original_language;
 
-    $this->contentEntity = entity_load_single($this->entity->entity_type, $this->entity->rid);
-    $this->drupalEntityType = $this->entity->entity_type;
+    $this->contentEntity = entity_load_single($this->smartling_submission->entity_type, $this->smartling_submission->rid);
+    $this->drupalEntityType = $this->smartling_submission->entity_type;
     $this->contentEntityWrapper = entity_metadata_wrapper($this->drupalEntityType, $this->contentEntity);
     $this->ifFieldMethod = smartling_fields_method($this->contentEntityWrapper->getBundle());
 
@@ -142,8 +142,8 @@ class GenericEntityProcessor {
    * @return bool
    */
   public function getProgressStatus() {
-    if (!empty($this->entity->file_name)) {
-      $result = $this->smartlingAPI->getStatus($this->entity);
+    if (!empty($this->smartling_submission->file_name)) {
+      $result = $this->smartlingAPI->getStatus($this->smartling_submission);
 
       if (!empty($result)) {
         return $result['entity_data']->progress;
@@ -191,7 +191,7 @@ class GenericEntityProcessor {
       return;
     }
 
-    $download_result = $this->smartlingAPI->downloadFile($this->entity);
+    $download_result = $this->smartlingAPI->downloadFile($this->smartling_submission);
 
     libxml_use_internal_errors(true);
     if (FALSE === simplexml_load_string($download_result)) {
@@ -201,18 +201,18 @@ class GenericEntityProcessor {
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);
 
-    $translated_file_name = drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($this->entity)->getFileTranslatedName();
+    $translated_file_name = drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($this->smartling_submission)->getFileTranslatedName();
 //    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
 //    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccess = smartling_save_xml($translated_file_name, $xml, $this->entity);
+    $isSuccess = smartling_save_xml($translated_file_name, $xml, $this->smartling_submission);
 
     // If result is saved.
     // @todo finish converting.
     if ($isSuccess) {
       drupal_container()->get('smartling.wrappers.entity_data_wrapper')
-        ->setEntity($this->entity)
+        ->setEntity($this->smartling_submission)
         ->setStatusByEvent(SMARTLING_STATUS_EVENT_UPDATE_FIELDS)
         ->setProgress($progress)
         ->save();
@@ -240,7 +240,7 @@ class GenericEntityProcessor {
           // language and disallow to fetch values from translated fields.
           // However all entities work with entities in the same way.
           if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]) && empty($this->contentEntity->{$field_name}[$this->drupalTargetLocale])) {
-            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->entity, $this->targetFieldLanguage);
+            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->smartling_submission);
             $this->contentEntity->{$field_name}[$this->drupalTargetLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
           }
         }
@@ -254,8 +254,8 @@ class GenericEntityProcessor {
    * @todo remove procedural code and use entities from properties.
    */
   public function updateDrupalTranslation() {
-    $entity = entity_load_single($this->drupalEntityType, $this->entity->rid);
-    $handler = smartling_entity_translation_get_handler($this->drupalEntityType, $entity);
+    $smartling_submission = entity_load_single($this->drupalEntityType, $this->smartling_submission->rid);
+    $handler = smartling_entity_translation_get_handler($this->drupalEntityType, $smartling_submission);
     $translations = $handler->getTranslations();
 
     // Initialize translations if they are empty.
@@ -263,18 +263,18 @@ class GenericEntityProcessor {
       $handler->initTranslations();
       $handler->saveTranslations();
       // Update the wrapped entity.
-      $handler->setEntity($entity);
+      $handler->setEntity($smartling_submission);
       $handler->smartlingEntityTranslationFieldAttach();
       $translations = $handler->getTranslations();
     }
 
     $entity_translation = array(
       'entity_type' => $this->drupalEntityType,
-      'entity_id' => $this->entity->rid,
+      'entity_id' => $this->smartling_submission->rid,
       'translate' => '0',
-      'status' => !empty($entity->status) ? $entity->status : 1,
+      'status' => !empty($smartling_submission->status) ? $smartling_submission->status : 1,
       'language' => $this->drupalTargetLocale,
-      'uid' => $this->entity->submitter,
+      'uid' => $this->smartling_submission->submitter,
       'changed' => REQUEST_TIME,
     );
 
@@ -285,13 +285,13 @@ class GenericEntityProcessor {
       // Add the new translation.
       $entity_translation += array(
         'source' => $translations->original,
-        'created' => !empty($entity->created) ? $entity->created : REQUEST_TIME,
+        'created' => !empty($smartling_submission->created) ? $smartling_submission->created : REQUEST_TIME,
       );
       $handler->setTranslation($entity_translation);
     }
     $handler->saveTranslations();
     // Update the wrapped entity.
-    $handler->setEntity($entity);
+    $handler->setEntity($smartling_submission);
     $handler->smartlingEntityTranslationFieldAttach();
 
     return TRUE;
@@ -309,7 +309,7 @@ class GenericEntityProcessor {
 
     foreach ($this->getTranslatableFields() as $field_name) {
       // @TODO test if format could be set automatically.
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->entity_type, $this->smartling_submission);
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
@@ -322,7 +322,7 @@ class GenericEntityProcessor {
    */
   public function updateEntityFromXML() {
     // @todo Move it into separate method.
-    $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($this->entity->translated_file_name), TRUE));
+    $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($this->smartling_submission->translated_file_name), TRUE));
 
     $xml = new \DOMDocument();
     $xml->load($file_path);
@@ -337,7 +337,7 @@ class GenericEntityProcessor {
   public function getTranslatableContent() {
     $data = array();
     foreach ($this->getTranslatableFields() as $field_name) {
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->entity_type, $this->smartling_submission);
       if ($fieldProcessor) {
         $data[$field_name] = $fieldProcessor->getSmartlingContent();
       }
@@ -354,7 +354,7 @@ class GenericEntityProcessor {
 
     foreach ($this->getTranslatableFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->entity->entity_type, $this->entity, $this->targetFieldLanguage);
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->entity_type, $this->smartling_submission);
       if ($fieldProcessor) {
         $data = $fieldProcessor->getSmartlingContent();
         $fieldProcessor->putDataToXML($xml, $localize, $data);
@@ -373,6 +373,6 @@ class GenericEntityProcessor {
    */
   public function getTranslatableFields() {
     // @todo Inject via DIC.
-    return smartling_settings_get_handler()->getFieldsSettingsByBundle($this->entity->entity_type, $this->entity->bundle);
+    return smartling_settings_get_handler()->getFieldsSettingsByBundle($this->smartling_submission->entity_type, $this->smartling_submission->bundle);
   }
 }

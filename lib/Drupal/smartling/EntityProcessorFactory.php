@@ -37,6 +37,10 @@ class EntityProcessorFactory {
     $this->processorMapping = $processor_mapping;
   }
 
+  public function getContainer() {
+    return drupal_container();
+  }
+
   /**
    * Creates GenericEntityProcessor instance based on entity type.
    *
@@ -47,7 +51,6 @@ class EntityProcessorFactory {
    * @return GenericEntityProcessor
    */
   public function getProcessor($smartling_submission) {
-    $container = drupal_container();
     $static_storage = &$this->drupal_api_wrapper->drupalStatic(__CLASS__ . '_' . __METHOD__, array());
 
     if (!empty($static_storage[$smartling_submission->eid])) {
@@ -57,6 +60,7 @@ class EntityProcessorFactory {
     // @Todo avoid hardcoding 'generic' key.
     $processor_yml_id = isset($this->processorMapping[$smartling_submission->entity_type]) ? $this->processorMapping[$smartling_submission->entity_type] : $this->processorMapping['generic'];
 
+    $container = $this->getContainer();
     $container->setParameter('smartling_submission', $smartling_submission);
     $static_storage[$smartling_submission->eid] = $container->get($processor_yml_id);//new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
 

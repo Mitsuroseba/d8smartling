@@ -42,29 +42,31 @@ class FieldProcessorFactory {
     $this->field_mapping = $field_mapping;
   }
 
+  public function getContainer() {
+    return drupal_container();
+  }
+
   /**
    * Factory method for FieldProcessor instances.
    *
    * @param string $field_name
    * @param \stdClass $entity
    * @param string $entity_type
-   * @param \stdClass $smartling_entity
-   * @param string $target_language
-   * @param null|string $source_language
+   * @param \stdClass $smartling_submission
    *
    * @return BaseFieldProcessor
    */
-  public function getProcessor($field_name, $entity, $entity_type, $smartling_entity, $target_language, $source_language = NULL) {
+  public function getProcessor($field_name, $entity, $entity_type, $smartling_submission) {
     $field_info = $this->field_api_wrapper->fieldInfoField($field_name);
 
     if ($field_info) {
       $type = $field_info['type'];
       // @todo we could get notice about invalid key here.
-      $class_name = $this->field_mapping['real'][$type];
+      $service_id = $this->field_mapping['real'][$type];
     }
     elseif (isset($this->field_mapping['fake'][$field_name])) {
       $type = $field_name;
-      $class_name = $this->field_mapping['fake'][$type];
+      $service_id = $this->field_mapping['fake'][$type];
     }
     else {
       $this->log->setMessage("Smartling found unexisted field - @field_name")
@@ -75,7 +77,7 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    if (!$class_name) {
+    if (!$service_id) {
       $this->log->setMessage("Smartling didn't process content of field - @field_name")
         ->setVariables(array('@field_name' => $field_name))
         ->setConsiderLog(FALSE)
@@ -84,18 +86,13 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    $source_language = ($source_language ?: (($this->smartling_utils->fieldIsTranslatable($field_name, $entity_type)) ? $this->entity_api_wrapper->entityLanguage($entity_type, $entity) : LANGUAGE_NONE));
-
-    $field_class = new $class_name(
-      $entity,
-      $entity_type,
-      $field_name,
-      $smartling_entity,
-      $source_language,
-      $target_language
-    );
-
-    return $field_class;
+    $container = $this->getContainer();
+    $container->setParameter('field_name', $field_name);
+    $container->setParameter('drupal_entity', $entity);
+    $container->setParameter('entity_type', $entity_type);
+    $container->setParameter('smartling_submission', $smartling_submission);
+    //new $class_name($field_name, $entity, $entity_type, $smartling_submission);
+    return $container->get($service_id);
   }
 
   public function isSupportedField($field_name) {

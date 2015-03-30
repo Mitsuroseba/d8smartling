@@ -24,11 +24,11 @@ abstract class BaseFieldProcessor {
   
   // @todo Can we get entity_type from entity? 
   // @todo We can get target_language from smartling_data
-  public function __construct($entity, $entity_type, $field_name, $smartling_submission, $source_language, $target_language) {
+  public function __construct($field_name, $entity, $entity_type, $smartling_submission) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
-    $this->sourceLanguage = $source_language;
-    $this->targetLanguage = $target_language;
+    $this->sourceLanguage = $smartling_submission->original_language;
+    $this->targetLanguage = $smartling_submission->target_language;
     $this->fieldName = $field_name;
     $this->smartling_submission = $smartling_submission;
 

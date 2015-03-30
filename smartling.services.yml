@@ -120,17 +120,54 @@ services:
 
   smartling.entity_processors.generic:
     class:              Drupal\smartling\Processors\GenericEntityProcessor
-    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
 
   smartling.entity_processors.node:
     class:              Drupal\smartling\Processors\NodeProcessor
-    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
 
   smartling.entity_processors.taxonomy_term:
     class:              Drupal\smartling\Processors\TaxonomyTermProcessor
-    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+
+
+
+  smartling.field_processors.text:
+    class:              Drupal\smartling\FieldProcessors\TextFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.text_with_summary:
+    class:              Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.image:
+    class:              Drupal\smartling\FieldProcessors\ImageFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.field_collection:
+    class:              Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.link_field:
+    class:              Drupal\smartling\FieldProcessors\LinkFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.title_property:
+    class:              Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.description_property_field:
+    class:              Drupal\smartling\FieldProcessors\DescriptionPropertyFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+
+  smartling.field_processors.name_property_field:
+    class:              Drupal\smartling\FieldProcessors\NamePropertyFieldProcessor
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
 
 parameters:
+  field_name:               ""
+  drupal_entity:            null
+  entity_type:              ""
   smartling_submission:     null
 
   entity_processors:
@@ -140,15 +177,15 @@ parameters:
 
   field_processors:
     real:
-      text:                 Drupal\smartling\FieldProcessors\TextFieldProcessor
-      text_long:            Drupal\smartling\FieldProcessors\TextFieldProcessor
-      text_with_summary:    Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
-      image:                Drupal\smartling\FieldProcessors\ImageFieldProcessor
-      field_collection:     Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
-      link_field:           Drupal\smartling\FieldProcessors\LinkFieldProcessor
+      text:                 smartling.field_processors.text
+      text_long:            smartling.field_processors.text
+      text_with_summary:    smartling.field_processors.text_with_summary
+      image:                smartling.field_processors.image
+      field_collection:     smartling.field_processors.field_collection
+      link_field:           smartling.field_processors.link_field
 
     fake:
-      title_property:       Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
-      title_property_field: Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
-      description_property_field: Drupal\smartling\FieldProcessors\DescriptionPropertyFieldProcessor
-      name_property_field:  Drupal\smartling\FieldProcessors\NamePropertyFieldProcessor
+      title_property:       smartling.field_processors.title_property
+      title_property_field: smartling.field_processors.title_property
+      description_property_field: smartling.field_processors.description_property_field
+      name_property_field:  smartling.field_processors.name_property_field
