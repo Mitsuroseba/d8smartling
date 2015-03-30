@@ -46,7 +46,7 @@ class ImageFieldProcessor extends BaseFieldProcessor {
       $titleField = $xpath->query('//string[@id="' . $this->fieldName . '-title-img-' . $i . '"][1]')->item(0);
 
       $fid = $altField->getAttribute('fid');
-      $file_img = file_load($fid);
+      $file_img = $this->drupal_wrapper->fileLoad($fid);
 
       if ($file_img) {
         $data[$i] = (array) $file_img;

@@ -134,35 +134,35 @@ services:
 
   smartling.field_processors.text:
     class:              Drupal\smartling\FieldProcessors\TextFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.text_with_summary:
     class:              Drupal\smartling\FieldProcessors\TextSummaryFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.image:
     class:              Drupal\smartling\FieldProcessors\ImageFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.field_collection:
     class:              Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper, @smartling.field_processor_factory, @smartling.wrappers.entity_api_wrapper]
 
   smartling.field_processors.link_field:
     class:              Drupal\smartling\FieldProcessors\LinkFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.title_property:
     class:              Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.description_property_field:
     class:              Drupal\smartling\FieldProcessors\DescriptionPropertyFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.field_processors.name_property_field:
     class:              Drupal\smartling\FieldProcessors\NamePropertyFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper]
 
 parameters:
   field_name:               ""

@@ -21,16 +21,20 @@ abstract class BaseFieldProcessor {
   protected $fieldName;
 
   protected $smartling_submission;
+
+  protected $drupal_wrapper;
   
   // @todo Can we get entity_type from entity? 
   // @todo We can get target_language from smartling_data
-  public function __construct($field_name, $entity, $entity_type, $smartling_submission) {
+  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
     $this->sourceLanguage = $smartling_submission->original_language;
     $this->targetLanguage = $smartling_submission->target_language;
     $this->fieldName = $field_name;
     $this->smartling_submission = $smartling_submission;
+
+    $this->drupal_wrapper = $drupal_wrapper;
 
     return $this;
   }
@@ -52,10 +56,10 @@ abstract class BaseFieldProcessor {
    * @return string
    */
   public function processXMLContent($value, $reset = FALSE) {
-    $handlers = & drupal_static(__FUNCTION__);
+    $handlers = & $this->drupal_wrapper->drupalStatic(__FUNCTION__);
     if (!isset($actions) || $reset) {
-      $handlers = module_invoke_all('smartling_data_processor_info');
-      drupal_alter('smartling_data_processor_info', $handlers);
+      $handlers = $this->drupal_wrapper->moduleInvokeAll('smartling_data_processor_info');
+      $this->drupal_wrapper->alter('smartling_data_processor_info', $handlers);
     }
 
     foreach ($handlers as $parser => $processors) {
@@ -146,12 +150,6 @@ abstract class BaseFieldProcessor {
   // Pls remove both parameters
   public function cleanBeforeClone($entity) {
     return NULL;
-  }
-
-  public static function isFieldOfType($field_name, $field_type) {
-    $field = field_info_field($field_name);
-
-    return isset($field) && $field['type'] == $field_type;
   }
 
   /**
