@@ -25,8 +25,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return field_collection_item_load($id);
   }
 
-  protected function getProcessor($field_name, $entity, $smartling_entity, $targetLanguage, $sourceLanguage) {
-    return drupal_container()->get('smartling.field_processor_factory')->getProcessor($field_name, $entity, 'field_collection_item', $smartling_entity, $targetLanguage, $sourceLanguage);
+  protected function getProcessor($field_name, $entity, $smartling_submission, $targetLanguage, $sourceLanguage) {
+    return drupal_container()->get('smartling.field_processor_factory')->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission, $targetLanguage, $sourceLanguage);
   }
   /**
    * {@inheritdoc}
@@ -45,8 +45,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
         foreach ($this->getTranslatableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-          //$fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage, $this->smartling_entity->original_language);
-          $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_entity, $this->targetLanguage, $this->sourceLanguage);
+          //$fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_submission, $this->targetLanguage, $this->smartling_submission->original_language);
+          $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_submission, $this->targetLanguage, $this->sourceLanguage);
 
           if ($fieldProcessor) {
             $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();
@@ -67,7 +67,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $point = null;
     foreach ($this->getTranslatableFields() as $field_name) {
       // @TODO test if format could be set automatically.
-      $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, 'field_collection_item', $this->smartling_entity, $this->targetLanguage);
+      $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, 'field_collection_item', $this->smartling_submission, $this->targetLanguage);
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
@@ -184,8 +184,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
     $fieldProcessorFactory = drupal_container()->get('smartling.field_processor_factory');
     foreach ($value as $field_name => $fieldValue) {
-      $smartling_entity = clone $this->smartling_entity;
-      $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_entity, LANGUAGE_NONE);
+      $smartling_submission = clone $this->smartling_submission;
+      $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission, LANGUAGE_NONE);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
       unset($fieldProcessor);
     }
@@ -222,7 +222,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
             $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
           }
           else {
-            $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_entity, $this->targetLanguage);
+            $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_submission, $this->targetLanguage);
             $fieldProcessor->putDataToXml($xml, $collection, array($delta => $item));
           }
 

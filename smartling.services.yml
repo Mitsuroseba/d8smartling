@@ -23,7 +23,7 @@ services:
 
   smartling.entity_processor_factory:
     class:              Drupal\smartling\EntityProcessorFactory
-    arguments:          [%entity_processors%, @smartling.field_processor_factory, @smartling.log, @smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper]
+    arguments:          [%entity_processors%, @smartling.wrappers.drupal_api_wrapper]
 
 
 
@@ -117,11 +117,26 @@ services:
   smartling.entity_conversion_utils.taxonomy_term:
     class:              Drupal\smartling\EntityConversionUtils\TaxonomyTermConversionUtil
 
+
+  smartling.entity_processors.generic:
+    class:              Drupal\smartling\Processors\GenericEntityProcessor
+    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+
+  smartling.entity_processors.node:
+    class:              Drupal\smartling\Processors\NodeProcessor
+    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+
+  smartling.entity_processors.taxonomy_term:
+    class:              Drupal\smartling\Processors\TaxonomyTermProcessor
+    arguments:          [%smartling_submission% @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log]
+
 parameters:
+  smartling_submission:     null
+
   entity_processors:
-    node:                   Drupal\smartling\Processors\NodeProcessor
-    taxonomy_term:          Drupal\smartling\Processors\TaxonomyTermProcessor
-    generic:                Drupal\smartling\Processors\GenericEntityProcessor
+    node:                   smartling.entity_processors.node
+    taxonomy_term:          smartling.entity_processors.taxonomy_term
+    generic:                smartling.entity_processors.generic
 
   field_processors:
     real:
