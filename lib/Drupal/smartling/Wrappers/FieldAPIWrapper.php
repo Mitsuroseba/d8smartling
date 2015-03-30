@@ -30,4 +30,8 @@ class FieldAPIWrapper {
   public function fieldValidLanguage($langcode, $default = TRUE) {
     return field_valid_language($langcode, $default);
   }
+
+  public function fieldInfoInstances($entity_type = NULL, $bundle_name = NULL) {
+    return field_info_instances($entity_type, $bundle_name);
+  }
 }

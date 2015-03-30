@@ -12,11 +12,15 @@ use Drupal\smartling\FieldProcessorFactory;
 class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
   protected $fieldFactory;
+  protected $entity_api_wrapper;
+  protected $field_api_wrapper;
 
-  public function __construct($field_name, $entity, $entity_type, $smartling_submission) {
-    parent::__construct($field_name, $entity, $entity_type, $smartling_submission);
+  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper, $field_processor_factory, $entity_api_wrapper, $field_api_wrapper) {
+    parent::__construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper);
 
-    $this->fieldFactory = drupal_container()->get('smartling.field_processor_factory');
+    $this->fieldFactory = $field_processor_factory;
+    $this->entity_api_wrapper = $entity_api_wrapper;
+    $this->field_api_wrapper = $field_api_wrapper;
 
     return $this;
   }
@@ -73,7 +77,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     }
 
     unset($fieldProcessor);
-    entity_save('field_collection_item', $this->entity);
+    $this->entity_api_wrapper->entitySave('field_collection_item', $this->entity);
   }
 
   public function fetchDataFromXML(\DomXpath $xpath) {
@@ -113,32 +117,32 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
 
 
   protected function clone_fc_items($entity_type, &$entity, $fc_field, $language = LANGUAGE_NONE){
-    $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
+    $entity_wrapper = $this->entity_api_wrapper->entityMetadataWrapper($entity_type, $entity);
     $old_fc_items = $entity_wrapper->{$fc_field}->value();
     if (!is_array($old_fc_items)) {
       $old_fc_items = array($old_fc_items);
     }
     if (empty($old_fc_items)) {
       foreach ($entity->{$fc_field}[$language] as $item_key => $item_value) {
-        $fc_item = field_collection_item_load($item_value['value']);
+        $fc_item = $this->fieldCollectionItemLoad($item_value['value']);
           $old_fc_items[$item_key] = $fc_item;
       }
     }
 
-    $field_info_instances = field_info_instances();
-    $field_names = element_children($field_info_instances['field_collection_item'][$fc_field]);
+    $field_info_instances = $this->field_api_wrapper->fieldInfoInstances();
+    $field_names = $this->drupal_wrapper->elementChildren($field_info_instances['field_collection_item'][$fc_field]);
     unset($entity->{$fc_field}[$language]);
     $result = array();
     foreach ($old_fc_items as $old_fc_item) {
       //$old_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $old_fc_item);
-      $new_fc_item = entity_create('field_collection_item', array('field_name' => $fc_field));
+      $new_fc_item = $this->entity_api_wrapper->entityCreate('field_collection_item', array('field_name' => $fc_field));
       $new_fc_item->setHostEntity($entity_type, $entity, $language);
       foreach ($field_names as $field_name) {
         if (!empty($old_fc_item->{$field_name})){
           $new_fc_item->{$field_name} = $old_fc_item->{$field_name};
         }
       }
-        $new_fc_item_wrapper = entity_metadata_wrapper('field_collection_item', $new_fc_item);
+        $new_fc_item_wrapper = $this->entity_api_wrapper->entityMetadataWrapper('field_collection_item', $new_fc_item);
         $new_fc_item_wrapper->save();
         // field_attach_update($entity_type, $entity);
         $result[] = array('value' => $new_fc_item_wrapper->getIdentifier(), 'revision_id' => $new_fc_item_wrapper->getIdentifier());
@@ -146,13 +150,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
       //Now check if any of the fields in the newly cloned fc item is a field collection and recursively call this function to properly clone it.
       foreach ($field_names as $field_name) {
         if (!empty($new_fc_item->{$field_name})){
-          $field_info = field_info_field($field_name);
+          $field_info = $this->field_api_wrapper->fieldInfoField($field_name);
           if ($field_info['type'] == 'field_collection'){
             $this->clone_fc_items('field_collection_item', $new_fc_item, $field_name, $language);
           }
         }
       }
-        $new_fc_item = field_collection_item_load( $new_fc_item_wrapper->getIdentifier());
+        $new_fc_item = $this->fieldCollectionItemLoad( $new_fc_item_wrapper->getIdentifier());
 
     }
 
@@ -182,7 +186,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   protected function saveContentToEntity($id, $value) {
     $entity = $this->fieldCollectionItemLoad($id);
 
-    $fieldProcessorFactory = drupal_container()->get('smartling.field_processor_factory');
+    $fieldProcessorFactory = $this->fieldFactory;
     foreach ($value as $field_name => $fieldValue) {
       $smartling_submission = clone $this->smartling_submission;
       $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission);
@@ -190,8 +194,9 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
       unset($fieldProcessor);
     }
 
+    //@todo: check if this unset makes any sense.
     unset($fieldProcessorFactory);
-    entity_save('field_collection_item', $entity);
+    $this->entity_api_wrapper->entitySave('field_collection_item', $entity);
   }
 
   public function cleanBeforeClone($entity) {
@@ -218,7 +223,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         foreach ($value as $delta => $item) {
           // If field value is an array and value key is valid field name
           // then process it as nested field collection.
-          if (is_array($item) && static::isFieldOfType($field_name, 'field_collection')) {
+          if (is_array($item) && $this->isFieldOfType($field_name, 'field_collection')) {
             $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
           }
           else {
@@ -255,6 +260,13 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $string->appendChild($string_attr);
 
     return $string;
+  }
+
+
+  protected function isFieldOfType($field_name, $field_type) {
+    $field = $this->field_api_wrapper->fieldInfoField($field_name);
+
+    return isset($field) && $field['type'] == $field_type;
   }
 }
 

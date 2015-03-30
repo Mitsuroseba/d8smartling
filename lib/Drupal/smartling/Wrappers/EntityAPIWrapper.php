@@ -57,4 +57,8 @@ class EntityAPIWrapper {
   public function entitySave($entity_type, $entity) {
     return entity_save($entity_type, $entity);
   }
+
+  public function  entityCreate($entity_type, array $values) {
+    return entity_create($entity_type, $values);
+  }
 }

@@ -37,4 +37,8 @@ class DrupalAPIWrapper {
   public function fileLoad($fid) {
     return file_load($fid);
   }
+
+  public function elementChildren(&$elements, $sort = FALSE) {
+    return element_children($elements, $sort);
+  }
 }

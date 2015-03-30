@@ -146,7 +146,7 @@ services:
 
   smartling.field_processors.field_collection:
     class:              Drupal\smartling\FieldProcessors\FieldCollectionFieldProcessor
-    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper, @smartling.field_processor_factory, @smartling.wrappers.entity_api_wrapper]
+    arguments:          [%field_name%, %drupal_entity%, %entity_type%, %smartling_submission%, @smartling.wrappers.drupal_api_wrapper, @smartling.field_processor_factory, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.field_api_wrapper]
 
   smartling.field_processors.link_field:
     class:              Drupal\smartling\FieldProcessors\LinkFieldProcessor
