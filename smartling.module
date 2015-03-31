@@ -511,9 +511,6 @@ function smartling_smartling_settings_form_info() {
 
   $forms['smartling_admin_expert_settings_form'] = t('Expert settings');
 
-  if (module_exists('smartling_load_test')) {
-    $forms['smartling_admin_dev_settings_form'] = t('Dev settings');
-  }
   if (module_exists('smartling_reference')) {
     $forms['smartling_admin_reference_settings_form'] = t('References settings');
   }
