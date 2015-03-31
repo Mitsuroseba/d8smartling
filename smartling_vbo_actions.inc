@@ -78,9 +78,8 @@ function smartling_do_translate_action_submit(array $form, array $form_state) {
   }
 
   $count_op = count($form_state['selection']);
-  $log = smartling_log_get_handler();
-  $log->setMessage(format_plural($count_op, 'Smartling Bulk Submit - add 1 entity to queue', 'Smartling Bulk Submit - add @count entities to queue'))
-    ->execute();
+  smartling_log_get_handler()->info(format_plural($count_op, 'Smartling Bulk Submit - add 1 entity to queue', 'Smartling Bulk Submit - add @count entities to queue'));
+
   return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
 

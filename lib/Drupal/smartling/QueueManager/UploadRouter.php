@@ -45,13 +45,8 @@ class UploadRouter {
       $this->smartling_utils->hookEntityUpdate($entity, $entity_type);
 
       $langs = implode(', ', $languages);
-      $this->log->setMessage('Smartling queue task was created for entity id - @id, locale - @locale, type - @entity_type')
-        ->setVariables(array(
-          '@id' => $smartling_wrapper->getRID(),
-          '@locale' => $langs,
-          '@entity_type' => $entity_type,
-        ))
-        ->execute();
+      $this->log->info('Smartling queue task was created for entity id - @id, locale - @locale, type - @entity_type',
+        array('@id' => $smartling_wrapper->getRID(), '@locale' => $langs, '@entity_type' => $entity_type));
 
       drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@entity_type' => $entity_type,

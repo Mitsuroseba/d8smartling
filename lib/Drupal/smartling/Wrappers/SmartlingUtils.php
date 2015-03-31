@@ -98,23 +98,15 @@ class SmartlingUtils {
     if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
       $xml_doc->save(drupal_realpath($path));
 
-      $log->setMessage('Smartling saves xml file for entity_type - @entity_type, id - @rid. Locale: @locale')
-        ->setVariables(array(
-          '@entity_type' => $smartling_submission->entity_type,
-          '@rid' => $smartling_submission->rid,
-          '@locale' => $smartling_submission->target_language,
-        ))
-        ->setLink(l(t('View file'), file_create_url($path)))
-        ->execute();
+      $log->info('Smartling saves xml file for entity_type - @entity_type, id - @rid. Locale: @locale',
+        array('@entity_type' => $smartling_submission->entity_type, '@rid' => $smartling_submission->rid, '@locale' => $smartling_submission->target_language, 'entity_link' => l(t('View file'), file_create_url($path))));
 
       return TRUE;
     }
 
-    $log->setMessage('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.')
-      ->setVariables(array('@file_name' => $file_name, '@rid' => $smartling_submission->rid, '@dir' => $directory))
-      ->setConsiderLog(FALSE)
-      ->setSeverity(WATCHDOG_ERROR)
-      ->execute();
+    $log->error('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.',
+      array('@file_name' => $file_name, '@rid' => $smartling_submission->rid, '@dir' => $directory), TRUE);
+
     drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
     return FALSE;
   }

@@ -58,9 +58,7 @@ function smartling_rebuild_references_form_submit(array $form, array &$form_stat
 
   if (!empty($condition_active_bundles) && !empty($field_names)) {
     // Log fields.
-    $log->setMessage('Smartling fixes references for fields: @fields')
-      ->setVariables(array('@fields' => implode(', ', $field_names)))
-      ->execute();
+    $log->info('Smartling fixes references for fields: @fields', array('@fields' => implode(', ', $field_names)));
     // Get entity types with references field.
     $condition_bundles = smartling_get_entity_types_whith_references($condition_active_bundles, $field_names);
 

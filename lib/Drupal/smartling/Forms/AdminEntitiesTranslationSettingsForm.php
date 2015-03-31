@@ -136,9 +136,7 @@ class AdminEntitiesTranslationSettingsForm implements FormInterface {
 
     drupal_set_message(t('Entities settings updated.'));
 
-    $this->logger->setMessage('Smartling entities and fields have been updated.')
-      ->setConsiderLog(FALSE)
-      ->execute();
+    $this->logger->info('Smartling entities and fields have been updated.', array(), TRUE);
 
     $redirect = url('admin/config/regional/smartling', array(
       'absolute' => TRUE,

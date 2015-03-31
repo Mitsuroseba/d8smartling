@@ -69,20 +69,12 @@ class FieldProcessorFactory {
       $service_id = $this->field_mapping['fake'][$type];
     }
     else {
-      $this->log->setMessage("Smartling found unexisted field - @field_name")
-        ->setVariables(array('@field_name' => $field_name))
-        ->setConsiderLog(FALSE)
-        ->execute();
-
+      $this->log->warning("Smartling found unexisted field - @field_name", array('@field_name' => $field_name), TRUE);
       return FALSE;
     }
 
     if (!$service_id) {
-      $this->log->setMessage("Smartling didn't process content of field - @field_name")
-        ->setVariables(array('@field_name' => $field_name))
-        ->setConsiderLog(FALSE)
-        ->execute();
-
+      $this->log->warning("Smartling didn't process content of field - @field_name", array('@field_name' => $field_name), TRUE);
       return FALSE;
     }
 

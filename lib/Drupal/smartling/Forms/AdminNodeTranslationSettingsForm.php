@@ -252,9 +252,7 @@ class AdminNodeTranslationSettingsForm implements FormInterface {
 
     $this->settings->nodeSetFieldsSettings($translate);
     drupal_set_message(t('Your content types have been updated.'));
-    $this->logger->setMessage('Smartling content types and fields have been updated.')
-      ->setConsiderLog(FALSE)
-      ->execute();
+    $this->logger->info('Smartling content types and fields have been updated.', array(), TRUE);
 
     $redirect = url('admin/config/regional/smartling', array(
       'absolute' => TRUE,

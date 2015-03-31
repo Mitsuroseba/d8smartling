@@ -187,8 +187,7 @@ function smartling_interface_translation_do_translate_action_validate(array $for
 function smartling_interface_translation_do_translate_action_submit(array $form, array $form_state) {
   $count_op = count($form_state['selection']);
   $log = smartling_log_get_handler();
-  $log->setMessage(format_plural($count_op, 'Smartling Bulk Submit - upload 1 interface', 'Smartling Bulk Submit - upload @count interfaces'))
-    ->execute();
+  $log->info(format_plural($count_op, 'Smartling Bulk Submit - upload 1 interface', 'Smartling Bulk Submit - upload @count interfaces'));
   return array('translate_to_langs' => $form_state['translate_to_langs']);
 }
 
@@ -291,22 +290,13 @@ function smartling_interface_translation_save_po($content, $file_name, $translat
     }
 
     if ($uri) {
-      $log->setMessage('Smartling saves @file_type @file_name file.')
-        ->setVariables(array(
-          '@file_type' => $file_type,
-          '@file_name' => $file_name,
-        ))
-        ->setLink(l(t('View file'), file_create_url($uri)))
-        ->execute();
+      $log->info('Smartling saves @file_type @file_name file.', array('@file_type' => $file_type, '@file_name' => $file_name));
 
       return $uri;
     }
   }
   else {
-    $log->setMessage('Smartling (.po) file was not saved because of some errors.')
-      ->setConsiderLog(FALSE)
-      ->setSeverity(WATCHDOG_ERROR)
-      ->execute();
+    $log->error('Smartling (.po) file was not saved because of some errors.', array(), TRUE);
     drupal_set_message(t('File (.po) was not saved because of some errors.'), 'error');
     return FALSE;
   }

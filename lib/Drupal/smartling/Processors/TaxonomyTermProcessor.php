@@ -67,22 +67,12 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
 
         case I18N_MODE_LANGUAGE:
         case I18N_MODE_NONE:
-          $this->log->setMessage('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode')
-            ->setVariables(array(
-              '@entity_type' => $this->drupalEntityType,
-              '@rid' => $this->smartling_submission->rid,
-              '@vocabulary_mode' => $vocabulary_mode,
-            ))
-            ->execute();
+          $this->log->error('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode',
+            array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->rid, '@vocabulary_mode' => $vocabulary_mode));
           break;
 
         default:
-          $this->log->setMessage('Translatable @entity_type with id - @rid FAIL')
-            ->setVariables(array(
-              '@entity_type' => $this->drupalEntityType,
-              '@rid' => $this->smartling_submission->rid,
-            ))
-            ->execute();
+          $this->log->error('Translatable @entity_type with id - @rid FAIL', array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->rid));
           break;
       }
 

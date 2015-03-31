@@ -325,9 +325,7 @@ class AdminTaxonomyTranslationSettingsForm implements FormInterface {
     $this->settings->taxonomyTermSetFieldsSettings($translate);
     drupal_set_message(t('Your taxonomy vocabularies have been updated.'));
 
-    $this->logger->setMessage('Smartling taxonomy vocabularies and fields have been updated.')
-      ->setConsiderLog(FALSE)
-      ->execute();
+    $this->logger->info('Smartling taxonomy vocabularies and fields have been updated.', array(), TRUE);
 
     $redirect = url('admin/config/regional/smartling', array(
       'absolute' => TRUE,

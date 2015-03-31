@@ -37,23 +37,12 @@ class CheckStatusQueueManager implements QueueManagerInterface {
     foreach ($smartling_entities as $eid => $queue_item) {
       if (!empty($queue_item->file_name)) {
         $smartling_queue->createItem($eid);
-        $this->log->setMessage('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
-          ->setVariables(array(
-            '@eid' => $queue_item->eid,
-            '@rid' => $queue_item->rid,
-            '@entity_type' => $queue_item->entity_type,
-          ))
-          ->execute();
+        $this->log->info('Add item to "smartling_check_status" queue. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type',
+          array('@eid' => $queue_item->eid, '@rid' => $queue_item->rid, '@entity_type' => $queue_item->entity_type));
       }
       elseif ($queue_item->status != 0) {
-        $this->log->setMessage('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type')
-          ->setVariables(array(
-            '@eid' => $queue_item->eid,
-            '@rid' => $queue_item->rid,
-            '@entity_type' => $queue_item->entity_type,
-          ))
-          ->setSeverity(WATCHDOG_WARNING)
-          ->execute();
+        $this->log->warning('Original file name is empty. Smartling entity data id - @eid, related entity id - @rid, entity type - @entity_type',
+          array('@eid' => $queue_item->eid, '@rid' => $queue_item->rid, '@entity_type' => $queue_item->entity_type));
       }
     }
   }

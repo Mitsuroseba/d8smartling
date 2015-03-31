@@ -70,14 +70,10 @@ class AdminExpertSettingsForm implements FormInterface {
   public function submitForm(array &$form, array &$form_state) {
     if (isset($form_state['values']['log_mode'])) {
       if ($form_state['values']['log_mode'] == FALSE) {
-        $this->logger->setMessage('Smartling log OFF')
-          ->setConsiderLog(FALSE)
-          ->execute();
+        $this->logger->info('Smartling log OFF', array(), TRUE);
       }
       elseif ($form_state['values']['log_mode'] == TRUE) {
-        $this->logger->setMessage('Smartling log ON')
-          ->setConsiderLog(FALSE)
-          ->execute();
+        $this->logger->info('Smartling log ON', array(), TRUE);
       }
       $this->settings->setLogMode($form_state['values']['log_mode']);
     }

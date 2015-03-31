@@ -4,6 +4,7 @@ services:
 
   smartling.log:
     class:              Drupal\smartling\Log\SmartlingLog
+    arguments:          [@smartling.settings]
 
   smartling.api_wrapper:
     class:              Drupal\smartling\ApiWrapper\SmartlingApiWrapper
@@ -169,6 +170,7 @@ parameters:
   drupal_entity:            null
   entity_type:              ""
   smartling_submission:     null
+  smartling_consider_log:   true
 
   entity_processors:
     node:                   smartling.entity_processors.node

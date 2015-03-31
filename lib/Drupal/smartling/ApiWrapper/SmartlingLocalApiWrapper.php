@@ -58,12 +58,7 @@ class SmartlingLocalApiWrapper extends SmartlingApiWrapper {
     $error_result = NULL;
 
     if ($smartling_entity === FALSE) {
-      $this->logger->setMessage('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.')
-        ->setVariables(array('@rid' => $smartling_entity->rid))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
-
+      $this->logger->error('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.', array('@rid' => $smartling_entity->rid), TRUE);
       return $error_result;
     }
 
@@ -73,15 +68,8 @@ class SmartlingLocalApiWrapper extends SmartlingApiWrapper {
       );
     }
 
-    $this->logger->setMessage('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs')
-      ->setVariables(array(
-        '@entity_type' => $smartling_entity->entity_type,
-        '@rid' => $smartling_entity->rid,
-        '@d_locale' => $smartling_entity->target_language,
-        '@as' => 20,
-        '@cs' => 10,
-      ))
-      ->execute();
+    $this->logger->info('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs',
+      array('@entity_type' => $smartling_entity->entity_type, '@rid' => $smartling_entity->rid, '@d_locale' => $smartling_entity->target_language, '@as' => 20, '@cs' => 10));
 
     // If true, file translated.
 

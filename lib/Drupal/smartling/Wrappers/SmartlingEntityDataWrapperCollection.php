@@ -67,12 +67,7 @@ class SmartlingEntityDataWrapperCollection {
     //@todo: delete this "if" statement and find more apropriate way to check condition.
     if (!smartling_translate_fields_configured($bundle, $entity_type)) {
       drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)), 'warning');
-      $this->log->setMessage("Type '@type' is not supported or it's not configured in Smartling.")
-        ->setVariables(array('@type' => $bundle))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->setLink($link)
-        ->execute();
+      $this->log->error("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle, 'entity_link' => $link), TRUE);
 
       return;
     }

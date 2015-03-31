@@ -91,15 +91,8 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       'retrievalType' => $retrieval_type,
     );
 
-    $this->logger->setMessage("Smartling queue start download '@file_name' file and update fields for @entity_type id - @rid, locale - @locale.")
-      ->setVariables(array(
-        '@file_name' => $file_name_unic,
-        '@entity_type' => $smartling_entity_type,
-        '@rid' => $smartling_entity->rid,
-        '@locale' => $smartling_entity->target_language,
-      ))
-      ->setLink(l(t('View file'), $file_path))
-      ->execute();
+    $this->logger->info("Smartling queue start download '@file_name' file and update fields for @entity_type id - @rid, locale - @locale.",
+      array('@file_name' => $file_name_unic, '@entity_type' => $smartling_entity_type, '@rid' => $smartling_entity->rid, '@locale' => $smartling_entity->target_language));
 
     $s_locale = $this->convertLocaleDrupalToSmartling($d_locale);
     // Try to download file.
@@ -116,24 +109,21 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       }
 
 
-      $this->logger->setMessage('smartling_queue_download_update_translated_item_process try to download file:<br/>
+      $this->logger->error('smartling_queue_download_update_translated_item_process try to download file:<br/>
       Project Id: @project_id <br/>
       Action: download <br/>
       URI: @file_uri <br/>
       Drupal Locale: @d_locale <br/>
       Smartling Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message')
-        ->setVariables(array(
+      Error: response code -> @code and message -> @message',
+        array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_name_unic,
           '@d_locale' => $d_locale,
           '@s_locale' => $s_locale,
           '@code' => $code,
           '@message' => implode(' || ', $messages),
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
+        ), TRUE);
 
       return FALSE;
     }
@@ -149,12 +139,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $error_result = NULL;
 
     if ($smartling_entity === FALSE) {
-      $this->logger->setMessage('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.')
-        ->setVariables(array('@rid' => $smartling_entity->rid))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
-
+      $this->logger->error('Smartling checks status for id - @rid is FAIL! Smartling entity not exist.', array('@rid' => $smartling_entity->rid), TRUE);
       return $error_result;
     }
 
@@ -172,13 +157,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
     $status_result = json_decode($json);
 
     if ($status_result === NULL) {
-      $this->logger->setMessage('File status commend: downloaded json is broken. JSON: @json')
-        ->setVariables(array(
-          '@json' => $json,
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
+      $this->logger->error('File status commend: downloaded json is broken. JSON: @json', array('@json' => $json), TRUE);
       return $error_result;
     }
 
@@ -192,14 +171,13 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       }
 
 
-      $this->logger->setMessage('Smartling checks status for @entity_type id - @rid: <br/>
+      $this->logger->error('Smartling checks status for @entity_type id - @rid: <br/>
       Project Id: @project_id <br/>
       Action: status <br/>
       URI: @file_uri <br/>
       Drupal Locale: @d_locale <br/>
       Smartling Locale: @s_locale <br/>
-      Error: response code -> @code and message -> @message')
-        ->setVariables(array(
+      Error: response code -> @code and message -> @message', array(
           '@entity_type' => $smartling_entity->entity_type,
           '@rid' => $smartling_entity->rid,
           '@project_id' => $this->settingsHandler->getProjectId(),
@@ -208,23 +186,13 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           '@s_locale' => $s_locale,
           '@code' => $code,
           '@message' => implode(' || ', $messages),
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
-
+        ), TRUE);
       return $error_result;
     }
 
-    $this->logger->setMessage('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs')
-      ->setVariables(array(
-        '@entity_type' => $smartling_entity->entity_type,
-        '@rid' => $smartling_entity->rid,
-        '@d_locale' => $smartling_entity->target_language,
-        '@as' => $status_result->response->data->approvedStringCount,
-        '@cs' => $status_result->response->data->completedStringCount,
-      ))
-      ->execute();
+    $this->logger->info('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs',
+      array('@entity_type' => $smartling_entity->entity_type, '@rid' => $smartling_entity->rid, '@d_locale' => $smartling_entity->target_language,
+            '@as' => $status_result->response->data->approvedStringCount, '@cs' => $status_result->response->data->completedStringCount));
 
     // If true, file translated.
     $response_data = $status_result->response->data;
@@ -257,13 +225,8 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           $result[$s_locale] = TRUE;
         }
         else {
-          $this->logger->setMessage('Connection test for project: @project_id and locale: @locale FAILED and returned the following result: @server_response.')
-            ->setVariables(array(
-              '@project_id' => $this->settingsHandler->getProjectId(),
-              '@locale' => $key,
-              '@server_response' => $server_response,
-            ))
-            ->execute();
+          $this->logger->warning('Connection test for project: @project_id and locale: @locale FAILED and returned the following result: @server_response.',
+            array('@project_id' => $this->settingsHandler->getProjectId(), '@locale' => $key, '@server_response' => $server_response));
         }
       }
     }
@@ -300,13 +263,8 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
 
     if ($this->api->getCodeStatus() == 'SUCCESS') {
 
-      $this->logger->setMessage('Smartling uploaded @file_name for locales: @locales')
-        ->setVariables(array(
-          '@file_name' => $file_name_unic,
-          '@locales' => implode('; ', $locales),
-        ))
-        ->setLink(l(t('View file'), $file_path))
-        ->execute();
+      $this->logger->info('Smartling uploaded @file_name for locales: @locales',
+        array('@file_name' => $file_name_unic, '@locales' => implode('; ', $locales), 'entity_link' => l(t('View file'), $file_path)));
 
       return SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE;
     }
@@ -322,15 +280,15 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
         $messages = isset($upload_result->response->messages) ? $upload_result->response->messages : array();
       }
 
-      $this->logger->setMessage('Smartling failed to upload xml file: <br/>
+      $this->logger->error('Smartling failed to upload xml file: <br/>
           Project Id: @project_id <br/>
           Action: upload <br/>
           URI: @file_uri <br/>
           Drupal Locale: @d_locale <br/>
           Smartling Locale: @s_locale <br/>
           Error: response code -> @code and message -> @message
-          Upload params: @upload_params')
-        ->setVariables(array(
+          Upload params: @upload_params',
+        array(
           '@project_id' => $this->settingsHandler->getProjectId(),
           '@file_uri' => $file_path,
           '@d_locale' => implode('; ', $locales),
@@ -338,10 +296,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
           '@code' => $code,
           '@message' => implode(' || ', $messages),
           '@upload_params' => implode(' | ', $upload_params),
-        ))
-        ->setConsiderLog(FALSE)
-        ->setSeverity(WATCHDOG_ERROR)
-        ->execute();
+        ), TRUE);
     }
 
     return SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
