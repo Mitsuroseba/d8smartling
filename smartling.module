@@ -480,14 +480,14 @@ function smartling_push_callback() {
         array('@bundle' => $entity_data->bundle, '@rid' => $entity_data->rid, '@language' => $d_locale, 'entity_link' => l(t('Edit node'), 'node/' . $entity_data->rid . '/edit')));
     }
     elseif ($entity_data == FALSE) {
-      $log->warning('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', array('@locale' => $d_locale, '@fileUri' => $file_uri)));
+      $log->warning('For the parameters locale - @locale and fileUri - @fileUri entity smartling are missing', array('@locale' => $d_locale, '@fileUri' => $file_uri));
     }
   }
   else {
     $params = array('locale', 'fileUri');
     foreach ($params as $param) {
       if (!isset($_GET[$param])) {
-        $log->warning('Smartling GET parameter "@param_name" are missing', (array('@param_name' => $param));
+        $log->warning('Smartling GET parameter "@param_name" are missing', array('@param_name' => $param));
       }
     }
   }
