@@ -12,7 +12,12 @@
  *   Drupal user object.
  */
 function smartling_do_translate_action($entity, array $context) {
-  return drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
+  try {
+    drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
+  }
+  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+    smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
+  }
 }
 
 /**

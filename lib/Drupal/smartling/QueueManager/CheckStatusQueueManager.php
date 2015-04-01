@@ -51,6 +51,10 @@ class CheckStatusQueueManager implements QueueManagerInterface {
    * @inheritdoc
    */
   public function execute($eids) {
+    if (!$this->smartling_utils->isConfigured()) {
+      throw new \Drupal\smartling\SmartlingExceptions\SmartlingNotConfigured(t('Smartling module is not configured. Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))));
+    }
+
     if (!is_array($eids)) {
       $eids = array($eids);
     }
@@ -58,17 +62,14 @@ class CheckStatusQueueManager implements QueueManagerInterface {
     foreach($eids as $eid) {
       $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
 
-      if ($this->smartling_utils->isConfigured()) {
-        $result = $this->api_wrapper->getStatus($smartling_submission);
-
-        if (!empty($result)) {
-          if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_submission->entity_type != 'smartling_interface_entity')) {
-            $this->queue_download->add($eid);
-          }
-
-          //smartling_entity_data_save($result['entity_data']);
-          $this->entity_data_wrapper->setEntity($result['entity_data'])->save();
+      $result = $this->api_wrapper->getStatus($smartling_submission);
+      if (!empty($result)) {
+        if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_submission->entity_type != 'smartling_interface_entity')) {
+          $this->queue_download->add($eid);
         }
+
+        //smartling_entity_data_save($result['entity_data']);
+        $this->entity_data_wrapper->setEntity($result['entity_data'])->save();
       }
     }
   }

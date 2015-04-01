@@ -84,8 +84,9 @@ class UploadQueueManager implements QueueManagerInterface {
    */
   public function execute($eids) {
     if (!$this->smartling_utils->isConfigured()) {
-      return;
+      throw new \Drupal\smartling\SmartlingExceptions\SmartlingNotConfigured(t('Smartling module is not configured. Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))));
     }
+
     if (!is_array($eids)) {
       $eids = array($eids);
     }

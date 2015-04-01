@@ -60,7 +60,6 @@ class SmartlingUtils {
     foreach ($required_variables as $required_variable) {
       $val = variable_get($required_variable, NULL);
       if (empty($val)) {
-        drupal_set_message(t('Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))), 'warning');
         return FALSE;
       }
     }
@@ -107,7 +106,6 @@ class SmartlingUtils {
     $log->error('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.',
       array('@file_name' => $file_name, '@rid' => $smartling_submission->rid, '@dir' => $directory), TRUE);
 
-    drupal_set_message(t('File was not saved because of some errors. Please see the logs for more details.'), 'error');
     return FALSE;
   }
 

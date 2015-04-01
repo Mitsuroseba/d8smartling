@@ -6,6 +6,8 @@
  */
 
 namespace Drupal\smartling\Wrappers;
+use Drupal\smartling\SmartlingExceptions\SmartlingGenericException;
+use Drupal\smartling\SmartlingExceptions\WrongSiteSettingsException;
 
 /**
  * Class SmartlingEntityDataWrapperCollection.
@@ -64,12 +66,9 @@ class SmartlingEntityDataWrapperCollection {
     $bundle  = $wrapper->getBundle();
     $link    = $this->entity_api_wrapper->getLink($entity_type, $entity);
 
-    //@todo: delete this "if" statement and find more apropriate way to check condition.
     if (!smartling_translate_fields_configured($bundle, $entity_type)) {
-      drupal_set_message(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)), 'warning');
-      $this->log->error("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle, 'entity_link' => $link), TRUE);
-
-      return;
+      //$this->log->error("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle, 'entity_link' => $link), TRUE);
+      throw new WrongSiteSettingsException(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)));
     }
 
     // $d_locale_original = language_default()->language;

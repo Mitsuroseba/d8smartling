@@ -164,8 +164,17 @@ class GenericEntitySettingsForm implements FormInterface {
       return;
     }
 
-    $upload_manager = drupal_container()->get('smartling.queue_managers.upload_router');
-    $eids = $upload_manager->routeUploadRequest($form['#entity_type'], $form[$this->entity_key], $form_state['values']['target']);
-    return $eids;
+    $res = array();
+    try {
+      $res = drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($form['#entity_type'], $form[$this->entity_key], $form_state['values']['target']);
+    }
+    catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+      smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
+      drupal_set_message($e->getMessage());
+    }
+
+    if ($res['status']) {
+      drupal_set_message($res['message']);
+    }
   }
 }

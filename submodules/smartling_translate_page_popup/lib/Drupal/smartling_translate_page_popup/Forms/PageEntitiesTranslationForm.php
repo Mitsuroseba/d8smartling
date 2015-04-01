@@ -126,7 +126,19 @@ EOF;
       $id = (int) $v[0];
       $entity_type = $v[1];
       $entity = entity_load_single($entity_type, $id);
-      drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($entity_type, $entity, $langs);
+
+      $res = array();
+      try {
+        $res = drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($entity_type, $entity, $langs);
+      }
+      catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+        smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
+        drupal_set_message($e->getMessage());
+      }
+
+      if ($res['status']) {
+        drupal_set_message($res['message']);
+      }
     }
 
     $commands[] = ajax_command_replace('#translation_result', '<div id="translation_result" class="success">' . t('Selected entities have successfully been enqueued for upload for translation.') . '</div>');

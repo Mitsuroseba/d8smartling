@@ -43,8 +43,11 @@ class DownloadQueueManager implements QueueManagerInterface {
    */
   public function execute($eids) {
     if ($this->drupal_wrapper->getDefaultLanguage() != $this->field_api_wrapper->fieldValidLanguage(NULL, FALSE)) {
-      drupal_set_message('The download failed. Please switch to the site\'s default language: ' . $this->drupal_wrapper->getDefaultLanguage(), 'error');
-      return FALSE;
+      throw new WrongSiteSettingsException('The download failed. Please switch to the site\'s default language: ' . $this->drupal_wrapper->getDefaultLanguage());
+    }
+
+    if (!$this->smartling_utils->isConfigured()) {
+      throw new SmartlingNotConfigured(t('Smartling module is not configured. Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))));
     }
 
     if (!is_array($eids)) {
@@ -56,7 +59,7 @@ class DownloadQueueManager implements QueueManagerInterface {
       $status = FALSE;
 
       $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
-      if ($smartling_submission && $this->smartling_utils->isConfigured() && !empty($this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle))) {
+      if ($smartling_submission && !empty($this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle))) {
         $processor = $this->entity_processor_factory->getProcessor($smartling_submission);
         if ($processor->downloadTranslation()) {
           $status = $processor->updateEntityFromXML();

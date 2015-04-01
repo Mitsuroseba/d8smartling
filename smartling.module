@@ -267,7 +267,14 @@ function smartling_download_translate_form_submit(array $form, array &$form_stat
         return;
       }
 
-      smartling_queue_download_update_translated_item_process($entity_data->eid);
+      try {
+        drupal_container()->get('smartling.queue_managers.download')->execute($entity_data->eid);
+      }
+      catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+        $log->critical($e->getMessage() . '   ' . print_r($e, TRUE));
+        drupal_set_message($e->getMessage(), 'error');
+      }
+
     }
   }
 

@@ -33,8 +33,9 @@ class UploadRouter {
 
     $success = $this->entity_wrapper_collection->createForLanguages($entity_type, $entity, $languages);
     if (!$success) {
-      return FALSE;
+      return  array('status' => 0, 'message' => '');
     }
+
     if ($async_mode) {
       $this->upload_manager->add($this->entity_wrapper_collection->getIDs());
 
@@ -48,11 +49,11 @@ class UploadRouter {
       $this->log->info('Smartling queue task was created for entity id - @id, locale - @locale, type - @entity_type',
         array('@id' => $smartling_wrapper->getRID(), '@locale' => $langs, '@entity_type' => $entity_type));
 
-      drupal_set_message(t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
+      $user_message = t('The @entity_type "@title" has been scheduled to be sent to Smartling for translation to "@langs".', array(
         '@entity_type' => $entity_type,
         '@title' => $smartling_wrapper->getTitle(),
         '@langs' => $langs,
-      )));
+      ));
     }
     else {
       $this->upload_manager->execute($this->entity_wrapper_collection->getIDs());
@@ -60,12 +61,13 @@ class UploadRouter {
       $collection = $this->entity_wrapper_collection->getCollection();
       $smartling_wrapper = reset($collection);
 
-      drupal_set_message(t('The @entity_type "@title" has been sent to Smartling for translation to "@langs".', array(
+      $user_message = t('The @entity_type "@title" has been sent to Smartling for translation to "@langs".', array(
         '@entity_type' => $entity_type,
         '@title' => $smartling_wrapper->getTitle(),
         '@langs' => implode(', ', $languages),
-      )));
+      ));
     }
+    return array('status' => 1, 'message' => $user_message);
   }
 
 }

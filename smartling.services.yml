@@ -77,6 +77,7 @@ services:
 
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
+    arguments:          [@smartling.api_wrapper, @smartling.wrappers.entity_data_wrapper, @smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.download, @smartling.log, @smartling.wrappers.smartling_utils]
 
   smartling.queue_managers.upload_router:
     class:              Drupal\smartling\QueueManager\UploadRouter
