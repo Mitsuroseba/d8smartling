@@ -111,7 +111,7 @@ function smartling_interface_translation_do_translate_action($entity, array $con
           $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale, array('bundle' => $entity->textgroup, 'title' => $entity->textgroup_name, 'file_name' => $file_name_unic));
         }
 
-        drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($entity_data)->setStatusByEvent(SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE)->save();
+        drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($entity_data)->setStatusByEvent(SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE)->save();
       }
     }
   }

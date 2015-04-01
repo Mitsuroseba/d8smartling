@@ -386,6 +386,6 @@ function smartling_entity_status_message($entity_name, $status, $language_name, 
  * @todo try to avoid original language in arguments.
  */
 function smartling_create_from_entity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options = array()) {
-  return drupal_container()->get('smartling.wrappers.entity_data_wrapper')
+  return drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')
     ->createFromDrupalEntity($drupal_entity, $entity_type, $origin_language, $target_language, $default_options)->getEntity();
 }

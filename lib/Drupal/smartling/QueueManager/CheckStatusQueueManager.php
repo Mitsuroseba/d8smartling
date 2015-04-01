@@ -10,15 +10,15 @@ namespace Drupal\smartling\QueueManager;
 class CheckStatusQueueManager implements QueueManagerInterface {
 
   protected $api_wrapper;
-  protected $entity_data_wrapper;
+  protected $smartling_submission_wrapper;
   protected $queue_download;
   protected $log;
   protected $smartling_utils;
   protected $submissions_collection;
 
-  public function __construct($api_wrapper, $entity_data_wrapper, $submissions_collection, $queue_download, $log, $smartling_utils) {
+  public function __construct($api_wrapper, $smartling_submission_wrapper, $submissions_collection, $queue_download, $log, $smartling_utils) {
     $this->api_wrapper = $api_wrapper;
-    $this->entity_data_wrapper = $entity_data_wrapper;
+    $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->submissions_collection = $submissions_collection;
     $this->queue_download = $queue_download;
     $this->log = $log;
@@ -60,7 +60,7 @@ class CheckStatusQueueManager implements QueueManagerInterface {
     }
 
     foreach($eids as $eid) {
-      $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
+      $smartling_submission = $this->smartling_submission_wrapper->loadByID($eid)->getEntity();
 
       $result = $this->api_wrapper->getStatus($smartling_submission);
       if (!empty($result)) {
@@ -69,7 +69,7 @@ class CheckStatusQueueManager implements QueueManagerInterface {
         }
 
         //smartling_entity_data_save($result['entity_data']);
-        $this->entity_data_wrapper->setEntity($result['entity_data'])->save();
+        $this->smartling_submission_wrapper->setEntity($result['entity_data'])->save();
       }
     }
   }

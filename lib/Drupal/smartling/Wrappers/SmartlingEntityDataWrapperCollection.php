@@ -16,12 +16,12 @@ class SmartlingEntityDataWrapperCollection {
 
   private $collection = array();
 
-  protected $entity_data_wrapper;
+  protected $smartling_submission_wrapper;
   protected $log;
   protected $entity_api_wrapper;
 
-  public function __construct (SmartlingEntityDataWrapper $entity_data_wrapper, $log, EntityAPIWrapper $entity_api_wrapper) {
-    $this->entity_data_wrapper = $entity_data_wrapper;
+  public function __construct (SmartlingEntityDataWrapper $smartling_submission_wrapper, $log, EntityAPIWrapper $entity_api_wrapper) {
+    $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->log = $log;
     $this->entity_api_wrapper = $entity_api_wrapper;
   }
@@ -37,7 +37,7 @@ class SmartlingEntityDataWrapperCollection {
 
   public function loadByIDs(array $eids) {
     foreach($eids as $eid) {
-      $wrapper = clone $this->entity_data_wrapper->loadByID($eid);
+      $wrapper = clone $this->smartling_submission_wrapper->loadByID($eid);
       $this->add($wrapper);
     }
     return $this;
@@ -79,7 +79,7 @@ class SmartlingEntityDataWrapperCollection {
         continue;
       }
 
-      $wrapper = clone $this->entity_data_wrapper
+      $wrapper = clone $this->smartling_submission_wrapper
         ->loadSingleByConditions(array('rid' => $id, 'entity_type' => $entity_type, 'target_language' => $target_language))
         ->orCreateFromDrupalEntity($entity, $entity_type, $d_locale_original, $target_language)
         ->setStatusByEvent(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE)

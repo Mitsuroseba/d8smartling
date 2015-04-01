@@ -69,27 +69,27 @@ services:
 
   smartling.queue_managers.upload:
     class:              Drupal\smartling\QueueManager\UploadQueueManager
-    arguments:          [@smartling.api_wrapper, @smartling.wrappers.entity_data_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
+    arguments:          [@smartling.api_wrapper, @smartling.wrappers.smartling_submission_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.queue_managers.download:
     class:              Drupal\smartling\QueueManager\DownloadQueueManager
-    arguments:          [@smartling.wrappers.entity_data_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
+    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
 
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
-    arguments:          [@smartling.api_wrapper, @smartling.wrappers.entity_data_wrapper, @smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.download, @smartling.log, @smartling.wrappers.smartling_utils]
+    arguments:          [@smartling.api_wrapper, @smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.download, @smartling.log, @smartling.wrappers.smartling_utils]
 
   smartling.queue_managers.upload_router:
     class:              Drupal\smartling\QueueManager\UploadRouter
     arguments:          [@smartling.wrappers.entity_data_wrapper_collection, @smartling.queue_managers.upload, @smartling.log, @smartling.settings, @smartling.entity_conversion_utils.factory, @smartling.wrappers.smartling_utils]
 
 
-  smartling.wrappers.entity_data_wrapper:
+  smartling.wrappers.smartling_submission_wrapper:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapper
 
   smartling.wrappers.entity_data_wrapper_collection:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapperCollection
-    arguments:          [@smartling.wrappers.entity_data_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper]
+    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper]
 
   smartling.wrappers.entity_api_wrapper:
     class:              Drupal\smartling\Wrappers\EntityAPIWrapper

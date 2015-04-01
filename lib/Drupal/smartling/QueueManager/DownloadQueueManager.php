@@ -9,7 +9,7 @@ namespace Drupal\smartling\QueueManager;
 
 class DownloadQueueManager implements QueueManagerInterface {
 
-  protected $entity_data_wrapper;
+  protected $smartling_submission_wrapper;
   protected $field_api_wrapper;
   protected $entity_processor_factory;
   protected $settings;
@@ -17,8 +17,8 @@ class DownloadQueueManager implements QueueManagerInterface {
   protected $drupal_wrapper;
 
 
-  public function __construct($entity_data_wrapper, $field_api_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
-    $this->entity_data_wrapper = $entity_data_wrapper;
+  public function __construct($smartling_submission_wrapper, $field_api_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
+    $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->field_api_wrapper = $field_api_wrapper;
     $this->entity_processor_factory = $entity_processor_factory;
     $this->settings = $settings;
@@ -58,7 +58,7 @@ class DownloadQueueManager implements QueueManagerInterface {
     foreach ($eids as $eid) {
       $status = FALSE;
 
-      $smartling_submission = $this->entity_data_wrapper->loadByID($eid)->getEntity();
+      $smartling_submission = $this->smartling_submission_wrapper->loadByID($eid)->getEntity();
       if ($smartling_submission && !empty($this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle))) {
         $processor = $this->entity_processor_factory->getProcessor($smartling_submission);
         if ($processor->downloadTranslation()) {

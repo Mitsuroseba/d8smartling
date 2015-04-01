@@ -95,7 +95,7 @@ function smartling_do_download_translation_action(&$entity, $context) {
 }
 
 function smartling_do_resend_translation_action(&$entity, $context) {
-  drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($entity)->setStatusByEvent(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE)->save();
+  drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($entity)->setStatusByEvent(SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE)->save();
   drupal_container()->get('smartling.queue_managers.upload')->add(array($entity->eid));
 
   drupal_set_message(t('Entity "@title" has been successfully enqueued for resubmission.', array('@title' => $entity->title)));

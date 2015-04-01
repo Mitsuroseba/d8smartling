@@ -201,7 +201,7 @@ class GenericEntityProcessor {
     $xml = new \DOMDocument();
     $xml->loadXML($download_result);
 
-    $translated_file_name = drupal_container()->get('smartling.wrappers.entity_data_wrapper')->setEntity($this->smartling_submission)->getFileTranslatedName();
+    $translated_file_name = drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($this->smartling_submission)->getFileTranslatedName();
 //    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
 //    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
@@ -211,7 +211,7 @@ class GenericEntityProcessor {
     // If result is saved.
     // @todo finish converting.
     if ($isSuccess) {
-      drupal_container()->get('smartling.wrappers.entity_data_wrapper')
+      drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')
         ->setEntity($this->smartling_submission)
         ->setStatusByEvent(SMARTLING_STATUS_EVENT_UPDATE_FIELDS)
         ->setProgress($progress)

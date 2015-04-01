@@ -12,13 +12,13 @@ class UploadQueueManager implements QueueManagerInterface {
   protected $api_wrapper;
   protected $smartling_utils;
   protected $entity_processor_factory;
-  protected $entity_data_wrapper;
+  protected $smartling_submission_wrapper;
   protected $drupal_wrapper;
   protected $settings;
 
-  public function __construct($api_wrapper, $entity_data_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
+  public function __construct($api_wrapper, $smartling_submission_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
     $this->api_wrapper = $api_wrapper;
-    $this->entity_data_wrapper = $entity_data_wrapper;
+    $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->entity_processor_factory = $entity_processor_factory;
     $this->smartling_utils = $smartling_utils;
     $this->drupal_wrapper = $drupal_wrapper;
@@ -97,10 +97,10 @@ class UploadQueueManager implements QueueManagerInterface {
     $entity_data_array = array();
 
     foreach($eids as $eid) {
-      $this->entity_data_wrapper->loadByID($eid);
-      $file_name = $this->entity_data_wrapper->getFileName();
-      $target_locales[$file_name][] = $this->entity_data_wrapper->getTargetLanguage();
-      $entity_data_array[$file_name][] = $this->entity_data_wrapper->getEntity();
+      $this->smartling_submission_wrapper->loadByID($eid);
+      $file_name = $this->smartling_submission_wrapper->getFileName();
+      $target_locales[$file_name][] = $this->smartling_submission_wrapper->getTargetLanguage();
+      $entity_data_array[$file_name][] = $this->smartling_submission_wrapper->getEntity();
     }
 
 
@@ -121,7 +121,7 @@ class UploadQueueManager implements QueueManagerInterface {
       }
 
       foreach ($entity_array as $submission) {
-        $this->entity_data_wrapper->setEntity($submission)->setStatusByEvent($event)->save();
+        $this->smartling_submission_wrapper->setEntity($submission)->setStatusByEvent($event)->save();
       }
     }
   }
