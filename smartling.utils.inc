@@ -125,45 +125,10 @@ function smartling_get_dir($file_name = '') {
   return drupal_container()->get('smartling.settings')->getDir($file_name);
 }
 
-/**
- * Return clean filename, sanitized for path traversal vulnerability.
- *
- * Url (https://code.google.com/p/teenage-mutant-ninja-turtles
- * /wiki/AdvancedObfuscationPathtraversal).
- *
- * @param string $filename
- *   File name.
- * @param bool $allow_dirs
- *   TRUE if allow dirs. FALSE by default.
- *
- * @return string
- *   Return clean filename.
- */
 function smartling_clean_filename($filename, $allow_dirs = FALSE) {
-  // Prior to PHP 5.5, empty() only supports variables.
-  // (http://www.php.net/manual/en/function.empty.php).
-  $trim_filename = trim($filename);
-  if (empty($trim_filename)) {
-    return '';
-  }
-
-  $pattern = '/[^a-zA-Z0-9_\-\:]/i';
-  $info = pathinfo(trim($filename));
-  $filename = preg_replace($pattern, '_', $info['filename']);
-  if (isset($info['extension']) && !empty($info['extension'])) {
-    $filename .= '.' . preg_replace($pattern, '_', $info['extension']);
-  }
-
-  if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
-    $filename = preg_replace('/[^a-zA-Z0-9_\/\-\:]/i', '_', $info['dirname']) . '/' . $filename;
-  }
-
-  return (string) $filename;
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->cleanFileName($filename, $allow_dirs);
 }
 
-function smartling_save_xml($file_name, $xml_doc, $smartling_submission  = NULL) {
-  return drupal_container()->get('smartling.wrappers.smartling_utils')->saveXML($file_name, $xml_doc, $smartling_submission);
-}
 
 function smartling_get_entity_processor($smartling_entity) {
   return drupal_container()->get('smartling.entity_processor_factory')->getProcessor($smartling_entity);
@@ -234,7 +199,7 @@ function smartling_get_link_to_entity($entity_type, $entity, $link_title = '') {
 /**
  * Get original entity.
  *
- * @param objext $term
+ * @param object $term
  *
  * @deprecated
  *
@@ -260,25 +225,6 @@ function smartling_get_original_node($node) {
     }
   }
   return $node;
-}
-/**
- * Translation handler factory.
- *
- * @param string $entity_type
- *   Entity type.
- * @param object $entity
- *   Entity.
- *
- * @return object
- *   Return translation handler object.
- */
-function smartling_entity_translation_get_handler($entity_type, $entity) {
-  $entity_info = entity_get_info($entity_type);
-  $class = 'SmartlingEntityTranslationDefaultHandler';
-  // @todo remove fourth parameter once 3rd-party translation handlers have
-  // been fixed and no longer require the deprecated entity_id parameter.
-  $handler = new $class($entity_type, $entity_info, $entity, NULL);
-  return $handler;
 }
 
 /**

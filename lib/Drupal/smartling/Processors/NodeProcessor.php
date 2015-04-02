@@ -26,8 +26,8 @@ class NodeProcessor extends GenericEntityProcessor {
       }
     }
 
-    node_object_prepare($node);
-    node_save($node);
+    $this->entity_api_wrapper->nodeObjectPrepare($node);
+    $this->entity_api_wrapper->entitySave('node', $node);
 
     foreach ($this->getTranslatableFields() as $field_name) {
       if (!empty($field_values[$field_name])) {
@@ -49,7 +49,7 @@ class NodeProcessor extends GenericEntityProcessor {
   }
 
   public function prepareDrupalEntity() {
-    if (!$this->isOriginalEntityPrepared && smartling_nodes_method($this->smartling_submission->bundle)) {
+    if (!$this->isOriginalEntityPrepared && $this->smartling_utils->isNodesMethod($this->smartling_submission->bundle)) {
       $this->isOriginalEntityPrepared = TRUE;
       // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
@@ -58,10 +58,11 @@ class NodeProcessor extends GenericEntityProcessor {
       if (isset($translations[$this->drupalTargetLocale])) {
         $this->smartling_submission->rid = $translations[$this->drupalTargetLocale]->nid;
 
-        $node = node_load($this->smartling_submission->rid);
+        $node = $this->entity_api_wrapper->entityLoadSingle('node', $this->smartling_submission->rid); //node_load($this->smartling_submission->rid);
         $node->translation_source = $this->contentEntity;
 
-        $node = node_load($node->nid);
+        //$node = node_load($node->nid);
+        $node = $this->entity_api_wrapper->entityLoadSingle('node', $node->nid);
         $node = $this->addTranslatedFieldsToNode($node);
 
         $this->contentEntity = $node;
@@ -71,7 +72,7 @@ class NodeProcessor extends GenericEntityProcessor {
         $node = clone $this->contentEntity;
         unset($node->nid);
         unset($node->vid);
-        node_object_prepare($node);
+        $this->entity_api_wrapper->nodeObjectPrepare($node);
         $node->language = $this->drupalTargetLocale;
         $node->uid = $this->smartling_submission->submitter;
         $node->tnid = $this->contentEntity->nid;
@@ -85,7 +86,7 @@ class NodeProcessor extends GenericEntityProcessor {
         $node->translation_source = $this->contentEntity;
 
         $node = $this->addTranslatedFieldsToNode($node);
-        $node = node_load($node->nid);
+        $node = $this->entity_api_wrapper->entityLoadSingle('node', $node->nid);
         // Second saving is done for Field Collection field support
         // that need host entity id.
         //node_save($node);

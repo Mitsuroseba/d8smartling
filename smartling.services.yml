@@ -122,15 +122,15 @@ services:
 
   smartling.entity_processors.generic:
     class:              Drupal\smartling\Processors\GenericEntityProcessor
-    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
 
   smartling.entity_processors.node:
     class:              Drupal\smartling\Processors\NodeProcessor
-    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
 
   smartling.entity_processors.taxonomy_term:
     class:              Drupal\smartling\Processors\TaxonomyTermProcessor
-    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
 
 
 

@@ -107,6 +107,29 @@ class GenericEntityProcessor {
 
   protected $entity_api_wrapper;
   protected $smartling_utils;
+  protected $smartling_settings;
+
+
+
+  /**
+   * Translation handler factory.
+   *
+   * @param string $entity_type
+   *   Entity type.
+   * @param object $entity
+   *   Entity.
+   *
+   * @return object
+   *   Return translation handler object.
+   */
+  protected function getEntityTranslationHandler($entity_type, $entity) {
+    $entity_info = entity_get_info($entity_type);
+    $class = 'SmartlingEntityTranslationDefaultHandler';
+    // @todo remove fourth parameter once 3rd-party translation handlers have
+    // been fixed and no longer require the deprecated entity_id parameter.
+    $handler = new $class($entity_type, $entity_info, $entity, NULL);
+    return $handler;
+  }
 
   /**
    * Create GenericEntityProcessor instance.
@@ -122,7 +145,7 @@ class GenericEntityProcessor {
    *
    * @todo avoid procedural code in construct to achieve full DI.
    */
-  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $log, $entity_api_wrapper, $smartling_utils) {
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils) {
     $this->smartling_submission = $smartling_submission;
     $this->drupalTargetLocale = $smartling_submission->target_language;
     $this->drupalOriginalLocale = $smartling_submission->original_language;
@@ -132,6 +155,7 @@ class GenericEntityProcessor {
     $this->smartlingAPI = $smartling_api;
     $this->entity_api_wrapper = $entity_api_wrapper;
     $this->smartling_utils = $smartling_utils;
+    $this->smartling_settings = $smartling_settings;
 
 
     $this->contentEntity = $this->entity_api_wrapper->entityLoadSingle($this->smartling_submission->entity_type, $this->smartling_submission->rid);
@@ -213,7 +237,7 @@ class GenericEntityProcessor {
 //    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
 
     // Save result.
-    $isSuccess = smartling_save_xml($translated_file_name, $xml, $this->smartling_submission);
+    $isSuccess = $this->smartling_utils->saveXML($translated_file_name, $xml, $this->smartling_submission);
 
     // If result is saved.
     // @todo finish converting.
@@ -257,12 +281,10 @@ class GenericEntityProcessor {
 
   /**
    * Implements entity_translation logic to update translation data in Drupal.
-   *
-   * @todo remove procedural code and use entities from properties.
    */
   public function updateDrupalTranslation() {
-    $smartling_submission = entity_load_single($this->drupalEntityType, $this->smartling_submission->rid);
-    $handler = smartling_entity_translation_get_handler($this->drupalEntityType, $smartling_submission);
+    $smartling_submission = $this->entity_api_wrapper->entityLoadSingle($this->drupalEntityType, $this->smartling_submission->rid);
+    $handler = $this->getEntityTranslationHandler($this->drupalEntityType, $smartling_submission);
     $translations = $handler->getTranslations();
 
     // Initialize translations if they are empty.
@@ -324,12 +346,15 @@ class GenericEntityProcessor {
     $this->saveDrupalEntity();
   }
 
+  protected function getFilePath($file_name) {
+    return drupal_realpath($this->smartling_utils->cleanFileName($this->smartling_settings->getDir($file_name), TRUE));
+  }
+
   /**
    * Process given xml parsed object using translated_file.
    */
   public function updateEntityFromXML() {
-    // @todo Move it into separate method.
-    $file_path = drupal_realpath(smartling_clean_filename(smartling_get_dir($this->smartling_submission->translated_file_name), TRUE));
+    $file_path = $this->getFilePath($this->smartling_submission->translated_file_name);
 
     $xml = new \DOMDocument();
     $xml->load($file_path);
@@ -374,12 +399,9 @@ class GenericEntityProcessor {
   /**
    * Wrapper for Smartling settings storage.
    *
-   * @todo avoid procedural code and inject storage to keep DI pattern.
-   *
    * @return array()
    */
   public function getTranslatableFields() {
-    // @todo Inject via DIC.
-    return smartling_settings_get_handler()->getFieldsSettingsByBundle($this->smartling_submission->entity_type, $this->smartling_submission->bundle);
+    return $this->smartling_settings->getFieldsSettingsByBundle($this->smartling_submission->entity_type, $this->smartling_submission->bundle);
   }
 }

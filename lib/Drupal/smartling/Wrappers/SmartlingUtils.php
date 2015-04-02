@@ -131,5 +131,41 @@ class SmartlingUtils {
     return FALSE;
   }
 
+  /**
+   * Return clean filename, sanitized for path traversal vulnerability.
+   *
+   * Url (https://code.google.com/p/teenage-mutant-ninja-turtles
+   * /wiki/AdvancedObfuscationPathtraversal).
+   *
+   * @param string $filename
+   *   File name.
+   * @param bool $allow_dirs
+   *   TRUE if allow dirs. FALSE by default.
+   *
+   * @return string
+   *   Return clean filename.
+   */
+  public function cleanFileName($filename, $allow_dirs = FALSE) {
+    // Prior to PHP 5.5, empty() only supports variables.
+    // (http://www.php.net/manual/en/function.empty.php).
+    $trim_filename = trim($filename);
+    if (empty($trim_filename)) {
+      return '';
+    }
+
+    $pattern = '/[^a-zA-Z0-9_\-\:]/i';
+    $info = pathinfo(trim($filename));
+    $filename = preg_replace($pattern, '_', $info['filename']);
+    if (isset($info['extension']) && !empty($info['extension'])) {
+      $filename .= '.' . preg_replace($pattern, '_', $info['extension']);
+    }
+
+    if ($allow_dirs && isset($info['dirname']) && !empty($info['dirname'])) {
+      $filename = preg_replace('/[^a-zA-Z0-9_\/\-\:]/i', '_', $info['dirname']) . '/' . $filename;
+    }
+
+    return (string) $filename;
+  }
+
 
 }
