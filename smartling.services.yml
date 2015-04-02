@@ -104,6 +104,9 @@ services:
     class:              Drupal\smartling\Wrappers\SmartlingUtils
     arguments:          [@smartling.wrappers.entity_api_wrapper, @smartling.wrappers.field_api_wrapper]
 
+  smartling.wrappers.i18n_wrapper:
+    class:              Drupal\smartling\Wrappers\InternationalizationWrapper
+
 
   smartling.entity_conversion_utils.entity:
     class:              Drupal\smartling\EntityConversionUtils\EntityConversionUtil
@@ -126,11 +129,11 @@ services:
 
   smartling.entity_processors.node:
     class:              Drupal\smartling\Processors\NodeProcessor
-    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils, @smartling.wrappers.field_api_wrapper]
 
   smartling.entity_processors.taxonomy_term:
     class:              Drupal\smartling\Processors\TaxonomyTermProcessor
-    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [%smartling_submission%, @smartling.field_processor_factory, @smartling.api_wrapper, @smartling.settings, @smartling.log, @smartling.wrappers.entity_api_wrapper, @smartling.wrappers.smartling_utils, @smartling.wrappers.i18n_wrapper]
 
 
 

@@ -9,6 +9,14 @@ namespace Drupal\smartling\Processors;
 
 class NodeProcessor extends GenericEntityProcessor {
 
+  protected $field_api_wrapper;
+
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils, $field_api_wrapper) {
+    parent::__construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils);
+
+    $this->field_api_wrapper = $field_api_wrapper;
+  }
+
   /**
    * {inheritdoc}
    *
@@ -54,7 +62,7 @@ class NodeProcessor extends GenericEntityProcessor {
       // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
       $tnid = $this->contentEntity->tnid ?: $this->contentEntity->nid;
-      $translations = translation_node_get_translations($tnid);
+      $translations = $this->entity_api_wrapper->translationNodeGetTranslations($tnid);
       if (isset($translations[$this->drupalTargetLocale])) {
         $this->smartling_submission->setRID($translations[$this->drupalTargetLocale]->nid);
 
@@ -78,7 +86,7 @@ class NodeProcessor extends GenericEntityProcessor {
         $node->tnid = $this->contentEntity->nid;
 
         // @todo Do we need this? clone should do all the stuff.
-        $node_fields = field_info_instances('node', $this->contentEntity->type);
+        $node_fields = $this->field_api_wrapper->fieldInfoInstances('node', $this->contentEntity->type);
         foreach ($node_fields as $field) {
           $node->{$field['field_name']} = $this->contentEntity->{$field['field_name']};
         }

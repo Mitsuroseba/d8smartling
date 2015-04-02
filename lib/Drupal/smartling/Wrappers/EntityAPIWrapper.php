@@ -65,4 +65,18 @@ class EntityAPIWrapper {
   public function nodeObjectPrepare($node) {
     node_object_prepare($node);
   }
+
+  public function translationNodeGetTranslations($tnid) {
+    return translation_node_get_translations($tnid);
+  }
+
+  public function entityGetInfo($entity_type = NULL) {
+    return entity_get_info($entity_type);
+  }
+
+  public function taxonomyVocabularyMachineNameLoad($name) {
+    return taxonomy_vocabulary_machine_name_load($name);
+  }
+
+
 }

@@ -123,7 +123,7 @@ class GenericEntityProcessor {
    *   Return translation handler object.
    */
   protected function getEntityTranslationHandler($entity_type, $entity) {
-    $entity_info = entity_get_info($entity_type);
+    $entity_info = $this->entity_api_wrapper->entityGetInfo($entity_type);
     $class = 'SmartlingEntityTranslationDefaultHandler';
     // @todo remove fourth parameter once 3rd-party translation handlers have
     // been fixed and no longer require the deprecated entity_id parameter.

@@ -7,7 +7,7 @@ class NodeConversionUtil extends EntityConversionUtil {
   protected $field_api_wrapper;
   protected $drupal_api_wrapper;
   protected $smartling_utils;
-  protected  $entity_api_wrapper;
+  protected $entity_api_wrapper;
 
   public function __construct($settings, $entity_api_wrapper, $field_api_wrapper, $drupal_api_wrapper, $smartling_utils) {
     $this->settings = $settings;
