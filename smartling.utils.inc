@@ -25,36 +25,12 @@ function smartling_entity_has_translatable_field($entity_type, $bundle) {
   return FALSE;
 }
 
-/**
- * Checks node method.
- *
- * @param string $type
- *   Node content type.
- *
- * @return bool
- *   Return TRUE if this node type set in nodes method translate.
- *
- * @todo Should be part of Settings class + rename it in order it would be obvious tat return type is bool. Ex.: smartling_is_nodes_method
- */
-function smartling_nodes_method($type) {
-  $nodes_method = variable_get('language_content_type_' . $type, NULL) == SMARTLING_NODES_METHOD_KEY;
-  return $nodes_method;
+function smartling_nodes_method($bundle) {
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->isNodesMethod($bundle);
 }
 
-/**
- * Checks fields method.
- *
- * @param string $type
- *   Node content type.
- *
- * @return bool
- *   Return TRUE if this node type set in fields method translate.
- *
- * @todo Should be part of Settings class + rename it in order it would be obvious tat return type is bool. Ex.: smartling_is_fields_method
- */
-function smartling_fields_method($type) {
-  $fields_method = variable_get('language_content_type_' . $type, NULL) != SMARTLING_NODES_METHOD_KEY;
-  return $fields_method;
+function smartling_fields_method($bundle) {
+  return drupal_container()->get('smartling.wrappers.smartling_utils')->isFieldsMethod($bundle);
 }
 
 /**

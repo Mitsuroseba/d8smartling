@@ -52,7 +52,7 @@ class NodeConversionUtil extends EntityConversionUtil {
       return FALSE;
     }
 
-    if ($this->smartling_utils->nodesMethod($entity->type)) {
+    if ($this->smartling_utils->isNodesMethod($entity->type)) {
       $this->updateToNodeTranslateMethod($entity, 'node', $default_lang, $allowed_fields);
     }
     else {

@@ -19,8 +19,30 @@ class SmartlingUtils {
     $this->field_api_wrapper = $field_api_wrapper;
   }
 
-  public function nodesMethod($bundle) {
-    return smartling_nodes_method($bundle);
+  /**
+   * Checks node method.
+   *
+   * @param string $bundle
+   *   Node content type.
+   *
+   * @return bool
+   *   Return TRUE if this node type set in nodes method translate.
+   */
+  public function isNodesMethod($bundle) {
+    return variable_get('language_content_type_' . $bundle, NULL) == SMARTLING_NODES_METHOD_KEY;
+  }
+
+  /**
+   * Checks fields method.
+   *
+   * @param string $bundle
+   *   Node content type.
+   *
+   * @return bool
+   *   Return TRUE if this node type set in fields method translate.
+   */
+  public function isFieldsMethod($bundle) {
+    return  variable_get('language_content_type_' . $bundle, NULL) != SMARTLING_NODES_METHOD_KEY;
   }
 
   /**

@@ -105,6 +105,9 @@ class GenericEntityProcessor {
    */
   protected $isOriginalEntityPrepared;
 
+  protected $entity_api_wrapper;
+  protected $smartling_utils;
+
   /**
    * Create GenericEntityProcessor instance.
    *
@@ -119,21 +122,25 @@ class GenericEntityProcessor {
    *
    * @todo avoid procedural code in construct to achieve full DI.
    */
-  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $log) {
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $log, $entity_api_wrapper, $smartling_utils) {
     $this->smartling_submission = $smartling_submission;
     $this->drupalTargetLocale = $smartling_submission->target_language;
     $this->drupalOriginalLocale = $smartling_submission->original_language;
 
-    $this->contentEntity = entity_load_single($this->smartling_submission->entity_type, $this->smartling_submission->rid);
-    $this->drupalEntityType = $this->smartling_submission->entity_type;
-    $this->contentEntityWrapper = entity_metadata_wrapper($this->drupalEntityType, $this->contentEntity);
-    $this->ifFieldMethod = smartling_fields_method($this->contentEntityWrapper->getBundle());
-
-    $this->targetFieldLanguage = $this->ifFieldMethod ? $this->drupalTargetLocale : LANGUAGE_NONE;
-
     $this->log = $log;
     $this->fieldProcessorFactory = $field_processor_factory;
     $this->smartlingAPI = $smartling_api;
+    $this->entity_api_wrapper = $entity_api_wrapper;
+    $this->smartling_utils = $smartling_utils;
+
+
+    $this->contentEntity = $this->entity_api_wrapper->entityLoadSingle($this->smartling_submission->entity_type, $this->smartling_submission->rid);
+    $this->drupalEntityType = $this->smartling_submission->entity_type;
+    $this->contentEntityWrapper = $this->entity_api_wrapper->entityMetadataWrapper($this->drupalEntityType, $this->contentEntity);
+    $this->ifFieldMethod = $this->smartling_utils->isFieldsMethod($this->contentEntityWrapper->getBundle());
+
+    $this->targetFieldLanguage = $this->ifFieldMethod ? $this->drupalTargetLocale : LANGUAGE_NONE;
+
   }
 
   /**
