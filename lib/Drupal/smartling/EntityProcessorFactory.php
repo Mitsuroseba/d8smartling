@@ -61,6 +61,7 @@ class EntityProcessorFactory {
     $processor_yml_id = isset($this->processorMapping[$smartling_submission->entity_type]) ? $this->processorMapping[$smartling_submission->entity_type] : $this->processorMapping['generic'];
 
     $container = $this->getContainer();
+    $smartling_submission = $container->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($smartling_submission);
     $container->setParameter('smartling_submission', $smartling_submission);
     $static_storage[$smartling_submission->eid] = $container->get($processor_yml_id);//new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
 

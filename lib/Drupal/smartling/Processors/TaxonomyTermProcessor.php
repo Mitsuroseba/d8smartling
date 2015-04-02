@@ -16,17 +16,17 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
    */
   public function prepareDrupalEntity() {
     // @todo move entity load logic to one place.
-    $this->contentEntity = taxonomy_term_load($this->smartling_submission->rid);
+    $this->contentEntity = taxonomy_term_load($this->smartling_submission->getRID());
     /* @var $source_drupal_entity \stdClass */
     $source_drupal_entity = $this->contentEntity;
     $term = i18n_taxonomy_term_get_translation($this->contentEntity, $this->drupalTargetLocale);
     if (!is_null($term) && ($term->language != $this->contentEntity->language)) {
-      $this->smartling_submission->rid = $term->tid;
+      $this->smartling_submission->setRID($term->tid);
       $this->contentEntity = $term;
     }
     else {
       // If term not exist, need create new term.
-      $vocabulary = taxonomy_vocabulary_machine_name_load($this->smartling_submission->bundle);
+      $vocabulary = taxonomy_vocabulary_machine_name_load($this->smartling_submission->getBundle());
 
       // Add language field or not depending on taxonomy mode.
       $vocabulary_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
@@ -68,16 +68,16 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
         case I18N_MODE_LANGUAGE:
         case I18N_MODE_NONE:
           $this->log->error('Translatable @entity_type with id - @rid FAIL. Vocabulary mode - @vocabulary_mode',
-            array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->rid, '@vocabulary_mode' => $vocabulary_mode));
+            array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->getRID(), '@vocabulary_mode' => $vocabulary_mode));
           break;
 
         default:
-          $this->log->error('Translatable @entity_type with id - @rid FAIL', array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->rid));
+          $this->log->error('Translatable @entity_type with id - @rid FAIL', array('@entity_type' => $this->drupalEntityType, '@rid' => $this->smartling_submission->getRID()));
           break;
       }
 
       taxonomy_term_save($this->contentEntity);
-      $this->smartling_submission->rid = $this->contentEntity->tid;
+      $this->smartling_submission->set($this->contentEntity->tid);
     }
   }
 

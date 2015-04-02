@@ -18,7 +18,7 @@ class NodeProcessor extends GenericEntityProcessor {
     $field_values = array();
     foreach ($this->getTranslatableFields() as $field_name) {
       if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
-        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission);
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission->getEntity());
         $val = $fieldProcessor->cleanBeforeClone($node);
         if (!empty($val)) {
           $field_values[$field_name] = $val;
@@ -39,7 +39,7 @@ class NodeProcessor extends GenericEntityProcessor {
       // Run all translatable fields through prepareBeforeDownload
       // to make sure that all related logic was triggered.
       if (!empty($this->contentEntity->{$field_name}[LANGUAGE_NONE])) {
-        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission);
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission->getEntity());
         // @TODO get rid of hardcoded language.
         $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
       }
@@ -49,16 +49,16 @@ class NodeProcessor extends GenericEntityProcessor {
   }
 
   public function prepareDrupalEntity() {
-    if (!$this->isOriginalEntityPrepared && $this->smartling_utils->isNodesMethod($this->smartling_submission->bundle)) {
+    if (!$this->isOriginalEntityPrepared && $this->smartling_utils->isNodesMethod($this->smartling_submission->getBundle())) {
       $this->isOriginalEntityPrepared = TRUE;
       // Translate subnode instead of main one.
       $this->ifFieldMethod = FALSE;
       $tnid = $this->contentEntity->tnid ?: $this->contentEntity->nid;
       $translations = translation_node_get_translations($tnid);
       if (isset($translations[$this->drupalTargetLocale])) {
-        $this->smartling_submission->rid = $translations[$this->drupalTargetLocale]->nid;
+        $this->smartling_submission->setRID($translations[$this->drupalTargetLocale]->nid);
 
-        $node = $this->entity_api_wrapper->entityLoadSingle('node', $this->smartling_submission->rid); //node_load($this->smartling_submission->rid);
+        $node = $this->entity_api_wrapper->entityLoadSingle('node', $this->smartling_submission->getRID()); //node_load($this->smartling_submission->rid);
         $node->translation_source = $this->contentEntity;
 
         //$node = node_load($node->nid);
@@ -74,7 +74,7 @@ class NodeProcessor extends GenericEntityProcessor {
         unset($node->vid);
         $this->entity_api_wrapper->nodeObjectPrepare($node);
         $node->language = $this->drupalTargetLocale;
-        $node->uid = $this->smartling_submission->submitter;
+        $node->uid = $this->smartling_submission->getSubmitter();
         $node->tnid = $this->contentEntity->nid;
 
         // @todo Do we need this? clone should do all the stuff.
@@ -93,7 +93,7 @@ class NodeProcessor extends GenericEntityProcessor {
 
         // Update reference to drupal content entity.
         $this->contentEntity = $node;
-        $this->smartling_submission->rid = $node->nid;
+        $this->smartling_submission->setRID($node->nid);
       }
     }
   }
