@@ -118,7 +118,7 @@ class SmartlingNodeUploadFieldCollectionTest extends SmartlingWebTestCase {
     }
     // @todo validate xml structure and content.
 
-    smartling_queue_download_update_translated_item_process($smartling_data->eid);
+    smartling_queue_download_translated_item_process($smartling_data->eid);
 
     $filename = DRUPAL_ROOT . '/' . $this->private_files_directory . '/smartling/' . strtolower(trim(preg_replace('#\W+#', '_', $node->title), '_')) . '_node_' . $node->nid . '_nl.xml';
     $this->assertTrue(file_exists($filename), $filename);

@@ -107,7 +107,7 @@ class SmartlingNodeUploadTest extends SmartlingWebTestCase {
     }
     // @todo validate xml structure and content.
 
-    smartling_queue_download_update_translated_item_process($smartling_data->eid);
+    smartling_queue_download_translated_item_process($smartling_data->eid);
 
     //$smartling_data = smartling_entity_data_load($smartling_data->eid);
     //$this->assertEqual($this->private_files_directory, $smartling_data->translated_file_name . '   ||   ' . $smartling_data->file_name);

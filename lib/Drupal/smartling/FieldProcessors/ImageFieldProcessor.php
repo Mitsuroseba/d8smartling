@@ -26,7 +26,6 @@ class ImageFieldProcessor extends BaseFieldProcessor {
     return $data;
   }
 
-  //@todo fetch format from xml as well.
   /**
    * {@inheritdoc}
    */

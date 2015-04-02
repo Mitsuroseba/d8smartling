@@ -481,7 +481,7 @@ function smartling_push_callback() {
         rules_invoke_event('smartling_callback_call_event', $d_locale, $file_uri);
       }
 
-      smartling_queue_download_update_translated_item_process($entity_data->eid);
+      smartling_queue_download_translated_item_process($entity_data->eid);
 
       $log->info('The callback function smartling downloaded translation for bundle - @bundle, entity id - @rid, language - @language',
         array('@bundle' => $entity_data->bundle, '@rid' => $entity_data->rid, '@language' => $d_locale, 'entity_link' => l(t('Edit node'), 'node/' . $entity_data->rid . '/edit')));

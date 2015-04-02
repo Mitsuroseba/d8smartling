@@ -143,7 +143,6 @@ class GenericEntityProcessor {
    * @param SmartlingLog $log
    *   Smartling log object.
    *
-   * @todo avoid procedural code in construct to achieve full DI.
    */
   public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils) {
     $this->smartling_submission = $smartling_submission;
@@ -190,8 +189,6 @@ class GenericEntityProcessor {
 
   /**
    * Wrapper for drupal entity saving.
-   *
-   * @todo move this logic to original entity Proxy object.
    */
   public function saveDrupalEntity() {
     $this->contentEntityWrapper->set($this->contentEntity);
@@ -240,7 +237,6 @@ class GenericEntityProcessor {
     $isSuccess = $this->smartling_utils->saveXML($translated_file_name, $xml, $this->smartling_submission->getEntity());
 
     // If result is saved.
-    // @todo finish converting.
     if ($isSuccess) {
       $this->smartling_submission
         ->setStatusByEvent(SMARTLING_STATUS_EVENT_UPDATE_FIELDS)
@@ -258,7 +254,6 @@ class GenericEntityProcessor {
    *
    * Should be overridden for node and term. E.g. before pushing translation we have to fetch data
    * from original node, so swap current node to original translation if necessary.
-   * @todo move this logic to original entity Proxy object.
    */
   public function prepareDrupalEntity() {
     if (!$this->isOriginalEntityPrepared) {
@@ -336,7 +331,6 @@ class GenericEntityProcessor {
     $xpath = new DomXpath($xml);
 
     foreach ($this->getTranslatableFields() as $field_name) {
-      // @TODO test if format could be set automatically.
       $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity());
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);

@@ -3,8 +3,6 @@
 /**
  * @file
  * Contains Drupal\smartling\FieldProcessor\FieldProcessorFactory.
- *
- * @todo move to Drupal\smartling namespace.
  */
 
 namespace Drupal\smartling;

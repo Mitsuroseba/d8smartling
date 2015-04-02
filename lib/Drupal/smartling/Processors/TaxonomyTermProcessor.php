@@ -20,11 +20,8 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
 
   /**
    * {inheritdoc}
-   *
-   * @todo remove procedural code.
    */
   public function prepareDrupalEntity() {
-    // @todo move entity load logic to one place.
     $this->contentEntity = $this->entity_api_wrapper->entityLoadSingle('taxonomy_term', $this->smartling_submission->getRID());
     /* @var $source_drupal_entity \stdClass */
     $source_drupal_entity = $this->contentEntity;

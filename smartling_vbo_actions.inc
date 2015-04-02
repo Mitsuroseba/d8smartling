@@ -91,7 +91,7 @@ function smartling_do_translate_action_submit(array $form, array $form_state) {
 
 
 function smartling_do_download_translation_action(&$entity, $context) {
-  smartling_queue_download_update_translated_item_process($entity->eid);
+  smartling_queue_download_translated_item_process($entity->eid);
 }
 
 function smartling_do_resend_translation_action(&$entity, $context) {

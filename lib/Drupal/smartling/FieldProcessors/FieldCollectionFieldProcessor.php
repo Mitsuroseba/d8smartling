@@ -70,7 +70,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
     $point = null;
     foreach ($this->getTranslatableFields() as $field_name) {
-      // @TODO test if format could be set automatically.
       $fieldProcessor = $this->getProcessor($field_name, $this->entity, $this->smartling_submission);
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
@@ -81,7 +80,6 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   }
 
   public function fetchDataFromXML(\DomXpath $xpath) {
-    //@todo fetch format from xml as well.
     $result = array();
     $data = $xpath->query('/data/localize/field_collection[@id="' . $this->fieldName . '"]');
 

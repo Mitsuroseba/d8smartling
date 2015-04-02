@@ -24,8 +24,6 @@ abstract class BaseFieldProcessor {
 
   protected $drupal_wrapper;
   
-  // @todo Can we get entity_type from entity? 
-  // @todo We can get target_language from smartling_data
   public function __construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper) {
     $this->entity = $entity;
     $this->entityType = $entity_type;

@@ -19,8 +19,6 @@ class NodeProcessor extends GenericEntityProcessor {
 
   /**
    * {inheritdoc}
-   *
-   * @todo remove procedural code.
    */
   public function addTranslatedFieldsToNode($node){
     $field_values = array();
