@@ -3,6 +3,8 @@ description = Smartling automatical translation.
 core = 7.x
 package = Smartling
 
+php = 5.3.3
+
 configure = admin/config/regional/smartling
 
 dependencies[] = title
