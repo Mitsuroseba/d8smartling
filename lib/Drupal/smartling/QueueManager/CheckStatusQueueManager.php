@@ -64,7 +64,9 @@ class CheckStatusQueueManager implements QueueManagerInterface {
 
       $result = $this->api_wrapper->getStatus($smartling_submission);
       if (!empty($result)) {
-        if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount) && ($smartling_submission->entity_type != 'smartling_interface_entity')) {
+
+        if (($result['response_data']->approvedStringCount == $result['response_data']->completedStringCount)
+             && ($smartling_submission->entity_type != 'smartling_interface_entity')) {
           $this->queue_download->add($eid);
         }
 

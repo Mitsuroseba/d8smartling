@@ -58,8 +58,9 @@ class DownloadQueueManager implements QueueManagerInterface {
     foreach ($eids as $eid) {
       $status = FALSE;
 
+      $translatable_fields = $this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle);
       $smartling_submission = $this->smartling_submission_wrapper->loadByID($eid)->getEntity();
-      if ($smartling_submission && !empty($this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle))) {
+      if ($smartling_submission && !empty($translatable_fields)) {
         $processor = $this->entity_processor_factory->getProcessor($smartling_submission);
         if ($processor->downloadTranslation()) {
           $status = $processor->updateEntityFromXML();
