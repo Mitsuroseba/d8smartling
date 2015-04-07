@@ -265,7 +265,7 @@ class GenericEntityProcessor {
           // language and disallow to fetch values from translated fields.
           // However all entities work with entities in the same way.
           if (!empty($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]) && empty($this->contentEntity->{$field_name}[$this->drupalTargetLocale])) {
-            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->smartling_submission->getEntity());
+            $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->drupalEntityType, $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
             $this->contentEntity->{$field_name}[$this->drupalTargetLocale] = $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[$this->drupalOriginalLocale]);
           }
         }
@@ -331,7 +331,9 @@ class GenericEntityProcessor {
     $xpath = new DomXpath($xml);
 
     foreach ($this->getTranslatableFields() as $field_name) {
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity());
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity,
+         $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
+
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
@@ -362,7 +364,9 @@ class GenericEntityProcessor {
   public function getTranslatableContent() {
     $data = array();
     foreach ($this->getTranslatableFields() as $field_name) {
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity());
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity,
+        $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
+
       if ($fieldProcessor) {
         $data[$field_name] = $fieldProcessor->getSmartlingContent();
       }
@@ -379,7 +383,8 @@ class GenericEntityProcessor {
 
     foreach ($this->getTranslatableFields() as $field_name) {
       /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
-      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity, $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity());
+      $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity,
+        $this->smartling_submission->getEntityType(), $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
       if ($fieldProcessor) {
         $data = $fieldProcessor->getSmartlingContent();
         $fieldProcessor->putDataToXML($xml, $localize, $data);

@@ -24,17 +24,15 @@ abstract class BaseFieldProcessor {
 
   protected $drupal_wrapper;
   
-  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper) {
+  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $drupal_wrapper) {
     $this->entity = $entity;
     $this->entityType = $entity_type;
-    $this->sourceLanguage = $smartling_submission->original_language;
-    $this->targetLanguage = $smartling_submission->target_language;
+    $this->sourceLanguage = $source_language;
+    $this->targetLanguage = $target_language;
     $this->fieldName = $field_name;
     $this->smartling_submission = $smartling_submission;
 
     $this->drupal_wrapper = $drupal_wrapper;
-
-    return $this;
   }
 
   public function setSmartlingEntity($smartling_submission) {

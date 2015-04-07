@@ -15,8 +15,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   protected $entity_api_wrapper;
   protected $field_api_wrapper;
 
-  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper, $field_processor_factory, $entity_api_wrapper, $field_api_wrapper) {
-    parent::__construct($field_name, $entity, $entity_type, $smartling_submission, $drupal_wrapper);
+  public function __construct($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $drupal_wrapper, $field_processor_factory, $entity_api_wrapper, $field_api_wrapper) {
+    parent::__construct($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $drupal_wrapper);
 
     $this->fieldFactory = $field_processor_factory;
     $this->entity_api_wrapper = $entity_api_wrapper;
@@ -29,8 +29,8 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return field_collection_item_load($id);
   }
 
-  protected function getProcessor($field_name, $entity, $smartling_submission) {
-    return $this->fieldFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission);
+  protected function getProcessor($field_name, $entity, $smartling_submission, $target_anguage, $source_language) {
+    return $this->fieldFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission, $target_anguage, $source_language);
   }
   /**
    * {@inheritdoc}
@@ -50,7 +50,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
         foreach ($this->getTranslatableFields() as $field_name) {
           /* @var $fieldProcessor \Drupal\smartling\FieldProcessors\BaseFieldProcessor */
           //$fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_submission, $this->targetLanguage, $this->smartling_submission->original_language);
-          $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_submission);
+          $fieldProcessor = $this->getProcessor($field_name, $entity, $this->smartling_submission, $this->targetLanguage, $this->sourceLanguage);
 
           if ($fieldProcessor) {
             $data[$fid][$field_name] = $fieldProcessor->getSmartlingContent();
@@ -70,7 +70,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
   protected function importSmartlingXMLToFieldCollectionEntity(\DomXpath $xpath) {
     $point = null;
     foreach ($this->getTranslatableFields() as $field_name) {
-      $fieldProcessor = $this->getProcessor($field_name, $this->entity, $this->smartling_submission);
+      $fieldProcessor = $this->getProcessor($field_name, $this->entity, $this->smartling_submission, $this->targetLanguage);
       $fieldValue = $fieldProcessor->fetchDataFromXML($xpath);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
     }
@@ -187,7 +187,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     $fieldProcessorFactory = $this->fieldFactory;
     foreach ($value as $field_name => $fieldValue) {
       $smartling_submission = clone $this->smartling_submission;
-      $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission);
+      $fieldProcessor = $fieldProcessorFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission, LANGUAGE_NONE);
       $fieldProcessor->setDrupalContentFromXML($fieldValue);
       unset($fieldProcessor);
     }
@@ -225,7 +225,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
             $this->putDataToXML($xml, $collection, array($delta => $item), $field_name);
           }
           else {
-            $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_submission);
+            $fieldProcessor = $this->fieldFactory->getProcessor($field_name, $this->entity, $this->entityType, $this->smartling_submission, $this->targetLanguage);
             $fieldProcessor->putDataToXml($xml, $collection, array($delta => $item));
           }
 

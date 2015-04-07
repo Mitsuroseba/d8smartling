@@ -54,7 +54,7 @@ class FieldProcessorFactory {
    *
    * @return BaseFieldProcessor
    */
-  public function getProcessor($field_name, $entity, $entity_type, $smartling_submission) {
+  public function getProcessor($field_name, $entity, $entity_type, $smartling_submission, $target_language, $source_language = NULL) {
     $field_info = $this->field_api_wrapper->fieldInfoField($field_name);
 
     if ($field_info) {
@@ -76,11 +76,13 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
+    $source_language = ($source_language ?: ((smartling_field_is_translatable($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE));
+
     if ($type === 'field_collection') {
-      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $this->drupal_api_wrapper, $this, $this->entity_api_wrapper, $this->field_api_wrapper);
+      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $this->drupal_api_wrapper, $this, $this->entity_api_wrapper, $this->field_api_wrapper);
     }
     else {
-      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $this->drupal_api_wrapper);
+      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $this->drupal_api_wrapper);
     }
 
     return $field_processor;

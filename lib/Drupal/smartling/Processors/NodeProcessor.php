@@ -24,7 +24,9 @@ class NodeProcessor extends GenericEntityProcessor {
     $field_values = array();
     foreach ($this->getTranslatableFields() as $field_name) {
       if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
-        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission->getEntity());
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType,
+          $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
+
         $val = $fieldProcessor->cleanBeforeClone($node);
         if (!empty($val)) {
           $field_values[$field_name] = $val;
@@ -45,7 +47,9 @@ class NodeProcessor extends GenericEntityProcessor {
       // Run all translatable fields through prepareBeforeDownload
       // to make sure that all related logic was triggered.
       if (!empty($this->contentEntity->{$field_name}[LANGUAGE_NONE])) {
-        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType, $this->smartling_submission->getEntity());
+        $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $node, $this->drupalEntityType,
+          $this->smartling_submission->getEntity(), $this->targetFieldLanguage);
+
         // @TODO get rid of hardcoded language.
         $fieldProcessor->prepareBeforeDownload($this->contentEntity->{$field_name}[LANGUAGE_NONE]);
       }
