@@ -60,29 +60,31 @@ class FieldProcessorFactory {
     if ($field_info) {
       $type = $field_info['type'];
       // @todo we could get notice about invalid key here.
-      $service_id = $this->field_mapping['real'][$type];
+      $class_name = $this->field_mapping['real'][$type];
     }
     elseif (isset($this->field_mapping['fake'][$field_name])) {
       $type = $field_name;
-      $service_id = $this->field_mapping['fake'][$type];
+      $class_name = $this->field_mapping['fake'][$type];
     }
     else {
       $this->log->warning("Smartling found unexisted field - @field_name", array('@field_name' => $field_name), TRUE);
       return FALSE;
     }
 
-    if (!$service_id) {
+    if (!$class_name) {
       $this->log->warning("Smartling didn't process content of field - @field_name", array('@field_name' => $field_name), TRUE);
       return FALSE;
     }
 
-    $container = $this->getContainer();
-    $container->setParameter('field_name', $field_name);
-    $container->setParameter('drupal_entity', $entity);
-    $container->setParameter('entity_type', $entity_type);
-    $container->setParameter('smartling_submission', $smartling_submission);
-    //new $class_name($field_name, $entity, $entity_type, $smartling_submission);
-    return $container->get($service_id);
+    if ($type === 'field_collection') {
+      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $this->drupal_api_wrapper, $this, $this->entity_api_wrapper, $this->field_api_wrapper);
+    }
+    else {
+      $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $this->drupal_api_wrapper);
+    }
+
+    return $field_processor;
+    //return $container->get($service_id);
   }
 
   public function isSupportedField($field_name) {

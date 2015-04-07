@@ -58,14 +58,37 @@ class EntityProcessorFactory {
     }
 
     // @Todo avoid hardcoding 'generic' key.
-    $processor_yml_id = isset($this->processorMapping[$smartling_submission->entity_type]) ? $this->processorMapping[$smartling_submission->entity_type] : $this->processorMapping['generic'];
+    $processor_class = isset($this->processorMapping[$smartling_submission->entity_type]) ? $this->processorMapping[$smartling_submission->entity_type] : $this->processorMapping['generic'];
 
     $container = $this->getContainer();
     $smartling_submission = $container->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($smartling_submission);
-    $container->setParameter('smartling_submission', $smartling_submission);
-    $static_storage[$smartling_submission->eid] = $container->get($processor_yml_id);//new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
+    $fieldProcessorFactory = $container->get('smartling.field_processor_factory');
+    $smartlingAPI = $container->get('smartling.api_wrapper');
+    $smartling_settings = $container->get('smartling.settings');
+    $logger = $container->get('smartling.log');
+    $entity_api_wrapper = $container->get('smartling.wrappers.entity_api_wrapper');
+    $smartling_utils = $container->get('smartling.wrappers.smartling_utils');
+    $field_api_wrapper = $container->get('smartling.wrappers.field_api_wrapper');
+    $i18n_wrapper = $container->get('smartling.wrappers.i18n_wrapper');
 
-    return $static_storage[$smartling_submission->eid];
+    switch ($smartling_submission->getEntityType()) {
+      case 'node':
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $field_api_wrapper);
+        break;
+      case 'taxonomy_term':
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $i18n_wrapper);
+        break;
+
+      default :
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        break;
+    }
+
+    $static_storage[$smartling_submission->getEID()] = $entity_processor;
+
+    //$static_storage[$smartling_submission->getEID()] = $container->get($processor_yml_id);//new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
+
+    return $static_storage[$smartling_submission->getEID()];
   }
 
 }

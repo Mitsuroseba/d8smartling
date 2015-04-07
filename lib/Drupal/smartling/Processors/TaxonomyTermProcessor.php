@@ -83,7 +83,7 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
       }
 
       $this->entity_api_wrapper->entitySave('taxonomy_term', $this->contentEntity);
-      $this->smartling_submission->set($this->contentEntity->tid);
+      $this->smartling_submission->setRID($this->contentEntity->tid);
     }
   }
 

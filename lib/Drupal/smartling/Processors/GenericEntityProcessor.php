@@ -277,8 +277,8 @@ class GenericEntityProcessor {
    * Implements entity_translation logic to update translation data in Drupal.
    */
   public function updateDrupalTranslation() {
-    $smartling_submission = $this->entity_api_wrapper->entityLoadSingle($this->drupalEntityType, $this->smartling_submission->getRID());
-    $handler = $this->getEntityTranslationHandler($this->drupalEntityType, $smartling_submission);
+    $entity = $this->entity_api_wrapper->entityLoadSingle($this->drupalEntityType, $this->smartling_submission->getRID());
+    $handler = $this->getEntityTranslationHandler($this->drupalEntityType, $entity);
     $translations = $handler->getTranslations();
 
     // Initialize translations if they are empty.
@@ -286,18 +286,18 @@ class GenericEntityProcessor {
       $handler->initTranslations();
       $handler->saveTranslations();
       // Update the wrapped entity.
-      $handler->setEntity($smartling_submission);
+      $handler->setEntity($entity);
       $handler->smartlingEntityTranslationFieldAttach();
       $translations = $handler->getTranslations();
     }
 
     $entity_translation = array(
       'entity_type' => $this->drupalEntityType,
-      'entity_id' => $this->smartling_submission->rid,
+      'entity_id' => $this->smartling_submission->getRID(),
       'translate' => '0',
-      'status' => !empty($smartling_submission->status) ? $smartling_submission->status : 1,
+      'status' => !empty($entity->status) ? $entity->status : 1,
       'language' => $this->drupalTargetLocale,
-      'uid' => $this->smartling_submission->submitter,
+      'uid' => $this->smartling_submission->getSubmitter(),
       'changed' => REQUEST_TIME,
     );
 
@@ -308,13 +308,13 @@ class GenericEntityProcessor {
       // Add the new translation.
       $entity_translation += array(
         'source' => $translations->original,
-        'created' => !empty($smartling_submission->created) ? $smartling_submission->created : REQUEST_TIME,
+        'created' => !empty($entity->created) ? $entity->created : REQUEST_TIME,
       );
       $handler->setTranslation($entity_translation);
     }
     $handler->saveTranslations();
     // Update the wrapped entity.
-    $handler->setEntity($smartling_submission);
+    $handler->setEntity($entity);
     $handler->smartlingEntityTranslationFieldAttach();
 
     return TRUE;
@@ -347,7 +347,7 @@ class GenericEntityProcessor {
    * Process given xml parsed object using translated_file.
    */
   public function updateEntityFromXML() {
-    $file_path = $this->getFilePath($this->smartling_submission->getTranslatedFileName());
+    $file_path = $this->getFilePath($this->smartling_submission->getFileTranslatedName());
 
     $xml = new \DOMDocument();
     $xml->load($file_path);
