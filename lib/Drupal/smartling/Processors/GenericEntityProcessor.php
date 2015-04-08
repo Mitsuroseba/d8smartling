@@ -172,7 +172,8 @@ class GenericEntityProcessor {
    * @return bool
    */
   public function getProgressStatus() {
-    if (!empty($this->smartling_submission->getFileName())) {
+    $file_name = $this->smartling_submission->getFileName();
+    if (!empty($file_name)) {
       $result = $this->smartlingAPI->getStatus($this->smartling_submission->getEntity());
 
       if (!empty($result)) {
