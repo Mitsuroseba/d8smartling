@@ -76,7 +76,7 @@ class FieldProcessorFactory {
       return FALSE;
     }
 
-    $source_language = ($source_language ?: ((smartling_field_is_translatable($field_name, $entity_type)) ? entity_language($entity_type, $entity) : LANGUAGE_NONE));
+    $source_language = ($source_language ?: (($this->smartling_utils->fieldIsTranslatable($field_name, $entity_type)) ? $this->entity_api_wrapper->entityLanguage($entity_type, $entity) : LANGUAGE_NONE));
 
     if ($type === 'field_collection') {
       $field_processor = new $class_name($field_name, $entity, $entity_type, $smartling_submission, $source_language, $target_language, $this->drupal_api_wrapper, $this, $this->entity_api_wrapper, $this->field_api_wrapper);
