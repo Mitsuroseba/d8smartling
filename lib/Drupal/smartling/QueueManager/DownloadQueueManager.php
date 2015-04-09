@@ -43,11 +43,11 @@ class DownloadQueueManager implements QueueManagerInterface {
    */
   public function execute($eids) {
     if ($this->drupal_wrapper->getDefaultLanguage() != $this->field_api_wrapper->fieldValidLanguage(NULL, FALSE)) {
-      throw new WrongSiteSettingsException('The download failed. Please switch to the site\'s default language: ' . $this->drupal_wrapper->getDefaultLanguage());
+      throw new \Drupal\smartling\SmartlingExceptions\WrongSiteSettingsException('The download failed. Please switch to the site\'s default language: ' . $this->drupal_wrapper->getDefaultLanguage());
     }
 
     if (!$this->smartling_utils->isConfigured()) {
-      throw new SmartlingNotConfigured(t('Smartling module is not configured. Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))));
+      throw new \Drupal\smartling\SmartlingExceptions\SmartlingNotConfigured(t('Smartling module is not configured. Please follow the page <a href="@link">"Smartling settings"</a> to setup Smartling configuration.', array('@link' => url('admin/config/regional/smartling'))));
     }
 
     if (!is_array($eids)) {

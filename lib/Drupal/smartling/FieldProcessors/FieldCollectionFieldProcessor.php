@@ -29,7 +29,7 @@ class FieldCollectionFieldProcessor extends BaseFieldProcessor {
     return field_collection_item_load($id);
   }
 
-  protected function getProcessor($field_name, $entity, $smartling_submission, $target_anguage, $source_language) {
+  protected function getProcessor($field_name, $entity, $smartling_submission, $target_anguage, $source_language = NULL) {
     return $this->fieldFactory->getProcessor($field_name, $entity, 'field_collection_item', $smartling_submission, $target_anguage, $source_language);
   }
   /**

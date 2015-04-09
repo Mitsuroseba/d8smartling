@@ -68,7 +68,7 @@ class SmartlingEntityDataWrapperCollection {
 
     if (!smartling_translate_fields_configured($bundle, $entity_type)) {
       //$this->log->error("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle, 'entity_link' => $link), TRUE);
-      throw new WrongSiteSettingsException(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)));
+      throw new \Drupal\smartling\SmartlingExceptions\WrongSiteSettingsException(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)));
     }
 
     // $d_locale_original = language_default()->language;
