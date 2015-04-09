@@ -160,7 +160,7 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->will($this->returnValue(array('en')));
 
     $this->smartling_utils->expects($this->once())
-      ->method('nodesMethod')
+      ->method('isNodesMethod')
       ->will($this->returnValue(FALSE));
 
 
@@ -190,7 +190,7 @@ class NodeConversionUtilTest extends \PHPUnit_Framework_TestCase {
       ->will($this->returnValue(array('en')));
 
     $this->smartling_utils->expects($this->once())
-      ->method('nodesMethod')
+      ->method('isNodesMethod')
       ->will($this->returnValue(TRUE));
 
 

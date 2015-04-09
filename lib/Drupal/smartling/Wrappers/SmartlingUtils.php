@@ -114,7 +114,7 @@ class SmartlingUtils {
 
     $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
     $directory = smartling_get_dir();
-    $path = $directory . '/' . smartling_clean_filename($file_name);
+    $path = $directory . '/' . $this->cleanFileName($file_name);
 
     if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
       $xml_doc->save(drupal_realpath($path));

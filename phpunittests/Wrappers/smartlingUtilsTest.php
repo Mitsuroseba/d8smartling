@@ -1,5 +1,8 @@
 <?php
-require_once(dirname(__FILE__) . '/../smartling.utils.inc');
+require_once(__DIR__ . '/../../lib/Drupal/smartling/Wrappers/SmartlingUtils.php');
+
+use Drupal\smartling\Wrappers;
+
 /**
  * @file
  * Tests for smartling.
@@ -8,7 +11,7 @@ require_once(dirname(__FILE__) . '/../smartling.utils.inc');
 /**
  * SmartlingFileCleanTest.
  */
-class SmartlingFileCleanTest extends \PHPUnit_Framework_TestCase {
+class SmartlingUtilsTest extends \PHPUnit_Framework_TestCase {
 
   /**
    * Test info.
@@ -27,29 +30,31 @@ class SmartlingFileCleanTest extends \PHPUnit_Framework_TestCase {
   /**
    * Test clean file.
    */
-  public function testCleanFile() {
-    $filename = smartling_clean_filename("");
+  public function testCleanFileName() {
+    $utils = new Wrappers\SmartlingUtils(null, null);
+
+    $filename = $utils->cleanFileName("");
     $this->assertEquals($filename, "", 'Path traversal test for empty filenames.');
 
-    $filename = smartling_clean_filename("./../asd.abc");
+    $filename = $utils->cleanFileName("./../asd.abc");
     $this->assertEquals($filename, "asd.abc", 'Path traversal test for: "./../asd.abc"');
 
-    $filename = smartling_clean_filename("./../asd.abc", TRUE);
+    $filename = $utils->cleanFileName("./../asd.abc", TRUE);
     $this->assertEquals($filename, "_/__/asd.abc", 'Path traversal test for: "./../asd.abc" (path enabled)');
 
-    $filename = smartling_clean_filename("qwe.ert\n\n.pdf");
+    $filename = $utils->cleanFileName("qwe.ert\n\n.pdf");
     $this->assertEquals($filename, "qwe_ert__.pdf", 'Path traversal test for: "qwe.ert\n\n.pdf"');
 
-    $filename = smartling_clean_filename("%u002e%u002e%u2215qwrtyu.htm");
+    $filename = $utils->cleanFileName("%u002e%u002e%u2215qwrtyu.htm");
     $this->assertEquals($filename, "_u002e_u002e_u2215qwrtyu.htm", 'Path traversal test for: "%u002e%u002e%u2215qwrtyu.htm"');
 
-    $filename = smartling_clean_filename("liuerg");
+    $filename = $utils->cleanFileName("liuerg");
     $this->assertEquals($filename, "liuerg", 'Path traversal test for: "liuerg"');
 
-    $filename = smartling_clean_filename("\n\n");
+    $filename = $utils->cleanFileName("\n\n");
     $this->assertEquals($filename, "", 'Path traversal test for: "\n\n"');
 
-    $filename = smartling_clean_filename("dir1/dir2/dir3/dir4", TRUE);
+    $filename = $utils->cleanFileName("dir1/dir2/dir3/dir4", TRUE);
     $this->assertEquals($filename, "dir1/dir2/dir3/dir4", 'Path traversal test for: "dir1/dir2/dir3/dir4"');
   }
 
