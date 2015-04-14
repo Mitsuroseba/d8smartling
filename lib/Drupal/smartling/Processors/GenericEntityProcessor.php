@@ -171,7 +171,7 @@ class GenericEntityProcessor {
    *
    * @return bool
    */
-  public function getProgressStatus() {
+  protected function getProgressStatus() {
     $file_name = $this->smartling_submission->getFileName();
     if (!empty($file_name)) {
       $result = $this->smartlingAPI->getStatus($this->smartling_submission->getEntity());
@@ -191,24 +191,9 @@ class GenericEntityProcessor {
   /**
    * Wrapper for drupal entity saving.
    */
-  public function saveDrupalEntity() {
+  private function saveDrupalEntity() {
     $this->contentEntityWrapper->set($this->contentEntity);
     $this->contentEntityWrapper->save();
-  }
-
-  /**
-   * Get link to drupal content.
-   *
-   * @todo move this logic to original entity Proxy object.
-   */
-  public function linkToContent($link_title = '') {
-    $link_title = (!empty($link_title)) ? $link_title : $this->contentEntityWrapper->label();
-    $link_title = (!empty($link_title)) ? $link_title : t('Related entity');
-
-    $uri        = entity_uri($this->drupalEntityType, $this->contentEntity);
-    $path       = $uri['path'];
-
-    return l($link_title, $path);
   }
 
   /**
@@ -256,7 +241,7 @@ class GenericEntityProcessor {
    * Should be overridden for node and term. E.g. before pushing translation we have to fetch data
    * from original node, so swap current node to original translation if necessary.
    */
-  public function prepareDrupalEntity() {
+  protected function prepareDrupalEntity() {
     if (!$this->isOriginalEntityPrepared) {
       $this->isOriginalEntityPrepared = TRUE;
 
@@ -277,7 +262,7 @@ class GenericEntityProcessor {
   /**
    * Implements entity_translation logic to update translation data in Drupal.
    */
-  public function updateDrupalTranslation() {
+  protected function updateDrupalTranslation() {
     $entity = $this->entity_api_wrapper->entityLoadSingle($this->drupalEntityType, $this->smartling_submission->getRID());
     $handler = $this->getEntityTranslationHandler($this->drupalEntityType, $entity);
     $translations = $handler->getTranslations();
@@ -326,7 +311,7 @@ class GenericEntityProcessor {
    *
    * @param $xml \DOMDocument
    */
-  public function importSmartlingXMLToSmartlingEntity(\DOMDocument $xml) {
+  protected function importSmartlingXMLToSmartlingEntity(\DOMDocument $xml) {
     $this->prepareDrupalEntity();
 
     $xpath = new DomXpath($xml);
@@ -400,7 +385,7 @@ class GenericEntityProcessor {
    *
    * @return array()
    */
-  public function getTranslatableFields() {
+  protected function getTranslatableFields() {
     return $this->smartling_settings->getFieldsSettingsByBundle($this->smartling_submission->getEntityType(), $this->smartling_submission->getBundle());
   }
 }

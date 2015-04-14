@@ -20,7 +20,7 @@ class NodeProcessor extends GenericEntityProcessor {
   /**
    * {inheritdoc}
    */
-  public function addTranslatedFieldsToNode($node){
+  protected  function addTranslatedFieldsToNode($node){
     $field_values = array();
     foreach ($this->getTranslatableFields() as $field_name) {
       if (!empty($node->{$field_name}[LANGUAGE_NONE])) {
@@ -58,7 +58,7 @@ class NodeProcessor extends GenericEntityProcessor {
     return $node;
   }
 
-  public function prepareDrupalEntity() {
+  protected function prepareDrupalEntity() {
     if (!$this->isOriginalEntityPrepared && $this->smartling_utils->isNodesMethod($this->smartling_submission->getBundle())) {
       $this->isOriginalEntityPrepared = TRUE;
       // Translate subnode instead of main one.
