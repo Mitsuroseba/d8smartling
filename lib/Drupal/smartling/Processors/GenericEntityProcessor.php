@@ -19,7 +19,7 @@ use Drupal\smartling\Log\SmartlingLog;
  *
  * @package Drupal\smartling\Processors
  */
-class GenericEntityProcessor {
+class GenericEntityProcessor implements EntityProcessorInterface {
 
   /**
    * Contains Smartling data entity.
@@ -361,7 +361,7 @@ class GenericEntityProcessor {
     return $data;
   }
 
-  public function exportContentToTranslation($xml, $rid) {
+  protected function exportFieldsContentToXML($xml, $rid) {
     $localize = $xml->createElement('localize');
     $localize_attr = $xml->createAttribute('title');
     $localize_attr->value = $rid;
@@ -387,5 +387,49 @@ class GenericEntityProcessor {
    */
   protected function getTranslatableFields() {
     return $this->smartling_settings->getFieldsSettingsByBundle($this->smartling_submission->getEntityType(), $this->smartling_submission->getBundle());
+  }
+
+
+  /**
+   * Build xml document and save in file.
+   *
+   * @param object $processor
+   *   Drupal entity processor
+   * @param int $rid
+   *
+   * @return DOMDocument
+   *   Returns XML object.
+   */
+  public function exportContentForTranslation() {
+    $xml = new \DOMDocument('1.0', 'UTF-8');
+
+    $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string, data/localize/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/field_collection/string '));
+    // @todo remove hardcoded mappping of nested field collections.
+    $xml->appendChild($xml->createComment(' smartling.string_format_paths = html : data/localize/string, html : data/localize/field_collection/string, html : data/localize/field_collection/field_collection/string, html : data/localize/field_collection/field_collection/field_collection/string '));
+    $xml->appendChild($xml->createComment(' smartling.placeholder_format_custom = (@|%|!)[\w-]+ '));
+
+    $data = $xml->createElement('data');
+
+    $rid = $this->smartling_submission->getRID();
+    $localize = $this->exportFieldsContentToXML($xml, $rid);
+
+    $data->appendChild($localize);
+    $xml->appendChild($data);
+
+    // @todo Verify how many child has $data. If zero, then write to log and stop upload
+    // This logic was lost in OOP branch
+    //  {
+    //    smartling_entity_delete_all_by_conditions(array(
+    //      'rid' => $rid,
+    //      'entity_type' => $entity_type,
+    //    ));
+    //    $log->setMessage('Entity has no strings to translate for entity_type - @entity_type, id - @rid.')
+    //      ->setVariables(array('@entity_type' => $entity_type, '@rid' => $rid))
+    //      ->setSeverity(WATCHDOG_WARNING)
+    //      ->execute();
+    //    $file_name = FALSE;
+    //  }
+
+    return $xml;
   }
 }
