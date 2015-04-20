@@ -65,7 +65,7 @@ class UploadQueueManager implements QueueManagerInterface {
     foreach ($entity_data_array as $file_name => $entity_array) {
       $submission = reset($entity_array);
       $processor = $this->entity_processor_factory->getProcessor($submission);
-      $xml = $this->exportContentForTranslation();
+      $xml = $processor->exportContentForTranslation();
       if (!($xml instanceof \DOMNode)) {
         continue;
       }
