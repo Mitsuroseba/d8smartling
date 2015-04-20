@@ -8,8 +8,7 @@
 namespace Drupal\smartling\Processors;
 
 interface EntityProcessorInterface {
-  public function downloadTranslation();
-  public function updateEntityFromXML();
-  public function exportContentForTranslation();
-  public function getTranslatableContent();
+  public function updateEntity($content);
+  public function exportContent();
+  public function exportContentToArray();
 }

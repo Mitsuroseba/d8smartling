@@ -167,72 +167,11 @@ class GenericEntityProcessor implements EntityProcessorInterface {
   }
 
   /**
-   * Fetch translation status from Smartling server.
-   *
-   * @return bool
-   */
-  protected function getProgressStatus() {
-    $file_name = $this->smartling_submission->getFileName();
-    if (!empty($file_name)) {
-      $result = $this->smartlingAPI->getStatus($this->smartling_submission->getEntity());
-
-      if (!empty($result)) {
-        return $result['entity_data']->progress;
-      }
-      else {
-        return FALSE;
-      }
-    }
-    else {
-      return FALSE;
-    }
-  }
-
-  /**
    * Wrapper for drupal entity saving.
    */
   private function saveDrupalEntity() {
     $this->contentEntityWrapper->set($this->contentEntity);
     $this->contentEntityWrapper->save();
-  }
-
-  /**
-   * Downloads translation data from Smartling server.
-   */
-  public function downloadTranslation() {
-    $progress = $this->getProgressStatus();
-    if ($progress === FALSE) {
-      return;
-    }
-
-    $download_result = $this->smartlingAPI->downloadFile($this->smartling_submission->getEntity());
-
-    libxml_use_internal_errors(true);
-    if (FALSE === simplexml_load_string($download_result)) {
-      return;
-    }
-    // This is a download result.
-    $xml = new \DOMDocument();
-    $xml->loadXML($download_result);
-
-    $translated_file_name = $this->smartling_submission->getFileTranslatedName();
-//    $file_name = substr($this->entity->file_name, 0, strlen($this->entity->file_name) - 4);
-//    $translated_file_name = $file_name . '_' . $this->entity->target_language . '.xml';
-
-    // Save result.
-    $isSuccess = $this->smartling_utils->saveXML($translated_file_name, $xml, $this->smartling_submission->getEntity());
-
-    // If result is saved.
-    if ($isSuccess) {
-      $this->smartling_submission
-        ->setStatusByEvent(SMARTLING_STATUS_EVENT_UPDATE_FIELDS)
-        ->setProgress($progress)
-        ->save();
-
-      $isSuccess = $this->updateDrupalTranslation();
-    }
-
-    return $isSuccess;
   }
 
   /**
@@ -334,11 +273,9 @@ class GenericEntityProcessor implements EntityProcessorInterface {
   /**
    * Process given xml parsed object using translated_file.
    */
-  public function updateEntityFromXML() {
-    $file_path = $this->getFilePath($this->smartling_submission->getFileTranslatedName());
-
+  public function updateEntity($content) {
     $xml = new \DOMDocument();
-    $xml->load($file_path);
+    $xml->loadXML($content);
 
     // Update smartling entity.
     $this->importSmartlingXMLToSmartlingEntity($xml);
@@ -347,7 +284,7 @@ class GenericEntityProcessor implements EntityProcessorInterface {
     return $this->updateDrupalTranslation();
   }
 
-  public function getTranslatableContent() {
+  public function exportContentToArray() {
     $data = array();
     foreach ($this->getTranslatableFields() as $field_name) {
       $fieldProcessor = $this->fieldProcessorFactory->getProcessor($field_name, $this->contentEntity,
@@ -400,7 +337,7 @@ class GenericEntityProcessor implements EntityProcessorInterface {
    * @return DOMDocument
    *   Returns XML object.
    */
-  public function exportContentForTranslation() {
+  public function exportContent() {
     $xml = new \DOMDocument('1.0', 'UTF-8');
 
     $xml->appendChild($xml->createComment(' smartling.translate_paths = data/localize/string, data/localize/field_collection/string, data/localize/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/string, data/localize/field_collection/field_collection/field_collection/field_collection/string '));
@@ -430,6 +367,6 @@ class GenericEntityProcessor implements EntityProcessorInterface {
     //    $file_name = FALSE;
     //  }
 
-    return $xml;
+    return $xml->saveXML();
   }
 }

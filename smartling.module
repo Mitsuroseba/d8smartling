@@ -376,7 +376,7 @@ function smartling_entity_update($entity, $type) {
   if (is_array($smartling_entity_data)) {
     $sm_data       = current($smartling_entity_data);
     $processor     = smartling_get_entity_processor($sm_data);
-    $content_array = $processor->getTranslatableContent();
+    $content_array = $processor->exportContentToArray();
     $content_hash  = md5(serialize($content_array));
 
     foreach ($smartling_entity_data as $smartling_entity) {

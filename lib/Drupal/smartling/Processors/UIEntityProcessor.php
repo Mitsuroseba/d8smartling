@@ -9,18 +9,14 @@ namespace Drupal\smartling\Processors;
 
 class UIEntityProcessor implements EntityProcessorInterface {
 
-  public function downloadTranslation() {
+  public function updateEntity($content) {
+
+  }
+  public function exportContent() {
 
   }
 
-  public function updateEntityFromXML() {
-
-  }
-  public function exportContentForTranslation() {
-
-  }
-
-  public function getTranslatableContent() {
+  public function exportContentToArray() {
 
   }
 }

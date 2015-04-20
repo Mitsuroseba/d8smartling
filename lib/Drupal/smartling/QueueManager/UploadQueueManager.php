@@ -9,20 +9,20 @@ namespace Drupal\smartling\QueueManager;
 
 class UploadQueueManager implements QueueManagerInterface {
 
-  protected $api_wrapper;
   protected $smartling_utils;
   protected $entity_processor_factory;
   protected $smartling_submission_wrapper;
   protected $drupal_wrapper;
   protected $settings;
+  protected $file_transport;
 
-  public function __construct($api_wrapper, $smartling_submission_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper) {
-    $this->api_wrapper = $api_wrapper;
+  public function __construct($smartling_submission_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper, $file_transport) {
     $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->entity_processor_factory = $entity_processor_factory;
     $this->smartling_utils = $smartling_utils;
     $this->drupal_wrapper = $drupal_wrapper;
     $this->settings = $settings;
+    $this->file_transport = $file_transport;
   }
 
   /**
@@ -65,18 +65,9 @@ class UploadQueueManager implements QueueManagerInterface {
     foreach ($entity_data_array as $file_name => $entity_array) {
       $submission = reset($entity_array);
       $processor = $this->entity_processor_factory->getProcessor($submission);
-      $xml = $processor->exportContentForTranslation();
-      if (!($xml instanceof \DOMNode)) {
-        continue;
-      }
+      $content = $processor->exportContent();
 
-      $event   = SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
-      $success = (bool) $this->smartling_utils->saveXml($file_name, $xml, $submission);
-      // Init api object.
-      if ($success) {
-        $file_path = $this->drupal_wrapper->drupalRealpath($this->settings->getDir($file_name), TRUE);
-        $event = $this->api_wrapper->uploadFile($file_path, $file_name, 'xml', $target_locales[$file_name]);
-      }
+      $event = $this->file_transport->upload($content, $submission, $target_locales[$file_name]);
 
       foreach ($entity_array as $submission) {
         $this->smartling_submission_wrapper->setEntity($submission)->setStatusByEvent($event)->save();

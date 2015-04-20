@@ -69,11 +69,11 @@ services:
 
   smartling.queue_managers.upload:
     class:              Drupal\smartling\QueueManager\UploadQueueManager
-    arguments:          [@smartling.api_wrapper, @smartling.wrappers.smartling_submission_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
+    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper, @smartling.utils.file_transport]
 
   smartling.queue_managers.download:
     class:              Drupal\smartling\QueueManager\DownloadQueueManager
-    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper]
+    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper, @smartling.utils.file_transport]
 
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
@@ -107,6 +107,11 @@ services:
 
   smartling.wrappers.i18n_wrapper:
     class:              Drupal\smartling\Wrappers\InternationalizationWrapper
+
+
+  smartling.utils.file_transport:
+    class:              Drupal\smartling\Utils\FileTransport
+    arguments:          [@smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
 
 
   smartling.entity_conversion_utils.entity:

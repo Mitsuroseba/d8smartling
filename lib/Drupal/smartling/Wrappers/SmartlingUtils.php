@@ -97,7 +97,7 @@ class SmartlingUtils {
 
    * @param string $file_name
    *   File name.
-   * @param object $xml_doc
+   * @param string $content
    *   Xml document.
    * @param stdClass $smartling_submission
    *   Locale in drupal format (ru, en).
@@ -105,7 +105,7 @@ class SmartlingUtils {
    * @return bool
    *   Was file creation successful or not.
    */
-  public function saveXML($file_name, $xml_doc, $smartling_submission  = NULL) {
+  public function saveFile($file_name, $content, $smartling_submission  = NULL) {
     $log = smartling_log_get_handler();
 
     if (empty($file_name)) {
@@ -117,9 +117,10 @@ class SmartlingUtils {
     $path = $directory . '/' . $this->cleanFileName($file_name);
 
     if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-      $xml_doc->save(drupal_realpath($path));
+      //$xml_doc->save(drupal_realpath($path));
+      file_put_contents(drupal_realpath($path), $content);
 
-      $log->info('Smartling saves xml file for entity_type - @entity_type, id - @rid. Locale: @locale',
+      $log->info('Smartling saves data file for entity_type - @entity_type, id - @rid. Locale: @locale',
         array('@entity_type' => $smartling_submission->entity_type, '@rid' => $smartling_submission->rid, '@locale' => $smartling_submission->target_language, 'entity_link' => l(t('View file'), file_create_url($path))));
 
       return TRUE;
