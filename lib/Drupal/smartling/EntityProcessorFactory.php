@@ -7,7 +7,6 @@
 
 namespace Drupal\smartling;
 
-use Drupal\smartling\ApiWrapper\SmartlingApiWrapper;
 use Drupal\smartling\Log\SmartlingLog;
 use Drupal\smartling\Processors\GenericEntityProcessor;
 
@@ -63,7 +62,6 @@ class EntityProcessorFactory {
     $container = $this->getContainer();
     $smartling_submission = $container->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($smartling_submission);
     $fieldProcessorFactory = $container->get('smartling.field_processor_factory');
-    $smartlingAPI = $container->get('smartling.api_wrapper');
     $smartling_settings = $container->get('smartling.settings');
     $logger = $container->get('smartling.log');
     $entity_api_wrapper = $container->get('smartling.wrappers.entity_api_wrapper');
@@ -73,14 +71,14 @@ class EntityProcessorFactory {
 
     switch ($smartling_submission->getEntityType()) {
       case 'node':
-        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $field_api_wrapper);
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $field_api_wrapper);
         break;
       case 'taxonomy_term':
-        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $i18n_wrapper);
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $i18n_wrapper);
         break;
 
       default :
-        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartlingAPI, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
         break;
     }
 

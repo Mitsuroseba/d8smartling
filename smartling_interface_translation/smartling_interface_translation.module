@@ -85,7 +85,6 @@ function smartling_interface_translation_views_data_alter(&$data) {
  */
 function smartling_interface_translation_do_translate_action($entity, array $context) {
   $entity_type = $context['entity_type'];
-  global $user;
 
   $group = $entity->textgroup;
   $file_name = 'smartling_interface_translation_' . $group . '.pot';
@@ -204,59 +203,61 @@ function smartling_interface_translation_do_translate_action_submit(array $form,
  *   Drupal user object.
  */
 function smartling_interface_translation_submission_import($mode, $eid) {
-  if (smartling_is_configured()) {
-    // Load entity.
-    $entity_data = smartling_entity_load_by_conditions(array('eid' => $eid));
+//  if (smartling_is_configured()) {
+//    // Load entity.
+//    $entity_data = smartling_entity_load_by_conditions(array('eid' => $eid));
+//
+//    if ($entity_data !== FALSE) {
+//      global $user;
+//      $langcode = $entity_data->target_language;
+//      $group = $entity_data->bundle;
+//      // Init api object.
+//      $api = drupal_container()->get('smartling.api_wrapper');
+//      $download_result = $api->downloadFile($entity_data);
+//      if ($download_result !== FALSE) {
+//        $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
+//        $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
+//        if ($uri) {
+//          $file_result = entity_load('file', FALSE, array('uri' => $uri), TRUE);
+//          $key = key($file_result);
+//          // If file exist.
+//          if (!is_null($key) && isset($file_result[$key]) && ($file_result[$key]->uri == $uri)) {
+//            $file = $file_result[$key];
+//          }
+//          else {
+//            // Create a file object.
+//            $file = new stdClass();
+//            $file->fid = NULL;
+//            $file->uri = $uri;
+//            $file->filename = drupal_basename($uri);
+//            $file->filemime = file_get_mimetype($file->uri);
+//            $file->uid = $user->uid;
+//            $file->status = FILE_STATUS_PERMANENT;
+//          }
+//          $file = file_save($file);
+//        }
+//      }
+//
+//      if (!empty($file->fid)) {
+//        $entity_data->translated_file_name = $translated_filename;
+//        smartling_entity_data_save($entity_data);
+//        // Now import strings into the language.
+//        if ($return = _locale_import_po($file, $langcode, $mode, $group) == FALSE) {
+//          $variables = array('%filename' => $file->filename);
+//          drupal_set_message(t('The translation import of %filename failed.', $variables), 'error');
+//          watchdog('locale', 'The translation import of %filename failed.', $variables, WATCHDOG_ERROR);
+//        }
+//      }
+//      else {
+//        drupal_set_message(t('File to import not found.'), 'error');
+//      }
+//    }
+//  }
+//  else {
+//    drupal_set_message(t('Smartling is not configured'), 'error');
+//  }
 
-    if ($entity_data !== FALSE) {
-      global $user;
-      $langcode = $entity_data->target_language;
-      $group = $entity_data->bundle;
-      // Init api object.
-      $api = drupal_container()->get('smartling.api_wrapper');
-      $download_result = $api->downloadFile($entity_data);
-      if ($download_result !== FALSE) {
-        $translated_filename = 'smartling_interface_translated_' . $group . '_' . $langcode . '.po';
-        $uri = smartling_interface_translation_save_po($download_result, $translated_filename, TRUE);
-        if ($uri) {
-          $file_result = entity_load('file', FALSE, array('uri' => $uri), TRUE);
-          $key = key($file_result);
-          // If file exist.
-          if (!is_null($key) && isset($file_result[$key]) && ($file_result[$key]->uri == $uri)) {
-            $file = $file_result[$key];
-          }
-          else {
-            // Create a file object.
-            $file = new stdClass();
-            $file->fid = NULL;
-            $file->uri = $uri;
-            $file->filename = drupal_basename($uri);
-            $file->filemime = file_get_mimetype($file->uri);
-            $file->uid = $user->uid;
-            $file->status = FILE_STATUS_PERMANENT;
-          }
-          $file = file_save($file);
-        }
-      }
-
-      if (!empty($file->fid)) {
-        $entity_data->translated_file_name = $translated_filename;
-        smartling_entity_data_save($entity_data);
-        // Now import strings into the language.
-        if ($return = _locale_import_po($file, $langcode, $mode, $group) == FALSE) {
-          $variables = array('%filename' => $file->filename);
-          drupal_set_message(t('The translation import of %filename failed.', $variables), 'error');
-          watchdog('locale', 'The translation import of %filename failed.', $variables, WATCHDOG_ERROR);
-        }
-      }
-      else {
-        drupal_set_message(t('File to import not found.'), 'error');
-      }
-    }
-  }
-  else {
-    drupal_set_message(t('Smartling is not configured'), 'error');
-  }
+  drupal_container()->get('smartling.queue_managers.download')->execute($eid);
 
   // TODO : Make a wrapper for unset + drupal_goto
   unset($_GET['destination']);

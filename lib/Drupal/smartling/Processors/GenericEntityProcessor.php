@@ -10,7 +10,6 @@
 namespace Drupal\smartling\Processors;
 
 use DOMXPath;
-use Drupal\smartling\ApiWrapper\SmartlingApiWrapper;
 use Drupal\smartling\FieldProcessorFactory;
 use Drupal\smartling\Log\SmartlingLog;
 
@@ -85,11 +84,6 @@ class GenericEntityProcessor implements EntityProcessorInterface {
    * @var bool
    */
   protected $ifFieldMethod;
-  // @todo choose better name.
-  /**
-   * @var SmartlingApiWrapper
-   */
-  protected $smartlingAPI;
 
   /**
    * @var FieldProcessorFactory
@@ -144,14 +138,13 @@ class GenericEntityProcessor implements EntityProcessorInterface {
    *   Smartling log object.
    *
    */
-  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils) {
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils) {
     $this->smartling_submission = $smartling_submission;
     $this->drupalTargetLocale = $smartling_submission->getTargetLanguage();
     $this->drupalOriginalLocale = $smartling_submission->getOriginalLanguage();
 
     $this->log = $log;
     $this->fieldProcessorFactory = $field_processor_factory;
-    $this->smartlingAPI = $smartling_api;
     $this->entity_api_wrapper = $entity_api_wrapper;
     $this->smartling_utils = $smartling_utils;
     $this->smartling_settings = $smartling_settings;
@@ -274,6 +267,11 @@ class GenericEntityProcessor implements EntityProcessorInterface {
    * Process given xml parsed object using translated_file.
    */
   public function updateEntity($content) {
+    libxml_use_internal_errors(true);
+    if (FALSE === simplexml_load_string($content)) {
+      return FALSE;
+    }
+
     $xml = new \DOMDocument();
     $xml->loadXML($content);
 

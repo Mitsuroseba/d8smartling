@@ -12,17 +12,15 @@ class DownloadQueueManager implements QueueManagerInterface {
   protected $smartling_submission_wrapper;
   protected $field_api_wrapper;
   protected $entity_processor_factory;
-  protected $settings;
   protected $smartling_utils;
   protected $drupal_wrapper;
   protected $file_transport;
 
 
-  public function __construct($smartling_submission_wrapper, $field_api_wrapper, $entity_processor_factory, $settings, $smartling_utils, $drupal_wrapper, $file_transport) {
+  public function __construct($smartling_submission_wrapper, $field_api_wrapper, $entity_processor_factory, $smartling_utils, $drupal_wrapper, $file_transport) {
     $this->smartling_submission_wrapper = $smartling_submission_wrapper;
     $this->field_api_wrapper = $field_api_wrapper;
     $this->entity_processor_factory = $entity_processor_factory;
-    $this->settings = $settings;
     $this->smartling_utils = $smartling_utils;
     $this->drupal_wrapper = $drupal_wrapper;
     $this->file_transport = $file_transport;
@@ -62,8 +60,7 @@ class DownloadQueueManager implements QueueManagerInterface {
 
       $smartling_submission_wrapper = $this->smartling_submission_wrapper->loadByID($eid);
       $smartling_submission = $smartling_submission_wrapper->getEntity();
-      $translatable_fields = $this->settings->getFieldsSettingsByBundle($smartling_submission->entity_type, $smartling_submission->bundle);
-      if ($smartling_submission && !empty($translatable_fields)) {
+      if ($smartling_submission) {
         $downloaded_content = $this->file_transport->download($smartling_submission_wrapper);
         if ($downloaded_content) {
           $processor = $this->entity_processor_factory->getProcessor($smartling_submission);

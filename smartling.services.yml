@@ -73,7 +73,7 @@ services:
 
   smartling.queue_managers.download:
     class:              Drupal\smartling\QueueManager\DownloadQueueManager
-    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.settings, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper, @smartling.utils.file_transport]
+    arguments:          [@smartling.wrappers.smartling_submission_wrapper, @smartling.wrappers.field_api_wrapper, @smartling.entity_processor_factory, @smartling.wrappers.smartling_utils, @smartling.wrappers.drupal_api_wrapper, @smartling.utils.file_transport]
 
   smartling.queue_managers.check_status:
     class:              Drupal\smartling\QueueManager\CheckStatusQueueManager
@@ -134,9 +134,10 @@ parameters:
   smartling_consider_log:   true
 
   entity_processors:
-    node:                   Drupal\smartling\Processors\NodeProcessor
-    taxonomy_term:          Drupal\smartling\Processors\TaxonomyTermProcessor
-    generic:                Drupal\smartling\Processors\GenericEntityProcessor
+    node:                       Drupal\smartling\Processors\NodeProcessor
+    taxonomy_term:              Drupal\smartling\Processors\TaxonomyTermProcessor
+    smartling_interface_entity: Drupal\smartling\Processors\UIEntityProcessor
+    generic:                    Drupal\smartling\Processors\GenericEntityProcessor
 
   field_processors:
     real:

@@ -67,11 +67,6 @@ class FileTransport {
 
     $download_result = $this->api_wrapper->downloadFile($submission->getEntity());
 
-    libxml_use_internal_errors(true);
-    if (FALSE === simplexml_load_string($download_result)) {
-      return;
-    }
-
     $translated_file_name = $submission->getFileTranslatedName();
 
     // Save result.
@@ -84,7 +79,7 @@ class FileTransport {
         ->setProgress($progress)
         ->save();
 
-      $isSuccess = $this->updateDrupalTranslation();
+      //$isSuccess = $this->updateDrupalTranslation();
     }
 
     return $download_result;
