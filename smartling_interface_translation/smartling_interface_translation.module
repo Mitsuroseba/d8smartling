@@ -84,6 +84,16 @@ function smartling_interface_translation_views_data_alter(&$data) {
  *   Drupal user object.
  */
 function smartling_interface_translation_do_translate_action($entity, array $context) {
+
+//  try {
+//    drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
+//  }
+//  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+//    smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
+//  }
+//
+//  die();
+
   $entity_type = $context['entity_type'];
 
   $group = $entity->textgroup;

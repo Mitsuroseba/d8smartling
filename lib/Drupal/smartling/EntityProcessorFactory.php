@@ -77,6 +77,10 @@ class EntityProcessorFactory {
         $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $i18n_wrapper);
         break;
 
+      case 'smartling_interface_entity':
+        $entity_processor = new $processor_class($smartling_submission, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        break;
+
       default :
         $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
         break;

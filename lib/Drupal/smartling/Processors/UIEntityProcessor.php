@@ -62,7 +62,8 @@ class UIEntityProcessor implements EntityProcessorInterface {
     $file = $this->prepareFileObjByURI($uri);
     if (!empty($file->fid)) {
       // Now import strings into the language.
-      if ($return = _locale_import_po($file, $langcode, $mode, $group) == FALSE) {
+      $res = _locale_import_po($file, $langcode, $mode, $group) == FALSE;
+      if ($res) {
         $variables = array('%filename' => $file->filename);
         drupal_set_message(t('The translation import of %filename failed.', $variables), 'error');
         watchdog('locale', 'The translation import of %filename failed.', $variables, WATCHDOG_ERROR);
@@ -71,6 +72,7 @@ class UIEntityProcessor implements EntityProcessorInterface {
     else {
       drupal_set_message(t('File to import not found.'), 'error');
     }
+    return !$res;
   }
 
 

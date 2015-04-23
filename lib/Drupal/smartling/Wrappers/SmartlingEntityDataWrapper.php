@@ -17,8 +17,13 @@ class SmartlingEntityDataWrapper {
 
 
   protected function buildXmlFileName() {
-    $extension = ($this->getEntityType() == 'smartling_interface_entity') ? 'po' : 'xml';
-    return strtolower(trim(preg_replace('#\W+#', '_', $this->getTitle()), '_')) . '_' . $this->getEntityType() . '_' . $this->getRID() . '.' . $extension;
+    if ($this->getEntityType() == 'smartling_interface_entity') {
+      $file_name = 'smartling_interface_translation_' . $this->getBundle() . '.pot';
+    }
+    else {
+      $file_name = strtolower(trim(preg_replace('#\W+#', '_', $this->getTitle()), '_')) . '_' . $this->getEntityType() . '_' . $this->getRID() . '.xml';
+    }
+    return $file_name;
   }
 
 

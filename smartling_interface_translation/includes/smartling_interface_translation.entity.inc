@@ -22,6 +22,7 @@ function smartling_interface_translation_entity_info() {
     'entity keys' => array(
       // The 'id' (basic_id here) is the unique id.
       'id' => 'gid',
+      'bundle' => 'textgroup'
     ),
     'static cache' => FALSE,
     'view modes' => array(
