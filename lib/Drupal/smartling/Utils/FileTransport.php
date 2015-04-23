@@ -23,6 +23,12 @@ class FileTransport {
     $this->settings = $settings;
   }
 
+  protected function getFileType($file_name) {
+    $types = array('po' => 'gettext', 'pot' => 'gettext');
+    $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+    return (isset($types[$ext])) ?: 'xml';
+  }
+
   public function upload($content, $submission, $target_locales) {
     $event   = SMARTLING_STATUS_EVENT_FAILED_UPLOAD;
 
@@ -31,7 +37,8 @@ class FileTransport {
     // Init api object.
     if ($success) {
       $file_path = $this->drupal_wrapper->drupalRealpath($this->settings->getDir($file_name), TRUE);
-      $event = $this->api_wrapper->uploadFile($file_path, $file_name, 'xml', $target_locales);
+      $file_type = $this->getFileType($file_name);
+      $event = $this->api_wrapper->uploadFile($file_path, $file_name, $type, $target_locales);
     }
 
     return $event;

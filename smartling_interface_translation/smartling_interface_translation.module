@@ -267,7 +267,14 @@ function smartling_interface_translation_submission_import($mode, $eid) {
 //    drupal_set_message(t('Smartling is not configured'), 'error');
 //  }
 
-  drupal_container()->get('smartling.queue_managers.download')->execute($eid);
+  $log = smartling_log_get_handler();
+  try {
+    drupal_container()->get('smartling.queue_managers.download')->execute($eid);
+  }
+  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+    $log->critical($e->getMessage() . '   ' . print_r($e, TRUE));
+    drupal_set_message($e->getMessage(), 'error');
+  }
 
   // TODO : Make a wrapper for unset + drupal_goto
   unset($_GET['destination']);
