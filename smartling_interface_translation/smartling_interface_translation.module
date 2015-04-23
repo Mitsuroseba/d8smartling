@@ -85,45 +85,45 @@ function smartling_interface_translation_views_data_alter(&$data) {
  */
 function smartling_interface_translation_do_translate_action($entity, array $context) {
 
-//  try {
-//    drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
-//  }
-//  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
-//    smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
-//  }
-//
-//  die();
-
-  $entity_type = $context['entity_type'];
-
-  $group = $entity->textgroup;
-  $file_name = 'smartling_interface_translation_' . $group . '.pot';
-  $file_name_unic = $file_name;
-  $file_path = smartling_get_dir() . '/' . smartling_clean_filename($file_name);
-  // $language = NULL for generate .pot files. Save .pot as .po file.
-  $output = _locale_export_po_generate(NULL, _locale_export_get_strings(NULL, $group));
-  $uri = smartling_interface_translation_save_po($output, $file_name);
-
-  if ($uri) {
-    // Init api object.
-    $api = drupal_container()->get('smartling.api_wrapper');
-    $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, 'gettext', $context['translate_to_langs']);
-    if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
-      foreach ($context['translate_to_langs'] as $locale) {
-        $entity_data = smartling_entity_load_by_conditions(array(
-          'entity_type' => $entity_type,
-          'bundle' => $entity->textgroup,
-          'target_language' => $locale,
-        ));
-
-        if (empty($entity_data)) {
-          $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale, array('bundle' => $entity->textgroup, 'title' => $entity->textgroup_name, 'file_name' => $file_name_unic));
-        }
-
-        drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($entity_data)->setStatusByEvent(SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE)->save();
-      }
-    }
+  try {
+    drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
   }
+  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
+    smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
+  }
+
+//  die();
+//
+//  $entity_type = $context['entity_type'];
+//
+//  $group = $entity->textgroup;
+//  $file_name = 'smartling_interface_translation_' . $group . '.pot';
+//  $file_name_unic = $file_name;
+//  $file_path = smartling_get_dir() . '/' . smartling_clean_filename($file_name);
+//  // $language = NULL for generate .pot files. Save .pot as .po file.
+//  $output = _locale_export_po_generate(NULL, _locale_export_get_strings(NULL, $group));
+//  $uri = smartling_interface_translation_save_po($output, $file_name);
+//
+//  if ($uri) {
+//    // Init api object.
+//    $api = drupal_container()->get('smartling.api_wrapper');
+//    $result_status = $api->uploadFile(drupal_realpath($file_path), $file_name_unic, 'gettext', $context['translate_to_langs']);
+//    if ($result_status == SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE) {
+//      foreach ($context['translate_to_langs'] as $locale) {
+//        $entity_data = smartling_entity_load_by_conditions(array(
+//          'entity_type' => $entity_type,
+//          'bundle' => $entity->textgroup,
+//          'target_language' => $locale,
+//        ));
+//
+//        if (empty($entity_data)) {
+//          $entity_data = smartling_create_from_entity($entity, $entity_type, 'en', $locale, array('bundle' => $entity->textgroup, 'title' => $entity->textgroup_name, 'file_name' => $file_name_unic));
+//        }
+//
+//        drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($entity_data)->setStatusByEvent(SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE)->save();
+//      }
+//    }
+//  }
 }
 
 /**

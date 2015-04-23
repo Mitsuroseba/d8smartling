@@ -22,7 +22,8 @@ function smartling_interface_translation_entity_info() {
     'entity keys' => array(
       // The 'id' (basic_id here) is the unique id.
       'id' => 'gid',
-      'bundle' => 'textgroup'
+      'bundle' => 'textgroup',
+      'label' => 'textgroup_name'
     ),
     'static cache' => FALSE,
     'view modes' => array(
@@ -31,9 +32,14 @@ function smartling_interface_translation_entity_info() {
         'custom settings' => FALSE,
       ),
     ),
+    'language callback' => 'smartling_interface_callback_entity_info_language'
   );
 
   return $info;
+}
+
+function smartling_interface_callback_entity_info_language($entity, $entity_type) {
+  return 'en';
 }
 
 /**

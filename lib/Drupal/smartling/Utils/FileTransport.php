@@ -14,11 +14,13 @@ class FileTransport {
   protected $smartling_utils;
   protected $drupal_wrapper;
   protected $api_wrapper;
+  protected $settings;
 
-  public function __construct($api_wrapper, $drupal_wrapper, $smartling_utils) {
+  public function __construct($settings, $api_wrapper, $drupal_wrapper, $smartling_utils) {
     $this->smartling_utils = $smartling_utils;
     $this->drupal_wrapper = $drupal_wrapper;
     $this->api_wrapper = $api_wrapper;
+    $this->settings = $settings;
   }
 
   public function upload($content, $submission, $target_locales) {

@@ -111,7 +111,7 @@ services:
 
   smartling.utils.file_transport:
     class:              Drupal\smartling\Utils\FileTransport
-    arguments:          [@smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
+    arguments:          [@smartling.settings, @smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
 
 
   smartling.entity_conversion_utils.entity:

@@ -58,19 +58,19 @@ class UploadQueueManager implements QueueManagerInterface {
       $this->smartling_submission_wrapper->loadByID($eid);
       $file_name = $this->smartling_submission_wrapper->getFileName();
       $target_locales[$file_name][] = $this->smartling_submission_wrapper->getTargetLanguage();
-      $entity_data_array[$file_name][] = $this->smartling_submission_wrapper->getEntity();
+      $entity_data_array[$file_name][] = clone $this->smartling_submission_wrapper;
     }
 
 
     foreach ($entity_data_array as $file_name => $entity_array) {
       $submission = reset($entity_array);
-      $processor = $this->entity_processor_factory->getProcessor($submission);
+      $processor = $this->entity_processor_factory->getProcessor($submission->getEntity());
       $content = $processor->exportContent();
 
       $event = $this->file_transport->upload($content, $submission, $target_locales[$file_name]);
 
       foreach ($entity_array as $submission) {
-        $this->smartling_submission_wrapper->setEntity($submission)->setStatusByEvent($event)->save();
+        $submission->setStatusByEvent($event)->save();
       }
     }
   }
