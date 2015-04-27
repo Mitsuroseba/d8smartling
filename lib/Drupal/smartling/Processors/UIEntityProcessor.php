@@ -47,7 +47,7 @@ class UIEntityProcessor implements EntityProcessorInterface {
   }
 
   public function updateEntity($content) {
-    $mode = $this->locale_import_mode;
+    $mode = $this->settigs->getUITranslationsMergeMode();
 
     $submission = $this->smartling_submission;
 

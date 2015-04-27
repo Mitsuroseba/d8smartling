@@ -755,4 +755,12 @@ class SmartlingSettingsHandler {
   public function getConvertEntitiesBeforeTranslation() {
     return $this->variableGet('smartling_convert_entities_before_translation', 1);
   }
+
+  public function setUITranslationsMergeMode($ui_translations_merge_mode) {
+    $this->variableSet('smartling_ui_translations_merge_mode', (int) $ui_translations_merge_mode);
+  }
+
+  public function getUITranslationsMergeMode() {
+    return $this->variableGet('smartling_ui_translations_merge_mode', LOCALE_IMPORT_KEEP);
+  }
 }

@@ -47,6 +47,13 @@ class AdminExpertSettingsForm implements FormInterface {
       '#default_value' => $settings->getConvertEntitiesBeforeTranslation(),
     );
 
+    $form['log_info']['ui_translations_merge_mode'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('UI translation mode'),
+      '#description' => t('If checked: Translation import mode keeping existing translations and only inserting new strings, strings overwrite happens otherwise.'),
+      '#default_value' => $settings->getUITranslationsMergeMode(),
+    );
+
     $form['log_info']['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Save'),
@@ -80,6 +87,7 @@ class AdminExpertSettingsForm implements FormInterface {
 
     $this->settings->setAsyncMode($form_state['values']['async_mode']);
     $this->settings->setConvertEntitiesBeforeTranslation($form_state['values']['convert_entities_before_translation']);
+    $this->settings->getUITranslationsMergeMode($form_state['values']['ui_translations_merge_mode']);
 
     drupal_goto(current_path(), array('fragment' => 'smartling-expert-settings'));
   }
