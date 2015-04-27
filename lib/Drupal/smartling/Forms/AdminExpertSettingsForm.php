@@ -87,7 +87,7 @@ class AdminExpertSettingsForm implements FormInterface {
 
     $this->settings->setAsyncMode($form_state['values']['async_mode']);
     $this->settings->setConvertEntitiesBeforeTranslation($form_state['values']['convert_entities_before_translation']);
-    $this->settings->getUITranslationsMergeMode($form_state['values']['ui_translations_merge_mode']);
+    $this->settings->setUITranslationsMergeMode($form_state['values']['ui_translations_merge_mode']);
 
     drupal_goto(current_path(), array('fragment' => 'smartling-expert-settings'));
   }
