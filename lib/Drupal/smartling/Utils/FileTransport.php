@@ -24,9 +24,10 @@ class FileTransport {
   }
 
   protected function getFileType($file_name) {
-    $types = array('po' => 'gettext', 'pot' => 'gettext');
+    $match = array('po' => 'gettext', 'pot' => 'gettext');
     $ext = pathinfo($file_name, PATHINFO_EXTENSION);
-    return (isset($types[$ext])) ?: 'xml';
+
+    return isset($match[$ext]) ? $match[$ext] : 'xml';
   }
 
   public function upload($content, $submission, $target_locales) {
@@ -38,7 +39,7 @@ class FileTransport {
     if ($success) {
       $file_path = $this->drupal_wrapper->drupalRealpath($this->settings->getDir($file_name), TRUE);
       $file_type = $this->getFileType($file_name);
-      $event = $this->api_wrapper->uploadFile($file_path, $file_name, $type, $target_locales);
+      $event = $this->api_wrapper->uploadFile($file_path, $file_name, $file_type, $target_locales);
     }
 
     return $event;
@@ -79,7 +80,7 @@ class FileTransport {
     $translated_file_name = $submission->getFileTranslatedName();
 
     // Save result.
-    $isSuccess = $this->smartling_utils->saveFile($translated_file_name, $download_result, $submission->getEntity());
+    $isSuccess = $this->smartling_utils->saveFile($translated_file_name, $download_result);
 
     // If result is saved.
     if ($isSuccess) {

@@ -99,17 +99,15 @@ class SmartlingUtils {
    *   File name.
    * @param string $content
    *   Xml document.
-   * @param stdClass $smartling_submission
-   *   Locale in drupal format (ru, en).
    *
    * @return bool
    *   Was file creation successful or not.
    */
-  public function saveFile($file_name, $content, $smartling_submission  = NULL) {
+  public function saveFile($file_name, $content) {
     $log = smartling_log_get_handler();
 
     if (empty($file_name)) {
-      $file_name = 'smartling_translate_' . $smartling_submission->entity_type . '_' . $smartling_submission->rid . '.xml';
+      throw new SmartlingGenericException('Filename is empty.');
     }
 
     $file_name = file_munge_filename(preg_replace('@^.*/@', '', $file_name), '', TRUE);
@@ -117,17 +115,13 @@ class SmartlingUtils {
     $path = $directory . '/' . $this->cleanFileName($file_name);
 
     if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-      //$xml_doc->save(drupal_realpath($path));
       file_put_contents(drupal_realpath($path), $content);
-
-      $log->info('Smartling saves data file for entity_type - @entity_type, id - @rid. Locale: @locale',
-        array('@entity_type' => $smartling_submission->entity_type, '@rid' => $smartling_submission->rid, '@locale' => $smartling_submission->target_language, 'entity_link' => l(t('View file'), file_create_url($path))));
 
       return TRUE;
     }
 
     $log->error('Smartling file was not saved because of some errors. Filename: @file_name, related entity - @rid, directory: @dir.',
-      array('@file_name' => $file_name, '@rid' => $smartling_submission->rid, '@dir' => $directory), TRUE);
+      array('@file_name' => $file_name, '@dir' => $directory), TRUE);
 
     return FALSE;
   }
