@@ -11,8 +11,8 @@ class TaxonomyTermProcessor extends GenericEntityProcessor {
 
   protected $i18n_wrapper;
 
-  public function __construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils, $i18n_wrapper) {
-    parent::__construct($smartling_submission, $field_processor_factory, $smartling_api, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils);
+  public function __construct($smartling_submission, $field_processor_factory, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils, $i18n_wrapper) {
+    parent::__construct($smartling_submission, $field_processor_factory, $smartling_settings, $log, $entity_api_wrapper, $smartling_utils);
 
     $this->i18n_wrapper = $i18n_wrapper;
   }

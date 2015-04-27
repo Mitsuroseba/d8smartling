@@ -56,8 +56,6 @@ class UIEntityProcessor implements EntityProcessorInterface {
     $group = $submission->getBundle();
 
     $uri = $this->settings->getDir($translated_file_name);
-    //$uri = drupal_realpath($uri);
-    //smartling_interface_translation_save_po($download_result, $translated_file_name, TRUE);
 
     $file = $this->prepareFileObjByURI($uri);
     if (!empty($file->fid)) {

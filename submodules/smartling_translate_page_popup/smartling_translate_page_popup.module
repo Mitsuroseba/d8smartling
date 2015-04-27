@@ -61,6 +61,10 @@ function smartling_translate_page_popup_page_alter(&$page) {
 }
 
 function smartling_translate_page_popup_form($form, $form_state) {
+  if (!function_exists('drupal_container') || !drupal_container()->has('smartling.forms.translate_page_popup')) {
+    return;
+  }
+
   return drupal_container()->get('smartling.forms.translate_page_popup')->buildForm($form, $form_state);
 }
 

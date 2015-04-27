@@ -55,11 +55,11 @@ EOF;
       $data = '';
       if (!empty($res)) {
         foreach($res as $dt) {
-          $data .= $dt->target_language . ' - ' . $dt->progress . '%; ';
+          $data .= check_plain($dt->target_language . ' - ' . $dt->progress . '%; ');
         }
       }
 
-      $options [$id] = $title . " <span class='entity_type'>($entity_type)</span> <span class='entity_progress'>($data)</span>";
+      $options [$id] = check_plain($title) . " <span class='entity_type'>($entity_type)</span> <span class='entity_progress'>($data)</span>";
     }
     unset($_SESSION['smartling']['page_entities']);
 
