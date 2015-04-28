@@ -382,7 +382,7 @@ function smartling_entity_update($entity, $type) {
     foreach ($smartling_entity_data as $smartling_entity) {
       $old_content_hash = $smartling_entity->content_hash;
 
-      if (!empty($old_content_hash) && ($content_hash !== $old_content_hash) && !isset($entity->send_to_smartling)) {
+      if (!empty($old_content_hash) && ($content_hash !== $old_content_hash)) {
         drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($smartling_entity)->setStatusByEvent(SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE)->save();
       }
       $smartling_entity_changed = smartling_entity_data_load($smartling_entity->eid);

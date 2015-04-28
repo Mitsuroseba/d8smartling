@@ -50,11 +50,8 @@ class EntityProcessorFactory {
    * @return GenericEntityProcessor
    */
   public function getProcessor($smartling_submission) {
-    $static_storage = &$this->drupal_api_wrapper->drupalStatic(__CLASS__ . '_' . __METHOD__, array());
-
-    if (!empty($static_storage[$smartling_submission->eid])) {
-      return $static_storage[$smartling_submission->eid];
-    }
+    //We can't use a static storage here, cause the entity can be cached before some languages are applied.
+    //And so only the last one will be saved (this all is aplicable for "by fields" translation only.
 
     // @Todo avoid hardcoding 'generic' key.
     $processor_class = isset($this->processorMapping[$smartling_submission->entity_type]) ? $this->processorMapping[$smartling_submission->entity_type] : $this->processorMapping['generic'];
@@ -86,11 +83,7 @@ class EntityProcessorFactory {
         break;
     }
 
-    $static_storage[$smartling_submission->getEID()] = $entity_processor;
-
-    //$static_storage[$smartling_submission->getEID()] = $container->get($processor_yml_id);//new $processor_class($smartling_entity, $this->fieldProcessorFactory, $this->smartlingAPI, $this->logger);
-
-    return $static_storage[$smartling_submission->getEID()];
+    return $entity_processor;
   }
 
 }
