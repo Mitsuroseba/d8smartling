@@ -55,7 +55,7 @@ function smartling_translate_page_popup_page_alter(&$page) {
   } catch (\Exception $e) {
     $page['page_bottom']['smartling_translation_form'] = array();
 
-    smartling_log_get_handler()->error('Caught exception: ',  $e->getMessage());
+    smartling_log_get_handler()->error('Caught exception: ' . $e->getMessage());
   }
 
 }
