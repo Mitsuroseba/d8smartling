@@ -104,7 +104,7 @@ function smartling_enable() {
         variable_set('language_content_type_' . $type->type, '0');
       }
       // Entity translate settings. Check if bundle is translated by fields.
-      if (variable_get('language_content_type_' . $bundle, NULL) != SMARTLING_NODES_METHOD_KEY) {
+      if (variable_get('language_content_type_' . $type->type, NULL) != SMARTLING_NODES_METHOD_KEY) {
         variable_set('entity_translation_settings_node__' . $type->type, $entity_translation_settings);
         variable_set('entity_translation_settings_comment__comment_node_' . $type->type, $entity_translation_settings);
       }
