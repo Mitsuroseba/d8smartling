@@ -370,3 +370,10 @@ function smartling_update_7102() {
 
   db_query("UPDATE {smartling_entity_data} SET title = REPLACE(REPLACE(file_name, CONCAT('_', entity_type, '_', rid, '.xml'), ''), '_', ' ')");
 }
+
+/*
+ * Implements hook_update_N().
+ */
+function smartling_update_7206() {
+  inject_flush_caches();
+}
