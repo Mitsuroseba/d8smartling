@@ -376,4 +376,5 @@ function smartling_update_7102() {
  */
 function smartling_update_7206() {
   inject_flush_caches();
+  inject_exit();
 }
