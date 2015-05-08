@@ -455,7 +455,7 @@ function smartling_action_info() {
  *   Return TRUE if user have access.
  */
 function smartling_push_callback_access($key) {
-  return (variable_get('cron_key', 'drupal') == $key && empty($_POST));
+  return (variable_get('cron_key', 'drupal') === $key && empty($_POST));
 }
 
 /**
