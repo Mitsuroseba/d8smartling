@@ -350,7 +350,7 @@ function smartling_cron_queue_info() {
     'worker callback' => 'smartling_queue_check_status_process',
   );
   $queues['smartling_download'] = array(
-    'worker callback' => 'smartling_queue_download_update_translated_item_process',
+    'worker callback' => 'smartling_queue_download_translated_item_process',
   );
 
   return $queues;

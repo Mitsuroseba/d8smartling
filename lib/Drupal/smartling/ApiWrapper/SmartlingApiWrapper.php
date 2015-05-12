@@ -109,7 +109,7 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       }
 
 
-      $this->logger->error('smartling_queue_download_update_translated_item_process try to download file:<br/>
+      $this->logger->error('smartling_queue_download_translated_item_process try to download file:<br/>
       Project Id: @project_id <br/>
       Action: download <br/>
       URI: @file_uri <br/>
