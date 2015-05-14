@@ -54,6 +54,13 @@ function smartling_interface_translation_views_default_views() {
       'override_label' => 0,
       'label' => '',
     ),
+    'action::views_bulk_operations_delete_revision' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
     'action::views_bulk_operations_script_action' => array(
       'selected' => 0,
       'postpone_processing' => 0,
@@ -91,13 +98,6 @@ function smartling_interface_translation_views_default_views() {
       'label' => '',
     ),
     'action::smartling_do_translate_action' => array(
-      'selected' => 0,
-      'postpone_processing' => 0,
-      'skip_confirmation' => 0,
-      'override_label' => 0,
-      'label' => '',
-    ),
-    'action::smartling_interface_translation_do_translate_action' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 1,
@@ -110,7 +110,7 @@ function smartling_interface_translation_views_default_views() {
   $handler->display->display_options['fields']['textgroup']['table'] = 'smartling_interface_entity';
   $handler->display->display_options['fields']['textgroup']['field'] = 'textgroup';
   $handler->display->display_options['fields']['textgroup']['exclude'] = TRUE;
-  /* Field: Smartling Interface Entity: Textgroup_name */
+  /* Field: Smartling Interface Entity: Label */
   $handler->display->display_options['fields']['textgroup_name']['id'] = 'textgroup_name';
   $handler->display->display_options['fields']['textgroup_name']['table'] = 'smartling_interface_entity';
   $handler->display->display_options['fields']['textgroup_name']['field'] = 'textgroup_name';
@@ -155,6 +155,8 @@ function smartling_interface_translation_views_default_views() {
     t('Desc'),
     t('Smartling related ID'),
     t('Smartling translate'),
+    t('- Choose an operation -'),
+    t('Translate'),
     t('Textgroup'),
     t('Text group'),
     t('Locales'),

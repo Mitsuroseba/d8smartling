@@ -9,20 +9,6 @@ include_once 'smartling_interface_translation.features.inc';
 include_once 'includes/smartling_interface_translation.entity.inc';
 
 /**
- * Implements hook_action_info().
- */
-function smartling_interface_translation_action_info() {
-  return array(
-    'smartling_interface_translation_do_translate_action' => array(
-      'type' => 'system',
-      'label' => t('Smartling interface translate.'),
-      'configurable' => TRUE,
-      'triggers' => array('any'),
-    ),
-  );
-}
-
-/**
  * Implements hook_views_data_alter().
  */
 function smartling_interface_translation_views_data_alter(&$data) {
@@ -55,109 +41,8 @@ function smartling_interface_translation_views_data_alter(&$data) {
   }
 }
 
-/**
- * Smartling do interface translate action.
- *
- * @param object $entity
- *   Action entity object.
- * @param array $context
- *   Context info.
- *
- * @global object $user
- *   Drupal user object.
- */
-function smartling_interface_translation_do_translate_action($entity, array $context) {
-
-  try {
-    drupal_container()->get('smartling.queue_managers.upload_router')->routeUploadRequest($context['entity_type'], $entity, $context['translate_to_langs']);
-  }
-  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
-    smartling_log_get_handler()->error($e->getMessage() . '   ' . print_r($e, TRUE));
-  }
-}
 
 /**
- * Smartling do translate interface action form.
- *
- * @param array $context
- *   Context info array.
- * @param array $form_state
- *   FAPI array.
- *
- * @return array
- *   Return FAPI array for smartling do translate action form.
- */
-function smartling_interface_translation_do_translate_action_form(array $context, array &$form_state) {
-  // Get all languages, except English
-  $languages = smartling_language_options_list();
-  if (isset($languages['en'])) {
-    unset($languages['en']);
-  }
-  $form['do_translate_action']['languages'] = array(
-    '#type' => 'checkboxes',
-    '#options' => $languages,
-    '#title' => t('Check language'),
-  );
-  return $form;
-}
-
-/**
- * Smartling do translate interface action form - Form Validate.
- *
- * @param array $form
- *   FAPI array.
- * @param array $form_state
- *   FAPI array.
- */
-function smartling_interface_translation_do_translate_action_validate(array $form, array &$form_state) {
-  if (!smartling_is_configured()) {
-    form_set_error('submit', t('Smartling not configured!'));
-  }
-
-  $select_languages = array();
-  if (!empty($form_state['input']['languages'])) {
-    foreach ($form_state['input']['languages'] as $d_locale) {
-
-      if (!is_null($d_locale) && !empty($d_locale)) {
-        $select_languages[] = $d_locale;
-      }
-    }
-  }
-
-  if (!empty($select_languages) && (count($select_languages) > 0)) {
-    $form_state['translate_to_langs'] = $select_languages;
-  }
-  else {
-    form_set_error('languages', t('Check language, please.'));
-  }
-}
-
-/**
- * Smartling do translate interface action form - Form Submit.
- *
- * @param array $form
- *   FAPI array.
- * @param array $form_state
- *   FAPI array.
- *
- * @return array
- *   Return array with languages to translate.
- */
-function smartling_interface_translation_do_translate_action_submit(array $form, array $form_state) {
-  $count_op = count($form_state['selection']);
-  $log = smartling_log_get_handler();
-  $log->info(format_plural($count_op, 'Smartling Bulk Submit - upload 1 interface', 'Smartling Bulk Submit - upload @count interfaces'));
-  return array('translate_to_langs' => $form_state['translate_to_langs']);
-}
-
-/**
-  $log = smartling_log_get_handler();
-  try {
-  }
-  catch (\Drupal\smartling\SmartlingExceptions\SmartlingGenericException $e) {
-    $log->critical($e->getMessage() . '   ' . print_r($e, TRUE));
-    drupal_set_message($e->getMessage(), 'error');
-  }
  * Implements hook_modules_enabled().
  */
 function smartling_interface_translation_modules_enabled($modules) {
