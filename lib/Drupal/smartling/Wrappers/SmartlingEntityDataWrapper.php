@@ -14,9 +14,12 @@ class SmartlingEntityDataWrapper {
 
   private $entity;
 
+  protected $file_name_manager;
+
 
 
   protected function buildXmlFileName() {
+    return $this->file_name_manager->buildFileName($this);
     if ($this->getEntityType() == 'smartling_interface_entity') {
       $file_name = 'smartling_interface_translation_' . $this->getBundle() . '.pot';
     }
@@ -28,6 +31,7 @@ class SmartlingEntityDataWrapper {
 
 
   protected function buildTranslatedXmlFileName() {
+    return $this->file_name_manager->buildTranslatedFileName($this);
     $file_name = $this->getFileName();
     $file_name = substr($file_name, 0, strlen($file_name) - 4);
 
@@ -58,8 +62,10 @@ class SmartlingEntityDataWrapper {
   /**
    * Initialize.
    */
-  public function __construct() {
+  public function __construct($file_name_manager) {
     $this->entity = $this->defaultEntity();
+
+    $this->file_name_manager = $file_name_manager;
   }
 
   public function save() {

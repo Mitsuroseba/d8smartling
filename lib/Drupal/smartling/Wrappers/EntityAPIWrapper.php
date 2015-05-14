@@ -78,5 +78,10 @@ class EntityAPIWrapper {
     return taxonomy_vocabulary_machine_name_load($name);
   }
 
+  public function entityTypeIsFieldable($entity_type) {
+    return entity_type_is_fieldable($entity_type);
+  }
+
+
 
 }

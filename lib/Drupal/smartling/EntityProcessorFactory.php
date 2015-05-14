@@ -66,7 +66,8 @@ class EntityProcessorFactory {
     $field_api_wrapper = $container->get('smartling.wrappers.field_api_wrapper');
     $i18n_wrapper = $container->get('smartling.wrappers.i18n_wrapper');
 
-    switch ($smartling_submission->getEntityType()) {
+    $entity_type = $smartling_submission->getEntityType();
+    switch ($entity_type) {
       case 'node':
         $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils, $field_api_wrapper);
         break;
@@ -79,7 +80,12 @@ class EntityProcessorFactory {
         break;
 
       default :
-        $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        if ($entity_api_wrapper->entityTypeIsFieldable($entity_type)) {
+          $entity_processor = new $processor_class($smartling_submission, $fieldProcessorFactory, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        }
+        else {
+          $entity_processor = new $processor_class($smartling_submission, $smartling_settings, $logger, $entity_api_wrapper, $smartling_utils);
+        }
         break;
     }
 

@@ -66,7 +66,7 @@ class SmartlingEntityDataWrapperCollection {
     $bundle  = $wrapper->getBundle();
     $link    = $this->entity_api_wrapper->getLink($entity_type, $entity);
 
-    if (!smartling_translate_fields_configured($bundle, $entity_type) && $entity_type != 'smartling_interface_entity') {
+    if (!smartling_translate_fields_configured($bundle, $entity_type) && entity_type_is_fieldable($entity_type)) {
       //$this->log->error("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle, 'entity_link' => $link), TRUE);
       throw new \Drupal\smartling\SmartlingExceptions\WrongSiteSettingsException(t("Type '@type' is not supported or it's not configured in Smartling.", array('@type' => $bundle)));
     }

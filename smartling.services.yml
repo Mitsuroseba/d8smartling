@@ -86,6 +86,7 @@ services:
 
   smartling.wrappers.smartling_submission_wrapper:
     class:              Drupal\smartling\Wrappers\SmartlingEntityDataWrapper
+    arguments:          [@smartling.utils.file_name_manager]
     scope:              prototype
 
   smartling.wrappers.entity_data_wrapper_collection:
@@ -112,6 +113,10 @@ services:
   smartling.utils.file_transport:
     class:              Drupal\smartling\Utils\FileTransport
     arguments:          [@smartling.settings, @smartling.api_wrapper, @smartling.wrappers.drupal_api_wrapper, @smartling.wrappers.smartling_utils]
+
+  smartling.utils.file_name_manager:
+    class:              Drupal\smartling\Utils\FileNameManager
+    arguments:          [%entity_type_file_type_map%, @smartling.wrappers.drupal_api_wrapper]
 
 
   smartling.entity_conversion_utils.entity:
@@ -153,3 +158,6 @@ parameters:
       title_property_field: Drupal\smartling\FieldProcessors\TitlePropertyFieldProcessor
       description_property_field: Drupal\smartling\FieldProcessors\DescriptionPropertyFieldProcessor
       name_property_field:  Drupal\smartling\FieldProcessors\NamePropertyFieldProcessor
+
+  entity_type_file_type_map:
+    smartling_interface_entity: gettext
