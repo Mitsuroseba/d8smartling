@@ -62,6 +62,14 @@ function smartling_flush_caches() {
   // the component is never registered with the class loader. This cause
   // troubles as we need the class definition when bootstrapping.
   smartling_register();
+
+  //Temporary code to prevent errors like:
+  //Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException: You have requested a non-existent service "smartling.wrappers.smartling_utils"
+  // in Symfony\Component\DependencyInjection\Container->get() (line 303 of .../httpdocs/sites/all/modules/contrib/inject/vendor/symfony/dependency-injection/Symfony/Component/DependencyInjection/Container.php).
+  //@todo: delete it when https://www.drupal.org/node/2495617 is fixed.
+  inject_flush_caches();
+  inject_exit();
+
   return array();
 }
 
