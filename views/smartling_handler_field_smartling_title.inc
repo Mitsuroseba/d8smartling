@@ -24,13 +24,17 @@ class SmartlingHandlerFieldSmartlingTitle extends views_handler_field {
     $entity_type = $values->smartling_entity_data_entity_type;
     $title       = $values->smartling_entity_data_title;
 
+    $result = $title;
     $entity      = entity_load($entity_type, array($eid));
-    $entity      = $entity[$eid];
+    if (!empty($entity)) {
+      $entity      = $entity[$eid];
 
-    $uri         = entity_uri($entity_type, $entity);
-    $path        = $uri['path'];
+      $uri         = entity_uri($entity_type, $entity);
+      $path        = $uri['path'];
+      $result      = l($title, $path);
+    }
 
-    return l($title, $path);
+    return $result;
   }
 
 }
