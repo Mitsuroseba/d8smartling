@@ -17,6 +17,7 @@ define('SMARTLING_STATUS_IN_TRANSLATE', 1);
 define('SMARTLING_STATUS_TRANSLATED', 2);
 define('SMARTLING_STATUS_CHANGE', 3);
 define('SMARTLING_STATUS_FAILED', 4);
+
 define('SMARTLING_STATUS_EVENT_SEND_TO_UPLOAD_QUEUE', 'smartling_send_node_to_upload_queue');
 define('SMARTLING_STATUS_EVENT_FAILED_UPLOAD', 'smartling_send_node_failed_upload');
 define('SMARTLING_STATUS_EVENT_UPLOAD_TO_SERVICE', 'smartling_upload_node_to_service');
@@ -314,7 +315,7 @@ function smartling_cron() {
 
   $query = new EntityFieldQuery();
   $entities = $query->entityCondition('entity_type', 'smartling_entity_data')
-    ->propertyCondition('progress', 100, '<>')
+    ->propertyCondition('status', array(SMARTLING_STATUS_IN_TRANSLATE), 'IN')
     // @TODO move 'original' to constant.
     ->propertyCondition('target_language', 'original', '<>')
     ->execute();
@@ -392,6 +393,7 @@ function smartling_entity_update($entity, $type) {
 
       if (!empty($old_content_hash) && ($content_hash !== $old_content_hash)) {
         drupal_container()->get('smartling.wrappers.smartling_submission_wrapper')->setEntity($smartling_entity)->setStatusByEvent(SMARTLING_STATUS_EVENT_NODE_ENTITY_UPDATE)->save();
+        drupal_container()->get('smartling.queue_managers.upload')->add($smartling_entity->eid);
       }
       $smartling_entity_changed = smartling_entity_data_load($smartling_entity->eid);
       $smartling_entity_changed->content_hash = $content_hash;

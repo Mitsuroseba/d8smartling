@@ -62,12 +62,6 @@ class SmartlingLocalApiWrapper extends SmartlingApiWrapper {
       return $error_result;
     }
 
-    if ($smartling_entity->progress == 100) {
-      return array(
-        'entity_data' => $smartling_entity,
-      );
-    }
-
     $this->logger->info('Smartling checks status for @entity_type id - @rid (@d_locale). approvedString = @as, completedString = @cs',
       array('@entity_type' => $smartling_entity->entity_type, '@rid' => $smartling_entity->rid, '@d_locale' => $smartling_entity->target_language, '@as' => 20, '@cs' => 10));
 

@@ -143,12 +143,6 @@ class SmartlingApiWrapper implements ApiWrapperInterface {
       return $error_result;
     }
 
-    if ($smartling_entity->progress == 100) {
-      return array(
-        'entity_data' => $smartling_entity,
-      );
-    }
-
     $file_name_unic = $smartling_entity->file_name;
 
     $s_locale = $this->convertLocaleDrupalToSmartling($smartling_entity->target_language);
