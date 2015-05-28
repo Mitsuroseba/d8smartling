@@ -36,7 +36,12 @@ function smartling_do_translate_action_form(array $context, array &$form_state) 
     '#type' => 'checkboxes',
     '#options' => smartling_language_options_list(),
     '#title' => t('Check language'),
+    '#attached' => array(
+      'js' => array(drupal_get_path('module', 'smartling') . '/js/smartling_check_all.js'),
+    ),
   );
+  drupal_add_js(array('smartling' => array('checkAllId' => array('#edit-languages'))), 'setting');
+
   return $form;
 }
 
