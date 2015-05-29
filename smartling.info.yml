@@ -7,15 +7,6 @@ core: 8.x
 configure: admin.smartling
 
 dependencies:
-  - title
-#  - entity
-#  - locale
-#  - translation
-#  - i18n
-#  - i18n_node
-#  - i18n_taxonomy
-#  - i18n_field
-#  - entity_translation
-  - ctools
+  - locale
+  - content_translation
   - ultimate_cron
-#  - inject
