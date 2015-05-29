@@ -54,34 +54,34 @@ include_once 'entities/smartling.generic_entity.inc';
 //function smartling_init() {
 //  smartling_register();
 //}
-
-/**
- * Implements hook_flush_caches().
- */
-function smartling_flush_caches() {
-  // In some context such as module activation, the boot method is not called so
-  // the component is never registered with the class loader. This cause
-  // troubles as we need the class definition when bootstrapping.
-  smartling_register();
-
-  //Temporary code to prevent errors like:
-  //Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException: You have requested a non-existent service "smartling.wrappers.smartling_utils"
-  // in Symfony\Component\DependencyInjection\Container->get() (line 303 of .../httpdocs/sites/all/modules/contrib/inject/vendor/symfony/dependency-injection/Symfony/Component/DependencyInjection/Container.php).
-  //@todo: delete it when https://www.drupal.org/node/2495617 is fixed.
-  inject_flush_caches();
-  inject_exit();
-
-  return array();
-}
-
-/**
- * Registers smartling and dependencies name-space with the class loader.
- */
-function smartling_register() {
-  // Activates the class loader.
-  $loader = drupal_classloader();
-  $loader->registerNamespace('Drupal\smartling', __DIR__ . '/lib');
-}
+//
+///**
+// * Implements hook_flush_caches().
+// */
+//function smartling_flush_caches() {
+//  // In some context such as module activation, the boot method is not called so
+//  // the component is never registered with the class loader. This cause
+//  // troubles as we need the class definition when bootstrapping.
+//  smartling_register();
+//
+//  //Temporary code to prevent errors like:
+//  //Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException: You have requested a non-existent service "smartling.wrappers.smartling_utils"
+//  // in Symfony\Component\DependencyInjection\Container->get() (line 303 of .../httpdocs/sites/all/modules/contrib/inject/vendor/symfony/dependency-injection/Symfony/Component/DependencyInjection/Container.php).
+//  //@todo: delete it when https://www.drupal.org/node/2495617 is fixed.
+//  inject_flush_caches();
+//  inject_exit();
+//
+//  return array();
+//}
+//
+///**
+// * Registers smartling and dependencies name-space with the class loader.
+// */
+//function smartling_register() {
+//  // Activates the class loader.
+//  $loader = drupal_classloader();
+//  $loader->registerNamespace('Drupal\smartling', __DIR__ . '/lib');
+//}
 
 /**
  * Implements hook_menu().
