@@ -1,0 +1,21 @@
+name: Smartling
+type: module
+description: 'Smartling automatical translation.'
+package: Smartling
+core: 8.x
+# TODO Add controller for config page admin/config/regional/smartling.
+configure: admin.smartling
+
+dependencies:
+  - title
+#  - entity
+#  - locale
+#  - translation
+#  - i18n
+#  - i18n_node
+#  - i18n_taxonomy
+#  - i18n_field
+#  - entity_translation
+  - ctools
+  - ultimate_cron
+#  - inject
