@@ -1,0 +1,20 @@
+administer smartling:
+  title: 'Administer Smartling'
+  description: 'Access the administrative settings for the module.'
+  restrict access: TRUE
+
+administer smartling_entity_data entities:
+  title: 'Administer Smartling Entity Data entities.'
+  restrict access: TRUE
+
+view any smartling_entity_data entity:
+  title: 'View any Smartling Entity Data entity.'
+  restrict access: TRUE
+
+edit any smartling_entity_data entity:
+  title: 'Edit any Smartling Entity Data entity.'
+  restrict access: TRUE
+
+create smartling_entity_data entities:
+  title: 'Create Smartling Entity Data Entities.'
+  restrict access: TRUE

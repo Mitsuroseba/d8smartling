@@ -40,20 +40,20 @@ include_once 'entities/smartling.node.inc';
 include_once 'entities/smartling.comments.inc';
 include_once 'entities/smartling.user.inc';
 include_once 'entities/smartling.generic_entity.inc';
-
-/**
- * Implements hook_boot().
- */
-function smartling_boot() {
-  //smartling_register();
-}
-
-/**
- * Implements hook_init().
- */
-function smartling_init() {
-  smartling_register();
-}
+// Deprecated in drupal 8.
+///**
+// * Implements hook_boot().
+// */
+//function smartling_boot() {
+//  //smartling_register();
+//}
+//
+///**
+// * Implements hook_init().
+// */
+//function smartling_init() {
+//  smartling_register();
+//}
 
 /**
  * Implements hook_flush_caches().
@@ -129,31 +129,31 @@ function smartling_menu() {
 function smartling_download_translate_simple_callback() {
   return '';
 }
-
-/**
- * Implements hook_permission().
- */
-function smartling_permission() {
-  $permissions = array(
-    'administer smartling' => array(
-      'title' => t('Administer Smartling'),
-      'description' => t('Access the administrative settings for the module.'),
-    ),
-    'administer smartling_entity_data entities' => array(
-      'title' => t('Administer Smartling Entity Data entities'),
-    ),
-    'view any smartling_entity_data entity' => array(
-      'title' => t('View any Smartling Entity Data entity'),
-    ),
-    'edit any smartling_entity_data entity' => array(
-      'title' => t('Edit any Smartling Entity Data entity'),
-    ),
-    'create smartling_entity_data entities' => array(
-      'title' => t('Create Smartling Entity Data Entities'),
-    ),
-  );
-  return $permissions;
-}
+// Implemented.
+///**
+// * Implements hook_permission().
+// */
+//function smartling_permission() {
+//  $permissions = array(
+//    'administer smartling' => array(
+//      'title' => t('Administer Smartling'),
+//      'description' => t('Access the administrative settings for the module.'),
+//    ),
+//    'administer smartling_entity_data entities' => array(
+//      'title' => t('Administer Smartling Entity Data entities'),
+//    ),
+//    'view any smartling_entity_data entity' => array(
+//      'title' => t('View any Smartling Entity Data entity'),
+//    ),
+//    'edit any smartling_entity_data entity' => array(
+//      'title' => t('Edit any Smartling Entity Data entity'),
+//    ),
+//    'create smartling_entity_data entities' => array(
+//      'title' => t(''),
+//    ),
+//  );
+//  return $permissions;
+//}
 
 /**
  * Implements hook_form_FORM_ID_alter().
