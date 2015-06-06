@@ -1,0 +1,9 @@
+# Schema for the configuration files of the Smartling module.
+
+smartling:
+  type: config_object
+  label: 'Smartling settings'
+  mapping:
+    smartling_api_url:
+      type: uri
+      label: 'Smartling API url'

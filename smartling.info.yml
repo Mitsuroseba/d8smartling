@@ -9,4 +9,3 @@ configure: admin.smartling
 dependencies:
   - locale
   - content_translation
-  - ultimate_cron
