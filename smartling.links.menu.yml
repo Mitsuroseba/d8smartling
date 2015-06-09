@@ -1,0 +1,5 @@
+smartling.smartling_settings:
+  title: 'Smartling settings'
+  parent: system.admin_config_regional
+  route_name: smartling.forms.admin_account_info_settings
+  weight: -21

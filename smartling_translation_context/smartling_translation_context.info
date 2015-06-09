@@ -1,7 +1,0 @@
-name = Smartling Translation Context
-description = Gets the context for the page being translated.
-core = 7.x
-package = Smartling
-dependencies[] = smartling
-
-configure = admin/config/regional/smartling
